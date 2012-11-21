@@ -5,19 +5,73 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 
+ * A data set with random ratings.
+ * The number of users and content items
+ * and the percentage of null values
+ * in the data set are passed to the constructor.
+ *
+ */
 public class RandomDataset implements Dataset<Double> {
 
-	private static final int NUM_OF_USERS = 15;
-	private static final int NUM_OF_MOVIES = 10;
-
-	private Double[][] randomMatrix = new Double[NUM_OF_MOVIES][NUM_OF_USERS];
+	/**
+	 * The number of users in the data set.
+	 */
+	private final int numberOfUsers;
 	
+	/**
+	 * The number of movies in the data set.
+	 */
+	private final int numberOfMovies;
+	
+	/**
+	 * The percentage of null entries in the data set.
+	 */
+	private final int percentageOfNulls;
+
+	/**
+	 * The ratings matrix.
+	 */
+	private final  Double[][] randomMatrix;
+	
+	/**
+	 * The {@code DatasetItems} generated from the ratings matrix.
+	 */
 	private List<DatasetItem<Double>> datasetItems = new ArrayList<DatasetItem<Double>>();
 
-	public RandomDataset() {
+
+	/**
+	 * Instantiates a new random data set.
+	 * 
+	 * @param numberOfUsers the number of user in the data set.
+	 * @param numberOfMovies the number of movies in the data set.
+	 * @param percentageOfNulls the percentage of null values in the data set.
+	 * @throws IllegalArgumentException if numberOfUsers < 0 OR numberOfMovies < 0
+	 * OR percentageOfNulls < 0 OR percentageOfNulls > 100
+	 */
+	public RandomDataset(int numberOfUsers, int numberOfMovies,
+			int percentageOfNulls) throws IllegalArgumentException
+			{
+		if (numberOfUsers < 0) {
+			throw new IllegalArgumentException("Negative number of users: " + numberOfUsers);
+		}
+		if (numberOfMovies < 0) {
+			throw new IllegalArgumentException("Negative number of movies: " + numberOfMovies);
+		}
+		if (percentageOfNulls < 0 || percentageOfNulls > 100) {
+			throw new IllegalArgumentException("percentage of null values is not in the range [0, 100]: " + percentageOfNulls);
+		}
+		this.numberOfUsers = numberOfUsers;
+		this.numberOfMovies = numberOfMovies;
+		this.percentageOfNulls = percentageOfNulls;
+		randomMatrix = new Double[numberOfMovies][numberOfUsers];
+		
 		initRandomMatrix();
 		initDatasetItems();
 	}
+
+
 
 	@Override
 	public Iterator<DatasetItem<Double>> iterateOverDatasetItems() {
@@ -26,27 +80,42 @@ public class RandomDataset implements Dataset<Double> {
 	
 	@Override
 	public Normalizer<Double> getNormalizer() {
-		// No normalizer needed
-		return null;
+		// No normalizing needed
+		return new Normalizer<Double>() {
+			
+			@Override
+			public double normalizeRating(Double rating) {
+				return rating.doubleValue();
+			}
+		};
+		
 	}
 	
+	/**
+	 * Initializes the rating matrix {@code randomMatrix}
+	 * with random values in the range of [0.0, 1.0] rounded to 
+	 * one decimal digit or null.
+	 */
 	private void initRandomMatrix() {
 		Random randomGenerator = new Random();
 		for (int i = 0; i < randomMatrix.length; i++) {
 			for (int j = 0; j < randomMatrix[i].length; j++) {
-				// high chance for null values
-				if (randomGenerator.nextInt() % 4 == 0) {
+				// chance for null values
+				if (randomGenerator.nextInt(101) <= percentageOfNulls) {
+					randomMatrix[i][j] = null;
+				} else {
 					// we want to have rating values in the interval [0.0, 1.0] 
 					// rounded to one decimal digit.
 					randomMatrix[i][j] = ((double)randomGenerator.nextInt(11) / 10.0);
-
-				} else {
-					randomMatrix[i][j] = null;
 				}
 			}
 		}
 	}
 	
+	/**
+	 * Extract the {@code DatasetItems} from the
+	 * {@code randomMatrix} and store them in {@code datasetItems}.
+	 */
 	private void initDatasetItems() {
 		for (int i = 0; i < randomMatrix[0].length; i++) {
 			for (int j = 0; j < randomMatrix.length; j++) {
@@ -57,7 +126,9 @@ public class RandomDataset implements Dataset<Double> {
 		}
 	}
 
-
+	/**
+	 * Print the {@code randomMatrix}.
+	 */
 	public void printRandomMatrix() {
 		for (int i = 0; i < randomMatrix.length; i++) {
 			for (int j = 0; j < randomMatrix[i].length; j++) {
@@ -70,7 +141,7 @@ public class RandomDataset implements Dataset<Double> {
 	
 	// for testing
 	private static void main(String[] args) {
-		RandomDataset ds = new RandomDataset();
+		RandomDataset ds = new RandomDataset(10, 10, 60);
 		ds.printRandomMatrix();
 		System.out.println("hello");
 	}

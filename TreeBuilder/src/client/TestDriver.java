@@ -12,7 +12,7 @@ public class TestDriver {
 	 */
 	public static void main(String[] args) {
 
-		RandomDataset ds = new RandomDataset();
+		RandomDataset ds = new RandomDataset(15, 10, 60);
 		ds.printRandomMatrix();
 
 //		GrouplensDataset ds = new GrouplensDataset(null);
