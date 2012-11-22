@@ -20,5 +20,8 @@ public class DatasetLocator {
 		return DatasetLocator.class.getResourceAsStream(dataSetDescriptor);
 	}
 	
+	/**
+	 * Must not be instantiated.
+	 */
 	private DatasetLocator() { }
 }

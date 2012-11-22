@@ -16,6 +16,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -266,14 +267,21 @@ public class VisualizationBuilder extends JApplet {
 	    	//System.out.println("processing visualization...");
 		 	
 	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
-	    	Set<Node>children = parent.getChildrenSet();
-	    	
-	    	if(children != null && children.size() > 0){
-		       	for (Node child : children) {
-	        		String childID = prefix.concat(String.valueOf(child.getId()));
-	        		graph.addEdge(edgeFactory.create(),parentID,childID);
-	        		processChildren(child,prefix);
-	        	}
+	    	Iterator<Node> iter = parent.getChildren();
+	    	while (iter.hasNext()) {
+	    		Node child = iter.next();
+        		String childID = prefix.concat(String.valueOf(child.getId()));
+        		graph.addEdge(edgeFactory.create(),parentID,childID);
+        		processChildren(child,prefix);
 	    	}
+	    	
+//	    	Set<Node>children = parent.getChildrenSet();
+//	    	if(children != null && children.size() > 0){
+//		       	for (Node child : children) {
+//	        		String childID = prefix.concat(String.valueOf(child.getId()));
+//	        		graph.addEdge(edgeFactory.create(),parentID,childID);
+//	        		processChildren(child,prefix);
+//	        	}
+//	    	}
 	    }
 }

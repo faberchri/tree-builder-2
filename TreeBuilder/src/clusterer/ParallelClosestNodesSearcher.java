@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ParallelClosestNodesSearcher implements ClosestNodesSearcher {
+public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 	
 	public List<Node> getClosestNodes(Set<Node> openNodes) {
 //		long time = System.currentTimeMillis();
@@ -93,9 +93,4 @@ public class ParallelClosestNodesSearcher implements ClosestNodesSearcher {
 		
 	}
 	
-	@Override
-	public void setNodeOfLastMerge(Node newNode) {
-		// not needed
-		
-	}
 }

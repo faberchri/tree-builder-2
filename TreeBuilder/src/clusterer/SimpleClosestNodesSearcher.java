@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class SimpleClosestNodesSearcher implements ClosestNodesSearcher {
+public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 
 	@Override
 	public List<Node> getClosestNodes(Set<Node> openNodes) {
@@ -34,10 +34,5 @@ public class SimpleClosestNodesSearcher implements ClosestNodesSearcher {
 		return closestNodes;
 	}
 	
-	@Override
-	public void setNodeOfLastMerge(Node newNode) {
-		// not needed
-		
-	}
 
 }

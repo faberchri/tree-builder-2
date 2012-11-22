@@ -13,7 +13,7 @@ import java.util.Random;
  * in the data set are passed to the constructor.
  *
  */
-public class RandomDataset implements Dataset<Double> {
+public class RandomDataset implements IDataset<Double> {
 
 	/**
 	 * The number of users in the data set.
@@ -38,7 +38,7 @@ public class RandomDataset implements Dataset<Double> {
 	/**
 	 * The {@code DatasetItems} generated from the ratings matrix.
 	 */
-	private List<DatasetItem<Double>> datasetItems = new ArrayList<DatasetItem<Double>>();
+	private List<IDatasetItem<Double>> datasetItems = new ArrayList<IDatasetItem<Double>>();
 
 
 	/**
@@ -74,14 +74,14 @@ public class RandomDataset implements Dataset<Double> {
 
 
 	@Override
-	public Iterator<DatasetItem<Double>> iterateOverDatasetItems() {
+	public Iterator<IDatasetItem<Double>> iterateOverDatasetItems() {
 		return datasetItems.listIterator();
 	}
 	
 	@Override
-	public Normalizer<Double> getNormalizer() {
+	public INormalizer<Double> getNormalizer() {
 		// No normalizing needed
-		return new Normalizer<Double>() {
+		return new INormalizer<Double>() {
 			
 			@Override
 			public double normalizeRating(Double rating) {

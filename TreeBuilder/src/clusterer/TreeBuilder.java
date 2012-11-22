@@ -11,15 +11,18 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import com.rapidminer.operator.Operator;
+import com.rapidminer.operator.OperatorDescription;
+
 import visualization.VisualizationBuilder;
 
-import client.Dataset;
-import client.DatasetItem;
+import client.IDataset;
+import client.IDatasetItem;
 
 
-public final class TreeBuilder<T extends Number> {
+public final class TreeBuilder<T extends Number> extends Operator {
 	
-	private Dataset<T> dataset; 
+	private IDataset<T> dataset; 
 		
 	private Set<Node> userNodes = new  HashSet<Node>(); //Collections.newSetFromMap(new ConcurrentHashMap<Node,Boolean>());
 	private Set<Node> movieNodes = new HashSet<Node>(); //Collections.newSetFromMap(new ConcurrentHashMap<Node,Boolean>());
@@ -29,9 +32,10 @@ public final class TreeBuilder<T extends Number> {
 		
 	private NodeUpdater nodeUpdater;
 	
-	private ClosestNodesSearcher closestNodesSearcher;
+	private IClosestNodesSearcher closestNodesSearcher;
 	
-	public TreeBuilder(Dataset<T> dataset, NodeDistanceCalculator ndcUsers, NodeDistanceCalculator ndcContents, NodeUpdater nodeUpdater, ClosestNodesSearcher cns) {
+	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, NodeDistanceCalculator ndcUsers, NodeDistanceCalculator ndcContents, NodeUpdater nodeUpdater, IClosestNodesSearcher cns) {
+		super(rapidminerOperatorDescription);
 		this.dataset = dataset;
 		this.factory = new NodeFactory(ndcUsers, ndcContents);
 		this.attributeFactory = SimpleAttributeFactory.getInstance(dataset.getNormalizer());
@@ -39,7 +43,7 @@ public final class TreeBuilder<T extends Number> {
 		this.closestNodesSearcher = cns;
 	}
 	
-	public Set<Node> cluster() {
+	public Node cluster() {
 		initLeafNodes(dataset);
 		int cycleCount = 0;
 		long startTime = System.currentTimeMillis();
@@ -79,25 +83,25 @@ public final class TreeBuilder<T extends Number> {
 	}
 	
 		
-	private void initLeafNodes(Dataset<T> dataset) {
+	private void initLeafNodes(IDataset<T> dataset) {
 
-		Map<Integer, List<DatasetItem<T>>> usersMap = new HashMap<Integer, List<DatasetItem<T>>>();
-		Map<Integer, List<DatasetItem<T>>> contentsMap = new HashMap<Integer, List<DatasetItem<T>>>();
+		Map<Integer, List<IDatasetItem<T>>> usersMap = new HashMap<Integer, List<IDatasetItem<T>>>();
+		Map<Integer, List<IDatasetItem<T>>> contentsMap = new HashMap<Integer, List<IDatasetItem<T>>>();
 		
-		Iterator<DatasetItem<T>> it = dataset.iterateOverDatasetItems();
+		Iterator<IDatasetItem<T>> it = dataset.iterateOverDatasetItems();
 		while(it.hasNext()) {
-			DatasetItem<T> datasetItem = it.next();
+			IDatasetItem<T> datasetItem = it.next();
 			if (usersMap.containsKey(datasetItem.getUserId())) {
 				usersMap.get(datasetItem.getUserId()).add(datasetItem);
 			} else {
-				List<DatasetItem<T>> li = new ArrayList<DatasetItem<T>>();
+				List<IDatasetItem<T>> li = new ArrayList<IDatasetItem<T>>();
 				li.add(datasetItem);
 				usersMap.put(datasetItem.getUserId(), li);
 			}
 			if (contentsMap.containsKey(datasetItem.getContentId())) {
 				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
 			} else {
-				List<DatasetItem<T>> li = new ArrayList<DatasetItem<T>>();
+				List<IDatasetItem<T>> li = new ArrayList<IDatasetItem<T>>();
 				li.add(datasetItem);
 				contentsMap.put(datasetItem.getContentId(), li);
 			}
@@ -113,17 +117,17 @@ public final class TreeBuilder<T extends Number> {
 			contentsNodeMap.put(i, MovieNode.getFactory().createNode(null, null));
 		}
 		
-		for (Map.Entry<Integer, List<DatasetItem<T>>> entry : usersMap.entrySet()) {
-			Map<Node, Attribute> attributes = new HashMap<Node, Attribute>();
-			for (DatasetItem<T> di : entry.getValue()) {
+		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : usersMap.entrySet()) {
+			Map<Node, IAttribute> attributes = new HashMap<Node, IAttribute>();
+			for (IDatasetItem<T> di : entry.getValue()) {
 				attributes.put(contentsNodeMap.get(di.getContentId()), attributeFactory.createAttribute(di.getValue()));
 			}
 			usersNodeMap.get(entry.getKey()).setAttributes(attributes);
 			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
-		for (Map.Entry<Integer, List<DatasetItem<T>>> entry : contentsMap.entrySet()) {
-			Map<Node, Attribute> attributes = new HashMap<Node, Attribute>();
-			for (DatasetItem<T> di : entry.getValue()) {
+		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : contentsMap.entrySet()) {
+			Map<Node, IAttribute> attributes = new HashMap<Node, IAttribute>();
+			for (IDatasetItem<T> di : entry.getValue()) {
 				attributes.put(usersNodeMap.get(di.getUserId()), attributeFactory.createAttribute(di.getValue()));
 			}
 			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);
@@ -170,7 +174,7 @@ public final class TreeBuilder<T extends Number> {
 					System.err.println("removal of merged node (" + node + ") from " +openSet +" failed, " + getClass().getSimpleName());
 				}
 			}
-			closestNodesSearcher.setNodeOfLastMerge(newNode);
+
 			nodeUpdater.updateNodes(newNode);
 		} else {
 			System.err.println("merge attempt with 1 or less nodes, " + getClass().getSimpleName());

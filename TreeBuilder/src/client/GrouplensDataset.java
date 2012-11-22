@@ -25,17 +25,17 @@ import Datasets.DatasetLocator;
  * <a href="http://www.grouplens.org/node/12">http://www.grouplens.org/node/12</a>.
  *
  */
-public class GrouplensDataset implements Dataset<Integer> {
+public class GrouplensDataset implements IDataset<Integer> {
 	
 	/**
 	 * A list of all user-content-rating combinations obtained from the input set.
 	 */
-	private List<DatasetItem<Integer>> datasetItems = new ArrayList<DatasetItem<Integer>>();
+	private List<IDatasetItem<Integer>> datasetItems = new ArrayList<IDatasetItem<Integer>>();
 	
 	/**
 	 * The normalizer of this data set.
 	 */
-	private Normalizer<Integer> normalizer = new IntegerNormalizer(1, 5);
+	private INormalizer<Integer> normalizer = new IntegerNormalizer(1, 5);
 	
 	/**
 	 * Path to default input file.
@@ -92,7 +92,7 @@ public class GrouplensDataset implements Dataset<Integer> {
 	/**
 	 * Splits a single line of the input stream into tokens.
 	 * The tokens represent user id, content id and ratings.
-	 * These values are used to create a new {@code DatasetItem} object,
+	 * These values are used to create a new {@code IDatasetItem} object,
 	 * which are stored in {@code datasetItems}.
 	 * 
 	 * @param entry A string containing a single user-content-rating information.
@@ -109,12 +109,12 @@ public class GrouplensDataset implements Dataset<Integer> {
 	}
 
 	@Override
-	public Iterator<DatasetItem<Integer>> iterateOverDatasetItems() {
+	public Iterator<IDatasetItem<Integer>> iterateOverDatasetItems() {
 		return datasetItems.iterator();
 	}
 
 	@Override
-	public Normalizer<Integer> getNormalizer() {
+	public INormalizer<Integer> getNormalizer() {
 		return normalizer;
 	}
 }

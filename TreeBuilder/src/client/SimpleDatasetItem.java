@@ -1,12 +1,12 @@
 package client;
 
 /**
- * Basic implementation of the {@code DatasetItem} interface.
+ * Basic implementation of the {@code IDatasetItem} interface.
  * Stores user id - content id - rating combinations
  *
  * @param <T> the data type of a raw rating.
  */
-public class SimpleDatasetItem<T> implements DatasetItem<T>{
+public class SimpleDatasetItem<T> implements IDatasetItem<T>{
 
 	/**
 	 * The rating.

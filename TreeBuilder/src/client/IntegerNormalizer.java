@@ -6,7 +6,7 @@ package client;
  * which stores ratings as integers.
  *
  */
-public class IntegerNormalizer implements Normalizer<Integer> {
+public class IntegerNormalizer implements INormalizer<Integer> {
 	
 	/**
 	 * The minimal rating of the data set.

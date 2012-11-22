@@ -33,9 +33,9 @@ public class UserNodeFactory implements Factory {
 		Set<Node> n2Keys = n2.getAttributeKeys();
 		union.addAll(n2.getAttributeKeys());
 
-		Map<Node, Attribute> attMap = new HashMap<Node, Attribute>();
+		Map<Node, IAttribute> attMap = new HashMap<Node, IAttribute>();
 		for (Node node : union) {
-			List<Attribute> attArr = new ArrayList<Attribute>();
+			List<IAttribute> attArr = new ArrayList<IAttribute>();
 			if (n1Keys.contains(node) && n2Keys.contains(node)) {
 				attArr.add(n1.getAttributeValue(node));
 				attArr.add(n2.getAttributeValue(node));
@@ -46,7 +46,7 @@ public class UserNodeFactory implements Factory {
 					attArr.add(n2.getAttributeValue(node));
 				}
 			}
-			Attribute newAttribute = attributeFactory.createAttribute(attArr);
+			IAttribute newAttribute = attributeFactory.createAttribute(attArr);
 			attMap.put(node, newAttribute);
 		}
 		newNode.setAttributes(attMap);		

@@ -9,14 +9,14 @@ final class UserNode extends AbstractNode  {
 	private static int userNodeId = 0;
 	private static Factory nodeFactory = null;
 	
-	private Map<Node, Attribute> movies;
+	private Map<Node, IAttribute> movies;
 	private final int id = userNodeId++;
 	
 	public UserNode(NodeDistanceCalculator ndc) {
 		super(ndc);
 	}
 	
-	public void setAttributes(Map<Node, Attribute> movies) {
+	public void setAttributes(Map<Node, IAttribute> movies) {
 		this.movies = movies;
 	}
 	
@@ -24,7 +24,7 @@ final class UserNode extends AbstractNode  {
 		return movies.keySet();
 	}
 	
-	public Attribute getAttributeValue(Node node) {
+	public IAttribute getAttributeValue(Node node) {
 		return movies.get(node);
 	}
 			
@@ -56,7 +56,7 @@ final class UserNode extends AbstractNode  {
 	}
 
 	@Override
-	public void addAttribute(Node node, Attribute attribute) {
+	public void addAttribute(Node node, IAttribute attribute) {
 		movies.put(node, attribute);		
 	}
 	

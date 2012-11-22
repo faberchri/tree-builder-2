@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 
-public abstract class AbstractNode implements PrintableNode, Comparable<AbstractNode>{
+public abstract class AbstractNode implements Node, PrintableNode, Comparable<AbstractNode>{
 	
-	private Set<Node> children = null;
+	private Set<Node> children = new HashSet<Node>();
 	private Node parent = null;
 	
 	private NodeDistanceCalculator distanceCalculator;
@@ -47,7 +47,7 @@ public abstract class AbstractNode implements PrintableNode, Comparable<Abstract
 //		return dirty;
 //	}
 	
-	String getAttributesString(Map<PrintableNode, Attribute> map) {
+	String getAttributesString(Map<PrintableNode, IAttribute> map) {
 
 		List<PrintableNode> keyList = new ArrayList<PrintableNode>(map.keySet());
 		Collections.sort(keyList, new NodeIdComparator());
@@ -75,9 +75,9 @@ public abstract class AbstractNode implements PrintableNode, Comparable<Abstract
 		return children.iterator();
 	}
 	
-	public Set<Node> getChildrenSet() {
-		return children;
-	}
+//	public Set<Node> getChildrenSet() {
+//		return children;
+//	}
 	
 	@Override
 	public boolean isChild(Node possibleChild) {
@@ -91,9 +91,6 @@ public abstract class AbstractNode implements PrintableNode, Comparable<Abstract
 	
 	@Override
 	public void addChild(Node child) {
-		if (this.children == null) {
-			this.children = new HashSet<Node>(); 
-		}
 		this.children.add(child);
 	}
 	
@@ -104,7 +101,7 @@ public abstract class AbstractNode implements PrintableNode, Comparable<Abstract
 	
 	@Override
 	public boolean isLeaf() {
-		if (this.children == null) return true;
+		if (this.children.isEmpty()) return true;
 		return false;
 	}
 	
