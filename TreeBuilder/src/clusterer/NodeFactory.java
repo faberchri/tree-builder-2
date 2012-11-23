@@ -19,8 +19,8 @@ public class NodeFactory {
 		return createEmptyNodes(numberOfNodes, UserNode.getFactory());
 	}
 	
-	private List<Node> createEmptyNodes(int numberOfNodes, Factory factory) {
-		List<Node> nodes = new ArrayList<Node>();
+	private List<INode> createEmptyNodes(int numberOfNodes, Factory factory) {
+		List<INode> nodes = new ArrayList<INode>();
 		for (int i = 0; i < numberOfNodes; i++) {
 			nodes.add(factory.createNode(null, null));
 		}

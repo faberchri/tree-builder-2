@@ -24,8 +24,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	
 	private IDataset<T> dataset; 
 		
-	private Set<Node> userNodes = new  HashSet<Node>(); //Collections.newSetFromMap(new ConcurrentHashMap<Node,Boolean>());
-	private Set<Node> movieNodes = new HashSet<Node>(); //Collections.newSetFromMap(new ConcurrentHashMap<Node,Boolean>());
+	private Set<INode> userNodes = new  HashSet<INode>(); //Collections.newSetFromMap(new ConcurrentHashMap<INode,Boolean>());
+	private Set<INode> movieNodes = new HashSet<INode>(); //Collections.newSetFromMap(new ConcurrentHashMap<INode,Boolean>());
 		
 	private NodeFactory factory;
 	private AttributeFactory<T> attributeFactory;
@@ -43,12 +43,12 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		this.closestNodesSearcher = cns;
 	}
 	
-	public Node cluster() {
+	public INode cluster() {
 		initLeafNodes(dataset);
 		int cycleCount = 0;
 		long startTime = System.currentTimeMillis();
 		while (userNodes.size() > 2 && movieNodes.size() > 2) {
-			List<Node> cN = getClosestOpenUserNodes();
+			List<INode> cN = getClosestOpenUserNodes();
 //			getClosestOpenUserNodes();
 //			System.out.println("ClosestOpenUserNodes: "+ cN);
 			mergeNodes(cN, userNodes);
@@ -107,18 +107,18 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			}
 		}
 		
-		Map<Integer, Node> usersNodeMap = new HashMap<Integer, Node>();
+		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : usersMap.keySet()) {
 			usersNodeMap.put(i, UserNode.getFactory().createNode(null, null));
 		}
 		
-		Map<Integer, Node> contentsNodeMap = new HashMap<Integer, Node>();
+		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : contentsMap.keySet()) {
 			contentsNodeMap.put(i, MovieNode.getFactory().createNode(null, null));
 		}
 		
 		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : usersMap.entrySet()) {
-			Map<Node, IAttribute> attributes = new HashMap<Node, IAttribute>();
+			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<T> di : entry.getValue()) {
 				attributes.put(contentsNodeMap.get(di.getContentId()), attributeFactory.createAttribute(di.getValue()));
 			}
@@ -126,7 +126,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
 		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : contentsMap.entrySet()) {
-			Map<Node, IAttribute> attributes = new HashMap<Node, IAttribute>();
+			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<T> di : entry.getValue()) {
 				attributes.put(usersNodeMap.get(di.getUserId()), attributeFactory.createAttribute(di.getValue()));
 			}
@@ -155,19 +155,19 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		printAllNodesInSet((Set)movieNodes, "MovieNodes:");
 	}
 	
-	public List<Node> getClosestOpenUserNodes() {
+	public List<INode> getClosestOpenUserNodes() {
 		return closestNodesSearcher.getClosestNodes(userNodes);
 	}
 		
-	public List<Node> getClosestOpenMovieNodes() {
+	public List<INode> getClosestOpenMovieNodes() {
 		return closestNodesSearcher.getClosestNodes(movieNodes);
 	}
 		
-	private void mergeNodes(List<Node> nodes, Set<Node> openSet) {
+	private void mergeNodes(List<INode> nodes, Set<INode> openSet) {
 		if (nodes.size() > 1) {
-			Node newNode = nodes.get(0).getNodeFactory().createNode(nodes, attributeFactory);
+			INode newNode = nodes.get(0).getNodeFactory().createNode(nodes, attributeFactory);
 			openSet.add(newNode);
-			for (Node node : nodes) {
+			for (INode node : nodes) {
 				node.setParent(newNode);
 				newNode.addChild(node);
 				if (!openSet.remove(node)) {

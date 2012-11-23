@@ -9,12 +9,12 @@ import java.util.concurrent.TimeUnit;
 
 public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 	
-	public List<Node> getClosestNodes(Set<Node> openNodes) {
+	public List<INode> getClosestNodes(Set<INode> openNodes) {
 //		long time = System.currentTimeMillis();
 		
 		int numOfThreads = Runtime.getRuntime().availableProcessors();
 		
-		List<Node> nLi = new ArrayList<Node>(openNodes);
+		List<INode> nLi = new ArrayList<INode>(openNodes);
 		int longIndex = 0;
 		int shortIndex = nLi.size() -1 ;
 		
@@ -56,7 +56,7 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 			}
 		}
 
-		List<Node> res = bestND.getBothNode();
+		List<INode> res = bestND.getBothNode();
 
 		System.out.println("Closest nodes: "+res.get(0)+", "+res.get(1)+" ("+bestND.getDistance()+")");
 
@@ -68,11 +68,11 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 	private class ClosestNodeCalculator extends Thread{
 		
 		private final List<Integer> jLi;
-		private final List<Node> nLi;
+		private final List<INode> nLi;
 		
 		NodeDistance bestNodeDistance = null;
 				
-		public ClosestNodeCalculator(List<Integer> jLi, List<Node> nLi) {
+		public ClosestNodeCalculator(List<Integer> jLi, List<INode> nLi) {
 			this.jLi = jLi;
 			this.nLi = nLi;
 		}

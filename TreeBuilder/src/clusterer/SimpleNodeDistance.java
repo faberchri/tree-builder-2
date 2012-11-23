@@ -6,10 +6,10 @@ import java.util.List;
 public class SimpleNodeDistance implements NodeDistance {
 	
 	private final double distance;
-	private final Node n1;
-	private final Node n2;
+	private final INode n1;
+	private final INode n2;
 	
-	public Node getOtherNode(Node n) {
+	public INode getOtherNode(INode n) {
 		if (n.equals(n1)) {
 		 return n2;	
 		}
@@ -24,14 +24,14 @@ public class SimpleNodeDistance implements NodeDistance {
 	}
 	
 	@Override
-	public List<Node> getBothNode() {
-		List<Node> li = new ArrayList<Node>(2);
+	public List<INode> getBothNode() {
+		List<INode> li = new ArrayList<INode>(2);
 		li.add(n1);
 		li.add(n2);
 		return li;
 	}
 	
-	public SimpleNodeDistance(double distance, Node n1, Node n2) {
+	public SimpleNodeDistance(double distance, INode n1, INode n2) {
 		this.distance = distance;
 		this.n1 = n1;
 		this.n2 = n2;

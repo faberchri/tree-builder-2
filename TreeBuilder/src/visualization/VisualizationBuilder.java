@@ -30,7 +30,7 @@ import javax.swing.JToggleButton;
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 
-import clusterer.Node;
+import clusterer.INode;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
@@ -60,7 +60,7 @@ import edu.uci.ics.jung.visualization.util.Animator;
 @SuppressWarnings("serial")
 public class VisualizationBuilder extends JApplet {
 	
-	private Set<Node> rootNodes = new HashSet<Node>();
+	private Set<INode> rootNodes = new HashSet<INode>();
 
 	    /**
 	     * the graph
@@ -108,7 +108,7 @@ public class VisualizationBuilder extends JApplet {
 	    
 	    RadialTreeLayout<String,Integer> radialLayout;
 
-		public VisualizationBuilder(Set<Node> movieNodes, Set<Node> userNodes) {
+		public VisualizationBuilder(Set<INode> movieNodes, Set<INode> userNodes) {
 
 	        
 	        // create a simple graph for the demo
@@ -234,11 +234,11 @@ public class VisualizationBuilder extends JApplet {
 	     * @param rootNodes 
 	     * 
 	     */
-	    private void createTree(Set<Node> movieNodes, Set<Node> userNodes) {
+	    private void createTree(Set<INode> movieNodes, Set<INode> userNodes) {
 		 	
 		 	// Build movie Nodes
 	    	String prefix = "movie_";
-			for (Node movieNode : movieNodes) {
+			for (INode movieNode : movieNodes) {
 				
 				// Create first Element of Tree
 				String firstID = String.valueOf(movieNode.getId());
@@ -250,7 +250,7 @@ public class VisualizationBuilder extends JApplet {
 			
 		 	// Build user Nodes
 	    	prefix = "user_";
-			for (Node userNode : userNodes) {
+			for (INode userNode : userNodes) {
 				
 				// Create first Element of Tree
 				String firstID = String.valueOf(userNode.getId());
@@ -262,22 +262,22 @@ public class VisualizationBuilder extends JApplet {
 	       	
 	    }
 	    
-	    private void processChildren(Node parent, String prefix) {
+	    private void processChildren(INode parent, String prefix) {
 	    	
 	    	//System.out.println("processing visualization...");
 		 	
 	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
-	    	Iterator<Node> iter = parent.getChildren();
+	    	Iterator<INode> iter = parent.getChildren();
 	    	while (iter.hasNext()) {
-	    		Node child = iter.next();
+	    		INode child = iter.next();
         		String childID = prefix.concat(String.valueOf(child.getId()));
         		graph.addEdge(edgeFactory.create(),parentID,childID);
         		processChildren(child,prefix);
 	    	}
 	    	
-//	    	Set<Node>children = parent.getChildrenSet();
+//	    	Set<INode>children = parent.getChildrenSet();
 //	    	if(children != null && children.size() > 0){
-//		       	for (Node child : children) {
+//		       	for (INode child : children) {
 //	        		String childID = prefix.concat(String.valueOf(child.getId()));
 //	        		graph.addEdge(edgeFactory.create(),parentID,childID);
 //	        		processChildren(child,prefix);

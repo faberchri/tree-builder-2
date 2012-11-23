@@ -9,5 +9,5 @@ public interface Factory {
 	 * @param List nodesToMerge
 	 * @return a new node already initialized with parameters
 	 */
-	public Node createNode(List<Node> nodesToMerge, AttributeFactory attributeFactory);
+	public INode createNode(List<INode> nodesToMerge, AttributeFactory attributeFactory);
 }

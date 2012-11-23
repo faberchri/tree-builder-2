@@ -8,14 +8,14 @@ import java.util.Set;
 public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 
 	@Override
-	public List<Node> getClosestNodes(Set<Node> openNodes) {
+	public List<INode> getClosestNodes(Set<INode> openNodes) {
 		long time = System.currentTimeMillis();
 		double closestDistance = Double.MAX_VALUE;
-		List<Node> closestNodes = new ArrayList<Node>();
-		Set<Node> subSet = new HashSet<Node>(openNodes);
-		for (Node node : openNodes) {
+		List<INode> closestNodes = new ArrayList<INode>();
+		Set<INode> subSet = new HashSet<INode>(openNodes);
+		for (INode node : openNodes) {
 			subSet.remove(node);
-			for (Node node2 : subSet) {
+			for (INode node2 : subSet) {
 				double tmpDi = node.getDistance(node2);
 				if (tmpDi < closestDistance){
 					closestDistance = tmpDi;

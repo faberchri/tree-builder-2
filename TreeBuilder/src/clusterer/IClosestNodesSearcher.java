@@ -18,7 +18,7 @@ public interface IClosestNodesSearcher {
 	 * @param openNodes Set of nodes to search in.
 	 * @return List of closest nodes.
 	 */
-	public List<Node> getClosestNodes(Set<Node> openNodes);
+	public List<INode> getClosestNodes(Set<INode> openNodes);
 
 	
 }

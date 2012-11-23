@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 
-public abstract class AbstractNode implements Node, PrintableNode, Comparable<AbstractNode>{
+public abstract class AbstractNode implements INode, PrintableNode, Comparable<AbstractNode>{
 	
-	private Set<Node> children = new HashSet<Node>();
-	private Node parent = null;
+	private Set<INode> children = new HashSet<INode>();
+	private INode parent = null;
 	
 	private NodeDistanceCalculator distanceCalculator;
 	
@@ -22,14 +22,14 @@ public abstract class AbstractNode implements Node, PrintableNode, Comparable<Ab
 		this.distanceCalculator = ndc; 
 	}
 	
-	public double getDistance(Node otherNode) {
+	public double getDistance(INode otherNode) {
 		return distanceCalculator.calculateDistance(this, otherNode);
 	}
 	
-	public NodeDistance getDistanceToClosestNode(List<Node> list) {
+	public NodeDistance getDistanceToClosestNode(List<INode> list) {
 		double shortest = Double.MAX_VALUE;
-		Node close = null;
-		for (Node node : list) {
+		INode close = null;
+		for (INode node : list) {
 			if (node.equals(this)) continue;
 			double tmp = this.getDistance(node);
 			if (tmp < shortest) {
@@ -71,32 +71,34 @@ public abstract class AbstractNode implements Node, PrintableNode, Comparable<Ab
 	}
 	
 	@Override
-	public Iterator<Node> getChildren() {
+	public Iterator<INode> getChildren() {
 		return children.iterator();
 	}
 	
-//	public Set<Node> getChildrenSet() {
+//	public Set<INode> getChildrenSet() {
 //		return children;
 //	}
 	
 	@Override
-	public boolean isChild(Node possibleChild) {
+	public boolean isChild(INode possibleChild) {
 		return children.contains(possibleChild);
 	}
 	
 	@Override
-	public Node getParent() {
+	public INode getParent() {
 		return parent;
 	}
 	
 	@Override
-	public void addChild(Node child) {
+	public void addChild(INode child) {
 		this.children.add(child);
 	}
 	
 	@Override
-	public void setParent(Node parent) {
-		this.parent = parent;		
+	public INode setParent(INode parent) {
+		INode prevP = this.parent;
+		this.parent = parent;
+		return prevP;
 	}
 	
 	@Override
