@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
-Implementation-Title: Tree Builders
+Implementation-Title: TreeBuilder
 Implementation-Version: 0.1
-RapidMiner-Version: 5.2.7
-RapidMiner-Type: RapidMiner_Plugin
+RapidMiner-Version: 5.2
+RapidMiner-Type: RapidMiner_Extension
+Operator-Descriptor: META-INF/operators.xml
