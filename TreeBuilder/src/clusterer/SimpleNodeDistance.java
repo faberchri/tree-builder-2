@@ -3,11 +3,17 @@ package clusterer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleNodeDistance implements NodeDistance {
+public class SimpleNodeDistance implements INodeDistance {
 	
 	private final double distance;
 	private final INode n1;
 	private final INode n2;
+	
+	public SimpleNodeDistance(double distance, INode n1, INode n2) {
+		this.distance = distance;
+		this.n1 = n1;
+		this.n2 = n2;
+	}
 	
 	public INode getOtherNode(INode n) {
 		if (n.equals(n1)) {
@@ -31,14 +37,8 @@ public class SimpleNodeDistance implements NodeDistance {
 		return li;
 	}
 	
-	public SimpleNodeDistance(double distance, INode n1, INode n2) {
-		this.distance = distance;
-		this.n1 = n1;
-		this.n2 = n2;
-	}
-
 	@Override
-	public int compareTo(NodeDistance o) {
+	public int compareTo(INodeDistance o) {
 		double d1 = this.getDistance();
 		double d2 = o.getDistance();
 		if (d1 < d2) return -1;

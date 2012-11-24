@@ -7,23 +7,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+class SimpleNodeFactory extends NodeFactory {
 
-public class ContentNodeFactory implements Factory{
-
-	private NodeDistanceCalculator nodeDistanceCalculator;
+	private static NodeFactory factory = new SimpleNodeFactory();
 	
-	ContentNodeFactory(NodeDistanceCalculator ndc) {
-
-		this.nodeDistanceCalculator = ndc;
+	private SimpleNodeFactory() {
+		// singleton
+	}
+	
+	public static NodeFactory getInstance() {
+		return factory;
 	}
 
 	@Override
-	public INode createNode(List<INode> nodesToMerge, AttributeFactory attributeFactory) {
-		INode newNode = new MovieNode(getNodeDistanceCalculator());
-		// used at init
-		if (nodesToMerge == null) {
-			return newNode;
-		}
+	public INode createLeafNode(ENodeType typeOfNewNode,
+			INodeDistanceCalculator nodeDistanceCalculator) {
+			
+		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator);
+	}
+
+	@Override
+	public INode createInternalNode(ENodeType typeOfNewNode,
+			List<INode> nodesToMerge,
+			INodeDistanceCalculator nodeDistanceCalculator,
+			AttributeFactory attributeFactory) {
+		
+		
 		if (nodesToMerge.size() != 2) {
 			System.err.println("Merge attempt with number of nodes != 2");
 			System.exit(-1);
@@ -52,12 +61,10 @@ public class ContentNodeFactory implements Factory{
 			IAttribute newAttribute = attributeFactory.createAttribute(attArr);
 			attMap.put(node, newAttribute);
 		}
-		newNode.setAttributes(attMap);		
-		return newNode;
+
+		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap);
 	}
 	
-	public NodeDistanceCalculator getNodeDistanceCalculator() {
-		return nodeDistanceCalculator;
-	}
+	
 		
 }

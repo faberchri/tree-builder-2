@@ -1,0 +1,9 @@
+<operators>
+
+	<operator
+		name        = "TreeBuilder"
+		class       = "clusterer.TreeBuilder"
+		description = "someDescription"
+		group       = "someGroup"/>
+
+</operators>

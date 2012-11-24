@@ -3,7 +3,7 @@ package clusterer;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimpleNodeDistanceCalculator implements NodeDistanceCalculator {
+public class SimpleNodeDistanceCalculator implements INodeDistanceCalculator {
 	
 	@Override
 	public double calculateDistance(INode n1, INode n2) {

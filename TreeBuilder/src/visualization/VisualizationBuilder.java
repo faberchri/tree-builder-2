@@ -31,6 +31,7 @@ import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 
 import clusterer.INode;
+import clusterer.IPrintableNode;
 import edu.uci.ics.jung.algorithms.layout.PolarPoint;
 import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
@@ -60,7 +61,7 @@ import edu.uci.ics.jung.visualization.util.Animator;
 @SuppressWarnings("serial")
 public class VisualizationBuilder extends JApplet {
 	
-	private Set<INode> rootNodes = new HashSet<INode>();
+	private Set<IPrintableNode> rootNodes = new HashSet<IPrintableNode>();
 
 	    /**
 	     * the graph
@@ -108,7 +109,7 @@ public class VisualizationBuilder extends JApplet {
 	    
 	    RadialTreeLayout<String,Integer> radialLayout;
 
-		public VisualizationBuilder(Set<INode> movieNodes, Set<INode> userNodes) {
+		public VisualizationBuilder(Set<IPrintableNode> movieNodes, Set<IPrintableNode> userNodes) {
 
 	        
 	        // create a simple graph for the demo
@@ -234,11 +235,11 @@ public class VisualizationBuilder extends JApplet {
 	     * @param rootNodes 
 	     * 
 	     */
-	    private void createTree(Set<INode> movieNodes, Set<INode> userNodes) {
+	    private void createTree(Set<IPrintableNode> movieNodes, Set<IPrintableNode> userNodes) {
 		 	
 		 	// Build movie Nodes
 	    	String prefix = "movie_";
-			for (INode movieNode : movieNodes) {
+			for (IPrintableNode movieNode : movieNodes) {
 				
 				// Create first Element of Tree
 				String firstID = String.valueOf(movieNode.getId());
@@ -250,7 +251,7 @@ public class VisualizationBuilder extends JApplet {
 			
 		 	// Build user Nodes
 	    	prefix = "user_";
-			for (INode userNode : userNodes) {
+			for (IPrintableNode userNode : userNodes) {
 				
 				// Create first Element of Tree
 				String firstID = String.valueOf(userNode.getId());
@@ -262,14 +263,14 @@ public class VisualizationBuilder extends JApplet {
 	       	
 	    }
 	    
-	    private void processChildren(INode parent, String prefix) {
+	    private void processChildren(IPrintableNode parent, String prefix) {
 	    	
 	    	//System.out.println("processing visualization...");
 		 	
 	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
 	    	Iterator<INode> iter = parent.getChildren();
 	    	while (iter.hasNext()) {
-	    		INode child = iter.next();
+	    		IPrintableNode child = (IPrintableNode) iter.next();
         		String childID = prefix.concat(String.valueOf(child.getId()));
         		graph.addEdge(edgeFactory.create(),parentID,childID);
         		processChildren(child,prefix);

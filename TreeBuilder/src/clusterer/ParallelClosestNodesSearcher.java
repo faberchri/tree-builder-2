@@ -49,7 +49,7 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		NodeDistance bestND = null;
+		INodeDistance bestND = null;
 		for (ClosestNodeCalculator closestNodeCalculator : taskList) {
 			if (bestND == null || bestND.getDistance() > closestNodeCalculator.getBestNodeDistance().getDistance()) {
 				bestND = closestNodeCalculator.getBestNodeDistance();
@@ -70,7 +70,7 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		private final List<Integer> jLi;
 		private final List<INode> nLi;
 		
-		NodeDistance bestNodeDistance = null;
+		INodeDistance bestNodeDistance = null;
 				
 		public ClosestNodeCalculator(List<Integer> jLi, List<INode> nLi) {
 			this.jLi = jLi;
@@ -80,14 +80,14 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		@Override
 		public void run() {
 			for (Integer i : jLi) {
-				NodeDistance tmpDi = nLi.get(i).getDistanceToClosestNode(nLi.subList(i + 1, nLi.size()));
+				INodeDistance tmpDi = nLi.get(i).getDistanceToClosestNode(nLi.subList(i + 1, nLi.size()));
 				if (bestNodeDistance == null || bestNodeDistance.getDistance() > tmpDi.getDistance()) {
 					bestNodeDistance = tmpDi;
 				}
 			}			
 		}
 		
-		public NodeDistance getBestNodeDistance() {
+		public INodeDistance getBestNodeDistance() {
 			return bestNodeDistance;
 		}
 		

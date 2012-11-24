@@ -1,25 +1,16 @@
 package clusterer;
 
+/**
+ * Creates a new {@code IAttribute} object based on
+ * a single rating or other IAttribute objects.
+ */
 import java.util.List;
 
-import client.INormalizer;
-
-abstract class AttributeFactory<T> {
+abstract class AttributeFactory {
 	
-	public abstract IAttribute createAttribute(T rating); // single node
+	public abstract IAttribute createAttribute(double rating); // single node
+	
 	public abstract IAttribute createAttribute(List<IAttribute> attributes); // group node
 	
-	private INormalizer<T> normalizer = null;
-	
-	double normalizeInput(T inp) {
-		return normalizer.normalizeRating(inp);
-	}
-	
-	public void setNormalizer(INormalizer<T> normalizer) {
-		this.normalizer = normalizer;
-	}
-	
-	public INormalizer<T> getNormalizer() {
-		return normalizer;
-	}
+
 }

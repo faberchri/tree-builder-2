@@ -1,5 +1,5 @@
 package clusterer;
 
-public interface NodeDistanceCalculator {
+public interface INodeDistanceCalculator {
 	public double calculateDistance(INode n1, INode n2);
 }

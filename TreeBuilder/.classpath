@@ -85,5 +85,6 @@
 	<classpathentry kind="lib" path="lib/rapidminer/lib/xpp3.jar"/>
 	<classpathentry kind="lib" path="lib/rapidminer/lib/xstream.jar"/>
 	<classpathentry kind="lib" path="lib/rapidminer/lib/rapidminer.jar" sourcepath="lib/rapidminer/src"/>
+	<classpathentry kind="lib" path="treebuilder.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

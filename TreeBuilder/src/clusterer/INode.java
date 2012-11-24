@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
-
 public interface INode {
 	/**
 	 * Gets distance from this node to {@code otherNode}.
@@ -18,15 +16,15 @@ public interface INode {
 	public double getDistance(INode otherNode);
 	
 	/**
-	 * Gets a NodeDistance object with this node
+	 * Gets a INodeDistance object with this node
 	 * and the closest node in {@code nodes}.
 	 * 
 	 * @param nodes searches in {@code nodes} for the closest node to this node.
-	 * @return A NodeDistance object containing
+	 * @return A INodeDistance object containing
 	 * this node, the closest node from {@code nodes}
 	 * and the distance between the nodes.
 	 */
-	public NodeDistance getDistanceToClosestNode(List<INode> nodes);
+	public INodeDistance getDistanceToClosestNode(List<INode> nodes);
 	
 	/**
 	 * Sets the attribute map of this node to {@code attributes}.
@@ -61,14 +59,7 @@ public interface INode {
 	 * in this nodes attribute map.
 	 */
 	public Set<INode> getAttributeKeys();
-	
-	/**
-	 * Gets the node is.
-	 * 
-	 * @return the node id
-	 */
-	public int getId();
-	
+		
 	/**
 	 * Adds a child to the nodes children container.
 	 * Does nothing if {@code child} is already a child of this node.
@@ -123,9 +114,12 @@ public interface INode {
 	 */
 	public boolean isRoot();
 	
+	/**
+	 * Get the node type of this node.
+	 * 
+	 * @return the node type
+	 */
+	public ENodeType getNodeType();
 	
-	
-	public Factory getNodeFactory();
-	
-//	public Set<INode> getChildrenSet();
+
 }

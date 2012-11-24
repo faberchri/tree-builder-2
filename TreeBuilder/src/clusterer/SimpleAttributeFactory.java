@@ -1,33 +1,26 @@
 package clusterer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import client.INormalizer;
-
-class SimpleAttributeFactory<T> extends AttributeFactory<T> {
+class SimpleAttributeFactory extends AttributeFactory {
 
 	private static SimpleAttributeFactory factory = new SimpleAttributeFactory();
 	
 	/*
-	 * Must not be instantiated.
+	 * Must not be instantiated with constructor.
 	 */
 	private SimpleAttributeFactory() {
 		// singleton
 	}
 	
-	public static  AttributeFactory getInstance(INormalizer normalizer) {
-		factory.setNormalizer(normalizer);
+	public static  AttributeFactory getInstance() {
 		return factory;
 	}
 	
 	@Override
-	public IAttribute createAttribute(T rating) {
-		return new SimpleAttribute(normalizeInput(rating));
+	public IAttribute createAttribute(double rating) {
+		return new SimpleAttribute(rating);
 	}
 
 	@Override

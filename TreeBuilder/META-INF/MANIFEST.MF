@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: Tree Builders
+Implementation-Version: 0.1
+RapidMiner-Version: 5.2.7
+RapidMiner-Type: RapidMiner_Plugin

@@ -1,6 +1,6 @@
 package clusterer;
 
-public class SimpleNodeUpdater implements NodeUpdater {
+public class SimpleNodeUpdater implements INodeUpdater {
 
 	@Override
 	public void updateNodes(INode newNode) {
