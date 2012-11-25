@@ -2,7 +2,7 @@ package clusterer;
 
 import java.util.List;
 
-abstract class NodeFactory {
+public abstract class NodeFactory {
 		
 	public abstract INode createLeafNode(ENodeType typeOfNewNode, INodeDistanceCalculator nodeDistanceCalculator);
 	

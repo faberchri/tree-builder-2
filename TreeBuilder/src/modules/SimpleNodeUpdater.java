@@ -1,4 +1,7 @@
-package clusterer;
+package modules;
+
+import clusterer.INode;
+import clusterer.INodeUpdater;
 
 public class SimpleNodeUpdater implements INodeUpdater {
 

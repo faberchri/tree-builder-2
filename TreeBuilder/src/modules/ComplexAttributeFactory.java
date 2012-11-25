@@ -1,16 +1,19 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class SimpleAttributeFactory extends AttributeFactory {
+import clusterer.AttributeFactory;
+import clusterer.IAttribute;
 
-	private static SimpleAttributeFactory factory = new SimpleAttributeFactory();
+public class ComplexAttributeFactory extends AttributeFactory {
+
+	private static ComplexAttributeFactory factory = new ComplexAttributeFactory();
 	
 	/*
 	 * Must not be instantiated with constructor.
 	 */
-	private SimpleAttributeFactory() {
+	private ComplexAttributeFactory() {
 		// singleton
 	}
 	
@@ -18,21 +21,32 @@ class SimpleAttributeFactory extends AttributeFactory {
 		return factory;
 	}
 	
+	/**
+	 * Used to establish nodes
+	 */
 	@Override
 	public IAttribute createAttribute(double rating) {
 		return new SimpleAttribute(rating);
 	}
 
+	/**
+	 * Used to calculate new nodes in the merging process
+	 */
 	@Override
 	public IAttribute createAttribute(List<IAttribute> attributes) {
 		return calcAttributeValues(attributes);
 	}
 	
+	/**
+	 * Here attributes are finally combined, calculation of average, stddev, support, .. is done here
+	 */
 	private IAttribute calcAttributeValues(List<IAttribute> attributesToCombine) {
 		if (attributesToCombine.size() == 0) {
 			System.err.println("attempt to combine 0 attributes, "+getClass().getSimpleName());
 			System.exit(-1);
 		}
+		
+		// If attribute only occures once
 		if (attributesToCombine.size() == 1) {
 			IAttribute a = attributesToCombine.get(0);
 			return new SimpleAttribute(a.getAverage(), a.getStdDev(), a.getSupport(), a.getConsideredRatings());

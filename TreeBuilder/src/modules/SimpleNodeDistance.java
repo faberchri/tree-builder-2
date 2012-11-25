@@ -1,7 +1,10 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import clusterer.INode;
+import clusterer.INodeDistance;
 
 public class SimpleNodeDistance implements INodeDistance {
 	

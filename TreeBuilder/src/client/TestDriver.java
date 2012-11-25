@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import modules.SimpleClosestNodesSearcher;
+import modules.SimpleNodeUpdater;
+
 import clusterer.INodeDistanceCalculator;
-import clusterer.SimpleClosestNodesSearcher;
-import clusterer.SimpleNodeUpdater;
 import clusterer.TreeBuilder;
 
 import com.rapidminer.operator.OperatorDescription;

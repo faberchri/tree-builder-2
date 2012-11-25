@@ -1,9 +1,12 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import clusterer.IClosestNodesSearcher;
+import clusterer.INode;
 
 public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 

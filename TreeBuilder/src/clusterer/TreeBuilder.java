@@ -11,6 +11,9 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import modules.SimpleAttributeFactory;
+import modules.SimpleNodeFactory;
+
 import visualization.VisualizationBuilder;
 import client.IDataset;
 import client.IDatasetItem;

@@ -1,4 +1,4 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import clusterer.IClosestNodesSearcher;
+import clusterer.INode;
+import clusterer.INodeDistance;
 
 public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 	

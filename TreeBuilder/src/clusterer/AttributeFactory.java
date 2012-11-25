@@ -6,7 +6,7 @@ package clusterer;
  */
 import java.util.List;
 
-abstract class AttributeFactory {
+public abstract class AttributeFactory {
 	
 	public abstract IAttribute createAttribute(double rating); // single node
 	

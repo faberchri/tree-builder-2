@@ -1,7 +1,10 @@
-package clusterer;
+package modules;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import clusterer.INode;
+import clusterer.INodeDistanceCalculator;
 
 public class SimpleNodeDistanceCalculator implements INodeDistanceCalculator {
 	
