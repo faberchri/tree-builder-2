@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 
 import modules.SimpleAttributeFactory;
 import modules.SimpleNodeFactory;
-
 import visualization.VisualizationBuilder;
 import client.IDataset;
 import client.IDatasetItem;
@@ -51,28 +50,44 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	}
 	
 	public INode cluster() {
+		
+		// Build Leaf Nodes
 		initLeafNodes(dataset);
+		
+		// Initialize control parameter
 		int cycleCount = 0;
 		long startTime = System.currentTimeMillis();
+		
+		// Process Nodes
 		while (userNodes.size() > 2 && contentNodes.size() > 2) {
+
+			// Get closest User Nodes & Merge them
 			List<INode> cN = getClosestOpenUserNodes();
-//			getClosestOpenUserNodes();
 //			System.out.println("ClosestOpenUserNodes: "+ cN);
-			mergeNodes(cN, userNodes);
-			double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-			System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
+			INode newUserNode = mergeNodes(cN, userNodes);
+//			double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
+//			System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
 //			printAllOpenUserNodes();
+
+			// Get closest Movie Nodes & Merge them
 			cN = getClosestOpenMovieNodes();
-//			getClosestOpenMovieNodes();
 //			System.out.println("ClosestOpenMovieNodes: "+ cN);
-			mergeNodes(cN, contentNodes);
-			elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-			System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
+			INode newMovieNode = mergeNodes(cN, contentNodes);
+//			elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
+//			System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
 //			printAllOpenMovieNodes();
+
+			// Update created Level with Info from other Tree on both Trees
+			nodeUpdater.updateNodes(newUserNode,contentNodes); // MovieNodes
+			nodeUpdater.updateNodes(newMovieNode,userNodes); // UserNodes
+
+			// Create/Update Visualization
+			visualize();
+
 			cycleCount++;
 		} 
-		
-		return null; // FIXME
+
+		return null; // FIXME -> Hier sollten am Ende zwei Root Nodes zurÙckgegeben werden
 	}
 
 	public void visualize() {
@@ -179,7 +194,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		return closestNodesSearcher.getClosestNodes(contentNodes);
 	}
 		
-	private void mergeNodes(List<INode> nodes, Set<INode> openSet) {
+	private INode mergeNodes(List<INode> nodes, Set<INode> openSet) {
 		if (nodes.size() > 1) {
 	
 			INode newNode;
@@ -213,12 +228,15 @@ public final class TreeBuilder<T extends Number> extends Operator {
 					System.err.println("Err: Removal of merged node (" + node + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 				}
 			}
-
-			nodeUpdater.updateNodes(newNode);
-		} else {
+			
+			return newNode;
+			
+		} 
+		else {
 			System.err.println("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
 			System.exit(-1);
 		}
+		return null;
 	}
 	
 }
