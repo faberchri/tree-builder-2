@@ -81,10 +81,19 @@ public class ComplexNodeFactory extends NodeFactory {
 			
 			// Create a new Attribute calculation with all added values, add to attribute Map
 			IAttribute newAttribute = attributeFactory.createAttribute(attArr);
+			
+			// If multiple nodes are involved -> add to list of potential attribute group
+			// Implement
+			
+			// Else -> Add to AttMap -> Can't be in list of potential attribute group
 			attMap.put(tempKey, newAttribute);
 		}
+		
+		// Process List of potential groups to definitive list
+		//IMplement
+		ArrayList<Set> attGroups = null; // FIXME
 
-		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap);
+		return new ComplexNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap, attGroups);
 	}
 
 	@Override

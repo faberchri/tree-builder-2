@@ -18,7 +18,7 @@ import clusterer.IPrintableNode;
 import clusterer.NodeIdComparator;
 
 
-public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>{
+public class ComplexNode implements INode, IPrintableNode, Comparable<ComplexNode>{
 	
 	
 	/**
@@ -55,17 +55,22 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	 */
 	private INodeDistanceCalculator distanceCalculator;
 	
+	/**
+	 * The distance calculator of the node.
+	 */
+	private ArrayList<Set> attributeGroups;
 
-	public SimpleNode( ENodeType nodeType, INodeDistanceCalculator ndc) {
+	public ComplexNode( ENodeType nodeType, INodeDistanceCalculator ndc) {
 		this.distanceCalculator = ndc;
 		this.nodeType = nodeType;
 	}
 	
-	public SimpleNode(ENodeType nodeType, INodeDistanceCalculator ndc, Set<INode> children, Map<INode, IAttribute> attributes) {
+	public ComplexNode(ENodeType nodeType, INodeDistanceCalculator ndc, Set<INode> children, Map<INode, IAttribute> attributes, ArrayList<Set> attributeGroups) {
 		this.distanceCalculator = ndc;
 		this.nodeType = nodeType;
 		this.children = children;
 		this.attributes = attributes;
+		this.attributeGroups = attributeGroups;
 	}
 	
 	@Override
@@ -91,7 +96,7 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	@Override
 	public String getAttributesString() {
 		
-		List<SimpleNode> keyList = new ArrayList<SimpleNode>((Collection<? extends SimpleNode>) attributes.keySet());
+		List<ComplexNode> keyList = new ArrayList<ComplexNode>((Collection<? extends ComplexNode>) attributes.keySet());
 		Collections.sort(keyList, new NodeIdComparator());
 		String s = "";
 		for (IPrintableNode node : keyList) {
@@ -106,7 +111,7 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	}
 		
 	@Override
-	public int compareTo(SimpleNode o) {
+	public int compareTo(ComplexNode o) {
 		return ((Long)this.getId()).compareTo((Long)o.getId());
 	}
 	
@@ -183,29 +188,30 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	public ENodeType getNodeType() {
 		return nodeType;
 	}
-
-	@Override
+	
+	// ------------------------------------------------------------------------> Neu
 	public ArrayList<Set> getAttributeGroups() {
-		// TODO Auto-generated method stub
-		return null;
+		return attributeGroups;
 	}
 
 	@Override
 	public boolean hasAttribute(INode attribute) {
-		// TODO Auto-generated method stub
-		return false;
+		if(attributes.containsKey(attribute)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
 	public void removeAttribute(INode attribute) {
-		// TODO Auto-generated method stub
-		
+		attributes.remove(attribute);
 	}
 
 	@Override
-	public void addAttributeGroup(Set<INode> Attributegroup) {
-		// TODO Auto-generated method stub
-		
+	public void addAttributeGroup(Set<INode> attributeGroup) {
+		attributeGroups.add(attributeGroup);
 	}
 	
 }

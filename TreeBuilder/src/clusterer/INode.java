@@ -1,5 +1,6 @@
 package clusterer;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -121,5 +122,13 @@ public interface INode {
 	 */
 	public ENodeType getNodeType();
 	
-
+	/**
+	 * Get a list of the attribute groupings
+	 * 
+	 * @return list
+	 */
+	public ArrayList<Set> getAttributeGroups();
+	public boolean hasAttribute(INode attribute);
+	public void removeAttribute(INode attribute);
+	public void addAttributeGroup(Set<INode> Attributegroup);
 }
