@@ -30,7 +30,7 @@ public class ComplexNodeFactory extends NodeFactory {
 	public INode createLeafNode(ENodeType typeOfNewNode,
 			INodeDistanceCalculator nodeDistanceCalculator) {
 			
-		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator);
+		return new ComplexNode(typeOfNewNode, nodeDistanceCalculator);
 	}
 
 	@Override
@@ -69,10 +69,15 @@ public class ComplexNodeFactory extends NodeFactory {
 		
 		// Build Attribute Map for new Node; calculate new value when multiple nodes have same key, simply insert when not
 		Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
+		ArrayList<INode> attGroup = new ArrayList<INode>();
+		
 		for (INode tempKey : union.keySet()) {
+			
+			//System.out.println("Key: " + tempKey.toString());
 			
 			List<IAttribute> attArr = new ArrayList<IAttribute>();
 			ArrayList<INode> involvedNodeList = union.get(tempKey);
+			//System.out.println("involvedNodeList: " + involvedNodeList.toString());
 			
 			// Process all involved Nodes and add their value of the specific key to the calculation
 			for(INode involvedNode : involvedNodeList) {
@@ -82,18 +87,25 @@ public class ComplexNodeFactory extends NodeFactory {
 			// Create a new Attribute calculation with all added values, add to attribute Map
 			IAttribute newAttribute = attributeFactory.createAttribute(attArr);
 			
-			// If multiple nodes are involved -> add to list of potential attribute group
-			// Implement
-			
-			// Else -> Add to AttMap -> Can't be in list of potential attribute group
+			// Add Attribute to Attribute Map
 			attMap.put(tempKey, newAttribute);
+			
+			// If involvedNodeList size = size of nodes to merge -> all nodes have this item in common; add to list of potential attribute group 
+			// -> absolutely not sure about this.. if multiple 
+			if(involvedNodeList.size() == nodesToMerge.size()) {
+				attGroup.add(tempKey);
+			}
 		}
 		
-		// Process List of potential groups to definitive list
-		//IMplement
-		ArrayList<Set> attGroups = null; // FIXME
+		// Process List of potential groups to definitive list if size bigger than 1
+		if(attGroup.size() < 2) {
+			attGroup = null;
+		}
+		else {
+			System.out.println("Attribute Group Created " + attGroup.toString());
+		}
 
-		return new ComplexNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap, attGroups);
+		return new ComplexNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap, attGroup);
 	}
 
 	@Override

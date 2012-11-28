@@ -12,6 +12,7 @@ public class SimpleNodeDistanceCalculator implements INodeDistanceCalculator {
 	public double calculateDistance(INode n1, INode n2) {
 		if (! n1.getClass().equals(n2.getClass())) {
 			System.err.println("Err: Calculating distance between two nodes of differnet type; in " + this.getClass().getSimpleName());
+			System.err.println(n1.getClass() + "/" + n2.getClass());
 			System.exit(-1);
 		}
 		if (n1.equals(n2)) {

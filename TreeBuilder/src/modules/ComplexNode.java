@@ -65,7 +65,7 @@ public class ComplexNode implements INode, IPrintableNode, Comparable<ComplexNod
 		this.nodeType = nodeType;
 	}
 	
-	public ComplexNode(ENodeType nodeType, INodeDistanceCalculator ndc, Set<INode> children, Map<INode, IAttribute> attributes, ArrayList<Set> attributeGroups) {
+	public ComplexNode(ENodeType nodeType, INodeDistanceCalculator ndc, Set<INode> children, Map<INode, IAttribute> attributes, ArrayList<INode> attributeGroup) {
 		this.distanceCalculator = ndc;
 		this.nodeType = nodeType;
 		this.children = children;

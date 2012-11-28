@@ -188,10 +188,6 @@ public class VisualizationBuilder extends JApplet {
 	    	String prefix = "movie_";
 			for (IPrintableNode movieNode : movieNodes) {
 
-				// Create first Element of Tree
-				String firstID = String.valueOf(movieNode.getId());
-				graph.addVertex(firstID);
-
 				// Start recursive build of Tree
 			 	processChildren(movieNode,prefix);
             }
@@ -199,10 +195,6 @@ public class VisualizationBuilder extends JApplet {
 		 	// Build user Nodes
 	    	prefix = "user_";
 			for (IPrintableNode userNode : userNodes) {
-
-				// Create first Element of Tree
-				String firstID = String.valueOf(userNode.getId());
-				graph.addVertex(firstID);
 
 				// Start recursive build of Tree
 			 	processChildren(userNode,prefix);
@@ -214,10 +206,17 @@ public class VisualizationBuilder extends JApplet {
 
 	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
 	    	Iterator<INode> iter = parent.getChildren();
+	    	
 	    	while (iter.hasNext()) {
+	    		
+	    		// Define Name of Item
 	    		IPrintableNode child = (IPrintableNode) iter.next();
         		String childID = prefix.concat(String.valueOf(child.getId()));
+        		
+        		// Add Item to Tree
         		graph.addEdge(edgeFactory.create(),parentID,childID);
+        		
+        		// Build child items recursively
         		processChildren(child,prefix);
 	    	}
 	    }

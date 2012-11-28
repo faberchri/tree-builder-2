@@ -35,12 +35,22 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 				
 				// Found similar distance -> add node to collection
 				if(tmpDistance == closestDistance){
-					closestNodes.add(openNode);
-					closestNodes.add(subSetNode);
-					System.out.println("Found similar distance for "+openNode+", "+subSetNode+" ("+tmpDistance+")");
+					
+					// Ignore already found pairs
+					if(!(closestNodes.contains(openNode) && closestNodes.contains(subSetNode))){
+						if(!closestNodes.contains(openNode)) {
+							closestNodes.add(openNode);
+						}
+						if(!closestNodes.contains(subSetNode)){
+							closestNodes.add(subSetNode);
+						}
+						System.out.println("Found similar distance for "+openNode+", "+subSetNode+" ("+tmpDistance+")");
+						System.out.println("Current Closest Nodes: "+ closestNodes.toString() +" ("+closestDistance+")");
+					}
 				}
 			}
 		}
+		
 		if (closestNodes.size() > 1) {
 			System.out.println("Closest nodes: "+ closestNodes.toString() +" ("+closestDistance+")");
 		}

@@ -23,23 +23,25 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		double utility = 0; //The utility metric to be calculated
 		double distance = 0;
 		
+		// 1. Merge n1 and n2	
 		List<INode> nodes = new ArrayList(); 
 		nodes.add(n1);
 		nodes.add(n2);
+		ComplexNodeFactory fac = new ComplexNodeFactory();
+		ComplexNode tempNode = (ComplexNode) fac.createCalculationNode(nodes);
 		
-		UtilityNode tempNode = new UtilityNode(); //Temporary node for utility calculation
+		// 2. Calculate the 4 values for tempNode
+		// pClass: 1/anzahl nodes der eigenen kategorie 
+		// pAttrInClass: 1/anzahl gemergter attribute?
+		// pAttrInData: 1/anzahl nodes der anderen kategorie?
+		// k: 2 ?
 		
-		//1. Merge n1 and n2	
-		
-		UtilityNodeFactory fac = new UtilityNodeFactory();
-		tempNode = (UtilityNode) fac.createCalculationNode(nodes);
-		
-		//2. TODO: Calculate utility for the new node
+		// 3. Calculate utility for the new node
 		if(k != 0){
 			utility = (pClass * pAttrInClass * pAttrInData) / k;	
 		}
 		
-		//3. Calculate distance from utility (Nodes with high utility should have low distance)
+		//4. Calculate distance from utility (Nodes with high utility should have low distance)
 		if(utility !=0)
 			distance = 1/utility;
 		else
