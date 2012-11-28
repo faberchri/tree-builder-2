@@ -11,6 +11,8 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import modules.ComplexNodeFactory;
+import modules.SimpleAttributeFactory;
 import visualization.VisualizationBuilder;
 import client.IDataset;
 import client.IDatasetItem;
@@ -36,10 +38,11 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	private IClosestNodesSearcher closestNodesSearcher;
 	
 	
-	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, INodeUpdater nodeUpdater, IClosestNodesSearcher cns) {
+	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, IClosestNodesSearcher cns, INodeUpdater nodeUpdater) {
 		super(rapidminerOperatorDescription);
 		this.dataset = dataset;
-		this.nodeFactory = SimpleNodeFactory.getInstance();
+		//this.nodeFactory = SimpleNodeFactory.getInstance();
+		this.nodeFactory = ComplexNodeFactory.getInstance();
 		this.attributeFactory = SimpleAttributeFactory.getInstance();
 		this.nodeUpdater = nodeUpdater;
 		this.closestNodesSearcher = cns;
@@ -47,43 +50,58 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		this.usersNodeDistanceCalculator = ndcUsers;
 	}
 	
-	public INode cluster() {
+	public void cluster() {
+		
+		// Build Leaf Nodes
 		initLeafNodes(dataset);
+		
+		// Initialize control parameter
 		int cycleCount = 0;
 		long startTime = System.currentTimeMillis();
-		while (userNodes.size() > 2 && contentNodes.size() > 2) {
-			List<INode> cN = getClosestOpenUserNodes();
-//			getClosestOpenUserNodes();
-//			System.out.println("ClosestOpenUserNodes: "+ cN);
-			mergeNodes(cN, userNodes);
-			double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-			System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
-//			printAllOpenUserNodes();
-			cN = getClosestOpenMovieNodes();
-//			getClosestOpenMovieNodes();
-//			System.out.println("ClosestOpenMovieNodes: "+ cN);
-			mergeNodes(cN, contentNodes);
-			elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-			System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
-//			printAllOpenMovieNodes();
-			cycleCount++;
-		} 
 		
-		return null; // FIXME
-	}
-
-	public void visualize() {
-		
-		// Instantiate VisualizationBuilder
-		VisualizationBuilder vb = new VisualizationBuilder((Set)contentNodes,(Set)userNodes);
-		
-		// Swing Visualization
+		// Initialze visualization frame
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        content.add(vb);
-        frame.pack();
-        frame.setVisible(true);
+		
+		// Process Nodes
+		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
+
+			// Get closest User Nodes & Merge them
+			INode newUserNode = null;
+			if(userNodes.size() >= 2) {
+				List<INode> cN = closestNodesSearcher.getClosestNodes(userNodes);
+				newUserNode = mergeNodes(cN, userNodes);
+				
+				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
+				System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
+				printAllOpenUserNodes();
+			}
+
+			// Get closest Movie Nodes & Merge them
+			INode newMovieNode = null;
+			if(contentNodes.size() >= 2) {
+				List<INode> cN = closestNodesSearcher.getClosestNodes(contentNodes);
+				newMovieNode = mergeNodes(cN, contentNodes);
+				
+				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
+				System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
+				printAllOpenMovieNodes();
+			}
+
+			// Update Trees with info from other tree on current level - only if nodes merged
+			if(newUserNode != null) {
+				nodeUpdater.updateNodes(newUserNode,contentNodes); 
+			}
+			if(newMovieNode != null) {
+				nodeUpdater.updateNodes(newMovieNode,userNodes);
+			}
+			
+			// Create/Update Visualization
+			visualize(frame,content);
+
+			cycleCount++;
+		} 
 	}
 	
 	/**
@@ -149,6 +167,75 @@ public final class TreeBuilder<T extends Number> extends Operator {
 						
 	}
 		
+	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
+		
+		if (nodesToMerge.size() > 1) {
+			
+			// Create a new node (product of nodesToMerge)
+			INode newNode;
+			switch (nodesToMerge.get(0).getNodeType()) {
+			case User:
+				newNode = nodeFactory.createInternalNode(
+						ENodeType.User,
+						nodesToMerge,
+						usersNodeDistanceCalculator,
+						attributeFactory);
+				break;
+			case Content:
+				newNode = nodeFactory.createInternalNode(
+						ENodeType.Content,
+						nodesToMerge,
+						contentsNodeDistanceCalculator,
+						attributeFactory);
+				break;
+			default:
+				newNode = null;
+				System.err.println("Err: Not supported node encountered in: " + getClass().getSimpleName());
+				System.exit(-1);
+				break;
+			}
+			
+			// Add new node to openset
+			openSet.add(newNode);
+			
+			// Updating relationships and remove
+			for (INode nodeToMerge : nodesToMerge) {	
+				
+				// Create parent/child relationships
+				nodeToMerge.setParent(newNode);
+				newNode.addChild(nodeToMerge);
+				
+				// Remove merged Nodes
+				if (!openSet.remove(nodeToMerge)) {
+					System.err.println("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
+				}
+			}
+
+			return newNode;
+			
+		} 
+		else {
+			System.err.println("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
+			System.exit(-1);
+		}
+		return null;
+	}
+	
+	public void visualize(JFrame frame, Container content) {
+		
+		// Instantiate VisualizationBuilder
+		VisualizationBuilder vb = new VisualizationBuilder((Set)contentNodes,(Set)userNodes);
+		
+		// Add Content to Swing Panel
+        content.removeAll();
+        content.add(vb);
+        
+        // Repack Frame
+        frame.pack();
+        frame.setVisible(true);
+	}
+	
+	// Print Functions
 	private void printAllNodesInSet(Set<? extends IPrintableNode> set, String nodeNames){
 		System.out.println("-----------------------");
 		System.out.println(nodeNames);
@@ -166,56 +253,6 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	
 	public void printAllOpenMovieNodes() {
 		printAllNodesInSet((Set)contentNodes, "MovieNodes:");
-	}
-	
-	public List<INode> getClosestOpenUserNodes() {
-		return closestNodesSearcher.getClosestNodes(userNodes);
-	}
-		
-	public List<INode> getClosestOpenMovieNodes() {
-		return closestNodesSearcher.getClosestNodes(contentNodes);
-	}
-		
-	private void mergeNodes(List<INode> nodes, Set<INode> openSet) {
-		if (nodes.size() > 1) {
-	
-			INode newNode;
-			switch (nodes.get(0).getNodeType()) {
-			case User:
-				newNode = nodeFactory.createInternalNode(
-						ENodeType.User,
-						nodes,
-						usersNodeDistanceCalculator,
-						attributeFactory);
-				break;
-			case Content:
-				newNode = nodeFactory.createInternalNode(
-						ENodeType.Content,
-						nodes,
-						contentsNodeDistanceCalculator,
-						attributeFactory);
-				break;
-			default:
-				newNode = null;
-				System.err.println("Err: Not supported node encountered in: " + getClass().getSimpleName());
-				System.exit(-1);
-				break;
-			}
-			
-			openSet.add(newNode);
-			for (INode node : nodes) {
-				node.setParent(newNode);
-				newNode.addChild(node);
-				if (!openSet.remove(node)) {
-					System.err.println("Err: Removal of merged node (" + node + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
-				}
-			}
-
-			nodeUpdater.updateNodes(newNode);
-		} else {
-			System.err.println("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
-			System.exit(-1);
-		}
 	}
 	
 }

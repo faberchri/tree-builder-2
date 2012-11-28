@@ -1,4 +1,4 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import clusterer.ENodeType;
+import clusterer.IAttribute;
+import clusterer.INode;
+import clusterer.INodeDistance;
+import clusterer.INodeDistanceCalculator;
+import clusterer.IPrintableNode;
+import clusterer.NodeIdComparator;
 
 
 public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>{
@@ -174,6 +182,30 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	@Override
 	public ENodeType getNodeType() {
 		return nodeType;
+	}
+
+	@Override
+	public ArrayList<Set> getAttributeGroups() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasAttribute(INode attribute) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeAttribute(INode attribute) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addAttributeGroup(Set<INode> Attributegroup) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

@@ -1,4 +1,4 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class SimpleNodeFactory extends NodeFactory {
+import clusterer.AttributeFactory;
+import clusterer.ENodeType;
+import clusterer.IAttribute;
+import clusterer.INode;
+import clusterer.INodeDistanceCalculator;
+import clusterer.NodeFactory;
+
+public class SimpleNodeFactory extends NodeFactory {
 
 	private static NodeFactory factory = new SimpleNodeFactory();
 	
@@ -63,6 +70,12 @@ class SimpleNodeFactory extends NodeFactory {
 		}
 
 		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator, new HashSet<INode>(nodesToMerge), attMap);
+	}
+
+	@Override
+	public INode createCalculationNode(List<INode> nodesToMerge) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

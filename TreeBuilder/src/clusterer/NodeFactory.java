@@ -2,7 +2,7 @@ package clusterer;
 
 import java.util.List;
 
-abstract class NodeFactory {
+public abstract class NodeFactory {
 		
 	public abstract INode createLeafNode(ENodeType typeOfNewNode, INodeDistanceCalculator nodeDistanceCalculator);
 	
@@ -13,4 +13,6 @@ abstract class NodeFactory {
 	 */
 	public abstract INode createInternalNode(ENodeType typeOfNewNode, List<INode> nodesToMerge, INodeDistanceCalculator nodeDistanceCalculator, AttributeFactory attributeFactory);
 
+	//Retuns a node to use for distance calculation. This node is not added to the tree.
+	public abstract INode createCalculationNode(List<INode> nodesToMerge);
 }

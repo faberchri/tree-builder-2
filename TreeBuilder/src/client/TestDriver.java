@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import clusterer.IClosestNodesSearcher;
 import clusterer.INodeDistanceCalculator;
-import clusterer.SimpleClosestNodesSearcher;
-import clusterer.SimpleNodeUpdater;
+import clusterer.INodeUpdater;
 import clusterer.TreeBuilder;
 
 import com.rapidminer.operator.OperatorDescription;
@@ -23,13 +23,16 @@ public class TestDriver {
 	 */
 	public static void main(String[] args) {
 
-		if (args.length != 2) {
+		if (args.length != 4) {
 			printUsage();
 		}
 
 		INodeDistanceCalculator ndcContents = null;
 		INodeDistanceCalculator  ndcUsers = null;
-
+		IClosestNodesSearcher closestNodesSearcher = null;
+		INodeUpdater nodeUpdater = null;
+		
+		// Content Nodes Distance Calculator Definition
 		try {
 			ndcUsers = (INodeDistanceCalculator) Class.forName(args[0]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -40,7 +43,8 @@ public class TestDriver {
 			System.err.println("Err: Class " + args[0] + " was not found.");
 			printUsage();
 		} 
-
+		
+		// Content Nodes Distance Calculator Definition// Content Nodes Distance Calculator Definition
 		try {
 			ndcContents = (INodeDistanceCalculator) Class.forName(args[1]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -50,7 +54,28 @@ public class TestDriver {
 			System.err.println("Err: Class " + args[1] + " was not found.");
 			printUsage();
 		}
-
+		
+		// ClosestNode Searcher Definition
+		try {
+			closestNodesSearcher = (IClosestNodesSearcher) Class.forName(args[2]).newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+			printUsage();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Err: Class " + args[2] + " was not found.");
+			printUsage();
+		}
+		
+		// Node Updater Definition
+		try {
+			nodeUpdater = (INodeUpdater) Class.forName(args[3]).newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+			printUsage();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Err: Class " + args[3] + " was not found.");
+			printUsage();
+		}
 
 		// get URL of treebuilder.jar from classpath -> needed for call to operator constructor of rapidminer
 		URL[] urls = ((URLClassLoader) TestDriver.class.getClassLoader()).getURLs();
@@ -60,7 +85,8 @@ public class TestDriver {
 				myURL = url;
 			}   
 		}
-
+		
+		// Build Operator Descriptor for Rapidminer
 		OperatorDescription rapidminerOperatorDescription = null;
 		try {
 			rapidminerOperatorDescription = new OperatorDescription(
@@ -71,7 +97,6 @@ public class TestDriver {
 					"iconName",
 					new Plugin(new File(myURL.getFile())));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -88,19 +113,21 @@ public class TestDriver {
 				ds,
 				ndcUsers,
 				ndcContents,
-				new SimpleNodeUpdater(),
-				new SimpleClosestNodesSearcher());
+				closestNodesSearcher,
+				nodeUpdater
+				);
 		treeBuilder.cluster();
-
-		treeBuilder.cluster();
-		treeBuilder.visualize();
-
 	}
 
 	private static void printUsage() {
 		System.out.println("Usage: <fully-qualified-class-name-of-NodeDistanceCalcuator-for-users> " +
-				"<fully-qualified-name-of-NodeDistanceCalcuator-for-contents>\n" +
-				"Example: clusterer.SimpleNodeDistanceCalculator clusterer.SimpleNodeDistanceCalculator");
+				"<fully-qualified-name-of-NodeDistanceCalcuator-for-contents>" + 
+				"<fully-qualified-name-of-ClosestNodesSearcher>" + 
+				"<fully-qualified-name-of-NodeUpdater>\n" +
+				"Example: modules.SimpleNodeDistanceCalculator " +
+				"modules.SimpleNodeDistanceCalculator " +
+				"modules.SimpleClosestNodesSearcher " +
+				"modules.SimpleNodeUpdater");
 		System.exit(-1);
 
 	}

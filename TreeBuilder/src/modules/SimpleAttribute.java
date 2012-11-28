@@ -1,8 +1,10 @@
-package clusterer;
+package modules;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import clusterer.IAttribute;
 
 /**
  * 
