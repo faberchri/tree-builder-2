@@ -20,24 +20,74 @@ import client.IDatasetItem;
 import com.rapidminer.operator.Operator;
 import com.rapidminer.operator.OperatorDescription;
 
-
+/**
+ * 
+ * Implementation of COBWEB inspired hierarchical
+ * agglomerative two-dimensional clustering algorithm 
+ * for media recommendation generation.
+ *
+ * @param <T> the data type of the media ratings.
+ */
 public final class TreeBuilder<T extends Number> extends Operator {
-//public final class TreeBuilder<T extends Number> {	
+
+	/**
+	 * The data set to cluster.
+	 */
 	private IDataset<T> dataset; 
-		
-	private Set<INode> userNodes = new  HashSet<INode>(); //Collections.newSetFromMap(new ConcurrentHashMap<INode,Boolean>());
-	private Set<INode> contentNodes = new HashSet<INode>(); //Collections.newSetFromMap(new ConcurrentHashMap<INode,Boolean>());
-		
+	
+	/**
+	 * The set of all root nodes of type user.
+	 */
+	private Set<INode> userNodes = new  HashSet<INode>(); 
+	
+	/**
+	 * The set of all root nodes of type content.
+	 */
+	private Set<INode> contentNodes = new HashSet<INode>();
+	
+	/**
+	 * The node factory of the clusterer.
+	 */
 	private NodeFactory nodeFactory;
+	
+	/**
+	 * The factory that creates the attribute object of the created nodes.
+	 */
 	private AttributeFactory attributeFactory;
-		
+	
+	/**
+	 * The updater which performs the introduction 
+	 * of a node as attribute in the nodes of the other type.
+	 */
 	private INodeUpdater nodeUpdater;
 	
+	/**
+	 * Calculates the distance between two nodes of the type user.
+	 */
 	private INodeDistanceCalculator usersNodeDistanceCalculator;
+	
+	/**
+	 * Calculates the distance between two nodes of the type content.
+	 */
 	private INodeDistanceCalculator contentsNodeDistanceCalculator;
+	
+	/**
+	 * Searches in a given set of nodes for
+	 * a subset of nodes which are the closest.
+	 */
 	private IClosestNodesSearcher closestNodesSearcher;
 	
-	
+	/**
+	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
+	 * 
+	 * @param rapidminerOperatorDescription Data container for name, class, short name,
+	 * path and the description of an operator. 
+	 * @param dataset the data set to cluster.
+	 * @param ndcUsers the node distance calculator for nodes of type user.
+	 * @param ndcContents the node distance calculator for nodes of type content.
+	 * @param cns the closest node searcher used in the clustering process.
+	 * @param nodeUpdater the node updater used in the clustering process.
+	 */
 	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, IClosestNodesSearcher cns, INodeUpdater nodeUpdater) {
 		super(rapidminerOperatorDescription);
 		this.dataset = dataset;
@@ -50,6 +100,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		this.usersNodeDistanceCalculator = ndcUsers;
 	}
 	
+	/**
+	 * Performs the cluster tree creation of the data set.
+	 */
 	public void cluster() {
 		
 		// Build Leaf Nodes
@@ -166,7 +219,20 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		}
 						
 	}
-		
+	
+	/**
+	 * Creates a new node and initializes the nodes attributes based on a list of close nodes.
+	 * The list of close nodes become the children of the new node.
+	 * 
+	 * @param nodesToMerge close nodes which are
+	 * used to initialize a new node and will form the new nodes children. 
+	 * These nodes are removed from the open set.
+	 * 
+	 * @param openSet the set of nodes to which the new node is added
+	 * and from which the merged nodes are removed. 
+	 * 
+	 * @return a new node which has the {@code nodesToMerge} as children. 
+	 */
 	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
 		
 		if (nodesToMerge.size() > 1) {
@@ -221,6 +287,11 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		return null;
 	}
 	
+	/**
+	 * Creates a graphical representation of the current state of the cluster tree.
+	 * @param frame
+	 * @param content
+	 */
 	public void visualize(JFrame frame, Container content) {
 		
 		// Instantiate VisualizationBuilder
@@ -235,7 +306,13 @@ public final class TreeBuilder<T extends Number> extends Operator {
         frame.setVisible(true);
 	}
 	
-	// Print Functions
+	/**
+	 * Prints a textual representation of all nodes
+	 * (including its attributes) contained in the passed set on stdout.
+	 * 
+	 * @param set the set of nodes to print.
+	 * @param nodeNames the description of the set to print.
+	 */
 	private void printAllNodesInSet(Set<? extends IPrintableNode> set, String nodeNames){
 		System.out.println("-----------------------");
 		System.out.println(nodeNames);
@@ -247,12 +324,18 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		System.out.println("-----------------------");
 	}
 	
+	/**
+	 * Prints all textual representation  of all open user nodes on stdout.
+	 */
 	public void printAllOpenUserNodes() {
 		printAllNodesInSet((Set)userNodes, "User Nodes:");
 	}
 	
+	/**
+	 * Prints all textual representation  of all open content nodes on stdout.
+	 */
 	public void printAllOpenMovieNodes() {
-		printAllNodesInSet((Set)contentNodes, "MovieNodes:");
+		printAllNodesInSet((Set)contentNodes, "ContentNodes:");
 	}
 	
 }

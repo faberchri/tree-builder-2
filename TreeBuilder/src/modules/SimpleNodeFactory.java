@@ -33,15 +33,26 @@ public class SimpleNodeFactory extends NodeFactory {
 		return new SimpleNode(typeOfNewNode, nodeDistanceCalculator);
 	}
 
+
+	
+	/**
+	 * Creates a new node and initializes its attribute map.
+	 * The new node is added to the cluster tree as new
+	 * root with all nodes in {@code nodesToMerge} as children.
+	 * <br>
+	 * <br>
+	 * <b>This implementations make the following assumptions: 
+	 * nodesToMerge.size() == 2 && nodesToMerge != null<b>
+	 */
 	@Override
 	public INode createInternalNode(ENodeType typeOfNewNode,
 			List<INode> nodesToMerge,
 			INodeDistanceCalculator nodeDistanceCalculator,
 			AttributeFactory attributeFactory) {
-		
-		
-		if (nodesToMerge.size() != 2) {
-			System.err.println("Merge attempt with number of nodes != 2");
+				
+		if (nodesToMerge == null || nodesToMerge.size() != 2) {
+			System.err.println("Err: Merge attempt with nodesToMerge == null" +
+					" or number of nodes != 2; in: " +getClass().getSimpleName());
 			System.exit(-1);
 		}
 		INode n1 = nodesToMerge.get(0);

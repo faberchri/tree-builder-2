@@ -4,10 +4,9 @@ import java.util.List;
 
 
 /**
- * Interface to get the parameter values (average, standard deviation, and support)
+ * Implementations shall store the the parameter values
+ * (average, standard deviation, and support)
  * for a particular key in the attribute map of a node.
- * <br>
- * Please implement IMMUTABLE!
  *
  */
 public interface IAttribute {

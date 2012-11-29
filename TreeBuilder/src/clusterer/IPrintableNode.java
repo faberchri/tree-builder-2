@@ -1,5 +1,9 @@
 package clusterer;
 
+
+/**
+ *A printable representation of a node.
+ */
 public interface IPrintableNode extends INode {
 	
 	
