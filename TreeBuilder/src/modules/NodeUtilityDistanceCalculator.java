@@ -53,11 +53,27 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 			pClass = noAttributes/noAttributesInNode;
 		}
 		
-		//2.2 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
 		
-		//2.3 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
+		//2.2 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
 		//Can be translated to: 
-		//For each attribute value in tempNode, calculate how often it occurs in dataset and then calculate multiplicative inverse (Kehrwert)
+		//For each attribute value in tempNode, calculate how often it occurs in dataset compared to size of dataset
+		//and then calculate multiplicative inverse (Kehrwert)
+		
+		/*
+		 * for each attribute value in tempNode{
+		 * 		count = how often attribute value occurs in whole data set. 
+		 * 		sum+= count/number of leafs;
+		 * }
+		 */
+		
+		//2.3 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
+		//i.e. the expected number of attribute values that one can correctly guess for an arbitrary member of tempNode (= probability of occurring)
+		
+		/*for all attributes in tempNode{
+			sum += attribute.getProbability();
+			}
+		return sum 
+			*/
 		
 		
 		
