@@ -1,6 +1,5 @@
 package clusterer;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -121,14 +120,40 @@ public interface INode {
 	 * @return the node type
 	 */
 	public ENodeType getNodeType();
+		
+	/**
+	 * Checks if {@code this} node has
+	 * for the node {@code attribute}
+	 * a mapping to an IAttribute object.
+	 * 
+	 * @param attribute The node to test
+	 * for a present mapping.
+	 * @return true if a mapping is present, else false.
+	 */
+	public boolean hasAttribute(INode attribute);
 	
 	/**
-	 * Get a list of the attribute groupings
+	 * Removes the mapping for {@code attribute }
+	 * from this node's attribute map.
 	 * 
-	 * @return list
+	 * @param attribute The INode for
+	 * which the mapping is removed.
+	 * @return the value previously mapped to the {@code attribute}
+	 * or null if no mapping was present.
 	 */
-	public ArrayList<Set> getAttributeGroups();
-	public boolean hasAttribute(INode attribute);
-	public void removeAttribute(INode attribute);
-	public void addAttributeGroup(Set<INode> Attributegroup);
+	public IAttribute removeAttribute(INode attribute);
+	
+	/**
+	 * Adds a set of nodes to this nodes attribute group list.
+	 * 
+	 * @param attributegroup to add to this nodes attribute groups
+	 */
+	public void addAttributeGroup(Set<INode> attributegroup);
+	
+	/**
+	 * Gets a list of the attribute groupings.
+	 * 
+	 * @return list all the attribute groups for {@code this} node.
+	 */
+	public List<Set<INode>> getAttributeGroups();
 }

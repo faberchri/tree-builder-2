@@ -1,6 +1,6 @@
 package modules;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import clusterer.INode;
@@ -12,7 +12,7 @@ public class ComplexNodeUpdater implements INodeUpdater {
 	public void updateNodes(INode newNode, Set<INode> nodesToUpdate) {		
 		
 		// Extract Group Attributes from newly created node
-		 ArrayList<Set> attributeGroups = newNode.getAttributeGroups();
+		 List<Set<INode>> attributeGroups = newNode.getAttributeGroups();
 		 
 		// Process Every Group
 		 for(Set<INode> attributeGroup : attributeGroups) { 

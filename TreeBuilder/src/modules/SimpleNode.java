@@ -185,26 +185,25 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	}
 
 	@Override
-	public ArrayList<Set> getAttributeGroups() {
-		// TODO Auto-generated method stub
+	public boolean hasAttribute(INode attribute) {
+		return attributes.containsKey(attribute);
+	}
+
+	@Override
+	public IAttribute removeAttribute(INode attribute) {
+		return attributes.remove(attribute);
+		
+	}
+	
+	@Override
+	public List<Set<INode>> getAttributeGroups() {
+		// empty implementation, not needed
 		return null;
 	}
 
 	@Override
-	public boolean hasAttribute(INode attribute) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void removeAttribute(INode attribute) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void addAttributeGroup(Set<INode> Attributegroup) {
-		// TODO Auto-generated method stub
+		// empty implementation, not needed
 		
 	}
 	
