@@ -35,10 +35,37 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		tempNode = (UtilityNode) fac.createCalculationNode(nodes);
 		
 		//2. Calculate variables necessary for utility calculation
-		//2.1 Calculate probability of the class (pClass)
+		//2.1 Calculate probability of the class (pClass). This corresponds to: Total number of attributes/attributes in this node
+		double noAttributes = 0; //TODO: How to count the total number of attributes
+		double noAttributesInNode = tempNode.getNumberOfAttributes();
+		
+		switch(tempNode.getNodeType()){
+		case User:
+			noAttributes = UtilityNodeFactory.getNumberOfMovies();
+		case Content:
+			noAttributes = UtilityNodeFactory.getNumberOfUsers();
+		}
+		
+		if (noAttributes == 0){
+			System.out.println("Can't calculate utility: No Attributes found");
+		}
+		else{
+			pClass = noAttributes/noAttributesInNode;
+		}
 		
 		//2.2 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
-		//2.3 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData)
+		
+		//2.3 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
+		//Can be translated to: 
+		//For each attibute value in tempNode, how often does it occur in dataset? -> Calculate multiplicative inverse (Kehrwert)
+		
+		switch(tempNode.getNodeType()){
+		case User:
+			noAttributes = UtilityNodeFactory.getNumberOfMovies();
+		case Content:
+			noAttributes = UtilityNodeFactory.getNumberOfUsers();
+		}
+		
 		
 		
 		//2.4 Calculate number of categories (k)
