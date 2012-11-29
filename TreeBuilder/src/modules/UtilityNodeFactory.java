@@ -19,7 +19,7 @@ public class UtilityNodeFactory extends NodeFactory{
 			List<INode> nodesToMerge,
 			INodeDistanceCalculator nodeDistanceCalculator,
 			AttributeFactory attributeFactory) {
-		// TODO Auto-generated method stub
+		// create calculation node and add it to tree
 		return null;
 	}
 
@@ -42,8 +42,7 @@ public class UtilityNodeFactory extends NodeFactory{
 		}
 			catch (NumberFormatException bigNumber){
 			System.out.println("The Data contains too many items!");
-			}
-	
+			}	
 		return new UtilityNode(typeOfNewNode, nodeDistanceCalculator);
 	}
 	
