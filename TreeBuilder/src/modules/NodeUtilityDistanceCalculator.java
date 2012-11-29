@@ -35,10 +35,46 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		tempNode = (UtilityNode) fac.createCalculationNode(nodes);
 		
 		//2. Calculate variables necessary for utility calculation
-		//2.1 Calculate probability of the class (pClass)
+		//2.1 Calculate probability of the class (pClass). This corresponds to: Total number of attributes/attributes in this node
+		double noAttributes = 0; //TODO: How to count the total number of attributes
+		double noAttributesInNode = tempNode.getNumberOfAttributes();
 		
-		//2.2 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
-		//2.3 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData)
+		switch(tempNode.getNodeType()){
+		case User:
+			noAttributes = UtilityNodeFactory.getNumberOfMovies();
+		case Content:
+			noAttributes = UtilityNodeFactory.getNumberOfUsers();
+		}
+		
+		if (noAttributes == 0){
+			System.out.println("Can't calculate utility: No Attributes found"); //Anm: try/catch-clause einbauen?
+		}
+		else{
+			pClass = noAttributes/noAttributesInNode;
+		}
+		
+		
+		//2.2 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
+		//Can be translated to: 
+		//For each attribute value in tempNode, calculate how often it occurs in dataset compared to size of dataset
+		//and then calculate multiplicative inverse (Kehrwert)
+		
+		/*
+		 * for each attribute value in tempNode{
+		 * 		count = how often attribute value occurs in whole data set. 
+		 * 		pAttrInData+= count/number of leafs;
+		 * }
+		 * 
+		 */
+		
+		//2.3 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
+		//i.e. the expected number of attribute values that one can correctly guess for an arbitrary member of tempNode (= probability of occurring)
+		
+		/*for all attributes in tempNode{
+			pAttrInClass += attribute.getProbability for this node();
+			}
+			*/
+		
 		
 		
 		//2.4 Calculate number of categories (k)

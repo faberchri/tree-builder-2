@@ -10,7 +10,8 @@ import clusterer.INodeDistanceCalculator;
 //Empty class for distance calculation based on utility
 public class UtilityNode extends SimpleNode {
 
-	private int attributeCount = 0; 
+	private int MovieAttributeCount = 0; 
+	private int UserAttributeCount = 0; 
 	private double probability = 0;
 	private Map<INode, IAttribute> attributes;
 	
@@ -25,14 +26,27 @@ public class UtilityNode extends SimpleNode {
 	}
 	
 	public int getNumberOfAttributes(){
-		return attributeCount;
+		int i=0;
+		switch(this.getNodeType()){
+		case User:
+			i = UserAttributeCount;
+		case Content:
+			i = MovieAttributeCount;
+		}
+		return i;
 	}
 	
 	@Override
 	public void setAttributes(Map<INode, IAttribute> attributes) {
 		// TODO Auto-generated method stub
 		this.attributes = attributes;
-		attributeCount++;
+		
+		switch(this.getNodeType()){
+		case User:
+			UserAttributeCount++;
+		case Content:
+			MovieAttributeCount++;
+		}
 	}
 
 
