@@ -47,7 +47,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		}
 		
 		if (noAttributes == 0){
-			System.out.println("Can't calculate utility: No Attributes found");
+			System.out.println("Can't calculate utility: No Attributes found"); //Anm: try/catch-clause einbauen?
 		}
 		else{
 			pClass = noAttributes/noAttributesInNode;
@@ -57,14 +57,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		
 		//2.3 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
 		//Can be translated to: 
-		//For each attibute value in tempNode, how often does it occur in dataset? -> Calculate multiplicative inverse (Kehrwert)
-		
-		switch(tempNode.getNodeType()){
-		case User:
-			noAttributes = UtilityNodeFactory.getNumberOfMovies();
-		case Content:
-			noAttributes = UtilityNodeFactory.getNumberOfUsers();
-		}
+		//For each attribute value in tempNode, calculate how often it occurs in dataset and then calculate multiplicative inverse (Kehrwert)
 		
 		
 		
