@@ -20,7 +20,7 @@ public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 		for (INode node : openNodes) {
 			subSet.remove(node);
 			for (INode node2 : subSet) {
-				double tmpDi = node.getDistance(node2);
+				double tmpDi = node.getDistance(node2,null,null);
 				if (tmpDi < closestDistance){
 					closestDistance = tmpDi;
 					closestNodes.clear();

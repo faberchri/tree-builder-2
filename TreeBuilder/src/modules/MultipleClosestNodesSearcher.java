@@ -14,6 +14,8 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 	@Override
 	public List<INode> getClosestNodes(Set<INode> openNodes, Counter counter) {
 		
+		System.out.println("multiple closest Nodes searcher");
+		
 		long time = System.currentTimeMillis();
 		double closestDistance = Double.MAX_VALUE;
 		List<INode> closestNodes = new ArrayList<INode>();

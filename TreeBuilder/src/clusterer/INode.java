@@ -6,14 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface INode {
-	/**
-	 * Gets distance from this node to {@code otherNode}.
-	 * 
-	 * @param otherNode node to calculate distance to.
-	 * 
-	 * @return distance from this node to {@code otherNode}.
-	 */
-	public double getDistance(INode otherNode);
 	
 	/**
 	 * Gets distance from this node to {@code otherNode}.

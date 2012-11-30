@@ -25,6 +25,9 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 	// Calculates distance of two nodes based on Cobweb utility function from Gennari, Langley and Fischer "Models 
 	// of Incremental Concept Formation", p. 26
 	public double calculateDistance(INode n1, INode n2, Counter counter, Set<INode> openNodes) {
+		
+		System.out.println("Node Utility");
+		
 		List<INode> nodes = new ArrayList(); 
 		nodes.add(n1);
 		nodes.add(n2);
