@@ -3,6 +3,7 @@ package modules;
 import java.util.HashSet;
 import java.util.Set;
 
+import clusterer.Counter;
 import clusterer.INode;
 import clusterer.INodeDistanceCalculator;
 
@@ -31,6 +32,13 @@ public class SimpleNodeDistanceCalculator implements INodeDistanceCalculator {
 		}
 		return 1.0 / (double)union.size() * summedRatingDiffs + ((double)union.size() - (double)intersect.size()) / (double)union.size();
 
+	}
+
+	@Override
+	public double calculateDistance(INode n1, INode n2, Counter counter,
+			Set<INode> openNodes) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

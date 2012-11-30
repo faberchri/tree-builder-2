@@ -16,6 +16,15 @@ public interface INode {
 	public double getDistance(INode otherNode);
 	
 	/**
+	 * Gets distance from this node to {@code otherNode}.
+	 * 
+	 * @param otherNode node to calculate distance to.
+	 * 
+	 * @return distance from this node to {@code otherNode}.
+	 */
+	public double getDistance(INode otherNode,Counter counter, Set<INode> openNodes);
+	
+	/**
 	 * Gets a INodeDistance object with this node
 	 * and the closest node in {@code nodes}.
 	 * 
@@ -156,4 +165,19 @@ public interface INode {
 	 * @return list all the attribute groups for {@code this} node.
 	 */
 	public List<Set<INode>> getAttributeGroups();
+	
+	/**
+	 * Adds the total count of children
+	 * @param totalChildren 
+	 * 
+	 * @return void
+	 */
+	public void setChildrenCount(int totalChildren);
+	
+	/**
+	 * Gets the total count of children
+	 * 
+	 * @return void
+	 */
+	public int getChildrenCount();
 }

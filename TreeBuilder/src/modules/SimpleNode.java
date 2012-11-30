@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import clusterer.Counter;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.INode;
@@ -205,6 +206,25 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	public void addAttributeGroup(Set<INode> Attributegroup) {
 		// empty implementation, not needed
 		
+	}
+
+	@Override
+	public void setChildrenCount(int totalChildren) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getChildrenCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getDistance(INode otherNode, Counter counter,
+			Set<INode> openNodes) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

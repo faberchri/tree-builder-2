@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import clusterer.Counter;
 import clusterer.IClosestNodesSearcher;
 import clusterer.INode;
 import clusterer.INodeDistance;
@@ -95,6 +96,12 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 			return bestNodeDistance;
 		}
 		
+	}
+
+	@Override
+	public List<INode> getClosestNodes(Set<INode> openNodes, Counter counter) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
