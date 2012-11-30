@@ -43,6 +43,7 @@ public class FloareaDataset extends AbstractDataset<Double> {
 	@Override
 	void parseLine(String line) {
 		String[] sAr = line.split("\\s+");
+		if (sAr == null || sAr.length != 3) return;
 		IDatasetItem<Double> di = 
 				new SimpleDatasetItem<Double>(
 						Double.parseDouble(sAr[2]),

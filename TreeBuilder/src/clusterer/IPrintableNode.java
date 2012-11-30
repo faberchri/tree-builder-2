@@ -15,7 +15,7 @@ public interface IPrintableNode extends INode {
 	public String getAttributesString();
 	
 	/**
-	 * Gets the node is.
+	 * Gets the id of the node.
 	 * 
 	 * @return the node id
 	 */
