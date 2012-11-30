@@ -13,14 +13,13 @@ import clusterer.INodeDistanceCalculator;
 
 public class ComplexNode extends SimpleNode {
 	
-	
-	// Probability of Class
+	// children count of class
 	int childrenCount = 0;
 	
 	/**
 	 * The distance calculator of the node.
 	 */
-	private List<Set<INode>> attributeGroups;
+	private List<Set<INode>> attributeGroups = new ArrayList<Set<INode>>();
 
 	public ComplexNode( ENodeType nodeType, INodeDistanceCalculator ndc) {
 		super(nodeType, ndc);
