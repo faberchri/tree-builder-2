@@ -13,7 +13,7 @@ public class ComplexAttributeFactory extends AttributeFactory {
 	/*
 	 * Must not be instantiated with constructor.
 	 */
-	private ComplexAttributeFactory() {
+	ComplexAttributeFactory() {
 		// singleton
 	}
 	
