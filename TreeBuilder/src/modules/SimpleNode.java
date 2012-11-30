@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import clusterer.Counter;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.INode;
@@ -69,8 +70,8 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	}
 	
 	@Override
-	public double getDistance(INode otherNode) {
-		return distanceCalculator.calculateDistance(this, otherNode);
+	public double getDistance(INode otherNode, Counter counter, Set<INode> openNodes) {
+		return distanceCalculator.calculateDistance(this, otherNode, counter, openNodes);
 	}
 	
 	@Override
@@ -79,7 +80,7 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 		INode close = null;
 		for (INode node : list) {
 			if (node.equals(this)) continue;
-			double tmp = this.getDistance(node);
+			double tmp = this.getDistance(node, null, null);
 			if (tmp < shortest) {
 				shortest = tmp;
 				close = node;
@@ -205,6 +206,19 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	public void addAttributeGroup(Set<INode> Attributegroup) {
 		// empty implementation, not needed
 		
+	}
+
+	@Override
+	public void setChildrenCount(int totalChildren) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public int getChildrenCount() {
+		return 0;
+		// TODO Auto-generated method stub
+
 	}
 	
 }

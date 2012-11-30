@@ -108,6 +108,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		// Build Leaf Nodes
 		initLeafNodes(dataset);
 		
+		// Initialize Counter
+		Counter counter = new Counter(contentNodes.size(),userNodes.size());
+		
 		// Initialize control parameter
 		int cycleCount = 0;
 		long startTime = System.currentTimeMillis();
@@ -123,8 +126,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest User Nodes & Merge them
 			INode newUserNode = null;
 			if(userNodes.size() >= 2) {
-				List<INode> cN = closestNodesSearcher.getClosestNodes(userNodes);
-				newUserNode = mergeNodes(cN, userNodes);
+				List<INode> cN = closestNodesSearcher.getClosestNodes(userNodes,counter);
+				newUserNode = mergeNodes(cN, userNodes,counter);
 				
 				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
 				System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
@@ -134,8 +137,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest Movie Nodes & Merge them
 			INode newMovieNode = null;
 			if(contentNodes.size() >= 2) {
-				List<INode> cN = closestNodesSearcher.getClosestNodes(contentNodes);
-				newMovieNode = mergeNodes(cN, contentNodes);
+				List<INode> cN = closestNodesSearcher.getClosestNodes(contentNodes,counter);
+				newMovieNode = mergeNodes(cN, contentNodes,counter);
 				
 				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
 				System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
@@ -143,10 +146,10 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			}
 
 			// Update Trees with info from other tree on current level - only if nodes merged
-			if(newUserNode != null) {
+			if(newUserNode != null && contentNodes.size() > 1) {
 				nodeUpdater.updateNodes(newUserNode,contentNodes); 
 			}
-			if(newMovieNode != null) {
+			if(newMovieNode != null && userNodes.size() > 1) {
 				nodeUpdater.updateNodes(newMovieNode,userNodes);
 			}
 			
@@ -233,7 +236,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
+	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
 		
 		if (nodesToMerge.size() > 1) {
 			
@@ -246,6 +249,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 						nodesToMerge,
 						usersNodeDistanceCalculator,
 						attributeFactory);
+				counter.addUserNode();
 				break;
 			case Content:
 				newNode = nodeFactory.createInternalNode(
@@ -253,6 +257,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 						nodesToMerge,
 						contentsNodeDistanceCalculator,
 						attributeFactory);
+				counter.addMovieNode();
 				break;
 			default:
 				newNode = null;
@@ -264,6 +269,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Add new node to openset
 			openSet.add(newNode);
 			
+			// Start children count
+			int totalChildrenOfChildNodes = 0;
+			
 			// Updating relationships and remove
 			for (INode nodeToMerge : nodesToMerge) {	
 				
@@ -271,11 +279,17 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				nodeToMerge.setParent(newNode);
 				newNode.addChild(nodeToMerge);
 				
+				// Add to children count
+				totalChildrenOfChildNodes += nodeToMerge.getChildrenCount();
+				
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {
 					System.err.println("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 				}
 			}
+			
+			// Add complete children count to node
+			newNode.setChildrenCount(totalChildrenOfChildNodes + nodesToMerge.size());
 
 			return newNode;
 			

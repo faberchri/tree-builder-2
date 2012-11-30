@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface INode {
+	
 	/**
 	 * Gets distance from this node to {@code otherNode}.
 	 * 
@@ -13,7 +14,7 @@ public interface INode {
 	 * 
 	 * @return distance from this node to {@code otherNode}.
 	 */
-	public double getDistance(INode otherNode);
+	public double getDistance(INode otherNode,Counter counter, Set<INode> openNodes);
 	
 	/**
 	 * Gets a INodeDistance object with this node
@@ -156,4 +157,19 @@ public interface INode {
 	 * @return list all the attribute groups for {@code this} node.
 	 */
 	public List<Set<INode>> getAttributeGroups();
+	
+	/**
+	 * Adds the total count of children
+	 * @param totalChildren 
+	 * 
+	 * @return void
+	 */
+	public void setChildrenCount(int totalChildren);
+	
+	/**
+	 * Gets the total count of children
+	 * 
+	 * @return void
+	 */
+	public int getChildrenCount();
 }

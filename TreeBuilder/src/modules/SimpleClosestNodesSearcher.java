@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import clusterer.Counter;
 import clusterer.IClosestNodesSearcher;
 import clusterer.INode;
 
@@ -19,7 +20,7 @@ public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 		for (INode node : openNodes) {
 			subSet.remove(node);
 			for (INode node2 : subSet) {
-				double tmpDi = node.getDistance(node2);
+				double tmpDi = node.getDistance(node2,null,null);
 				if (tmpDi < closestDistance){
 					closestDistance = tmpDi;
 					closestNodes.clear();
@@ -35,6 +36,12 @@ public class SimpleClosestNodesSearcher implements IClosestNodesSearcher {
 		time = System.currentTimeMillis() - time;
 		System.out.println("Time in getClosestNode() single: " + (double)time / 1000.0);
 		return closestNodes;
+	}
+
+	@Override
+	public List<INode> getClosestNodes(Set<INode> openNodes, Counter counter) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

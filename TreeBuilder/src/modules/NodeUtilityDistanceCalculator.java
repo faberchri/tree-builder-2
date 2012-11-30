@@ -2,7 +2,9 @@ package modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import clusterer.Counter;
 import clusterer.INode;
 import clusterer.INodeDistanceCalculator;
 
@@ -12,79 +14,85 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 	//TODO: When merging more than 2 nodes, utility can't be simply translated into distance, since utility
 	// depends on which nodes are merged
 	
-	double pClass = 0; //Probability of the class
-	double pAttrInClass = 0; //Sum of Probabilities of the attribute values, given membership in class
+	float pClass = 0; //Probability of the class
 	double pAttrInData = 0; //Sum of Probabilities of the attribute value in the data set
-	double k = 0; //Number of categories
+	double pAttrInClass = 0; //Sum of Probabilities of the attribute values, given membership in class
+	double k = 0; //Number of categories, e.g. all nodes in this tree	
 	
 	double utility = 0; //The utility metric to be calculated
 	double distance = 0;
 		
 	// Calculates distance of two nodes based on Cobweb utility function from Gennari, Langley and Fischer "Models 
 	// of Incremental Concept Formation", p. 26
-	public double calculateDistance(INode n1, INode n2) {
+	public double calculateDistance(INode n1, INode n2, Counter counter, Set<INode> openNodes) {
+		
+		System.out.println("Node Utility");
+		
 		List<INode> nodes = new ArrayList(); 
 		nodes.add(n1);
 		nodes.add(n2);
 		
-		UtilityNode tempNode = new UtilityNode(n1.getNodeType(), this); //Temporary node for utility calculation 
+		// Merge n1 and n2	
+		ComplexNodeFactory nodeFactory = new ComplexNodeFactory();
+		ComplexAttributeFactory attFactory = new ComplexAttributeFactory();
+		NodeUtilityDistanceCalculator distanceCalculator = new NodeUtilityDistanceCalculator();
+		ComplexNode tempNode = (ComplexNode) nodeFactory.createInternalNode(n1.getNodeType(),nodes,distanceCalculator,attFactory);
+		tempNode.setChildrenCount(n1.getChildrenCount() + n2.getChildrenCount());
 		
-		//1. Merge n1 and n2	
+		// Retrive Data from Counter
+		int numberOfAllNodes = 0;
+		switch(tempNode.getNodeType()) {
+			case User: 
+				numberOfAllNodes = counter.getUserNodeCount();
+				break;
+			case Content: 
+				numberOfAllNodes = counter.getUserNodeCount();	
+		}
 		
-		UtilityNodeFactory fac = new UtilityNodeFactory();
-		tempNode = (UtilityNode) fac.createCalculationNode(nodes);
+		// Count Nodes on current level
+		int nodeCountOnCurrentLevel = openNodes.size();
+
 		
 		//2. Calculate variables necessary for utility calculation
-		//2.1 Calculate probability of the class (pClass). This corresponds to: Total number of attributes/attributes in this node
-		double noAttributes = 0; //TODO: How to count the total number of attributes
-		double noAttributesInNode = tempNode.getNumberOfAttributes();
-		
-		switch(tempNode.getNodeType()){
-		case User:
-			noAttributes = UtilityNodeFactory.getNumberOfMovies();
-		case Content:
-			noAttributes = UtilityNodeFactory.getNumberOfUsers();
+		//2.1 Calculate probability of the class (pClass). This is calculated from number of children / total number of nodes on current level
+		if(tempNode.getChildrenCount() < 1) {
+			System.out.println("first level");
+			pClass = (float) 1/nodeCountOnCurrentLevel; // At the first level were all nodes are leaf nodes
 		}
-		
-		if (noAttributes == 0){
-			System.out.println("Can't calculate utility: No Attributes found"); //Anm: try/catch-clause einbauen?
+		else {
+			pClass = (float) tempNode.getChildrenCount() / (numberOfAllNodes - 1); // All further levels
 		}
-		else{
-			pClass = noAttributes/noAttributesInNode;
-		}
-		
+		System.out.println("pClass:" + pClass);
 		
 		//2.2 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
 		//Can be translated to: 
 		//For each attribute value in tempNode, calculate how often it occurs in dataset compared to size of dataset
 		//and then calculate multiplicative inverse (Kehrwert)
 		
-		/*
-		 * for each attribute value in tempNode{
-		 * 		count = how often attribute value occurs in whole data set. 
-		 * 		pAttrInData+= count/number of leafs;
-		 * }
-		 * 
-		 */
+		// Calculate all Nodes with the same attributes
+		double pAttrInData = 0;
+		for(INode attribute : tempNode.getAttributeKeys()) {
+			int numberOfAllNodesWithAttribute = 0;
+			for(INode testNode : openNodes) {
+				if(testNode.hasAttribute(attribute)) {
+					numberOfAllNodesWithAttribute += testNode.getAttributeValue(attribute).getSupport(); // Adds the number of all subnodes with this attribute
+				}
+			}
+			pAttrInData += numberOfAllNodes / numberOfAllNodesWithAttribute;
+		}
+		System.out.println("pAttrInData:" + pAttrInData);
 		
 		//2.3 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
 		//i.e. the expected number of attribute values that one can correctly guess for an arbitrary member of tempNode (= probability of occurring)
-		
-		/*for all attributes in tempNode{
-			pAttrInClass += attribute.getProbability for this node();
-			}
-			*/
-		
-		
+		double pAttrInClass = 0;
+		for(INode attribute : tempNode.getAttributeKeys()) {
+			pAttrInClass += tempNode.getAttributeValue(attribute).getStdDev();
+		}
+		System.out.println("pAttrInClass:" + pAttrInClass);
 		
 		//2.4 Calculate number of categories (k)
-		switch(tempNode.getNodeType()){
-		case User:
-			k = UtilityNodeFactory.getNumberOfUsers();
-		case Content:
-			k = UtilityNodeFactory.getNumberOfMovies();
-		}
-		
+		k = numberOfAllNodes;
+		System.out.println("k:" + k);
 		
 		//3. TODO: Calculate utility for the new node
 		if(k != 0){
@@ -100,6 +108,10 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		return distance;
 	}
 
+	@Override
+	public double calculateDistance(INode n1, INode n2) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
-
-
