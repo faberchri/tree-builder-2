@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 
 import modules.ComplexNodeFactory;
 import modules.SimpleAttributeFactory;
+import storing.DBHandling;
 import visualization.VisualizationBuilder;
 import client.IDataset;
 import client.IDatasetItem;
@@ -78,6 +79,11 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	private IClosestNodesSearcher closestNodesSearcher;
 	
 	/**
+	 * Handles storing of nodes to db
+	 */
+	private DBHandling dbHandling;
+	
+	/**
 	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
 	 * 
 	 * @param rapidminerOperatorDescription Data container for name, class, short name,
@@ -104,6 +110,10 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * Performs the cluster tree creation of the data set.
 	 */
 	public void cluster() {
+		
+		// Instantiate DB
+		//this.dbHandling = new DBHandling();
+		//dbHandling.connect();
 		
 		// Build Leaf Nodes
 		initLeafNodes(dataset);
@@ -158,6 +168,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 
 			cycleCount++;
 		} 
+		
+		// Close Database
+		//dbHandling.shutdown();
 	}
 	
 	/**

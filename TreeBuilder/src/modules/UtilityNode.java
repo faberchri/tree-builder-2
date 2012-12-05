@@ -1,5 +1,7 @@
 package modules;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import clusterer.ENodeType;
@@ -16,7 +18,7 @@ public class UtilityNode extends SimpleNode {
 	private Map<INode, IAttribute> attributes;
 	
 	public UtilityNode(ENodeType typeOfNewNode,
-			INodeDistanceCalculator nodeDistanceCalculator) {
+			INodeDistanceCalculator nodeDistanceCalculator, HashSet<INode> hashSet, Map<INode, IAttribute> attMap, ArrayList<INode> attGroup) {
 		super(typeOfNewNode, nodeDistanceCalculator);
 		//TODO update probability
 	}
