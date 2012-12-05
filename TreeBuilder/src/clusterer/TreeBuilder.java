@@ -120,6 +120,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		
 		// Initialize Counter
 		Counter counter = new Counter(contentNodes.size(),userNodes.size());
+		counter.setOpenUserNodeCount(userNodes.size());
+		counter.setOpenMovieNode(contentNodes.size());
 		
 		// Initialize control parameter
 		int cycleCount = 0;

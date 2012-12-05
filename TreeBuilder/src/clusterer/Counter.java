@@ -9,28 +9,38 @@ public class Counter {
 	
 	int movieNodeCount = 0;
 	int userNodeCount = 0;
-	int movieNodeCountOnCurrentLevel = 0;
-	int userNodeCountOnCurrentLevel = 0;
+	int openMovieNodes = 0;
+	int openUserNodes = 0;
 	
-	public int getMovieNodeCountOnCurrentLevel() {
-		return movieNodeCountOnCurrentLevel;
+	int totalComparisonsOnCurrentLevel = 0;
+	
+	public int getTotalComparisonsOnCurrentLevel() {
+		return totalComparisonsOnCurrentLevel;
 	}
 
-	public void setMovieNodeCountOnCurrentLevel(int movieNodeCountOnCurrentLevel) {
-		this.movieNodeCountOnCurrentLevel = movieNodeCountOnCurrentLevel;
-	}
-
-	public int getUserNodeCountOnCurrentLevel() {
-		return userNodeCountOnCurrentLevel;
-	}
-
-	public void setUserNodeCountOnCurrentLevel(int userNodeCountOnCurrentLevel) {
-		this.userNodeCountOnCurrentLevel = userNodeCountOnCurrentLevel;
+	public void addComparisonOnCurrentLevel() {
+		this.totalComparisonsOnCurrentLevel++;
 	}
 
 	public Counter (int movieNodeCount, int userNodeCount) {
 		this.movieNodeCount = movieNodeCount;
 		this.userNodeCount = userNodeCount;
+	}
+	
+	public int getOpenMovieNodeCount() {
+		return openMovieNodes;
+	}
+
+	public void setOpenMovieNode(int movieNodeCountOnCurrentLevel) {
+		this.openMovieNodes = movieNodeCountOnCurrentLevel;
+	}
+
+	public int getOpenUserNodeCount() {
+		return openUserNodes;
+	}
+
+	public void setOpenUserNodeCount(int userNodeCountOnCurrentLevel) {
+		this.openUserNodes = userNodeCountOnCurrentLevel;
 	}
 
 	public int getMovieNodeCount() {
@@ -56,4 +66,5 @@ public class Counter {
 	public void addUserNode() {
 		userNodeCount++;
 	}
+
 }
