@@ -46,7 +46,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		}
 		
 		// Retrive Data from Counter
-		int numberOfAllNodes = 0;
+		long numberOfAllNodes = 0;
 		switch(n1.getNodeType()) { // verbessern
 			case User: 
 				numberOfAllNodes = counter.getUserNodeCount();
@@ -62,13 +62,13 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		//2. Calculate variables necessary for utility calculation
 		//2.1 Calculate probability of the class (pClass). This is calculated from number of children / total number of nodes on current level
 		if(totalChildren < 1) {
-			System.out.println("first level");
+			//System.out.println("first level");
 			pClass = (float) 1/nodeCountOnCurrentLevel; // At the first level were all nodes are leaf nodes
 		}
 		else {
 			pClass = (float) totalChildren / (numberOfAllNodes - 1); // All further levels
 		}
-		System.out.println("pClass:" + pClass);
+		//System.out.println("pClass:" + pClass);
 		
 		//2.2 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
 		//Can be translated to: 
@@ -94,7 +94,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
 			pAttrInClass += attribute.getValue().getStdDev();
 		}
-		System.out.println("pAttrInClass:" + pAttrInClass);
+		//System.out.println("pAttrInClass:" + pAttrInClass);
 		
 		//2.4 Calculate number of categories (k)
 		//k = numberOfAllNodes;

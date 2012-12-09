@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import visualization.ShowProgress;
 import clusterer.Counter;
 import clusterer.IClosestNodesSearcher;
 import clusterer.INode;
@@ -21,10 +20,6 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 		double closestDistance = Double.MAX_VALUE;
 		List<INode> closestNodes = new ArrayList<INode>();
 		Set<INode> subSet = new HashSet<INode>(openNodes);
-		
-		// Instantiate ShowProgress
-		ShowProgress showProgress = new ShowProgress();
-		showProgress.start();
 		
 		// Add all Nodes with closest Distance to closestNodes List
 		for (INode openNode : openNodes) {
@@ -60,14 +55,9 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 				}
 				
 				// Update comparison counter
-				counter.addComparisonOnCurrentLevel();
-				
-				// Update ShowProgress
-				showProgress.update(counter);
+				counter.addComparison();
 			}
 		}
-		
-		// 
 		
 		if (closestNodes.size() > 1) {
 			System.out.println("Closest nodes: "+ closestNodes.toString() +" ("+closestDistance+")");

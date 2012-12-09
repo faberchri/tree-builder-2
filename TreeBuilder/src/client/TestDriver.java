@@ -101,14 +101,14 @@ public class TestDriver {
 		}
 		
 		// create a data set
-		RandomDataset ds = new RandomDataset(15, 10, 60);
-		ds.printRandomMatrix();
+		//RandomDataset ds = new RandomDataset(15, 10, 60);
+		//ds.printRandomMatrix();
 
-//				GrouplensDataset ds = new GrouplensDataset(null);
-//				TreeBuilder<Integer> treeBuilder = new TreeBuilder<Integer>(
+		GrouplensDataset ds = new GrouplensDataset(null);
+		TreeBuilder<Integer> treeBuilder = new TreeBuilder<Integer>(
 
 		// create TreeBuilder
-		TreeBuilder<Double> treeBuilder = new TreeBuilder<Double>(
+		//TreeBuilder<Double> treeBuilder = new TreeBuilder<Double>(
 				rapidminerOperatorDescription,
 				ds,
 				ndcUsers,

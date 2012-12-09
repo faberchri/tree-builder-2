@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import modules.ComplexNodeFactory;
 import modules.SimpleAttributeFactory;
 import storing.DBHandling;
+import visualization.Display;
 import visualization.VisualizationBuilder;
 import client.IDataset;
 import client.IDatasetItem;
@@ -122,16 +123,18 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		Counter counter = new Counter(contentNodes.size(),userNodes.size());
 		counter.setOpenUserNodeCount(userNodes.size());
 		counter.setOpenMovieNode(contentNodes.size());
+		counter.setStartTime(System.currentTimeMillis());
 		
-		// Initialize control parameter
-		int cycleCount = 0;
-		long startTime = System.currentTimeMillis();
+		// Start Display of control Data and hang in to counter
+		Display display = new Display();
+		display.start(counter);
+		counter.setDisplay(display);
 		
-		// Initialze visualization frame
+		// Initialize Visualization Frame
         JFrame frame = new JFrame();
         Container content = frame.getContentPane();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+        
 		// Process Nodes
 		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
 
@@ -141,9 +144,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				List<INode> cN = closestNodesSearcher.getClosestNodes(userNodes,counter);
 				newUserNode = mergeNodes(cN, userNodes,counter);
 				
-				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-				System.out.println("cycle "+ cycleCount + "| number of open user nodes: " + userNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
-				printAllOpenUserNodes();
+				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
+				//userNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+				//printAllOpenUserNodes();
 			}
 
 			// Get closest Movie Nodes & Merge them
@@ -152,9 +155,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				List<INode> cN = closestNodesSearcher.getClosestNodes(contentNodes,counter);
 				newMovieNode = mergeNodes(cN, contentNodes,counter);
 				
-				double elapsedTime = ((double)(System.currentTimeMillis() - startTime)) / 1000.0;
-				System.out.println("cycle "+ cycleCount + "| number of open movie nodes: " + contentNodes.size() + "\t elapsed time [s]: "+ elapsedTime);
-				printAllOpenMovieNodes();
+				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
+				//contentNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+				//printAllOpenMovieNodes();
 			}
 
 			// Update Trees with info from other tree on current level - only if nodes merged
@@ -167,8 +170,11 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			
 			// Create/Update Visualization
 			visualize(frame,content);
-
-			cycleCount++;
+			
+			// Update counter
+			counter.setOpenMovieNode(contentNodes.size());
+			counter.setOpenUserNodeCount(userNodes.size());
+			counter.addCycle();
 		} 
 		
 		// Close Database
