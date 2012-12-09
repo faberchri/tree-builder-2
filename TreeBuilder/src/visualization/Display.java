@@ -2,7 +2,9 @@ package visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +29,7 @@ public class Display {
 		private JProgressBar progressBar;
 		private JLabel nodesOnCurrentLevel;
 		private JLabel comparisonsOnCurrentLevel;
+		private JLabel nodeCompPerSecond;
 
 	    /**
 	     * Create the GUI and show it.  For thread safety,
@@ -65,6 +68,8 @@ public class Display {
 	        this.progressBar.setStringPainted(true);
 	        listPane.add(this.progressBar,BorderLayout.PAGE_END);
 	        
+	        listPane.add(Box.createRigidArea(new Dimension(0,15)));
+	      
 	        // Control Data
 	        this.nodesOnCurrentLevel = new JLabel("");
 	        listPane.add(this.nodesOnCurrentLevel);	
@@ -78,9 +83,14 @@ public class Display {
 	        this.mergedNodes = new JLabel("");
 	        listPane.add(this.mergedNodes);
 	        
+	        listPane.add(Box.createRigidArea(new Dimension(0,15)));
+	        
 	        // Time
 	        this.avCompTime = new JLabel("");
 	        listPane.add(this.avCompTime);
+	        
+	        this.nodeCompPerSecond = new JLabel("");
+	        listPane.add(this.nodeCompPerSecond );
 	        		
 	        this.elapsedTime = new JLabel("");
 	        listPane.add(this.elapsedTime);
@@ -135,6 +145,7 @@ public class Display {
 		    	// Update Slow Display
 		    	this.compPercentage.setText("Progress (%): " + percentage + "%");
 		    	this.avCompTime.setText("Av. Comparison Time: " + averageCompTime);
+		    	this.nodeCompPerSecond.setText("Nodes Compared / Second: " + 1/averageCompTime);
 		    	this.elapsedTime.setText("Elapsed Time: " + elapsedTime);
 		    	this.expectedTime.setText(expectedTimeText);
 		    	this.cycle.setText("Cycle: " + counter.getCycleCount());
