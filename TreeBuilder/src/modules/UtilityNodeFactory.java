@@ -43,7 +43,8 @@ public class UtilityNodeFactory extends NodeFactory{
 			catch (NumberFormatException bigNumber){
 			System.out.println("The Data contains too many items!");
 			}	
-		return new UtilityNode(typeOfNewNode, nodeDistanceCalculator);
+		//return new UtilityNode(typeOfNewNode, nodeDistanceCalculator);
+		return null;
 	}
 	
 	public static long getNumberOfUsers(){

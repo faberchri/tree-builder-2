@@ -2,9 +2,12 @@ package modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import clusterer.Counter;
+import clusterer.IAttribute;
 import clusterer.INode;
 import clusterer.INodeDistanceCalculator;
 
@@ -26,22 +29,25 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 	// of Incremental Concept Formation", p. 26
 	public double calculateDistance(INode n1, INode n2, Counter counter, Set<INode> openNodes) {
 		
-		System.out.println("Node Utility");
+		// Should already be a list in the method definition
+		List<INode> nodesToMerge = new ArrayList(); 
+		nodesToMerge.add(n1);
+		nodesToMerge.add(n2);
 		
-		List<INode> nodes = new ArrayList(); 
-		nodes.add(n1);
-		nodes.add(n2);
-		
-		// Merge n1 and n2	
+		// Merge attributes of all nodes
 		ComplexNodeFactory nodeFactory = new ComplexNodeFactory();
 		ComplexAttributeFactory attFactory = new ComplexAttributeFactory();
-		NodeUtilityDistanceCalculator distanceCalculator = new NodeUtilityDistanceCalculator();
-		ComplexNode tempNode = (ComplexNode) nodeFactory.createInternalNode(n1.getNodeType(),nodes,distanceCalculator,attFactory);
-		tempNode.setChildrenCount(n1.getChildrenCount() + n2.getChildrenCount());
+		Map<INode,IAttribute> mergedAttributes = nodeFactory.createAttMap(nodesToMerge, attFactory);
+		
+		// Count total children of all nodes
+		int totalChildren = 0;
+		for (INode nodeToMerge : nodesToMerge) {
+			totalChildren += nodeToMerge.getChildrenCount();
+		}
 		
 		// Retrive Data from Counter
-		int numberOfAllNodes = 0;
-		switch(tempNode.getNodeType()) {
+		long numberOfAllNodes = 0;
+		switch(n1.getNodeType()) { // verbessern
 			case User: 
 				numberOfAllNodes = counter.getUserNodeCount();
 				break;
@@ -55,14 +61,14 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		
 		//2. Calculate variables necessary for utility calculation
 		//2.1 Calculate probability of the class (pClass). This is calculated from number of children / total number of nodes on current level
-		if(tempNode.getChildrenCount() < 1) {
-			System.out.println("first level");
+		if(totalChildren < 1) {
+			//System.out.println("first level");
 			pClass = (float) 1/nodeCountOnCurrentLevel; // At the first level were all nodes are leaf nodes
 		}
 		else {
-			pClass = (float) tempNode.getChildrenCount() / (numberOfAllNodes - 1); // All further levels
+			pClass = (float) totalChildren / (numberOfAllNodes - 1); // All further levels
 		}
-		System.out.println("pClass:" + pClass);
+		//System.out.println("pClass:" + pClass);
 		
 		//2.2 Calculate Sum of Probabilities of the attribute value in the data set (pAttrInData).
 		//Can be translated to: 
@@ -70,33 +76,34 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		//and then calculate multiplicative inverse (Kehrwert)
 		
 		// Calculate all Nodes with the same attributes
-		double pAttrInData = 0;
-		for(INode attribute : tempNode.getAttributeKeys()) {
-			int numberOfAllNodesWithAttribute = 0;
-			for(INode testNode : openNodes) {
-				if(testNode.hasAttribute(attribute)) {
-					numberOfAllNodesWithAttribute += testNode.getAttributeValue(attribute).getSupport(); // Adds the number of all subnodes with this attribute
-				}
-			}
-			pAttrInData += numberOfAllNodes / numberOfAllNodesWithAttribute;
-		}
-		System.out.println("pAttrInData:" + pAttrInData);
+//		double pAttrInData = 0;
+//		for(INode attribute : tempNode.getAttributeKeys()) {
+//			int numberOfAllNodesWithAttribute = 0;
+//			for(INode testNode : openNodes) {
+//				if(testNode.hasAttribute(attribute)) {
+//					numberOfAllNodesWithAttribute += testNode.getAttributeValue(attribute).getSupport(); // Adds the number of all subnodes with this attribute
+//				}
+//			}
+//			pAttrInData += numberOfAllNodes / numberOfAllNodesWithAttribute;
+//		}
+//		System.out.println("pAttrInData:" + pAttrInData);
 		
 		//2.3 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
 		//i.e. the expected number of attribute values that one can correctly guess for an arbitrary member of tempNode (= probability of occurring)
 		double pAttrInClass = 0;
-		for(INode attribute : tempNode.getAttributeKeys()) {
-			pAttrInClass += tempNode.getAttributeValue(attribute).getStdDev();
+		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
+			pAttrInClass += attribute.getValue().getStdDev();
 		}
-		System.out.println("pAttrInClass:" + pAttrInClass);
+		//System.out.println("pAttrInClass:" + pAttrInClass);
 		
 		//2.4 Calculate number of categories (k)
-		k = numberOfAllNodes;
-		System.out.println("k:" + k);
+		//k = numberOfAllNodes;
+		//System.out.println("k:" + k);
 		
 		//3. TODO: Calculate utility for the new node
-		if(k != 0){
-			utility = (pClass * pAttrInClass * pAttrInData) / k;	
+		if(pAttrInClass != 0){
+			//utility = (pClass * pAttrInClass - pAttrInData) / k;
+			utility = (pClass * pAttrInClass);
 		}
 		
 		//4. Calculate distance from utility (Nodes with high utility should have low distance)
@@ -104,6 +111,8 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 			distance = 1/utility;
 		else
 			distance = Double.MAX_VALUE;
+		
+		System.out.println("utility/distance: " + distance);
 		
 		return distance;
 	}

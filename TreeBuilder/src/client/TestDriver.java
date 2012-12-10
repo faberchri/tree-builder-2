@@ -22,8 +22,7 @@ public class TestDriver {
 	 * <br>args[1]: node distance calculator of content nodes. Fully qualified class name of desired implementation of INodeDistanceCalculator.
 	 */
 	public static void main(String[] args) {
-				
-		
+
 		if (args.length != 4) {
 			printUsage();
 		}
@@ -102,16 +101,16 @@ public class TestDriver {
 		}
 		
 		// create a data set
-		RandomDataset ds = new RandomDataset(15, 10, 60);
-		ds.printRandomMatrix();
+		//RandomDataset ds = new RandomDataset(15, 10, 60);
+		//ds.printRandomMatrix();
 
-//		GrouplensDataset ds = new GrouplensDataset(null);
-//		TreeBuilder<Integer> treeBuilder = new TreeBuilder<Integer>(
+		GrouplensDataset ds = new GrouplensDataset(null);
+		TreeBuilder<Integer> treeBuilder = new TreeBuilder<Integer>(
 
 //		FloareaDataset ds = new FloareaDataset(null);
 		
 		// create TreeBuilder
-		TreeBuilder<Double> treeBuilder = new TreeBuilder<Double>(
+		//TreeBuilder<Double> treeBuilder = new TreeBuilder<Double>(
 				rapidminerOperatorDescription,
 				ds,
 				ndcUsers,

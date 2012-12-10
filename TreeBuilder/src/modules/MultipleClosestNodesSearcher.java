@@ -23,7 +23,9 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 		
 		// Add all Nodes with closest Distance to closestNodes List
 		for (INode openNode : openNodes) {
-			subSet.remove(openNode);
+			subSet.remove(openNode); // Should prevent duplicate comparisons
+			
+			// Compare with all other nodes
 			for (INode subSetNode : subSet) {
 				double tmpDistance = openNode.getDistance(subSetNode, counter, openNodes);
 				
@@ -51,6 +53,9 @@ public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
 						System.out.println("Current Closest Nodes: "+ closestNodes.toString() +" ("+closestDistance+")");
 					}
 				}
+				
+				// Update comparison counter
+				counter.addComparison();
 			}
 		}
 		
