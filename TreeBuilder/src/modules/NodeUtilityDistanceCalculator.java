@@ -92,10 +92,10 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		
 		// Decide if nominal or scalar
 		double pAttrInClass = 0;
-		if(1==1) // Wir müssen noch besprechen wie wir das aufbauen mit den unterschiedlichen nodes
-			pAttrInClass = attrInClassScalar(mergedAttributes);
-		else
+		if(1==1)
 			pAttrInClass = attrInClassNominal(mergedAttributes);
+		else
+			pAttrInClass = attrInClassScalar(mergedAttributes);
 			
 //		double pAttrInClass = 0;
 //		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
@@ -130,7 +130,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		return 0;
 	}
 	
-	private double attrInClassScalar(Map<INode,IAttribute> mergedAttributes) {
+	private double attrInClassNominal(Map<INode,IAttribute> mergedAttributes) {
 		double pAttrInClass = 0;
 		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
 			pAttrInClass += attribute.getValue().getAverage();
@@ -138,7 +138,7 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		return pAttrInClass;
 	}
 	
-	private double attrInClassNominal(Map<INode, IAttribute> mergedAttributes) {
+	private double attrInClassScalar(Map<INode, IAttribute> mergedAttributes) {
 		return 0.0;
 	}
 
