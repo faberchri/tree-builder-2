@@ -45,24 +45,22 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 			totalChildren += nodeToMerge.getChildrenCount();
 		}
 		
-		// Retrive Data from Counter
+		// Retrieve Data from Counter
 		long numberOfAllNodes = 0;
-		switch(n1.getNodeType()) { // verbessern
+		long nodeCountOnCurrentLevel = 0;
+		switch(n1.getNodeType()) {
 			case User: 
 				numberOfAllNodes = counter.getUserNodeCount();
+				nodeCountOnCurrentLevel = counter.getOpenUserNodeCount();
 				break;
 			case Content: 
-				numberOfAllNodes = counter.getUserNodeCount();	
+				numberOfAllNodes = counter.getUserNodeCount();
+				nodeCountOnCurrentLevel = counter.getOpenMovieNodeCount();
 		}
-		
-		// Count Nodes on current level
-		int nodeCountOnCurrentLevel = openNodes.size();
-
 		
 		//2. Calculate variables necessary for utility calculation
 		//2.1 Calculate probability of the class (pClass). This is calculated from number of children / total number of nodes on current level
 		if(totalChildren < 1) {
-			//System.out.println("first level");
 			pClass = (float) 1/nodeCountOnCurrentLevel; // At the first level were all nodes are leaf nodes
 		}
 		else {
@@ -90,10 +88,19 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 		
 		//2.3 Calculate sum of Probabilities of the attribute values, given membership in class (pAttrInClass)
 		//i.e. the expected number of attribute values that one can correctly guess for an arbitrary member of tempNode (= probability of occurring)
+
+		
+		// Decide if nominal or scalar
 		double pAttrInClass = 0;
-		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
-			pAttrInClass += attribute.getValue().getStdDev();
-		}
+		if(1==1) // Wir müssen noch besprechen wie wir das aufbauen mit den unterschiedlichen nodes
+			pAttrInClass = attrInClassScalar(mergedAttributes);
+		else
+			pAttrInClass = attrInClassNominal(mergedAttributes);
+			
+//		double pAttrInClass = 0;
+//		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
+//			pAttrInClass += attribute.getValue().getAverage();
+//		}
 		//System.out.println("pAttrInClass:" + pAttrInClass);
 		
 		//2.4 Calculate number of categories (k)
@@ -121,6 +128,18 @@ public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
 	public double calculateDistance(INode n1, INode n2) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	private double attrInClassScalar(Map<INode,IAttribute> mergedAttributes) {
+		double pAttrInClass = 0;
+		for(Entry<INode, IAttribute> attribute : mergedAttributes.entrySet()) {
+			pAttrInClass += attribute.getValue().getAverage();
+		}
+		return pAttrInClass;
+	}
+	
+	private double attrInClassNominal(Map<INode, IAttribute> mergedAttributes) {
+		return 0.0;
 	}
 
 }
