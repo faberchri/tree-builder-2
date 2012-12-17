@@ -1,10 +1,28 @@
 package modules;
 
+import java.util.List;
 
-public class UtilityAttribute extends SimpleAttribute {
+//Attribute for Cobweb distance calculation
 
-	static int countAttributes = 0; 
+public class UtilityAttribute /*implements IAttribute*/ {
+
+	//static int countAttributes = 0; 
 	
+	//Contains all distinct values for this attribute
+	private List<AttributeValue> AttributeValues;
+
+	
+	public UtilityAttribute(String value, int rating){
+		CobwebAttributeValue newValue = new CobwebAttributeValue(value, rating);
+		AttributeValues.add(newValue);
+	}
+	
+	public void addValue(String value, int rating){
+		CobwebAttributeValue newValue = new CobwebAttributeValue(value, rating);
+		AttributeValues.add(newValue);
+	}
+	
+	/*
 	public UtilityAttribute(double rating) {
 		super(rating);
 		countAttributes++;
@@ -13,5 +31,9 @@ public class UtilityAttribute extends SimpleAttribute {
 	static int getNumberOfAttributes(){
 		return countAttributes;
 	}
+	*/
+
+
 
 }
+
