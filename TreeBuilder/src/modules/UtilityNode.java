@@ -15,10 +15,14 @@ public class UtilityNode extends SimpleNode {
 	private int MovieAttributeCount = 0; 
 	private int UserAttributeCount = 0; 
 	private double probability = 0;
-	private Map<INode, IAttribute> attributes;
+
 	
 	public UtilityNode(ENodeType typeOfNewNode,
-			INodeDistanceCalculator nodeDistanceCalculator, HashSet<INode> hashSet, Map<INode, IAttribute> attMap, ArrayList<INode> attGroup) {
+			INodeDistanceCalculator nodeDistanceCalculator,
+			HashSet<INode> hashSet,
+			Map<INode, IAttribute> attMap,
+			ArrayList<INode> attGroup) {
+		
 		super(typeOfNewNode, nodeDistanceCalculator);
 		//TODO update probability
 	}
@@ -40,8 +44,8 @@ public class UtilityNode extends SimpleNode {
 	
 	@Override
 	public void setAttributes(Map<INode, IAttribute> attributes) {
-		// TODO Auto-generated method stub
-		this.attributes = attributes;
+
+		super.setAttributes(attributes);
 		
 		switch(this.getNodeType()){
 		case User:
