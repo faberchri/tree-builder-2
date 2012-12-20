@@ -5,14 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import clusterer.Counter;
-import clusterer.IClosestNodesSearcher;
+import clusterer.IMaxCategoryUtilitySearcher;
+import clusterer.IMergeResult;
 import clusterer.INode;
 
-public class MultipleClosestNodesSearcher implements IClosestNodesSearcher {
+public class MultipleClosestNodesSearcher implements IMaxCategoryUtilitySearcher {
 
 	@Override
-	public List<INode> getClosestNodes(Set<INode> openNodes, Counter counter) {
+	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
 		
 		System.out.println("multiple closest Nodes searcher");
 		

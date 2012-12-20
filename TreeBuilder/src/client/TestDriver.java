@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import clusterer.IClosestNodesSearcher;
+import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INodeDistanceCalculator;
 import clusterer.INodeUpdater;
 import clusterer.TreeBuilder;
@@ -29,7 +29,7 @@ public class TestDriver {
 
 		INodeDistanceCalculator ndcContents = null;
 		INodeDistanceCalculator  ndcUsers = null;
-		IClosestNodesSearcher closestNodesSearcher = null;
+		IMaxCategoryUtilitySearcher maxCategoryUtilitySearcher = null;
 		INodeUpdater nodeUpdater = null;
 		
 		// Content Nodes Distance Calculator Definition
@@ -57,7 +57,7 @@ public class TestDriver {
 		
 		// ClosestNode Searcher Definition
 		try {
-			closestNodesSearcher = (IClosestNodesSearcher) Class.forName(args[2]).newInstance();
+			maxCategoryUtilitySearcher = (IMaxCategoryUtilitySearcher) Class.forName(args[2]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			printUsage();
@@ -115,7 +115,7 @@ public class TestDriver {
 				ds,
 				ndcUsers,
 				ndcContents,
-				closestNodesSearcher,
+				maxCategoryUtilitySearcher,
 				nodeUpdater
 				);
 		treeBuilder.cluster();

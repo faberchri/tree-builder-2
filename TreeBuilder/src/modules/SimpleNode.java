@@ -13,7 +13,7 @@ import clusterer.Counter;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.INode;
-import clusterer.INodeDistance;
+import clusterer.IMergeResult;
 import clusterer.INodeDistanceCalculator;
 import clusterer.IPrintableNode;
 import clusterer.NodeIdComparator;
@@ -75,7 +75,7 @@ public class SimpleNode implements INode, IPrintableNode, Comparable<SimpleNode>
 	}
 	
 	@Override
-	public INodeDistance getDistanceToClosestNode(List<INode> list) {
+	public IMergeResult getDistanceToClosestNode(List<INode> list) {
 		double shortest = Double.MAX_VALUE;
 		INode close = null;
 		for (INode node : list) {

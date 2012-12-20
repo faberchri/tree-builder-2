@@ -7,12 +7,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import clusterer.Counter;
-import clusterer.IClosestNodesSearcher;
+import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INode;
-import clusterer.INodeDistance;
+import clusterer.IMergeResult;
 
-public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
+public class ParallelClosestNodesSearcher implements IMaxCategoryUtilitySearcher {
 	
 	public List<INode> getClosestNodes(Set<INode> openNodes) {
 //		long time = System.currentTimeMillis();
@@ -54,16 +53,16 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		INodeDistance bestND = null;
+		IMergeResult bestND = null;
 		for (ClosestNodeCalculator closestNodeCalculator : taskList) {
-			if (bestND == null || bestND.getDistance() > closestNodeCalculator.getBestNodeDistance().getDistance()) {
+			if (bestND == null || bestND.getCategoryUtility() > closestNodeCalculator.getBestNodeDistance().getCategoryUtility()) {
 				bestND = closestNodeCalculator.getBestNodeDistance();
 			}
 		}
 
 		List<INode> res = bestND.getBothNode();
 
-		System.out.println("Closest nodes: "+res.get(0)+", "+res.get(1)+" ("+bestND.getDistance()+")");
+		System.out.println("Closest nodes: "+res.get(0)+", "+res.get(1)+" ("+bestND.getCategoryUtility()+")");
 
 //		time = System.currentTimeMillis() - time;
 //		System.out.println("Time in getClosestNode() parallel: " + (double)time / 1000.0);
@@ -75,7 +74,7 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		private final List<Integer> jLi;
 		private final List<INode> nLi;
 		
-		INodeDistance bestNodeDistance = null;
+		IMergeResult bestNodeDistance = null;
 				
 		public ClosestNodeCalculator(List<Integer> jLi, List<INode> nLi) {
 			this.jLi = jLi;
@@ -85,21 +84,21 @@ public class ParallelClosestNodesSearcher implements IClosestNodesSearcher {
 		@Override
 		public void run() {
 			for (Integer i : jLi) {
-				INodeDistance tmpDi = nLi.get(i).getDistanceToClosestNode(nLi.subList(i + 1, nLi.size()));
-				if (bestNodeDistance == null || bestNodeDistance.getDistance() > tmpDi.getDistance()) {
+				IMergeResult tmpDi = nLi.get(i).getDistanceToClosestNode(nLi.subList(i + 1, nLi.size()));
+				if (bestNodeDistance == null || bestNodeDistance.getCategoryUtility() > tmpDi.getCategoryUtility()) {
 					bestNodeDistance = tmpDi;
 				}
 			}			
 		}
 		
-		public INodeDistance getBestNodeDistance() {
+		public IMergeResult getBestNodeDistance() {
 			return bestNodeDistance;
 		}
 		
 	}
 
 	@Override
-	public List<INode> getClosestNodes(Set<INode> openNodes, Counter counter) {
+	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -17,15 +17,15 @@ public interface INode {
 	public double getDistance(INode otherNode,Counter counter, Set<INode> openNodes);
 	
 	/**
-	 * Gets a INodeDistance object with this node
+	 * Gets a IMergeResult object with this node
 	 * and the closest node in {@code nodes}.
 	 * 
 	 * @param nodes searches in {@code nodes} for the closest node to this node.
-	 * @return A INodeDistance object containing
+	 * @return A IMergeResult object containing
 	 * this node, the closest node from {@code nodes}
 	 * and the distance between the nodes.
 	 */
-	public INodeDistance getDistanceToClosestNode(List<INode> nodes);
+	public IMergeResult getDistanceToClosestNode(List<INode> nodes);
 	
 	/**
 	 * Sets the attribute map of this node to {@code attributes}.

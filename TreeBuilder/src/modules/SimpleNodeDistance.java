@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import clusterer.INode;
-import clusterer.INodeDistance;
+import clusterer.IMergeResult;
 
-public class SimpleNodeDistance implements INodeDistance {
+public class SimpleNodeDistance implements IMergeResult {
 	
 	private final double distance;
 	private final INode n1;
@@ -28,7 +28,7 @@ public class SimpleNodeDistance implements INodeDistance {
 		return null;
 	}
 	
-	public double getDistance() {
+	public double getCategoryUtility() {
 		return distance;
 	}
 	
@@ -41,9 +41,9 @@ public class SimpleNodeDistance implements INodeDistance {
 	}
 	
 	@Override
-	public int compareTo(INodeDistance o) {
-		double d1 = this.getDistance();
-		double d2 = o.getDistance();
+	public int compareTo(IMergeResult o) {
+		double d1 = this.getCategoryUtility();
+		double d2 = o.getCategoryUtility();
 		if (d1 < d2) return -1;
 		if (d1 > d2) return 1;
 		return 0;

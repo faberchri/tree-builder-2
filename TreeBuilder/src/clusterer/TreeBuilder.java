@@ -77,7 +77,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * Searches in a given set of nodes for
 	 * a subset of nodes which are the closest.
 	 */
-	private IClosestNodesSearcher closestNodesSearcher;
+	private IMaxCategoryUtilitySearcher maxCategoryUtilitySearcher;
 	
 	/**
 	 * Handles storing of nodes to db
@@ -95,14 +95,14 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @param cns the closest node searcher used in the clustering process.
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
-	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, IClosestNodesSearcher cns, INodeUpdater nodeUpdater) {
+	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, IMaxCategoryUtilitySearcher cns, INodeUpdater nodeUpdater) {
 		super(rapidminerOperatorDescription);
 		this.dataset = dataset;
 		//this.nodeFactory = SimpleNodeFactory.getInstance();
 		this.nodeFactory = ComplexNodeFactory.getInstance();
 		this.attributeFactory = SimpleAttributeFactory.getInstance();
 		this.nodeUpdater = nodeUpdater;
-		this.closestNodesSearcher = cns;
+		this.maxCategoryUtilitySearcher = cns;
 		this.contentsNodeDistanceCalculator = ndcContents;
 		this.usersNodeDistanceCalculator = ndcUsers;
 	}
@@ -141,7 +141,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest User Nodes & Merge them
 			INode newUserNode = null;
 			if(userNodes.size() >= 2) {
-				List<INode> cN = closestNodesSearcher.getClosestNodes(userNodes,counter);
+				List<INode> cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(userNodes);
 				newUserNode = mergeNodes(cN, userNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
@@ -152,7 +152,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest Movie Nodes & Merge them
 			INode newMovieNode = null;
 			if(contentNodes.size() >= 2) {
-				List<INode> cN = closestNodesSearcher.getClosestNodes(contentNodes,counter);
+				List<INode> cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(contentNodes);
 				newMovieNode = mergeNodes(cN, contentNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
