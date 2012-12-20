@@ -1,24 +1,24 @@
 package modules;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
-import clusterer.Counter;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
+import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INode;
-import clusterer.INodeDistanceCalculator;
 
-public class NodeUtilityDistanceCalculatorTest {
+public class CobwebMaxCategoryUtilitySearcherTest {
 
 	@Test
-	public void testCalculateDistanceINodeINodeCounterSetOfINode() {
+	public void testGetMaxCategoryUtilityMergeSetOfINode() {
 		
 		// create attributes
 		// interval of ratings: [1, 5]
@@ -55,19 +55,19 @@ public class NodeUtilityDistanceCalculatorTest {
 		node2.setAttributes(attMap2);
 		
 		// create the utility calcultaor
-		INodeDistanceCalculator utilityCalc = new NodeUtilityDistanceCalculator();
+		IMaxCategoryUtilitySearcher utilityCalc = new CobwebMaxCategoryUtilitySearcher();
+		
+		// add the two created user nodes to a set (set of open nodes)
+		Set<INode> openNodes = new HashSet<INode>();
+		openNodes.add(node1);
+		openNodes.add(node2);
 		
 		// get the utility of the node resulting of a merge of node 1 and node 2
-		double calcCatUt = utilityCalc.calculateDistance(node1, node2, new Counter(1, 1), null);
+		double calcCatUt = utilityCalc.getMaxCategoryUtilityMerge(openNodes).getCategoryUtility();
 		
 		// evaluate the category utility result
 		assertEquals("category utility", 1.0/3.0, calcCatUt, 0.000001);
 
-	}
-
-	@Test
-	public void testCalculateDistanceINodeINode() {
-		fail("Not yet implemented");
 	}
 
 }

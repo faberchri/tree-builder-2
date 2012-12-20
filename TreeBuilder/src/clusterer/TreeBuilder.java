@@ -141,8 +141,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest User Nodes & Merge them
 			INode newUserNode = null;
 			if(userNodes.size() >= 2) {
-				List<INode> cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(userNodes);
-				newUserNode = mergeNodes(cN, userNodes,counter);
+				IMergeResult cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(userNodes);
+				newUserNode = mergeNodes(cN.getNodes(), userNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
 				//userNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
@@ -152,8 +152,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest Movie Nodes & Merge them
 			INode newMovieNode = null;
 			if(contentNodes.size() >= 2) {
-				List<INode> cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(contentNodes);
-				newMovieNode = mergeNodes(cN, contentNodes,counter);
+				IMergeResult cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(contentNodes);
+				newMovieNode = mergeNodes(cN.getNodes(), contentNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
 				//contentNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());

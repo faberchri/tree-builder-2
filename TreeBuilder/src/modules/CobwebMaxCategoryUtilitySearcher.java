@@ -8,11 +8,11 @@ import java.util.Set;
 
 import clusterer.Counter;
 import clusterer.IAttribute;
+import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INode;
-import clusterer.INodeDistanceCalculator;
 
 
-public class NodeUtilityDistanceCalculator implements INodeDistanceCalculator {
+public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
 
 	//TODO: When merging more than 2 nodes, utility can't be simply translated into distance, since utility
 	// depends on which nodes are merged

@@ -31,12 +31,4 @@ public abstract class NodeFactory {
 	public abstract INode createInternalNode(ENodeType typeOfNewNode, List<INode> nodesToMerge, INodeDistanceCalculator nodeDistanceCalculator, AttributeFactory attributeFactory);
 
 
-	/**
-	 * Creates a new temporary node to obtain its utility.
-	 * 
-	 * @param nodesToMerge nodes to combine in this node.
-	 * @return creates a node for distance calculation.
-	 * This node is not added to the tree.
-	 */
-	public abstract INode createCalculationNode(List<INode> nodesToMerge);
 }
