@@ -6,10 +6,12 @@ import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.IMergeResult;
 import clusterer.INode;
 
-public class MultipleClosestNodesSearcher implements IMaxCategoryUtilitySearcher {
+public class ClassitMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
 
 	@Override
 	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
+		
+		// TODO
 		
 //		System.out.println("multiple closest Nodes searcher");
 //		

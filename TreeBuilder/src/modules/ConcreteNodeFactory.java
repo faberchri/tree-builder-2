@@ -10,8 +10,6 @@ import clusterer.IAttribute;
 import clusterer.INode;
 import clusterer.NodeFactory;
 
-import com.google.common.collect.ImmutableMap;
-
 public class ConcreteNodeFactory extends NodeFactory {
 
 	private static NodeFactory factory = new ConcreteNodeFactory();
@@ -63,7 +61,7 @@ public class ConcreteNodeFactory extends NodeFactory {
 					" as value; in : "+getClass().getSimpleName());
 			System.exit(-1);
 		}
-		return ImmutableMap.copyOf(map);		
+		return map;		
 	}
 
 

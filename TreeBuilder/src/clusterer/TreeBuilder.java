@@ -140,22 +140,24 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			INode newUserNode = null;
 			if(userNodes.size() >= 2) {
 				IMergeResult cN = userMCUSearcher.getMaxCategoryUtilityMerge(userNodes);
+				System.out.println("Best user node merge has category utility of "
+							+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
 				newUserNode = mergeNodes(cN.getNodes(), userNodes,counter);
-				
-				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
-				//userNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-				//printAllOpenUserNodes();
+				System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
+				userNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+//				printAllOpenUserNodes();
 			}
 
 			// Get closest Movie Nodes & Merge them
 			INode newMovieNode = null;
 			if(contentNodes.size() >= 2) {
 				IMergeResult cN = contentMCUSearcher.getMaxCategoryUtilityMerge(contentNodes);
-				newMovieNode = mergeNodes(cN.getNodes(), contentNodes,counter);
-				
-				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
-				//contentNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-				//printAllOpenMovieNodes();
+				System.out.println("Best content node merge has category utility of "
+						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
+				newMovieNode = mergeNodes(cN.getNodes(), contentNodes,counter);				
+				System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
+				contentNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+//				printAllOpenMovieNodes();
 			}
 
 			// Update Trees with info from other tree on current level - only if nodes merged
@@ -291,8 +293,9 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			for (INode nodeToMerge : nodesToMerge) {	
 				
 				// Create parent/child relationships
-				nodeToMerge.setParent(newNode);
-				newNode.addChild(nodeToMerge);
+// is done on instantiation of node can be removed from here				
+//				nodeToMerge.setParent(newNode);
+//				newNode.addChild(nodeToMerge);
 	
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {

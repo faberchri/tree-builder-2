@@ -14,6 +14,21 @@ import java.util.Random;
  *
  */
 public class RandomDataset implements IDataset<Double> {
+	
+	/**
+	 * The default number of users in the data set.
+	 */
+	private static final int defaultNumOfUsers = 20;
+	
+	/**
+	 * The default number of movies in the data set.
+	 */
+	private static final int defaultNumOfMovies = 12;
+	
+	/**
+	 * The default percentage of null entries in the data set.
+	 */
+	private static final int defaultPercentageOfNulls = 60;
 
 	/**
 	 * The number of users in the data set.
@@ -41,6 +56,10 @@ public class RandomDataset implements IDataset<Double> {
 	private List<IDatasetItem<Double>> datasetItems = new ArrayList<IDatasetItem<Double>>();
 
 
+	public RandomDataset() throws IllegalArgumentException {
+		this(defaultNumOfUsers, defaultNumOfMovies, defaultPercentageOfNulls);
+	}
+	
 	/**
 	 * Instantiates a new random data set.
 	 * 

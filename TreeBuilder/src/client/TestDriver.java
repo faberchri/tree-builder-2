@@ -2,6 +2,7 @@ package client;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -36,7 +37,27 @@ public class TestDriver {
 		
 		// Load specified data set (with default input file)
 		try {
-			dataset = (IDataset) Class.forName(args[0]).getConstructor(File.class).newInstance((Object)null);
+			Class klass = Class.forName(args[0]);
+			Constructor[] constructors = klass.getConstructors();
+			Constructor constructor = null;
+			for (Constructor aConstructor : constructors) {
+				Class[] parameterTypes = aConstructor.getParameterTypes();
+				if (parameterTypes.length == 0) {
+					constructor = aConstructor;
+					dataset = (IDataset) constructor.newInstance();
+					break;
+				}
+				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
+					constructor = aConstructor;
+					dataset = (IDataset) constructor.newInstance((Object)null);
+					break;
+				}
+			}
+			if (constructor == null) {
+				throw new NoSuchMethodException();
+			}
+			
+		
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 			printUsage();

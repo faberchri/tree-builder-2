@@ -2,6 +2,7 @@ package modules;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class Node implements INode, Comparable<Node>{
 	/**
 	 * The children of this node.
 	 */
-	private List<INode> children = new ArrayList<INode>();
+	private Set<INode> children = new HashSet<INode>();
 	
 	/**
 	 * The parent of this node.
@@ -57,7 +58,10 @@ public class Node implements INode, Comparable<Node>{
 	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes) {
 		this.nodeType = nodeType;
 		if (children != null) {
-			this.children = children;	
+			for (INode child : children) {
+				this.children.add(child);
+				child.setParent(this);
+			}	
 		}
 		this.attributes = attributes;
 	}
@@ -102,6 +106,7 @@ public class Node implements INode, Comparable<Node>{
 	@Override
 	public void addChild(INode child) {
 		this.children.add(child);
+		child.setParent(this);
 	}
 	
 	@Override

@@ -296,7 +296,7 @@
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.MultipleClosestNodesSearcher modules.ComplexNodeUpdater
+    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -677,7 +677,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.MultipleClosestNodesSearcher modules.ComplexNodeUpdater
+    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -1060,7 +1060,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.MultipleClosestNodesSearcher modules.ComplexNodeUpdater
+    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -1446,7 +1446,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.MultipleClosestNodesSearcher modules.ComplexNodeUpdater
+    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
