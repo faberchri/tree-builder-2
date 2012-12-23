@@ -80,12 +80,15 @@ public class RandomDataset implements IDataset<Double> {
 	
 	@Override
 	public INormalizer<Double> getNormalizer() {
-		// No normalizing needed
+		
 		return new INormalizer<Double>() {
 			
 			@Override
 			public double normalizeRating(Double rating) {
-				return rating.doubleValue();
+				// data set is in range [0.0, 1.0]
+				// we want to have it in the range [0.0, 10.0]
+				
+				return rating.doubleValue() * 10.0;
 			}
 		};
 		

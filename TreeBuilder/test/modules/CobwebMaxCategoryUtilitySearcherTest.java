@@ -2,7 +2,6 @@ package modules;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,25 +21,33 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		// create attributes
 		// interval of ratings: [1, 5]
-		// ratings are integers		
-		IAttribute attribute_1A = new SimpleAttribute(4.0, 0.0, 1, new ArrayList<Double>());
-		IAttribute attribute_1B = new SimpleAttribute(3.0, 0.0, 1, new ArrayList<Double>());	
-		IAttribute attribute_2B = new SimpleAttribute(5.0, 0.0, 1, new ArrayList<Double>());
-		IAttribute attribute_2C = new SimpleAttribute(5.0, 0.0, 1, new ArrayList<Double>());
+		// ratings are integers
+		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
+		attMap.put(4, 1.0);
+		IAttribute attribute_1A = new Attribute(attMap);
+		attMap = new HashMap<Integer, Double>();
+		attMap.put(3, 1.0);
+		IAttribute attribute_1B = new Attribute(attMap);
+		attMap = new HashMap<Integer, Double>();
+		attMap.put(5, 1.0);
+		IAttribute attribute_2B = new Attribute(attMap);
+		attMap = new HashMap<Integer, Double>();
+		attMap.put(5, 1.0);
+		IAttribute attribute_2C = new Attribute(attMap);
 		
 		// we want to calc the category utility of node 1 merged with node 2
 		// attribute map of node 1
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 		
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute = new UtilityNode(ENodeType.Content, null, null, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null);
 		
 		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(new UtilityNode(ENodeType.Content, null, null, null, null), attribute_1A);
+		attMap1.put(new Node(ENodeType.Content, null, null), attribute_1A);
 		attMap1.put(sharedAttribute, attribute_1B);
 		
 		// create node 1
-		INode node1 = new UtilityNode(ENodeType.User, null, null, null, null);
+		INode node1 = new Node(ENodeType.User, null, null);
 		node1.setAttributes(attMap1);
 		
 		// attribute map of node 2
@@ -48,10 +55,10 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		// add the corresponding attributes to the attribute map of node 2
 		attMap2.put(sharedAttribute, attribute_2B);
-		attMap2.put(new UtilityNode(ENodeType.Content, null, null, null, null), attribute_2C);
+		attMap2.put(new Node(ENodeType.Content, null, null), attribute_2C);
 		
 		// create node 2
-		INode node2 = new UtilityNode(ENodeType.User, null, null, attMap2, null);
+		INode node2 = new Node(ENodeType.User, null, null);
 		node2.setAttributes(attMap2);
 		
 		// create the utility calcultaor

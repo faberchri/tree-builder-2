@@ -20,18 +20,19 @@ public class FloareaDataset extends AbstractDataset<Double> {
 	 */
 	public FloareaDataset(File datasetFile) {
 		super(new INormalizer<Double>() {
-			
+
 			@Override
 			public double normalizeRating(Double rating) {
-				// Nothing to do here. Ratings of this data set
-				// are already normalized (in the range [0,1]).
-				return rating.doubleValue();
+				// Ratings of this data set
+				// are already normalized in the range [0, 1].
+				// We want to have it in the range of [0, 10].
+				return rating.doubleValue() * 10.0;
 			}
 		},
-		 datasetFile, FloareaDataset.pathToDefaultInputFile);
+		datasetFile, FloareaDataset.pathToDefaultInputFile);
 
 	}
-	
+
 	/**
 	 * Splits a single line of the input stream into tokens.
 	 * The tokens represent id_dataset id_workflow rating.

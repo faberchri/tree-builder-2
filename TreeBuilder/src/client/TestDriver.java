@@ -2,11 +2,11 @@ package client;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import clusterer.IMaxCategoryUtilitySearcher;
-import clusterer.INodeDistanceCalculator;
 import clusterer.INodeUpdater;
 import clusterer.TreeBuilder;
 
@@ -18,24 +18,26 @@ public class TestDriver {
 	private static final String rapidminerOperatorJarFileName = "treebuilder.jar";
 
 	/**
-	 * @param args args[0]: node distance calculator of user nodes. Fully qualified class name of desired implementation of INodeDistanceCalculator.
-	 * <br>args[1]: node distance calculator of content nodes. Fully qualified class name of desired implementation of INodeDistanceCalculator.
+	 * @param args args[0]: default data set to load. Fully qualified class name of desired implementation of IDataset.
+	 * <br> args[1]: max category utility searcher for content nodes. Fully qualified class name of desired implementation of IMaxCategoryUtilitySearcher.
+	 * <br> args[2]: max category utility searcher for user nodes. Fully qualified class name of desired implementation of IMaxCategoryUtilitySearcher.
+	 * <br> args[3]: node updater to use. Fully qualified class name of desired implementation of INodeUpdater.
+	 * 
 	 */
 	public static void main(String[] args) {
 
 		if (args.length != 4) {
 			printUsage();
 		}
-
-		INodeDistanceCalculator ndcContents = null;
-		INodeDistanceCalculator  ndcUsers = null;
-		IMaxCategoryUtilitySearcher maxCategoryUtilitySearcher = null;
+		IDataset dataset = null;
+		IMaxCategoryUtilitySearcher maxCategoryUtilitySearcherContents = null;
+		IMaxCategoryUtilitySearcher maxCategoryUtilitySearcherUsers = null;
 		INodeUpdater nodeUpdater = null;
 		
-		// Content Nodes Distance Calculator Definition
+		// Load specified data set (with default input file)
 		try {
-			ndcUsers = (INodeDistanceCalculator) Class.forName(args[0]).newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+			dataset = (IDataset) Class.forName(args[0]).getConstructor(File.class).newInstance((Object)null);
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 			printUsage();
 		} catch (ClassNotFoundException e) {
@@ -43,10 +45,10 @@ public class TestDriver {
 			System.err.println("Err: Class " + args[0] + " was not found.");
 			printUsage();
 		} 
-		
-		// Content Nodes Distance Calculator Definition// Content Nodes Distance Calculator Definition
+				
+		// load specified max category utility searcher for contents
 		try {
-			ndcContents = (INodeDistanceCalculator) Class.forName(args[1]).newInstance();
+			maxCategoryUtilitySearcherContents = (IMaxCategoryUtilitySearcher) Class.forName(args[1]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			printUsage();
@@ -55,9 +57,9 @@ public class TestDriver {
 			printUsage();
 		}
 		
-		// ClosestNode Searcher Definition
+		// load specified max category utility searcher for users
 		try {
-			maxCategoryUtilitySearcher = (IMaxCategoryUtilitySearcher) Class.forName(args[2]).newInstance();
+			maxCategoryUtilitySearcherUsers = (IMaxCategoryUtilitySearcher) Class.forName(args[2]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			printUsage();
@@ -66,7 +68,7 @@ public class TestDriver {
 			printUsage();
 		}
 		
-		// Node Updater Definition
+		// load specified node updater
 		try {
 			nodeUpdater = (INodeUpdater) Class.forName(args[3]).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -100,35 +102,27 @@ public class TestDriver {
 			e.printStackTrace();
 		}
 		
-		// create a data set
-		//RandomDataset ds = new RandomDataset(15, 10, 60);
-		//ds.printRandomMatrix();
 
-		GrouplensDataset ds = new GrouplensDataset(null);
-		TreeBuilder<Integer> treeBuilder = new TreeBuilder<Integer>(
-
-//		FloareaDataset ds = new FloareaDataset(null);
-		
-		// create TreeBuilder
-		//TreeBuilder<Double> treeBuilder = new TreeBuilder<Double>(
+		TreeBuilder treeBuilder = new TreeBuilder(
 				rapidminerOperatorDescription,
-				ds,
-				ndcUsers,
-				ndcContents,
-				maxCategoryUtilitySearcher,
+				dataset,
+				maxCategoryUtilitySearcherContents,
+				maxCategoryUtilitySearcherUsers,
 				nodeUpdater
 				);
+		
 		treeBuilder.cluster();
 	}
 
 	private static void printUsage() {
-		System.out.println("Usage: <fully-qualified-class-name-of-NodeDistanceCalcuator-for-users> " +
-				"<fully-qualified-name-of-NodeDistanceCalcuator-for-contents>" + 
-				"<fully-qualified-name-of-ClosestNodesSearcher>" + 
-				"<fully-qualified-name-of-NodeUpdater>\n" +
-				"Example: modules.SimpleNodeDistanceCalculator " +
-				"modules.SimpleNodeDistanceCalculator " +
-				"modules.SimpleClosestNodesSearcher " +
+		System.out.println("Usage:\n" +
+				"<fully-qualified-class-name-of-IDataset> " +
+				"<fully-qualified-name-of-IMaxCategoryUtilitySearcher-for-contents>" + 
+				"<fully-qualified-class-name-of-IMaxCategoryUtilitySearcher-for-users> " +
+				"<fully-qualified-name-of-SimpleNodeUpdater>\n" +
+				"Example: client.GrouplensDataset " +
+				"modules.CobwebMaxCategoryUtilitySearcher " +
+				"modules.CobwebMaxCategoryUtilitySearcher " +
 				"modules.SimpleNodeUpdater");
 		System.exit(-1);
 

@@ -1,7 +1,7 @@
 package clusterer;
 
 /**
- * The existing type of nodes.
+ * The existing node types.
  *
  */
 public enum ENodeType {

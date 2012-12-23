@@ -1,2 +1,4 @@
 *.class
 !.classpath
+!SubsetsGenerator.class
+!SubsetsGenerator$.class

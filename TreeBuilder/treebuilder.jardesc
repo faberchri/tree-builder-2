@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="US-ASCII" standalone="no"?>
 <jardesc>
-    <jar path="/Users/faber/Documents/MScPrj/tree-builder-2/TreeBuilder/treebuilder.jar"/>
+    <jar path="/Users/faber/Documents/MScPrj/tree-builder-repo/december-19-2012/tree-builder-2/TreeBuilder/treebuilder.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/TreeBuilder/treebuilder.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -11,8 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <folder path="/TreeBuilder/META-INF"/>
         <javaElement handleIdentifier="=TreeBuilder/src"/>
         <folder path="/TreeBuilder/bin"/>
-        <folder path="/TreeBuilder/META-INF"/>
     </selectedElements>
 </jardesc>

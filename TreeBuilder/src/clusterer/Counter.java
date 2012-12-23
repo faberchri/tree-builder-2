@@ -4,27 +4,45 @@ import visualization.Display;
 
 /**
  * Class that keeps current count of nodes in the tree
- * Can be used for other data saving during clustering
+ * Can be used for other data saving during clustering.
+ * 
+ * That's a singleton, right?
  *
  */
 public class Counter {
 	
-	long movieNodeCount = 0;
-	long userNodeCount = 0;
-	long openMovieNodes = 0;
-	long openUserNodes = 0;
+	private static Counter counter = new Counter();
 	
-	long totalComparisons = 0;
-	long cycles = 0;
-	long startTime = 0;
-	Display display = null;
+	private long movieNodeCount = 0;
+	private long userNodeCount = 0;
+	private long openMovieNodes = 0;
+	private long openUserNodes = 0;
 	
-	/*
+	private long totalComparisons = 0;
+	private long cycles = 0;
+	private long startTime = 0;
+	private Display display = null;
+	
+	/**
 	 * Constructor to establish node counts and display
 	 */
-	public Counter (int movieNodeCount, int userNodeCount) {
-		this.movieNodeCount = movieNodeCount;
-		this.userNodeCount = userNodeCount;
+	private Counter () {
+		// singleton
+	}
+	
+	public static Counter getInstance() {
+		return counter;
+	}
+	
+	/**
+	 * Set the initial number of content and user nodes.
+	 * 
+	 * @param contentNodeCounts number of content nodes
+	 * @param userNodeCounts number of user nodes
+	 */
+	public void setInitialCounts(long contentNodeCounts, long userNodeCounts) {
+		this.movieNodeCount = contentNodeCounts;
+		this.userNodeCount = userNodeCounts;
 	}
 	
 	public void setDisplay(Display display) {

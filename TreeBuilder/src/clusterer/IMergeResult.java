@@ -2,6 +2,8 @@ package clusterer;
 
 import java.util.List;
 
+
+
 /**
  * 
  * Stores the distance between two nodes.
@@ -18,9 +20,9 @@ public interface IMergeResult extends Comparable<IMergeResult>{
 	public double getCategoryUtility();
 		
 	/**
-	 * Gets the list of all nodes considered in this merge.
+	 * Gets the set of all nodes considered in this merge.
 	 * 
-	 * @return list with all nodes of the merge.
+	 * @return array with all nodes of the merge.
 	 */
 	public List<INode> getNodes();
 }

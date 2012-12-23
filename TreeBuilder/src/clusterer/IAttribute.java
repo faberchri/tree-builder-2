@@ -1,6 +1,7 @@
 package clusterer;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 
 /**
@@ -30,6 +31,8 @@ public interface IAttribute {
 	 *      Std:0.0  Std:0.0    Std:0.0   Std:0.0
 	 *      Sup:1    Sup:1      Sup:1     Sup:1
 	 * </pre>
+	 * <br>
+	 * Used for CLASSIT.
 	 * 
 	 * @return the average of this attribute.
 	 */
@@ -55,6 +58,8 @@ public interface IAttribute {
 	 *      Std:0.0  Std:0.0    Std:0.0   Std:0.0
 	 *      Sup:1    Sup:1      Sup:1     Sup:1
 	 * </pre>
+	 * <br>
+	 * Used for CLASSIT.
 	 * 
 	 * @return the standard deviation of this attribute.
 	 */
@@ -85,12 +90,26 @@ public interface IAttribute {
 	 */
 	public int getSupport();
 	
+
 	/**
-	 * Gets the list of ratings used for
-	 * calculating the attribute parameters.
-	 * 
-	 * @return an IMMUTABLE list of all the underlying
-	 * rating values of this attribute.
+	 * Gets an iterator over the attributes probability map.
+	 * <br>
+	 * e.g.:
+	 * <br>
+	 * <pre>
+	 *   Rating Values  |    Probability
+	 * -----------------------------------
+	 *       5          |       0.5
+	 *       1          |       0.25
+	 *       
+	 * Probabilities do not necessarily add
+	 * up to 1, due to the sparse nature of
+	 * the user-content-rating matrix.
+	 * </pre>
+	 * <br>
+	 * <br>
+	 * Used for COBWEB.
+	 * @return an iterator over all probability map entries.
 	 */
-	public List<Double> getConsideredRatings();
+	public Iterator<Entry<Object, Double>> getProbabilities();
 }

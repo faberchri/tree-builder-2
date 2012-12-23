@@ -20,7 +20,6 @@ import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 
 import clusterer.INode;
-import clusterer.IPrintableNode;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DelegateTree;
@@ -84,7 +83,7 @@ public class VisualizationBuilder extends JApplet {
 	    String root;
 	    TreeLayout<String,Integer> treeLayout;
 
-		public VisualizationBuilder(Set<IPrintableNode> movieNodes, Set<IPrintableNode> userNodes) {
+		public VisualizationBuilder(Set<INode> movieNodes, Set<INode> userNodes) {
 
 	        // Create the graph
 	        graph = new DelegateForest<String,Integer>();
@@ -144,11 +143,11 @@ public class VisualizationBuilder extends JApplet {
 	     * @param rootNodes 
 	     * 
 	     */
-	    private void createTree(Set<IPrintableNode> movieNodes, Set<IPrintableNode> userNodes) {
+	    private void createTree(Set<INode> movieNodes, Set<INode> userNodes) {
 
 	    	// Build movie Nodes
 	    	String prefix = "movie_";
-			for (IPrintableNode movieNode : movieNodes) {
+			for (INode movieNode : movieNodes) {
 
 				// Start recursive build of Tree
 			 	processChildren(movieNode,prefix);
@@ -156,7 +155,7 @@ public class VisualizationBuilder extends JApplet {
 
 		 	// Build user Nodes
 	    	prefix = "user_";
-			for (IPrintableNode userNode : userNodes) {
+			for (INode userNode : userNodes) {
 
 				// Start recursive build of Tree
 			 	processChildren(userNode,prefix);
@@ -164,7 +163,7 @@ public class VisualizationBuilder extends JApplet {
 
 	    }
 
-	    private void processChildren(IPrintableNode parent, String prefix) {
+	    private void processChildren(INode parent, String prefix) {
 
 	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
 	    	Iterator<INode> iter = parent.getChildren();
@@ -172,7 +171,7 @@ public class VisualizationBuilder extends JApplet {
 	    	while (iter.hasNext()) {
 	    		
 	    		// Define Name of Item
-	    		IPrintableNode child = (IPrintableNode) iter.next();
+	    		INode child = (INode) iter.next();
         		String childID = prefix.concat(String.valueOf(child.getId()));
         		
         		// Add Item to Tree

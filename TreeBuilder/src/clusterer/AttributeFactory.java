@@ -17,15 +17,17 @@ public abstract class AttributeFactory {
 	public abstract IAttribute createAttribute(double rating); // single node
 	
 	/**
-	 * Creates a new {@code IAttribute} object based on a list of other {@code IAttribute}
-	 * objects.
+	 * Creates a new {@code IAttribute} object for the specified attribute
+	 * (e.g. User_A) based on the list of nodes to merge
+	 * (e.g. Movie_1, Movie_2, Movie_3).
+	 *
 	 * 
-	 * @param attributes list of {@code IAttribute} objects as
-	 * input for new {@code IAttribute} objects.
+	 * @param nodesToMerge list of {@code INode} objects that are merged.
+	 * @param attributeKey the attribute key of the new attribute object.
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createAttribute(List<IAttribute> attributes); // group node
+	public abstract IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge); // group node
 	
 
 }

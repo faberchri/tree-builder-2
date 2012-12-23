@@ -11,8 +11,8 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
-import modules.ComplexNodeFactory;
-import modules.SimpleAttributeFactory;
+import modules.CobwebAttributeFactory;
+import modules.ConcreteNodeFactory;
 import storing.DBHandling;
 import visualization.Display;
 import visualization.VisualizationBuilder;
@@ -62,22 +62,16 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * of a node as attribute in the nodes of the other type.
 	 */
 	private INodeUpdater nodeUpdater;
+		
+	/**
+	 * The searcher for the best user nodes merge.
+	 */
+	private IMaxCategoryUtilitySearcher userMCUSearcher;
 	
 	/**
-	 * Calculates the distance between two nodes of the type user.
+	 * The searcher for the best content nodes merge.
 	 */
-	private INodeDistanceCalculator usersNodeDistanceCalculator;
-	
-	/**
-	 * Calculates the distance between two nodes of the type content.
-	 */
-	private INodeDistanceCalculator contentsNodeDistanceCalculator;
-	
-	/**
-	 * Searches in a given set of nodes for
-	 * a subset of nodes which are the closest.
-	 */
-	private IMaxCategoryUtilitySearcher maxCategoryUtilitySearcher;
+	private IMaxCategoryUtilitySearcher contentMCUSearcher;
 	
 	/**
 	 * Handles storing of nodes to db
@@ -90,21 +84,24 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @param rapidminerOperatorDescription Data container for name, class, short name,
 	 * path and the description of an operator. 
 	 * @param dataset the data set to cluster.
-	 * @param ndcUsers the node distance calculator for nodes of type user.
-	 * @param ndcContents the node distance calculator for nodes of type content.
-	 * @param cns the closest node searcher used in the clustering process.
+	 * @param searcherUsers the best merge searcher for nodes of type user.
+	 * @param searcherContent the best merge searcher for nodes of type content.
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
-	public TreeBuilder(OperatorDescription rapidminerOperatorDescription, IDataset<T> dataset, INodeDistanceCalculator ndcUsers, INodeDistanceCalculator ndcContents, IMaxCategoryUtilitySearcher cns, INodeUpdater nodeUpdater) {
+	public TreeBuilder(
+			OperatorDescription rapidminerOperatorDescription,
+			IDataset<T> dataset,
+			IMaxCategoryUtilitySearcher searcherContent,
+			IMaxCategoryUtilitySearcher searcherUsers,
+			INodeUpdater nodeUpdater) {
+		
 		super(rapidminerOperatorDescription);
 		this.dataset = dataset;
-		//this.nodeFactory = SimpleNodeFactory.getInstance();
-		this.nodeFactory = ComplexNodeFactory.getInstance();
-		this.attributeFactory = SimpleAttributeFactory.getInstance();
+		this.nodeFactory = ConcreteNodeFactory.getInstance();
+		this.attributeFactory = CobwebAttributeFactory.getInstance();
 		this.nodeUpdater = nodeUpdater;
-		this.maxCategoryUtilitySearcher = cns;
-		this.contentsNodeDistanceCalculator = ndcContents;
-		this.usersNodeDistanceCalculator = ndcUsers;
+		this.userMCUSearcher = searcherUsers;
+		this.contentMCUSearcher = searcherContent;
 	}
 	
 	/**
@@ -120,7 +117,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		initLeafNodes(dataset);
 		
 		// Initialize Counter
-		Counter counter = new Counter(contentNodes.size(),userNodes.size());
+		Counter counter = Counter.getInstance();
+		counter.setInitialCounts(contentNodes.size(), userNodes.size());
 		counter.setOpenUserNodeCount(userNodes.size());
 		counter.setOpenMovieNode(contentNodes.size());
 		counter.setStartTime(System.currentTimeMillis());
@@ -141,7 +139,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest User Nodes & Merge them
 			INode newUserNode = null;
 			if(userNodes.size() >= 2) {
-				IMergeResult cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(userNodes);
+				IMergeResult cN = userMCUSearcher.getMaxCategoryUtilityMerge(userNodes);
 				newUserNode = mergeNodes(cN.getNodes(), userNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
@@ -152,7 +150,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Get closest Movie Nodes & Merge them
 			INode newMovieNode = null;
 			if(contentNodes.size() >= 2) {
-				IMergeResult cN = maxCategoryUtilitySearcher.getMaxCategoryUtilityMerge(contentNodes);
+				IMergeResult cN = contentMCUSearcher.getMaxCategoryUtilityMerge(contentNodes);
 				newMovieNode = mergeNodes(cN.getNodes(), contentNodes,counter);
 				
 				//System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
@@ -215,11 +213,11 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		// create for each user and content id one node
 		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : usersMap.keySet()) {
-			usersNodeMap.put(i, nodeFactory.createLeafNode(ENodeType.User, usersNodeDistanceCalculator));
+			usersNodeMap.put(i, nodeFactory.createLeafNode(ENodeType.User));
 		}		
 		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : contentsMap.keySet()) {
-			contentsNodeMap.put(i, nodeFactory.createLeafNode(ENodeType.Content, contentsNodeDistanceCalculator));
+			contentsNodeMap.put(i, nodeFactory.createLeafNode(ENodeType.Content));
 		}
 		
 		// attach to each node its attributes map
@@ -268,7 +266,6 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				newNode = nodeFactory.createInternalNode(
 						ENodeType.User,
 						nodesToMerge,
-						usersNodeDistanceCalculator,
 						attributeFactory);
 				counter.addUserNode();
 				break;
@@ -276,7 +273,6 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				newNode = nodeFactory.createInternalNode(
 						ENodeType.Content,
 						nodesToMerge,
-						contentsNodeDistanceCalculator,
 						attributeFactory);
 				counter.addMovieNode();
 				break;
@@ -290,8 +286,6 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			// Add new node to openset
 			openSet.add(newNode);
 			
-			// Start children count
-			int totalChildrenOfChildNodes = 0;
 			
 			// Updating relationships and remove
 			for (INode nodeToMerge : nodesToMerge) {	
@@ -299,18 +293,13 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				// Create parent/child relationships
 				nodeToMerge.setParent(newNode);
 				newNode.addChild(nodeToMerge);
-				
-				// Add to children count
-				totalChildrenOfChildNodes += nodeToMerge.getChildrenCount();
-				
+	
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {
 					System.err.println("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 				}
 			}
 			
-			// Add complete children count to node
-			newNode.setChildrenCount(totalChildrenOfChildNodes + nodesToMerge.size());
 
 			return newNode;
 			
@@ -348,12 +337,12 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @param set the set of nodes to print.
 	 * @param nodeNames the description of the set to print.
 	 */
-	private void printAllNodesInSet(Set<? extends IPrintableNode> set, String nodeNames){
+	private void printAllNodesInSet(Set<INode> set, String nodeNames){
 		System.out.println("-----------------------");
 		System.out.println(nodeNames);
-		IPrintableNode[] setArr = set.toArray(new IPrintableNode[set.size()]);
+		INode[] setArr = set.toArray(new INode[set.size()]);
 		Arrays.sort(setArr);
-		for (IPrintableNode node : setArr) {
+		for (INode node : setArr) {
 			System.out.println(node.toString()+"|\t"+node.getAttributesString());
 		}
 		System.out.println("-----------------------");

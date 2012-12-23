@@ -37,7 +37,7 @@ public class IntegerNormalizer implements INormalizer<Integer> {
 	
 	@Override
 	public double normalizeRating(Integer rating) {
-		return (rating.doubleValue() - (double)minValue) / range;
+		return ((rating.doubleValue() - (double)minValue) / range) * 10.0;
 	}
 
 }

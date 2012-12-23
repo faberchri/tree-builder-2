@@ -11,10 +11,9 @@ public abstract class NodeFactory {
 	 * Instantiates the leaf nodes of the cluster tree.
 	 * 
 	 * @param typeOfNewNode the type of new node.
-	 * @param nodeDistanceCalculator the node distance calculator of the new node.
 	 * @return a new node instance.
 	 */
-	public abstract INode createLeafNode(ENodeType typeOfNewNode, INodeDistanceCalculator nodeDistanceCalculator);
+	public abstract INode createLeafNode(ENodeType typeOfNewNode);
 
 	/**
 	 * 
@@ -24,11 +23,10 @@ public abstract class NodeFactory {
 	 * 
 	 * @param typeOfNewNode the type of the node to create.
 	 * @param nodesToMerge the nodes to combine for the new node.
-	 * @param nodeDistanceCalculator the node distance calculator of the new node
 	 * @param attributeFactory the attribute factory which initializes the attribute map of the new node.
 	 * @return a new node instance.
 	 */
-	public abstract INode createInternalNode(ENodeType typeOfNewNode, List<INode> nodesToMerge, INodeDistanceCalculator nodeDistanceCalculator, AttributeFactory attributeFactory);
+	public abstract INode createInternalNode(ENodeType typeOfNewNode, List<INode> nodesToMerge, AttributeFactory attributeFactory);
 
 
 }

@@ -13,7 +13,7 @@ public interface INormalizer<T> {
 	 * Normalizes a rating.
 	 * 
 	 * @param rating The rating as it appeared in the data set.
-	 * @return the normalized rating: [0.0, 1.0].
+	 * @return the normalized rating: [0.0, 10.0].
 	 */
 	public double normalizeRating(T rating);
 }

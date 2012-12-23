@@ -6,27 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface INode {
-	
-	/**
-	 * Gets distance from this node to {@code otherNode}.
-	 * 
-	 * @param otherNode node to calculate distance to.
-	 * 
-	 * @return distance from this node to {@code otherNode}.
-	 */
-	public double getDistance(INode otherNode,Counter counter, Set<INode> openNodes);
-	
-	/**
-	 * Gets a IMergeResult object with this node
-	 * and the closest node in {@code nodes}.
-	 * 
-	 * @param nodes searches in {@code nodes} for the closest node to this node.
-	 * @return A IMergeResult object containing
-	 * this node, the closest node from {@code nodes}
-	 * and the distance between the nodes.
-	 */
-	public IMergeResult getDistanceToClosestNode(List<INode> nodes);
-	
+		
 	/**
 	 * Sets the attribute map of this node to {@code attributes}.
 	 * 
@@ -68,6 +48,16 @@ public interface INode {
 	 * @param child the new child of this node.
 	 */
 	public void addChild (INode child);
+	
+	/**
+	 * Removes a child from the nodes child container
+	 * and (only if the passed INode is a child of this node)
+	 * sets the parent of the removed child to null.
+	 * 
+	 * @param child the node to remove
+	 * @return true if the node was a child of this node, else false.
+	 */
+	public boolean removeChild(INode child);
 	
 	/**
 	 * Checks if {@code possibleChild} is
@@ -157,21 +147,29 @@ public interface INode {
 	 * @return list all the attribute groups for {@code this} node.
 	 */
 	public List<Set<INode>> getAttributeGroups();
-	
-	/**
-	 * Adds the total count of children
-	 * @param totalChildren 
-	 * 
-	 * @return void
-	 */
-	public void setChildrenCount(int totalChildren);
-	
+		
 	/**
 	 * Gets the total count of children
 	 * 
 	 * @return void
 	 */
 	public int getChildrenCount();
+	
+	
+	/**
+	 * Gets the size of the subtree.
+	 * 
+	 * @return the number of nodes contained in the this nodes subtree; 0 for leaves.
+	 */
+	public int getNumberOfNodesInSubtree();
+	
+	/**
+	 * Gets the sum of leaf nodes in this nodes subtree.
+	 * 
+	 * @return the sum of leaf nodes in this nodes subtree.
+	 * Returns 1, if this node is a leaf.
+	 */
+	public int getNumberOfLeafNodes();
 	
 	/**
 	 * Gets a string representation of the nodes attribute map.

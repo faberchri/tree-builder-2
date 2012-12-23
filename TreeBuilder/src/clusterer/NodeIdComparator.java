@@ -5,10 +5,10 @@ import java.util.Comparator;
 /**
  * Compares two {@code IPrintableNode}s by their id.
  */
-public class NodeIdComparator implements Comparator<IPrintableNode> {
+public class NodeIdComparator implements Comparator<INode> {
 
 	@Override
-	public int compare(IPrintableNode o1, IPrintableNode o2) {
+	public int compare(INode o1, INode o2) {
 		return Long.compare(o1.getId(), o2.getId());
 	}
 

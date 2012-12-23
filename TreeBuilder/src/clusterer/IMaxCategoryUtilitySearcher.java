@@ -4,13 +4,14 @@ import java.util.Set;
 
 /**
  * 
- * Searches in a passed set of nodes
- * for the subset of nodes with the
- * shortest distance among each other.
+ * Searches in a given set of nodes for
+ * a subset of nodes. A merge of all nodes in the subset
+ * results in a new node with the greatest category utility
+ * of all possible merges.
  *
  */
 public interface IMaxCategoryUtilitySearcher {
-		
+
 	/**
 	 * Searches in {@code openNodes} for the nodes for
 	 * which a merge produces a new node with the
