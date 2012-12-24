@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -154,9 +155,9 @@ public class RandomDataset implements IDataset<Double> {
 	public void printRandomMatrix() {
 		for (int i = 0; i < randomMatrix.length; i++) {
 			for (int j = 0; j < randomMatrix[i].length; j++) {
-				System.out.print(randomMatrix[i][j] +  "\t| ");
+				Logger.getLogger(getClass().getName()).info(randomMatrix[i][j] +  "\t| ");
 			}
-			System.out.println();
+			Logger.getLogger(getClass().getName()).info("\n");
 		}
 	}
 	
@@ -165,7 +166,6 @@ public class RandomDataset implements IDataset<Double> {
 	private static void main(String[] args) {
 		RandomDataset ds = new RandomDataset(10, 10, 60);
 		ds.printRandomMatrix();
-		System.out.println("hello");
 	}
 
 }

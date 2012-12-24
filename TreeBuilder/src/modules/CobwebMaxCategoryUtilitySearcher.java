@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import scala.collection.IndexedSeq;
 import clusterer.IAttribute;
@@ -24,16 +25,16 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 	 * This limit reduces the number of generated sets from
 	 * <br>
 	 * <pre>
-	 * C(2,set_size) +  C(3,set_size) + ... + C(set_size,set_size)
+	 * C(set_size, 2) +  C(set_size, 3) + ... + C(set_size,set_size)
 	 * </pre>
 	 * <br>
 	 * to
 	 * <br>
 	 * <pre>
-	 * C(2,set_size) +  C(3,set_size) + ... + C(MAX_SUBSET_SIZE,set_size)
+	 * C(set_size, 2) +  C(set_size, 3) + ... + C(set_size, MAX_SUBSET_SIZE)
 	 * </pre>
 	 * <br>
-	 * with
+	 * with n = set_size, m = length_of_sublist, and
 	 * <br>
 	 * <pre>
 	 *                  n!
@@ -47,11 +48,13 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 	 * <br>
 	 * (Calculating the complete power set would result in generating 2^n subsets.)
 	 */
-	private static final int MAX_SUBSET_SIZE = 3;
+	private static final int MAX_SUBSET_SIZE = 2;
 
 	
 	@Override
 	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
+		Logger log = Logger.getLogger(getClass().getName());
+		
 		// first we need a set of all possible subsets of open nodes.
 		// This set is called a power set.
 		// however we want to exclude the following sets from the power set:
@@ -63,12 +66,15 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 		// and size <= MAX_SUBSET_SIZE.
 		List<INode> openNodesList = new ArrayList<INode>(openNodes);
 		List<IndexedSeq<Object>> permutationIndicesList = new ArrayList<IndexedSeq<Object>>();
+		long count = 0;
 		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
 			if (openNodesList.size() < sublistLength) continue;
 			scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it
 					= SubsetsGenerator.subsets(openNodesList.size(), sublistLength);
 			while (it.hasNext()) {
 				IndexedSeq<java.lang.Object> sublist = (IndexedSeq<java.lang.Object>) it.next();
+				log.finer("sublist "+ count+": "+ sublist);
+//				count++;
 				permutationIndicesList.add(sublist);
 			}
 		}
@@ -104,7 +110,7 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 			}
 		}
 		if (best == null) {
-			System.err.println("Err: Best merge is == null; in: " + getClass().getSimpleName() );
+			log.severe("Err: Best merge is == null; in: " + getClass().getSimpleName() );
 			System.exit(-1);
 		}
 		return best;
@@ -231,7 +237,6 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
 		scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it = SubsetsGenerator.subsets(1000, 3);
 		System.out.println(it);
 		while (it.hasNext()) {
@@ -239,10 +244,7 @@ public class CobwebMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySear
 					.next();
 			System.out.println(indexedSeq);
 		}
-		
-
 		System.out.println("done");
-
 	}
 
 // ----------------------------------  For deletion ---------------------------------------------------

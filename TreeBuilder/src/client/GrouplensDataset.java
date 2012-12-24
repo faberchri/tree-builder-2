@@ -21,7 +21,7 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	/**
 	 * Path to default input file.
 	 */
-	private static final String pathToDefaultInputFile = "Grouplens/u1.base";
+	private static final String pathToDefaultInputFile = "Grouplens/u1.test";
 	
 	/**
 	 * Instantiates a new data set and parses the data from the specified or 

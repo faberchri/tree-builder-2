@@ -1,21 +1,17 @@
 package clusterer;
-import java.awt.Container;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JFrame;
+import java.util.logging.Logger;
 
 import modules.CobwebAttributeFactory;
 import modules.ConcreteNodeFactory;
 import storing.DBHandling;
-import visualization.Display;
-import visualization.VisualizationBuilder;
+import visualization.TreeVisualizer;
 import client.IDataset;
 import client.IDatasetItem;
 
@@ -77,6 +73,16 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * Handles storing of nodes to db
 	 */
 	private DBHandling dbHandling;
+
+	/**
+	 * Manages the graphical representation of the tree structure visualization.
+	 */
+	private TreeVisualizer treeVisualizer;
+	
+	/**
+	 * The logger of this class.
+	 */
+	private final Logger log = Logger.getLogger(getClass().getName());
 	
 	/**
 	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
@@ -102,12 +108,14 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = searcherUsers;
 		this.contentMCUSearcher = searcherContent;
+		treeVisualizer = new TreeVisualizer();
 	}
 	
 	/**
 	 * Performs the cluster tree creation of the data set.
 	 */
 	public void cluster() {
+		
 		
 		// Instantiate DB
 		//this.dbHandling = new DBHandling();
@@ -116,49 +124,20 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		// Build Leaf Nodes
 		initLeafNodes(dataset);
 		
-		// Initialize Counter
+		// init counter and visualizer
 		Counter counter = Counter.getInstance();
-		counter.setInitialCounts(contentNodes.size(), userNodes.size());
-		counter.setOpenUserNodeCount(userNodes.size());
-		counter.setOpenMovieNode(contentNodes.size());
-		counter.setStartTime(System.currentTimeMillis());
-		
-		// Start Display of control Data and hang in to counter
-		Display display = new Display();
-		display.start(counter);
-		counter.setDisplay(display);
-		
-		// Initialize Visualization Frame
-        JFrame frame = new JFrame();
-        Container content = frame.getContentPane();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		counter.initCounter(userNodes, contentNodes);
+		treeVisualizer.initVisualization(counter, userNodes, contentNodes);
+
         
 		// Process Nodes
 		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
 
-			// Get closest User Nodes & Merge them
-			INode newUserNode = null;
-			if(userNodes.size() >= 2) {
-				IMergeResult cN = userMCUSearcher.getMaxCategoryUtilityMerge(userNodes);
-				System.out.println("Best user node merge has category utility of "
-							+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
-				newUserNode = mergeNodes(cN.getNodes(), userNodes,counter);
-				System.out.println("cycle "+ counter.getCycleCount() + "| number of open user nodes: " + 
-				userNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-//				printAllOpenUserNodes();
-			}
-
-			// Get closest Movie Nodes & Merge them
-			INode newMovieNode = null;
-			if(contentNodes.size() >= 2) {
-				IMergeResult cN = contentMCUSearcher.getMaxCategoryUtilityMerge(contentNodes);
-				System.out.println("Best content node merge has category utility of "
-						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
-				newMovieNode = mergeNodes(cN.getNodes(), contentNodes,counter);				
-				System.out.println("cycle "+ counter.getCycleCount() + "| number of open movie nodes: " + 
-				contentNodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-//				printAllOpenMovieNodes();
-			}
+			log.info("Get closest user nodes & merge them");
+			INode newUserNode = searchAndMergeNode(userNodes, userMCUSearcher);
+			
+			log.info("Get closest content nodes & merge them");
+			INode newMovieNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
 
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null && contentNodes.size() > 1) {
@@ -169,7 +148,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			}
 			
 			// Create/Update Visualization
-			visualize(frame,content);
+			treeVisualizer.visualize();
 			
 			// Update counter
 			counter.setOpenMovieNode(contentNodes.size());
@@ -179,6 +158,30 @@ public final class TreeBuilder<T extends Number> extends Operator {
 		
 		// Close Database
 		//dbHandling.shutdown();
+	}
+	
+	/**
+	 * Returns the node resulting from the best merge.
+	 * 
+	 * @param nodes the set of nodes in which the best merge is searched.
+	 * @return the merge result or null if no possible merge was found.
+	 */
+	private INode searchAndMergeNode(Set<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
+		INode newNode = null;
+		if(nodes.size() >= 2) {
+			IMergeResult cN = mcus.getMaxCategoryUtilityMerge(nodes);
+			
+			log.info("Best node merge has category utility of "
+						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
+			
+			Counter counter = Counter.getInstance();
+			newNode = mergeNodes(cN.getNodes(), nodes, counter);
+			
+			log.info("cycle "+ counter.getCycleCount() + "| number of open nodes: " + 
+						nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+//			treeVisualizer.printAllOpenUserNodes();
+		}
+		return newNode;
 	}
 	
 	/**
@@ -258,6 +261,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
 	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
+		Logger log = Logger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
 			
@@ -280,7 +284,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				break;
 			default:
 				newNode = null;
-				System.err.println("Err: Not supported node encountered in: " + getClass().getSimpleName());
+				log.severe("Err: Not supported node encountered in: " + getClass().getSimpleName());
 				System.exit(-1);
 				break;
 			}
@@ -299,7 +303,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {
-					System.err.println("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
+					log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 				}
 			}
 			
@@ -308,61 +312,10 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			
 		} 
 		else {
-			System.err.println("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
+			log.severe("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
 			System.exit(-1);
 		}
 		return null;
 	}
-	
-	/**
-	 * Creates a graphical representation of the current state of the cluster tree.
-	 * @param frame
-	 * @param content
-	 */
-	public void visualize(JFrame frame, Container content) {
 		
-		// Instantiate VisualizationBuilder
-		VisualizationBuilder vb = new VisualizationBuilder((Set)contentNodes,(Set)userNodes);
-		
-		// Add Content to Swing Panel
-        content.removeAll();
-        content.add(vb);
-        
-        // Repack Frame
-        frame.pack();
-        frame.setVisible(true);
-	}
-	
-	/**
-	 * Prints a textual representation of all nodes
-	 * (including its attributes) contained in the passed set on stdout.
-	 * 
-	 * @param set the set of nodes to print.
-	 * @param nodeNames the description of the set to print.
-	 */
-	private void printAllNodesInSet(Set<INode> set, String nodeNames){
-		System.out.println("-----------------------");
-		System.out.println(nodeNames);
-		INode[] setArr = set.toArray(new INode[set.size()]);
-		Arrays.sort(setArr);
-		for (INode node : setArr) {
-			System.out.println(node.toString()+"|\t"+node.getAttributesString());
-		}
-		System.out.println("-----------------------");
-	}
-	
-	/**
-	 * Prints all textual representation  of all open user nodes on stdout.
-	 */
-	public void printAllOpenUserNodes() {
-		printAllNodesInSet((Set)userNodes, "User Nodes:");
-	}
-	
-	/**
-	 * Prints all textual representation  of all open content nodes on stdout.
-	 */
-	public void printAllOpenMovieNodes() {
-		printAllNodesInSet((Set)contentNodes, "ContentNodes:");
-	}
-	
 }

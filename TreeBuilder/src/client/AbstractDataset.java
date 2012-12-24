@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import Datasets.DatasetLocator;
 
@@ -56,7 +57,7 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			this.input = null;
-			System.err.println("Err: Input file was not found, in: " + getClass().getSimpleName());
+			Logger.getLogger(getClass().getName()).severe("Input file was not found");
 			System.exit(-1);
 		}
 		parseDataset(getInput());

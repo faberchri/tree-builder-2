@@ -1,5 +1,8 @@
 package clusterer;
 
+import java.util.Set;
+import java.util.logging.Logger;
+
 import visualization.Display;
 
 /**
@@ -35,6 +38,20 @@ public class Counter {
 	}
 	
 	/**
+	 * Initialize the counter on start of clustering process.
+	 * 
+	 * @param userNodes the set of open user nodes. 
+	 * @param contentNodes the set of open content nodes.
+	 */
+	public void initCounter(Set<INode> userNodes,
+			Set<INode> contentNodes) {
+		setInitialCounts(contentNodes.size(), userNodes.size());
+		setOpenUserNodeCount(userNodes.size());
+		setOpenMovieNode(contentNodes.size());
+		setStartTime(System.currentTimeMillis());
+	}
+	
+	/**
 	 * Set the initial number of content and user nodes.
 	 * 
 	 * @param contentNodeCounts number of content nodes
@@ -56,7 +73,7 @@ public class Counter {
 
 	public void addComparison() {
 		this.totalComparisons++;
-		System.out.println("comparison nr: " + totalComparisons);
+		Logger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
 		display.update(this);
 	}
 	
@@ -102,7 +119,7 @@ public class Counter {
 	
 	public void addCycle() {
 		this.cycles++;
-		System.out.println("cycle nr: "+cycles);
+		Logger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
 	}
 	
 	public long getCycleCount() {
@@ -165,16 +182,17 @@ public class Counter {
     	
     	// Calculate comparisons on current Level
     	long totalComparisonsOnLevel = getTotalExpectedComparisonsLvl(toBeCompared);
-    	//System.out.println("totalComparisonsOnLevel: " + totalComparisonsOnLevel);
+		Logger.getLogger(getClass().getName()).fine("totalComparisonsOnLevel: " + totalComparisonsOnLevel);
+
     	
     	// Calculate expected total comparisons for the whole clustering process
     	long totalComparisons = 0;
     	for (long i = 0;i < totalComparisonsOnLevel; i++) {
     		totalComparisons += totalComparisonsOnLevel - i;
-    		//System.out.println("calculated: " + totalComparisonsOnLevel +"," + i + ";" + totalComparisons);
+    		Logger.getLogger(getClass().getName()).fine("calculated: " + totalComparisonsOnLevel +"," + i + ";" + totalComparisons);
     	}
     	
-    	//System.out.println("totalComparisons: " + totalComparisons);
+		Logger.getLogger(getClass().getName()).fine("totalComparisons: " + totalComparisons);
     	
     	return totalComparisons;
     }

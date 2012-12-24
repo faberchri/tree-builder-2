@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -53,7 +54,7 @@ public class DBHandling {
 					
 					// Add Properties/Attributes
 					node.setProperty( "movies", "Hello" ); // build in attributes here
-					System.out.print( node.getProperty( "movies" ) );
+					Logger.getLogger(getClass().getName()).finer( node.getProperty( "movies" ).toString() );
 					referenceIndex.add( node, "reference", "users" );
 				
 					tx.success();
@@ -64,6 +65,7 @@ public class DBHandling {
 	}
 	
 	public void insertParent(Map<String,String> attributes, List<INode> children) {
+		Logger log = Logger.getLogger(getClass().getName());
 		// Start Transaction
 		Transaction tx = graphDb.beginTx();			
 		try 	{
@@ -75,14 +77,14 @@ public class DBHandling {
 					
 					// Add Properties/Attributes
 					node.setProperty( "id", "movie1" ); // build in id and attributes here
-					System.out.print( node.getProperty( "movies" ) );
+					log.finer( node.getProperty( "movies" ).toString() );
 					
 					// Add Relationship to children and set property for relationship -> process children list
 					Relationship relationship;
 					relationship = node.createRelationshipTo(child, RelTypes.KNOWS );
 					relationship.setProperty( "message", "is parent of" );
-					System.out.print( relationship.getProperty( "message" ) );
-					System.out.print( child.getProperty( "message" ) );
+					log.finer( relationship.getProperty( "message" ).toString() );
+					log.finer( child.getProperty( "message" ).toString() );
 					
 					tx.success();
 				}

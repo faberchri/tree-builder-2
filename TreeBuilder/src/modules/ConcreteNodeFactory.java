@@ -3,6 +3,7 @@ package modules;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import clusterer.AttributeFactory;
 import clusterer.ENodeType;
@@ -35,7 +36,7 @@ public class ConcreteNodeFactory extends NodeFactory {
 			AttributeFactory attributeFactory) {
 
 		if (nodesToMerge.size() < 2) {
-			System.err.println("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
+			Logger.getLogger(getClass().getName()).severe("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
 			System.exit(-1);
 		}
 
@@ -57,7 +58,7 @@ public class ConcreteNodeFactory extends NodeFactory {
 			entry.setValue(newAtt);
 		}
 		if (map.containsValue(null)) {
-			System.err.println("Attribute map of node resulting of merge contains null" +
+			Logger.getLogger(getClass().getName()).severe("Attribute map of node resulting of merge contains null" +
 					" as value; in : "+getClass().getSimpleName());
 			System.exit(-1);
 		}
