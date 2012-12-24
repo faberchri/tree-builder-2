@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
+import utils.TBLogger;
 import clusterer.Counter;
 import clusterer.INode;
 
@@ -72,7 +73,7 @@ public class TreeVisualizer {
 	 * @param nodeNames the description of the set to print.
 	 */
 	private void printAllNodesInSet(Set<INode> set, String nodeNames){
-		Logger log = Logger.getLogger(getClass().getName());
+		Logger log = TBLogger.getLogger(getClass().getName());
 		log.info("-----------------------");
 		log.info(nodeNames);
 		INode[] setArr = set.toArray(new INode[set.size()]);

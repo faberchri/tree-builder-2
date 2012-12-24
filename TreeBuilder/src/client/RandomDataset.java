@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+
+import utils.TBLogger;
 
 /**
  * 
@@ -155,9 +156,9 @@ public class RandomDataset implements IDataset<Double> {
 	public void printRandomMatrix() {
 		for (int i = 0; i < randomMatrix.length; i++) {
 			for (int j = 0; j < randomMatrix[i].length; j++) {
-				Logger.getLogger(getClass().getName()).info(randomMatrix[i][j] +  "\t| ");
+				TBLogger.getLogger(getClass().getName()).info(randomMatrix[i][j] +  "\t| ");
 			}
-			Logger.getLogger(getClass().getName()).info("\n");
+			TBLogger.getLogger(getClass().getName()).info("\n");
 		}
 	}
 	

@@ -6,17 +6,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import modules.ClassitAttributeFactory;
-import modules.ClassitMaxCategoryUtilitySearcher;
-import modules.CobwebMaxCategoryUtilitySearcher;
-import modules.ComplexNodeUpdater;
-import modules.ConcreteNodeFactory;
-import storing.DBHandling;
-import utils.TreeBuilderLogger;
-import clusterer.Counter;
+import utils.TBLogger;
 import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INodeUpdater;
 import clusterer.TreeBuilder;
@@ -40,8 +31,6 @@ public class TestDriver {
 		if (args.length != 4) {
 			printUsage();
 		}
-		
-		initLogging();
 		
 		IDataset dataset = null;
 		IMaxCategoryUtilitySearcher maxCategoryUtilitySearcherContents = null;
@@ -76,7 +65,7 @@ public class TestDriver {
 			printUsage();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			Logger.getLogger(TestDriver.class.getName()).severe("Class " + args[0] + " was not found.");
+			TBLogger.getLogger(TestDriver.class.getName()).severe("Class " + args[0] + " was not found.");
 			printUsage();
 		} 
 				
@@ -87,7 +76,7 @@ public class TestDriver {
 			e.printStackTrace();
 			printUsage();
 		} catch (ClassNotFoundException e) {
-			Logger.getLogger(TestDriver.class.getName()).severe("Class " + args[1] + " was not found.");
+			TBLogger.getLogger(TestDriver.class.getName()).severe("Class " + args[1] + " was not found.");
 			printUsage();
 		}
 		
@@ -98,7 +87,7 @@ public class TestDriver {
 			e.printStackTrace();
 			printUsage();
 		} catch (ClassNotFoundException e) {
-			Logger.getLogger(TestDriver.class.getName()).severe("Class " + args[2] + " was not found.");
+			TBLogger.getLogger(TestDriver.class.getName()).severe("Class " + args[2] + " was not found.");
 			printUsage();
 		}
 		
@@ -109,7 +98,7 @@ public class TestDriver {
 			e.printStackTrace();
 			printUsage();
 		} catch (ClassNotFoundException e) {
-			Logger.getLogger(TestDriver.class.getName()).severe("Class " + args[3] + " was not found.");
+			TBLogger.getLogger(TestDriver.class.getName()).severe("Class " + args[3] + " was not found.");
 			printUsage();
 		}
 
@@ -162,26 +151,6 @@ public class TestDriver {
 				"modules.SimpleNodeUpdater");
 		System.exit(-1);
 
-	}
-
-	private static void initLogging() {
-		try {
-			TreeBuilderLogger.setup(AbstractDataset.class, Level.ALL);
-			TreeBuilderLogger.setup(RandomDataset.class, Level.ALL);
-			TreeBuilderLogger.setup(TestDriver.class, Level.ALL);
-			TreeBuilderLogger.setup(Counter.class, Level.ALL);
-			TreeBuilderLogger.setup(TreeBuilder.class, Level.ALL);
-			TreeBuilderLogger.setup(ClassitAttributeFactory.class, Level.ALL);
-			TreeBuilderLogger.setup(ClassitMaxCategoryUtilitySearcher.class, Level.ALL);			
-			TreeBuilderLogger.setup(CobwebMaxCategoryUtilitySearcher.class, Level.ALL);
-			TreeBuilderLogger.setup(ComplexNodeUpdater.class, Level.ALL);
-			TreeBuilderLogger.setup(ConcreteNodeFactory.class, Level.ALL);
-			TreeBuilderLogger.setup(DBHandling.class, Level.ALL);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Error on initializing logging facilities!");
-			System.exit(-1);
-		}
 	}
 
 

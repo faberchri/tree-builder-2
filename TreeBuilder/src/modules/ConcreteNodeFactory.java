@@ -3,8 +3,8 @@ package modules;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
+import utils.TBLogger;
 import clusterer.AttributeFactory;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
@@ -36,7 +36,7 @@ public class ConcreteNodeFactory extends NodeFactory {
 			AttributeFactory attributeFactory) {
 
 		if (nodesToMerge.size() < 2) {
-			Logger.getLogger(getClass().getName()).severe("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
+			TBLogger.getLogger(getClass().getName()).severe("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
 			System.exit(-1);
 		}
 
@@ -58,7 +58,7 @@ public class ConcreteNodeFactory extends NodeFactory {
 			entry.setValue(newAtt);
 		}
 		if (map.containsValue(null)) {
-			Logger.getLogger(getClass().getName()).severe("Attribute map of node resulting of merge contains null" +
+			TBLogger.getLogger(getClass().getName()).severe("Attribute map of node resulting of merge contains null" +
 					" as value; in : "+getClass().getSimpleName());
 			System.exit(-1);
 		}

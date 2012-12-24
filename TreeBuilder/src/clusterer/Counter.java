@@ -1,8 +1,8 @@
 package clusterer;
 
 import java.util.Set;
-import java.util.logging.Logger;
 
+import utils.TBLogger;
 import visualization.Display;
 
 /**
@@ -73,7 +73,7 @@ public class Counter {
 
 	public void addComparison() {
 		this.totalComparisons++;
-		Logger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
+		TBLogger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
 		display.update(this);
 	}
 	
@@ -119,7 +119,7 @@ public class Counter {
 	
 	public void addCycle() {
 		this.cycles++;
-		Logger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
+		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
 	}
 	
 	public long getCycleCount() {
@@ -182,17 +182,17 @@ public class Counter {
     	
     	// Calculate comparisons on current Level
     	long totalComparisonsOnLevel = getTotalExpectedComparisonsLvl(toBeCompared);
-		Logger.getLogger(getClass().getName()).fine("totalComparisonsOnLevel: " + totalComparisonsOnLevel);
+		TBLogger.getLogger(getClass().getName()).fine("totalComparisonsOnLevel: " + totalComparisonsOnLevel);
 
     	
     	// Calculate expected total comparisons for the whole clustering process
     	long totalComparisons = 0;
     	for (long i = 0;i < totalComparisonsOnLevel; i++) {
     		totalComparisons += totalComparisonsOnLevel - i;
-    		Logger.getLogger(getClass().getName()).fine("calculated: " + totalComparisonsOnLevel +"," + i + ";" + totalComparisons);
+    		TBLogger.getLogger(getClass().getName()).fine("calculated: " + totalComparisonsOnLevel +"," + i + ";" + totalComparisons);
     	}
     	
-		Logger.getLogger(getClass().getName()).fine("totalComparisons: " + totalComparisons);
+		TBLogger.getLogger(getClass().getName()).fine("totalComparisons: " + totalComparisons);
     	
     	return totalComparisons;
     }

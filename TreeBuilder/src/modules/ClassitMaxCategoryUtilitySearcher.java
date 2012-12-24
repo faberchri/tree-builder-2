@@ -1,16 +1,12 @@
 package modules;
 
-import java.util.Set;
-
-import clusterer.IMaxCategoryUtilitySearcher;
-import clusterer.IMergeResult;
 import clusterer.INode;
 
-public class ClassitMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
+public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher {
+
 
 	@Override
-	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
-		
+	protected double calculateCategoryUtility(INode[] possibleMerge) {
 		// TODO
 		
 //		System.out.println("multiple closest Nodes searcher");
@@ -64,7 +60,8 @@ public class ClassitMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySea
 //		time = System.currentTimeMillis() - time;
 //		System.out.println("Time in getClosestNode() single: " + (double)time / 1000.0);
 //		return closestNodes;
-		return null;
+		
+		return 0;
 	}
 
 

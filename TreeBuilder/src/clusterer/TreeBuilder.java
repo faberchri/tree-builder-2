@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import modules.CobwebAttributeFactory;
 import modules.ConcreteNodeFactory;
 import storing.DBHandling;
+import utils.TBLogger;
 import visualization.TreeVisualizer;
 import client.IDataset;
 import client.IDatasetItem;
@@ -27,7 +28,7 @@ import com.rapidminer.operator.OperatorDescription;
  * @param <T> the data type of the media ratings.
  */
 public final class TreeBuilder<T extends Number> extends Operator {
-
+	
 	/**
 	 * The data set to cluster.
 	 */
@@ -82,7 +83,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	/**
 	 * The logger of this class.
 	 */
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private final Logger log = TBLogger.getLogger(getClass().getName());
 	
 	/**
 	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
@@ -161,7 +162,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	}
 	
 	/**
-	 * Returns the node resulting from the best merge.
+	 * Gets the best merge from the passed set and returns the resulting new node.
 	 * 
 	 * @param nodes the set of nodes in which the best merge is searched.
 	 * @return the merge result or null if no possible merge was found.
@@ -261,7 +262,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
 	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
-		Logger log = Logger.getLogger(getClass().getName());
+		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
 			

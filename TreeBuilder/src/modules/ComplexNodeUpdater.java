@@ -2,8 +2,8 @@ package modules;
 
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
+import utils.TBLogger;
 import clusterer.INode;
 import clusterer.INodeUpdater;
 
@@ -34,7 +34,7 @@ public class ComplexNodeUpdater implements INodeUpdater {
 					// Add Attribute Group to current node if all attributes where found
 					if(attOccurenceCount == attributeGroup.size()){
 						nodeToUpdate.addAttributeGroup(attributeGroup);
-						Logger.getLogger(getClass().getName()).info(
+						TBLogger.getLogger(getClass().getName()).info(
 								"Added Attribute Group " + attributeGroup.toString()
 								+ " to " + nodeToUpdate.toString());
 					}

@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 
+import utils.TBLogger;
 import clusterer.INode;
 
 public class DBHandling {
@@ -54,7 +55,7 @@ public class DBHandling {
 					
 					// Add Properties/Attributes
 					node.setProperty( "movies", "Hello" ); // build in attributes here
-					Logger.getLogger(getClass().getName()).finer( node.getProperty( "movies" ).toString() );
+					TBLogger.getLogger(getClass().getName()).finer( node.getProperty( "movies" ).toString() );
 					referenceIndex.add( node, "reference", "users" );
 				
 					tx.success();
@@ -65,7 +66,7 @@ public class DBHandling {
 	}
 	
 	public void insertParent(Map<String,String> attributes, List<INode> children) {
-		Logger log = Logger.getLogger(getClass().getName());
+		Logger log = TBLogger.getLogger(getClass().getName());
 		// Start Transaction
 		Transaction tx = graphDb.beginTx();			
 		try 	{
