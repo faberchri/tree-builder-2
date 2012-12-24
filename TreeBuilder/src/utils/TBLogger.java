@@ -17,6 +17,9 @@ import java.util.logging.Logger;
 
 public class TBLogger {
 	
+	// set this to false to turn off logging
+	private static final boolean doLogging = true;
+	
 	private static final Level defaultLogLevel = Level.ALL;
 
 	private static final Map<String, Level> logLevelMap = new HashMap<String, Level>();
@@ -31,16 +34,18 @@ public class TBLogger {
 	private static final boolean appendToLog = true;
 	private static File loggDir;
 	
+	private static final Map<String, Logger> loggerMap = new HashMap<String, Logger>();
+	
 	private static boolean initialized = false;
 			
-	static private Formatter formatterTxt;
+	private static Formatter formatterTxt;
 
-	static private Formatter formatterHTML;
+	private static Formatter formatterHTML;
 	
-	static private ConsoleHandler consoleHandler = null;
-	static private Formatter formatterConsole;
+	private static ConsoleHandler consoleHandler = null;
+	private static Formatter formatterConsole;
 
-	static private void setup(String pattern) throws IOException {
+	private static Logger setup(String pattern) throws IOException {
 		// perform basic initialization of logging facility
 		if (! initialized) {
 			loggDir = initLogging();
@@ -75,14 +80,24 @@ public class TBLogger {
 				e.printStackTrace();
 			}
 		}
-
-
-		// Create logger for passed class
+		
+		// Get a JAVA API logger 
 		Logger logger = Logger.getLogger(pattern);
+				
+		// we check if we don't want to log at all
+		if (! doLogging) {
+			logLevel = Level.OFF;
+			logger.setLevel(logLevel);
+			return logger;
+		}
+		
+		// Set the log level
+		logger.setLevel(logLevel);
+		
+		// create file handlers for logger
 		String logFilePath = (new File(loggDir, pattern)).getAbsolutePath();
 		FileHandler fileTxt = new FileHandler(logFilePath.concat(".log"), appendToLog);
 		FileHandler fileHTML = new FileHandler(logFilePath.concat(".html"), appendToLog);
-		logger.setLevel(logLevel);
 
 		// add txt Formatter
 		fileTxt.setFormatter(formatterTxt);
@@ -97,23 +112,28 @@ public class TBLogger {
 		logger.addHandler(consoleHandler);
 	
 		logger.info("logger with name "+ logger.getName() +" initialized.");
+		
+		return logger;
 	}
 	
-	static public Logger getLogger(String pattern) {
+	public static Logger getLogger(String pattern) {
+		
 		// check if a logger for logName is already initialized
-		if (LogManager.getLogManager().getLogger(pattern) == null) {
+		if (! loggerMap.containsKey(pattern)) {
 			try {
-				setup(pattern);
+				loggerMap.put(pattern, setup(pattern));
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Error on initializing logging facilities!");
 				System.exit(-1);
 			}
 		}
-		return Logger.getLogger(pattern);
+		return loggerMap.get(pattern);
 	}
 
-	static private File initLogging() {
+	private static File initLogging() {
+		if (! doLogging) return null;
+		
 		formatterTxt = new MyTextFormatter();
 		formatterHTML = new MyHtmlFormatter();
 		
