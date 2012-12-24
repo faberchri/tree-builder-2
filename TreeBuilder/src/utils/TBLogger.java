@@ -6,7 +6,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -17,17 +19,37 @@ import java.util.logging.Logger;
 
 public class TBLogger {
 	
-	// set this to false to turn off logging
+	/**
+	 * set doLogging to false to turn off logging completely.
+	 */
 	private static final boolean doLogging = true;
 	
+	/**
+	 * You can add here names of loggers which shall be enabled.
+	 * Loggers which are not listed are disabled.
+	 * BUT: If the array is empty all loggers are enabled.
+	 */ 
+	private static Set<String> selectiveLogging = new HashSet<String>();
+	static {
+		// Add names of loggers that shall be enabled here ...
+		// e.g.: selectiveLogging.add("exampleLogger");
+	};
+	
+	/**
+	 * set the log level for loggers that have no specific log level defined
+	 */
 	private static final Level defaultLogLevel = Level.ALL;
-
+	
+	/**
+	 * Here you can specify the log level of a logger.
+	 * add log levels for any loggers, alternatively you can specify
+	 *log level of a logger which has the same name as a class
+	 *directly in a field of type Level in the class
+	 */
 	private static final Map<String, Level> logLevelMap = new HashMap<String, Level>();
 	static {
-		// add log levels for any loggers, alternatively you can specify
-		// log level of a logger which has the same name as a class
-		// directly in a field of type Level in the class
-		logLevelMap.put("exampleLogger", Level.ALL);
+		// Add map entries here ...
+		// e.g.: logLevelMap.put("exampleLogger", Level.ALL);
 	}
 
 	private static final String logDirName = "TreeBuilder_log_dir";
@@ -91,6 +113,14 @@ public class TBLogger {
 			return logger;
 		}
 		
+		if (! selectiveLogging.isEmpty()) {
+			if (! selectiveLogging.contains(pattern)) {
+				logLevel = Level.OFF;
+				logger.setLevel(logLevel);
+				return logger;
+			}
+		}
+		
 		// Set the log level
 		logger.setLevel(logLevel);
 		
@@ -116,19 +146,32 @@ public class TBLogger {
 		return logger;
 	}
 	
-	public static Logger getLogger(String pattern) {
+    /**
+     * Find or create a logger for a named subsystem.  If a logger has
+     * already been created with the given name it is returned.  Otherwise
+     * a new logger is created.
+     * 
+     *
+     * @param   name            A name for the logger.  This should
+     *                          be a dot-separated name and should normally
+     *                          be based on the package name or class name
+     *                          of the subsystem, such as java.net
+     *                          or javax.swing
+     * @return a suitable Logger
+     */
+	public static Logger getLogger(String name) {
 		
-		// check if a logger for logName is already initialized
-		if (! loggerMap.containsKey(pattern)) {
+		// check if a logger for passed name is already initialized
+		if (! loggerMap.containsKey(name)) {
 			try {
-				loggerMap.put(pattern, setup(pattern));
+				loggerMap.put(name, setup(name));
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Error on initializing logging facilities!");
 				System.exit(-1);
 			}
 		}
-		return loggerMap.get(pattern);
+		return loggerMap.get(name);
 	}
 
 	private static File initLogging() {
