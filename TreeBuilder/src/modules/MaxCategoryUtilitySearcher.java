@@ -44,6 +44,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	 * also known as a combination or combinatorial number. 
 	 * <br>
 	 * (Calculating the complete power set would result in generating 2^n subsets.)
+	 * 
 	 */
 	private final int MAX_SUBSET_SIZE = 2;
 	
@@ -51,6 +52,10 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 
 	private int highestNodeIndex = -1;
 	
+	/**
+	 * Stores all possible combinations of the indices of the passed set limited to the subset size <= MAX_SUBSET_SIZE.
+	 * Requires a set that allows accessing elements by index like modules.IndexAwareSet.
+	 */
 	List<scala.collection.immutable.List<Object>> combinationIndicesList = new ArrayList<scala.collection.immutable.List<Object>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
 	
 	@Override
@@ -67,29 +72,19 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		// Therefore we only generate "small" subsets, i.e. sets with size > 1 
 		// and size <= MAX_SUBSET_SIZE.
 		IndexAwareSet<INode> openNodesList = (IndexAwareSet<INode>)openNodes;
-		
-//		long subListsCount = 0;
-//		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
-//			if (openNodesList.size() < sublistLength) continue;
-//			scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it
-//					= SubsetsGenerator.subsets(openNodesList.size(), sublistLength);
-//			while (it.hasNext()) {
-//				IndexedSeq<java.lang.Object> sublist = (IndexedSeq<java.lang.Object>) it.next();
-//				log.finest("sublist "+ subListsCount+": "+ sublist);
-//				subListsCount++;
-//				combinationIndicesList.add(sublist);
-//			}
-//		}
-		
-		long prevNumOfCombinations = combinationIndicesList.size();
+				
+		long prevNumOfCombinations = combinationIndicesList.size(); // only used for logging
 		
 		if (highestNodeIndex < 0) {
+			// performed on first call of getMaxCategoryUtilityMerge to obtain the initial indices combination list.
 			initializeCombinationIndicesList(openNodesList);
 		} else {
+			// performed on all calls of getMaxCategoryUtilityMerge except on the first call to update the indices combination list
+			// with the combinations formed from the indices of newly added nodes.
 			updateCombinationIndicesList(openNodesList);
 		}
 		
-		highestNodeIndex = openNodesList.getLastIndex();
+		highestNodeIndex = openNodesList.getLastIndex(); // needed to obtain the new indices in the next round.
 		
 		time = System.nanoTime() - time;
 		log.finer("Time to obtain combination indices list: " + ( (double) (time) ) / 1000000000.0 
@@ -132,6 +127,15 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		return best;
 	}
 	
+	/**
+	 * Calculates all possible combinations of the indices of the openNodesList limited to subset size <= MAX_SUBSET_SIZE.
+	 * The resulting lists are stored in combinationIndicesList.
+	 * <br>
+	 * Method is called only on first call of getMaxCategoryUtilityMerge.
+	 * In subsequent calls of getMaxCategoryUtilityMerge updateCombinationIndicesList is called.
+	 * <br>
+	 * @param openNodesList the list from which the combinations are calculated.
+	 */
 	private void initializeCombinationIndicesList( IndexAwareSet<INode> openNodesList) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		
@@ -149,6 +153,14 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		}
 	}
 	
+	/**
+	 * Updates the combinationIndicesList with the possible combinations
+	 * (limited to sublist length <= MAX_SUBSET_SIZE)
+	 * formed from the indices that have been added since the last call of
+	 * getMaxCategoryUtilityMerge and all other indices of the openNodeList.
+	 *
+	 * @param openNodesList the list from which the combinations are calculated.
+	 */
 	private void updateCombinationIndicesList(IndexAwareSet<INode> openNodesList) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		
@@ -204,18 +216,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	    for (final scala.collection.immutable.List<Object> sublist : combinationIndicesList) {
 	        Callable<IMergeResult> callable = new Callable<IMergeResult>() {
 	            public IMergeResult call() throws Exception {
-	                
-//	    			INode[] possibleMerge = new INode[sublist.length()];
-//	    			int i = 0;
-//	    			scala.collection.Iterator<Object> it = sublist.iterator();
-//	    			while (it.hasNext()) {
-//	    				Integer openNodesListIndex = (Integer) it.next();
-//	    				possibleMerge[i] = openNodesList.getByIndex(openNodesListIndex);
-//	    				i++;
-//	    			}
-//	    			return new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge);
-	    			
-	    			
+	                	    			
 	    			INode[] possibleMerge = new INode[sublist.length()];
 	    			int i = 0;
 	    			scala.collection.Iterator<Object> it = sublist.iterator();
@@ -235,9 +236,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	    			} else {
 	    				return null;
 	    			}
-	    			
-	    			
-	                
+	    				                
 	            }
 	        };
 	        futures.add(service.submit(callable));
