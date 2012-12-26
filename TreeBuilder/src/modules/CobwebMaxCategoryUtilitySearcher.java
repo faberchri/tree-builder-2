@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import scala.collection.IndexedSeq;
 import clusterer.IAttribute;
 import clusterer.INode;
 
@@ -138,11 +137,10 @@ public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it = SubsetsGenerator.subsets(1000, 3);
+		scala.collection.Iterator<scala.collection.immutable.List<Object>> it = SubsetsGenerator.subsets(1000, 3);
 		System.out.println(it);
 		while (it.hasNext()) {
-			IndexedSeq<java.lang.Object> indexedSeq = (IndexedSeq<java.lang.Object>) it
-					.next();
+			scala.collection.immutable.List<Object> indexedSeq = it.next();
 			System.out.println(indexedSeq);
 		}
 		System.out.println("done");

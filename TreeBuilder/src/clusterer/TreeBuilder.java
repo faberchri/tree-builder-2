@@ -1,7 +1,6 @@
 package clusterer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.logging.Logger;
 
 import modules.CobwebAttributeFactory;
 import modules.ConcreteNodeFactory;
+import modules.IndexAwareSet;
 import storing.DBHandling;
 import utils.TBLogger;
 import visualization.TreeVisualizer;
@@ -37,12 +37,12 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	/**
 	 * The set of all root nodes of type user.
 	 */
-	private Set<INode> userNodes = new  HashSet<INode>(); 
+	private Set<INode> userNodes = new  IndexAwareSet<INode>(); 
 	
 	/**
 	 * The set of all root nodes of type content.
 	 */
-	private Set<INode> contentNodes = new HashSet<INode>();
+	private Set<INode> contentNodes = new IndexAwareSet<INode>();
 	
 	/**
 	 * The node factory of the clusterer.

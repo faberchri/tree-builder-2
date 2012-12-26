@@ -3,9 +3,13 @@ package modules;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
-import scala.collection.IndexedSeq;
 import utils.TBLogger;
 import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.IMergeResult;
@@ -41,13 +45,18 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	 * <br>
 	 * (Calculating the complete power set would result in generating 2^n subsets.)
 	 */
-	private static final int MAX_SUBSET_SIZE = 2;
+	private final int MAX_SUBSET_SIZE = 2;
+	
+	private final int INITIAL_COMBINATION_INDICES_LIST_CAPACITY = 4000000;
 
+	private int highestNodeIndex = -1;
+	
+	List<scala.collection.immutable.List<Object>> combinationIndicesList = new ArrayList<scala.collection.immutable.List<Object>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
 	
 	@Override
 	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
 		Logger log = TBLogger.getLogger(getClass().getName());
-		
+		long time = System.nanoTime();
 		// first we need a set of all possible subsets of open nodes.
 		// This set is called a power set.
 		// however we want to exclude the following sets from the power set:
@@ -57,40 +66,51 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		// new sets. Keeping all this objects in memory is clearly not possible.
 		// Therefore we only generate "small" subsets, i.e. sets with size > 1 
 		// and size <= MAX_SUBSET_SIZE.
-		List<INode> openNodesList = new ArrayList<INode>(openNodes);
-		List<IndexedSeq<Object>> permutationIndicesList = new ArrayList<IndexedSeq<Object>>();
-		long count = 0;
-		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
-			if (openNodesList.size() < sublistLength) continue;
-			scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it
-					= SubsetsGenerator.subsets(openNodesList.size(), sublistLength);
-			while (it.hasNext()) {
-				IndexedSeq<java.lang.Object> sublist = (IndexedSeq<java.lang.Object>) it.next();
-				log.finer("sublist "+ count+": "+ sublist);
-				count++;
-				permutationIndicesList.add(sublist);
-			}
+		IndexAwareSet<INode> openNodesList = (IndexAwareSet<INode>)openNodes;
+		
+//		long subListsCount = 0;
+//		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
+//			if (openNodesList.size() < sublistLength) continue;
+//			scala.collection.Iterator<scala.collection.immutable.IndexedSeq<Object>> it
+//					= SubsetsGenerator.subsets(openNodesList.size(), sublistLength);
+//			while (it.hasNext()) {
+//				IndexedSeq<java.lang.Object> sublist = (IndexedSeq<java.lang.Object>) it.next();
+//				log.finest("sublist "+ subListsCount+": "+ sublist);
+//				subListsCount++;
+//				combinationIndicesList.add(sublist);
+//			}
+//		}
+		
+		long prevNumOfCombinations = combinationIndicesList.size();
+		
+		if (highestNodeIndex < 0) {
+			initializeCombinationIndicesList(openNodesList);
+		} else {
+			updateCombinationIndicesList(openNodesList);
 		}
 		
-				
+		highestNodeIndex = openNodesList.getLastIndex();
+		
+		time = System.nanoTime() - time;
+		log.finer("Time to obtain combination indices list: " + ( (double) (time) ) / 1000000000.0 
+				+ " seconds; number of obtained new lists: " + (combinationIndicesList.size() - prevNumOfCombinations)
+				+ "; total number of lists: " + combinationIndicesList.size());		
+		time = System.nanoTime();
 		
 		// Calculate for all indices combinations in 
-		// permutationIndicesList the category
+		// combinationIndicesList the category
 		// utility and store it in a IMergeResult object.
 		// Add the IMergeResults to a list.
-		List<IMergeResult> mergeResults = new ArrayList<IMergeResult>();
-		for (IndexedSeq<Object> sublist : permutationIndicesList) {
-			INode[] possibleMerge = new INode[sublist.length()];
-			int i = 0;
-			scala.collection.Iterator<Object> it = sublist.iterator();
-			while (it.hasNext()) {
-				Integer openNodesListIndex = (Integer) it.next();
-				possibleMerge[i] = openNodesList.get(openNodesListIndex);
-				i++;
-			}
-			mergeResults.add(new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge));
+		List<IMergeResult> mergeResults = null;
+		try {
+			mergeResults = obtainMergeResultsMultithreaded(combinationIndicesList, openNodesList);
+		} catch (InterruptedException | ExecutionException e) {
+			log.severe(e.getStackTrace().toString());
+			log.severe(e.getMessage());
+			log.severe("Error in merge results calculation.");
+//			mergeResults = obtainMergeResultsSinglethreaded(combinationIndicesList, openNodesList);
 		}
-		
+				
 		// get the IMergeResult with the highest utility value
 		// from the list of all IMergeResults
 		IMergeResult best = null;
@@ -106,9 +126,168 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 			log.severe("Err: Best merge is == null; in: " + getClass().getSimpleName() );
 			System.exit(-1);
 		}
+		
+		time = System.nanoTime() - time;
+		log.finer("Time to calculate all category utility values: " + ( (double) (time) ) / 1000000000.0 + " seconds");
 		return best;
 	}
 	
-	protected abstract double calculateCategoryUtility(INode[] possibleMerge); 
+	private void initializeCombinationIndicesList( IndexAwareSet<INode> openNodesList) {
+		Logger log = TBLogger.getLogger(getClass().getName());
+		
+		long subListsCount = combinationIndicesList.size();
+		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
+			if (openNodesList.size() < sublistLength) continue;
+			scala.collection.Iterator<scala.collection.immutable.List<Object>> it
+					= SubsetsGenerator.subsets(openNodesList.size(), sublistLength);
+			while (it.hasNext()) {
+				scala.collection.immutable.List<Object> sublist =  it.next();
+				log.finest("sublist "+ subListsCount+": "+ sublist);
+				subListsCount++;
+				combinationIndicesList.add(sublist);
+			}
+		}
+	}
+	
+	private void updateCombinationIndicesList(IndexAwareSet<INode> openNodesList) {
+		Logger log = TBLogger.getLogger(getClass().getName());
+		
+		List<Integer> newIndices = new ArrayList<Integer>();
+		for (int i = highestNodeIndex + 1; i <= openNodesList.getLastIndex(); i++) {
+			newIndices.add(i);
+		}
+		
+		long subListsCount = combinationIndicesList.size();
+		for (Integer newIndex : newIndices) {
+			for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
+				if (sublistLength > newIndex) continue;
+				scala.collection.Iterator<scala.collection.immutable.List<Object>> it 
+					= SubsetsGenerator.remainingSubsets(newIndex, sublistLength);
+				while (it.hasNext()) {
+					scala.collection.immutable.List<Object> sublist = it.next();
+					log.finest("sublist "+ subListsCount+": "+ sublist);
+					subListsCount++;
+					combinationIndicesList.add(sublist);
+				}
+			}
+			
+		}
+	}
+	
+	/**
+	 * Calculates the category utility according to the implementing subclass (i.e. Cobweb or Classit)
+	 * of a single node resulting from a merge of all nodes in the passed nodes array.
+	 * 
+	 * @param possibleMerge the nodes to merge
+	 * @return the category utility of a node resulting from the merge.
+	 */
+	protected abstract double calculateCategoryUtility(INode[] possibleMerge);
+	
+	/**
+	 * Calculates for all entries in the combinationIndicesList the resulting IMergeResult, which includes the category utility.
+	 * <br>
+	 * Multithreaded implementation using ExecutorService.
+	 * 
+	 * @param combinationIndicesList list of merge combinations. Corresponds to indices of the openNodesList.
+	 * @param openNodesList list of all open nodes
+	 * @return the list of all IMergeResults (length of return list == combinationIndicesList.size())
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private List<IMergeResult> obtainMergeResultsMultithreaded(List<scala.collection.immutable.List<Object>> combinationIndicesList, final IndexAwareSet<INode> openNodesList)
+	        throws InterruptedException, ExecutionException {
+
+	    int threads = Runtime.getRuntime().availableProcessors();
+	    ExecutorService service = Executors.newFixedThreadPool(threads);
+
+	    List<Future<IMergeResult>> futures = new ArrayList<Future<IMergeResult>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+	    for (final scala.collection.immutable.List<Object> sublist : combinationIndicesList) {
+	        Callable<IMergeResult> callable = new Callable<IMergeResult>() {
+	            public IMergeResult call() throws Exception {
+	                
+//	    			INode[] possibleMerge = new INode[sublist.length()];
+//	    			int i = 0;
+//	    			scala.collection.Iterator<Object> it = sublist.iterator();
+//	    			while (it.hasNext()) {
+//	    				Integer openNodesListIndex = (Integer) it.next();
+//	    				possibleMerge[i] = openNodesList.getByIndex(openNodesListIndex);
+//	    				i++;
+//	    			}
+//	    			return new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge);
+	    			
+	    			
+	    			INode[] possibleMerge = new INode[sublist.length()];
+	    			int i = 0;
+	    			scala.collection.Iterator<Object> it = sublist.iterator();
+	    			boolean validSequence = true;
+	    			while (it.hasNext()) {
+	    				Integer openNodesListIndex = (Integer) it.next();
+	    				INode tmpN =  openNodesList.getByIndex(openNodesListIndex);
+	    				if (tmpN == null) {
+	    					validSequence = false;
+	    					break;
+	    				}
+	    				possibleMerge[i] = tmpN;
+	    				i++;
+	    			}
+	    			if (validSequence) {
+	    				return new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge);
+	    			} else {
+	    				return null;
+	    			}
+	    			
+	    			
+	                
+	            }
+	        };
+	        futures.add(service.submit(callable));
+	    }
+
+	    service.shutdown();
+
+	    List<IMergeResult> mergeResults = new ArrayList<IMergeResult>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+	    for (Future<IMergeResult> future : futures) {
+	    	IMergeResult tmp = future.get();
+	    	if (tmp != null) {
+		        mergeResults.add(tmp);
+	    	}
+	    }
+	    return mergeResults;
+	}
+	
+	/**
+	 * Calculates for all entries in the combinationIndicesList the resulting IMergeResult, which includes the category utility.
+	 * <br>
+	 * Singlethreaded implementation.
+	 * 
+	 * @param combinationIndicesList list of merge combinations. Corresponds to indices of the openNodesList.
+	 * @param openNodesList list of all open nodes
+	 * @return the list of all IMergeResults (length of return list == combinationIndicesList.size())
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private List<IMergeResult> obtainMergeResultsSinglethreaded(List<scala.collection.immutable.List<Object>> combinationIndicesList, IndexAwareSet<INode> openNodesList) {
+		List<IMergeResult> mergeResults = new ArrayList<IMergeResult>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+		for (scala.collection.immutable.List<Object> sublist : combinationIndicesList) {
+			INode[] possibleMerge = new INode[sublist.length()];
+			int i = 0;
+			scala.collection.Iterator<Object> it = sublist.iterator();
+			boolean validSequence = true;
+			while (it.hasNext()) {
+				Integer openNodesListIndex = (Integer) it.next();
+				INode tmpN =  openNodesList.getByIndex(openNodesListIndex);
+				if (tmpN == null) {
+					validSequence = false;
+					break;
+				}
+				possibleMerge[i] = tmpN;
+				i++;
+			}
+			if (validSequence) {
+				mergeResults.add(new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge));
+			}
+		}
+		return mergeResults;
+	}
 
 }

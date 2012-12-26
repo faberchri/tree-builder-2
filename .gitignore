@@ -2,3 +2,6 @@
 !.classpath
 !SubsetsGenerator.class
 !SubsetsGenerator$.class
+!SubsetsGenerator$$anonfun$remainingSubsets$1.class
+!SubsetsGenerator$$anonfun$remainingSubsetsAsList$1.class
+!SubsetsGenerator$$anonfun$subsetsAsList$1.class

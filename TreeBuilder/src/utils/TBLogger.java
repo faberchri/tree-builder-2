@@ -50,9 +50,12 @@ public class TBLogger {
 	static {
 		// Add map entries here ...
 		// e.g.: logLevelMap.put("exampleLogger", Level.ALL);
+		
+		logLevelMap.put("clusterer.Counter", Level.INFO);
+		logLevelMap.put("modules.CobwebMaxCategoryUtilitySearcher", Level.FINER);
 	}
 
-	private static final String logDirName = "TreeBuilder_log_dir";
+	private static final String logDirName = "TreeBuilder_logs";
 	private static final boolean appendToLog = true;
 	private static File loggDir;
 	
