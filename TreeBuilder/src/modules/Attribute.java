@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +15,16 @@ import clusterer.IAttribute;
  * Is IMMUTABLE!
  *
  */
-class Attribute implements IAttribute {
+class Attribute implements IAttribute, Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Average of this attribute.

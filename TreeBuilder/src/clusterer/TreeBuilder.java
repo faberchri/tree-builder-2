@@ -1,10 +1,14 @@
 package clusterer;
+import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import modules.CobwebAttributeFactory;
@@ -12,12 +16,11 @@ import modules.ConcreteNodeFactory;
 import modules.IndexAwareSet;
 import storing.DBHandling;
 import utils.TBLogger;
+import utils.ToFileSerializer;
 import visualization.TreeVisualizer;
 import client.IDataset;
 import client.IDatasetItem;
-
-import com.rapidminer.operator.Operator;
-import com.rapidminer.operator.OperatorDescription;
+import client.SerializableRMOperatorDescription;
 
 /**
  * 
@@ -27,12 +30,21 @@ import com.rapidminer.operator.OperatorDescription;
  *
  * @param <T> the data type of the media ratings.
  */
-public final class TreeBuilder<T extends Number> extends Operator {
+public final class TreeBuilder<T extends Number> extends DummyRMOperator implements Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * The data set to cluster.
 	 */
-	private IDataset<T> dataset; 
+	private transient IDataset<T> dataset; 
 	
 	/**
 	 * The set of all root nodes of type user.
@@ -73,17 +85,22 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	/**
 	 * Handles storing of nodes to db
 	 */
-	private DBHandling dbHandling;
+	private transient DBHandling dbHandling;
 
 	/**
 	 * Manages the graphical representation of the tree structure visualization.
 	 */
-	private TreeVisualizer treeVisualizer;
+	private transient TreeVisualizer treeVisualizer;
 	
 	/**
 	 * The logger of this class.
 	 */
-	private final Logger log = TBLogger.getLogger(getClass().getName());
+	private transient Logger log = TBLogger.getLogger(getClass().getName());
+	
+	private final UUID builderId = UUID.randomUUID();
+	
+	private final Counter counter = Counter.getInstance();
+	
 	
 	/**
 	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
@@ -96,38 +113,69 @@ public final class TreeBuilder<T extends Number> extends Operator {
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
 	public TreeBuilder(
-			OperatorDescription rapidminerOperatorDescription,
 			IDataset<T> dataset,
 			IMaxCategoryUtilitySearcher searcherContent,
 			IMaxCategoryUtilitySearcher searcherUsers,
 			INodeUpdater nodeUpdater) {
 		
-		super(rapidminerOperatorDescription);
+		super(SerializableRMOperatorDescription.getOperatorDescription());
+
 		this.dataset = dataset;
 		this.nodeFactory = ConcreteNodeFactory.getInstance();
 		this.attributeFactory = CobwebAttributeFactory.getInstance();
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = searcherUsers;
 		this.contentMCUSearcher = searcherContent;
+		this.treeVisualizer = new TreeVisualizer();
+	}
+	
+	/**
+	 * Resumes a previously start clustering process.
+	 * 
+	 * @param pathToWriteSerializedObject location for the new serialization file.
+	 * If null no file is created. 
+	 */
+	public void resumeClustering(String pathToWriteSerializedObject) {
+		log = TBLogger.getLogger(getClass().getName());
 		treeVisualizer = new TreeVisualizer();
+		cluster(pathToWriteSerializedObject);
+	}
+	
+	/**
+	 * Starts a new clustering from scratch.
+	 * @param pathToWriteSerializedObject location for the serialization file.
+	 * If null no file is created. 
+	 */
+	public void startClustering(String pathToWriteSerializedObject) {
+		initLeafNodes(dataset);	
+		cluster(pathToWriteSerializedObject);
 	}
 	
 	/**
 	 * Performs the cluster tree creation of the data set.
+	 * 
+	 * @param pathToWriteSerializedObject location for the serialization file.
+	 * If null no file is created. 
 	 */
-	public void cluster() {
-		
-		
+	private void cluster(String pathToWriteSerializedObject) {
+				
 		// Instantiate DB
 		//this.dbHandling = new DBHandling();
 		//dbHandling.connect();
 		
-		// Build Leaf Nodes
-		initLeafNodes(dataset);
+		if (pathToWriteSerializedObject == null) {
+			// Build Leaf Nodes. A completely new run is started.
+					
+		} else {
+			// attempt to continue an interrupted run
+
+		}
+
 		
 		// init counter and visualizer
 		Counter counter = Counter.getInstance();
 		counter.initCounter(userNodes, contentNodes);
+
 		treeVisualizer.initVisualization(counter, userNodes, contentNodes);
 
         
@@ -139,6 +187,8 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			
 			log.info("Get closest content nodes & merge them");
 			INode newMovieNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
+			
+			checkForDuplicatedId(userNodes, contentNodes);
 
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null && contentNodes.size() > 1) {
@@ -155,6 +205,15 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			counter.setOpenMovieNode(contentNodes.size());
 			counter.setOpenUserNodeCount(userNodes.size());
 			counter.addCycle();
+			
+			// serialize this treebuilder.
+			// This allows to terminate and continue calculations with current tree state.
+			try {
+				ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} 
 		
 		// Close Database
@@ -248,6 +307,25 @@ public final class TreeBuilder<T extends Number> extends Operator {
 						
 	}
 	
+	private void checkForDuplicatedId(Set<INode> setA, Set<INode> setB) throws IllegalStateException {
+		Set<Long> ids = new HashSet<Long>();
+		for (INode iNode : setA) {
+			if (ids.contains(iNode.getId())) {
+				System.err.println("Id check failed: " + iNode);
+				throw new IllegalStateException();
+			}
+			ids.add(iNode.getId());
+		}
+		for (INode iNode : setB) {
+			if (ids.contains(iNode.getId())) {
+				System.err.println("Id check failed: " + iNode);
+				throw new IllegalStateException();
+			}
+			ids.add(iNode.getId());
+		}
+	}
+	
+	
 	/**
 	 * Creates a new node and initializes the nodes attributes based on a list of close nodes.
 	 * The list of close nodes become the children of the new node.
@@ -292,7 +370,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 			
 			// Add new node to openset
 			openSet.add(newNode);
-			
+			log.fine("New node added to open set: " + newNode);
 			
 			// Updating relationships and remove
 			for (INode nodeToMerge : nodesToMerge) {	
@@ -305,6 +383,7 @@ public final class TreeBuilder<T extends Number> extends Operator {
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {
 					log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
+					System.exit(-1);
 				}
 			}
 			

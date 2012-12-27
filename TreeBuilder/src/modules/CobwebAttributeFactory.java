@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +10,17 @@ import clusterer.INode;
 
 import com.google.common.collect.ImmutableMap;
 
-public class CobwebAttributeFactory extends AttributeFactory {
+public class CobwebAttributeFactory extends AttributeFactory implements Serializable {
 
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private static CobwebAttributeFactory factory = new CobwebAttributeFactory();
 	
 	/*

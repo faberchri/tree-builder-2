@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +15,16 @@ import clusterer.INode;
 
 
 
-public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher {
+public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher implements Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	@Override
 	protected double calculateCategoryUtility(INode[] possibleMerge) {

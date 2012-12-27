@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,17 @@ import clusterer.IAttribute;
 import clusterer.INode;
 import clusterer.NodeFactory;
 
-public class ConcreteNodeFactory extends NodeFactory {
+public class ConcreteNodeFactory extends NodeFactory implements Serializable {
 
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private static NodeFactory factory = new ConcreteNodeFactory();
 
 	private ConcreteNodeFactory() {

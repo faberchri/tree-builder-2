@@ -1,19 +1,29 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.List;
 
 import clusterer.AttributeFactory;
 import clusterer.IAttribute;
 import clusterer.INode;
 
-public class ClassitAttributeFactory extends AttributeFactory {
+public class ClassitAttributeFactory extends AttributeFactory implements Serializable {
 
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private static ClassitAttributeFactory factory = new ClassitAttributeFactory();
 	
 	/*
 	 * Must not be instantiated with constructor.
 	 */
-	ClassitAttributeFactory() {
+	private ClassitAttributeFactory() {
 		// singleton
 	}
 	

@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,7 @@ import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.IMergeResult;
 import clusterer.INode;
 
-public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
+public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher, Serializable {
 
 	/**
 	 * All generated subsets have size <= MAX_SUBSET_SIZE.
@@ -56,7 +57,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	 * Stores all possible combinations of the indices of the passed set limited to the subset size <= MAX_SUBSET_SIZE.
 	 * Requires a set that allows accessing elements by index like modules.IndexAwareSet.
 	 */
-	List<scala.collection.immutable.List<Object>> combinationIndicesList = new ArrayList<scala.collection.immutable.List<Object>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+	private List<scala.collection.immutable.List<Object>> combinationIndicesList = new ArrayList<scala.collection.immutable.List<Object>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
 	
 	@Override
 	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
@@ -198,7 +199,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	/**
 	 * Calculates for all entries in the combinationIndicesList the resulting IMergeResult, which includes the category utility.
 	 * <br>
-	 * Multithreaded implementation using ExecutorService.
+	 * Multi-threaded implementation using ExecutorService.
 	 * 
 	 * @param combinationIndicesList list of merge combinations. Corresponds to indices of the openNodesList.
 	 * @param openNodesList list of all open nodes
@@ -257,7 +258,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	/**
 	 * Calculates for all entries in the combinationIndicesList the resulting IMergeResult, which includes the category utility.
 	 * <br>
-	 * Singlethreaded implementation.
+	 * Single-threaded implementation.
 	 * 
 	 * @param combinationIndicesList list of merge combinations. Corresponds to indices of the openNodesList.
 	 * @param openNodesList list of all open nodes

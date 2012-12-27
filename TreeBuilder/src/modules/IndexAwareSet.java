@@ -1,5 +1,6 @@
 package modules;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,10 +38,19 @@ import java.util.Set;
  *
  * @param <E>
  */
-public class IndexAwareSet<E> implements Set<E> {
+public class IndexAwareSet<E> implements Set<E>, Serializable{
 
-	Set<E> internalSet = new HashSet<E>();
-	List<E> internalList = new ArrayList<E>();
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private Set<E> internalSet = new HashSet<E>();
+	private List<E> internalList = new ArrayList<E>();
 	
 	@Override
 	public int size() {

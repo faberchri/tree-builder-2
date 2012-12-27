@@ -1,9 +1,19 @@
 package modules;
 
+import java.io.Serializable;
+
 import clusterer.INode;
 
-public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher {
+public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher implements Serializable {
 
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected double calculateCategoryUtility(INode[] possibleMerge) {

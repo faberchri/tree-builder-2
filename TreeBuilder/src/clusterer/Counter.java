@@ -1,5 +1,8 @@
 package clusterer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Set;
 
 import utils.TBLogger;
@@ -12,7 +15,16 @@ import visualization.Display;
  * That's a singleton, right?
  *
  */
-public class Counter {
+public class Counter implements Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private static Counter counter = new Counter();
 	
@@ -24,7 +36,7 @@ public class Counter {
 	private long totalComparisons = 0;
 	private long cycles = 0;
 	private long startTime = 0;
-	private Display display = null;
+	private transient Display display = null;
 	
 	/**
 	 * Constructor to establish node counts and display
@@ -197,6 +209,21 @@ public class Counter {
     	return totalComparisons;
     }
     
-    
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
+    	ois.defaultReadObject();
+    	Counter c = Counter.getInstance();
+    	c.movieNodeCount = this.movieNodeCount;
+
+    	c.userNodeCount = this.userNodeCount;
+    	c.openMovieNodes = this.openMovieNodes;
+    	c.openUserNodes = this.openUserNodes;
+    	
+    	c.totalComparisons = this.totalComparisons;
+
+    	c.cycles = this.cycles;
+
+    	c.startTime = this.startTime;
+    	c.display = new Display();
+    }
 
 }

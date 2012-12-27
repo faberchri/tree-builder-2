@@ -143,8 +143,9 @@ public class TBLogger {
 		// add Console Formatter
 //		formatterConsole = new SimpleFormatter();
 		logger.addHandler(consoleHandler);
-	
+		logger.info("***************************************************************");
 		logger.info("logger with name "+ logger.getName() +" initialized.");
+		logger.info("***************************************************************");
 		
 		return logger;
 	}

@@ -3,7 +3,6 @@ package modules;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,7 +64,7 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		IMaxCategoryUtilitySearcher utilityCalc = new CobwebMaxCategoryUtilitySearcher();
 		
 		// add the two created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new HashSet<INode>();
+		Set<INode> openNodes = new IndexAwareSet<INode>();
 		openNodes.add(node1);
 		openNodes.add(node2);
 		
