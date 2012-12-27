@@ -18,7 +18,7 @@ public class ToFileSerializer {
 	 * Defines the serialization frequency. In minutes.
 	 * Please, adapt to your needs.
 	 */
-	private static final int serializationTimeInterval = 2; // in minutes
+	private static final int serializationTimeInterval = 4; // in minutes
 	
 	private static Logger log = TBLogger.getLogger(ToFileSerializer.class.toString());
 	
@@ -35,12 +35,13 @@ public class ToFileSerializer {
 	 * rather than a regular file, does not exist but cannot be created, 
 	 * or cannot be opened for any other reason 
 	 */
-	public static void serialize(TreeBuilder objectToSerialize, String pathToFile, UUID builderId)
-				throws FileNotFoundException{
+	public static void serialize(TreeBuilder objectToSerialize, String pathToFile, UUID builderId) {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
+		
 		// return if serialization is not yet due.
 		if (((double)(System.currentTimeMillis() - lastSerialization)) / 1000.0 < serializationTimeInterval * 60.0) return;
+		
 		// do serialization
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
@@ -48,8 +49,11 @@ public class ToFileSerializer {
 		sb.append(pathToFile);
 		if (pathToFile.endsWith(".ser")) {
 			sb.delete(sb.length() - 4, sb.length());
-		} 
-		sb.append("_TreeBuilder_");
+		}
+		if (! pathToFile.endsWith(File.separator)) {
+			sb.append("_");
+		}
+		sb.append("TreeBuilder_");
 		sb.append(builderId.toString());
 		pathToFile = sb.append(".ser").toString();
 		// use previous serialization step as back up if next serialization fails.
@@ -80,10 +84,8 @@ public class ToFileSerializer {
 	 * @param pathToFile the file from which the TreeBuilder is de-serialized.
 	 * @return a de-serialized TreeBuilder or null if path is not readable or 
 	 * de-serialization failed.
-	 * @throws FileNotFoundException if the file exists but is a directory rather than a regular file,
-	 * does not exist but cannot be created, or cannot be opened for any other reason
 	 */
-	public static TreeBuilder deserialize(String pathToFile) throws FileNotFoundException{
+	public static TreeBuilder deserialize(String pathToFile) {
 		File file  = new File(pathToFile);
 		if (! file.exists() || ! file.canRead()) return null;
 		FileInputStream fis = null;
@@ -98,6 +100,9 @@ public class ToFileSerializer {
 		} catch (ClassNotFoundException | IOException e) {
 			log.severe(e.getStackTrace().toString());
 			log.severe("Exception on reading .ser file: " + pathToFile);
+			log.severe("This error is most likely caused by an attempt to read a .ser file " +
+					"that resulted from an incompleted previous serialization process." +
+					" Try to restart from .ser.backup file.");
 			e.printStackTrace();
 			System.exit(-1);
 		}

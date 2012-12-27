@@ -216,4 +216,9 @@ public class TBLogger {
 		}
 		return homePath;
 	}
+	
+	/**
+	 * Singleton: must not be instantiated.
+	 */
+	private TBLogger() {}
 }

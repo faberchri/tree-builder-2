@@ -1,9 +1,7 @@
 package clusterer;
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -97,8 +95,16 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 	 */
 	private transient Logger log = TBLogger.getLogger(getClass().getName());
 	
+	/**
+	 * Each TreeBuilder gets a unique id, which is included in the filename of the
+	 * serialized object.
+	 */
 	private final UUID builderId = UUID.randomUUID();
 	
+	/**
+	 * Keeping this reference ensures that the counter gets serialized 
+	 * together with the TreeBuilder.
+	 */
 	private final Counter counter = Counter.getInstance();
 	
 	
@@ -162,16 +168,7 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 		// Instantiate DB
 		//this.dbHandling = new DBHandling();
 		//dbHandling.connect();
-		
-		if (pathToWriteSerializedObject == null) {
-			// Build Leaf Nodes. A completely new run is started.
-					
-		} else {
-			// attempt to continue an interrupted run
-
-		}
-
-		
+				
 		// init counter and visualizer
 		Counter counter = Counter.getInstance();
 		counter.initCounter(userNodes, contentNodes);
@@ -188,8 +185,6 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			log.info("Get closest content nodes & merge them");
 			INode newMovieNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
 			
-			checkForDuplicatedId(userNodes, contentNodes);
-
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null && contentNodes.size() > 1) {
 				nodeUpdater.updateNodes(newUserNode,contentNodes); 
@@ -206,14 +201,12 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			counter.setOpenUserNodeCount(userNodes.size());
 			counter.addCycle();
 			
-			// serialize this treebuilder.
-			// This allows to terminate and continue calculations with current tree state.
-			try {
-				ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// serialize this TreeBuilder.
+			// This writes current TreeBuilder state to disk and
+			// allows to terminate clustering process and to resume later.
+			// The frequency of serialization can be set with
+			// ToFileSerializer.serializationTimeInterval
+			ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		} 
 		
 		// Close Database
@@ -305,24 +298,6 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 						
-	}
-	
-	private void checkForDuplicatedId(Set<INode> setA, Set<INode> setB) throws IllegalStateException {
-		Set<Long> ids = new HashSet<Long>();
-		for (INode iNode : setA) {
-			if (ids.contains(iNode.getId())) {
-				System.err.println("Id check failed: " + iNode);
-				throw new IllegalStateException();
-			}
-			ids.add(iNode.getId());
-		}
-		for (INode iNode : setB) {
-			if (ids.contains(iNode.getId())) {
-				System.err.println("Id check failed: " + iNode);
-				throw new IllegalStateException();
-			}
-			ids.add(iNode.getId());
-		}
 	}
 	
 	
