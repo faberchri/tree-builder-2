@@ -18,7 +18,7 @@ public class ToFileSerializer {
 	 * Defines the serialization frequency. In minutes.
 	 * Please, adapt to your needs.
 	 */
-	private static final int serializationTimeInterval = 4; // in minutes
+	private static final int serializationTimeInterval = 10; // in minutes
 	
 	private static Logger log = TBLogger.getLogger(ToFileSerializer.class.toString());
 	
@@ -40,7 +40,11 @@ public class ToFileSerializer {
 		if (pathToFile == null) return;
 		
 		// return if serialization is not yet due.
-		if (((double)(System.currentTimeMillis() - lastSerialization)) / 1000.0 < serializationTimeInterval * 60.0) return;
+		if (((double)(System.currentTimeMillis() - lastSerialization)) / 1000.0 < serializationTimeInterval * 60.0) {
+			log.info("Not yet time for serialization: "+ ((double)(System.currentTimeMillis() - lastSerialization) / 1000.0 ) 
+					+ " < " + serializationTimeInterval * 60.0);
+			return;
+		}
 		
 		// do serialization
 		FileOutputStream fos = null;
