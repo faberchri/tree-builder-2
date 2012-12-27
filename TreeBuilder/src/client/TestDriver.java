@@ -3,6 +3,7 @@ package client;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -65,7 +66,7 @@ public class TestDriver {
 			fis.close();
 		} catch (FileNotFoundException e) {
 			TBLogger.getLogger(TestDriver.class.getName()).severe(
-					"The specified path " + path + "is not a valid read location due " +
+					"The specified path " + path + " is not a valid read location due " +
 					"to one of the following reasons: The file does not exist, "+
 					"is a directory rather than a regular file, "+
 					"or for some other reason cannot be opened for reading.");
@@ -85,14 +86,29 @@ public class TestDriver {
 	private static void checkPathForWriteAccess(String path) {
 		if (path == null) return;
 		File file = new File(path);
-		if (! file.canWrite()) {
-			TBLogger.getLogger(TestDriver.class.getName()).severe(
-					"The specified path " + path + "is not a valid write location due " +
-							"to one of the following reasons: The file exists but is a directory "+
-							"rather than a regular file or does not exist but cannot " +
-					"be created, or cannot be opened for any other reason.");
-			jc.usage();
-			System.exit(-1);
+		if (! file.exists()) {
+			try {
+				new FileOutputStream(path);
+			} catch (FileNotFoundException e) {
+				TBLogger.getLogger(TestDriver.class.getName()).severe(
+						"The specified path " + path + " is not a valid write location due " +
+								"to one of the following reasons: The file exists but is a directory "+
+								"rather than a regular file or does not exist but cannot " +
+						"be created, or cannot be opened for any other reason.");
+				jc.usage();
+				System.exit(-1);
+			}
+			file.delete();
+		} else {
+			if (! file.canWrite()) {
+				TBLogger.getLogger(TestDriver.class.getName()).severe(
+						"The specified path " + path + " is not a valid write location due " +
+								"to one of the following reasons: The file exists but is a directory "+
+								"rather than a regular file or does not exist but cannot " +
+						"be created, or cannot be opened for any other reason.");
+				jc.usage();
+				System.exit(-1);
+			}
 		}
 	}
 
