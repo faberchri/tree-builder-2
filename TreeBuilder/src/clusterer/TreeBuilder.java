@@ -201,13 +201,16 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			counter.setOpenUserNodeCount(userNodes.size());
 			counter.addCycle();
 			
-			// serialize this TreeBuilder.
+			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
 			// allows to terminate clustering process and to resume later.
 			// The frequency of serialization can be set with
 			// ToFileSerializer.serializationTimeInterval
-			ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
+			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
 		} 
+		log.info("Clustering completed! Serializing TreeBuilder...");
+		// serialize this TreeBuilder if clustering is completed.
+		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
 		// Close Database
 		//dbHandling.shutdown();

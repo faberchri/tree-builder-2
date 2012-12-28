@@ -2,7 +2,6 @@ package utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,17 +24,15 @@ public class ToFileSerializer {
 	private static long lastSerialization = System.currentTimeMillis();
 
 	/**
-	 * Serializes the passed TreeBuilder to the specified file, given that 
+	 * Serializes the passed Object to the specified file, given that 
 	 * the last serialization did take place before (current time - serializationTimeInterval).
 	 * 
-	 * @param objectToSerialize The TreeBuilder to serialize.
+	 * @param objectToSerialize The object (i.e. TreeBuilder) to serialize.
 	 * @param pathToFile The location where the serialized file is written.
-	 * @param builderId The id of the TreeBuilder.
-	 * @throws FileNotFoundException if the file exists but is a directory 
-	 * rather than a regular file, does not exist but cannot be created, 
-	 * or cannot be opened for any other reason 
+	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
+	 *
 	 */
-	public static void serialize(TreeBuilder objectToSerialize, String pathToFile, UUID builderId) {
+	public static void serializeConditionally(Object objectToSerialize, String pathToFile, UUID builderId) {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
@@ -45,6 +42,19 @@ public class ToFileSerializer {
 					+ " < " + serializationTimeInterval * 60.0);
 			return;
 		}
+		serialize(objectToSerialize, pathToFile, builderId);
+	}
+	
+	/**
+	 * Serializes the passed Object to the specified file.
+	 * 
+	 * @param objectToSerialize object (i.e. TreeBuilder) to serialize.
+	 * @param pathToFile The location where the serialized file is written.
+	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
+	 */
+	public static void serialize(Object objectToSerialize, String pathToFile, UUID builderId) {
+		// return if no serialization path was specified
+		if (pathToFile == null) return;
 		
 		// do serialization
 		FileOutputStream fos = null;
