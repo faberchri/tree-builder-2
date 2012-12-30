@@ -71,7 +71,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public Node( ENodeType nodeType) {
 		this.nodeType = nodeType;
 	}
-
+/**
+ * Node constructor
+ * @param nodeType Type of the node
+ * @param children List of children
+ * @param attributes Map of INode and IAttributes
+ */
 	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes) {
 		this.nodeType = nodeType;
 		if (children != null) {
