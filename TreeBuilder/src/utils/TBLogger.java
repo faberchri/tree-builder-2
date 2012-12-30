@@ -53,7 +53,7 @@ public class TBLogger {
 		
 		logLevelMap.put("clusterer.Counter", Level.INFO);
 		logLevelMap.put("modules.CobwebMaxCategoryUtilitySearcher", Level.FINER);
-		logLevelMap.put("modules.ClassitMaxCategoryUtilitySearcher", Level.INFO);
+		logLevelMap.put("modules.ClassitMaxCategoryUtilitySearcher", Level.FINER);
 	}
 
 	private static final String logDirName = "TreeBuilder_logs";

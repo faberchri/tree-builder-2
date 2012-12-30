@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import scala.actors.threadpool.Arrays;
 import utils.TBLogger;
 import clusterer.IAttribute;
 import clusterer.INode;
@@ -42,7 +41,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		// Normalize sum with the number of attributes
 		utility /= (double) allAttributes.size();
 		
-		log.finer("Classit category utility of merge of " + Arrays.asList(possibleMerge).toString() + " is " + utility);
+		log.finest("Classit category utility is " + utility);
 		return utility;
 	}
 		
@@ -54,7 +53,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 				res += att.getSupport();
 			}
 		}
-		log.finest("support for " + attribute +" on merge of "+ Arrays.asList(possibleMerge).toString() + " is "+res + ".");
+		log.finest("support: "+res);
 		return res;
 	}
 	
@@ -66,7 +65,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 				res += att.getSumOfRatings();
 			}
 		}
-		log.finest("sum of ratings for " + attribute +" on merge of "+ Arrays.asList(possibleMerge).toString() + " is "+res + ".");
+		log.finest("sum of ratings: "+res);
 		return res;
 	}
 	
@@ -78,7 +77,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 				res += att.getSumOfSquaredRatings();
 			}
 		}
-		log.finest("sum of squared ratings for " + attribute +" on merge of "+ Arrays.asList(possibleMerge).toString() + " is "+res + ".");
+		log.finest("sum of squared ratings: " + res);
 		return res;
 	}
 	
@@ -100,13 +99,13 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		// calculate the standard deviation incrementally, according to
 		/// http://de.wikipedia.org/wiki/Standardabweichung#Berechnung_f.C3.BCr_auflaufende_Messwerte 
 		double stdDev = Math.sqrt( (1.0/((double) (support - 1))) * (sumOfSquaredRatings - (1.0 / (double) support) * Math.pow(sumOfRatings, 2.0)) );
-		log.finest("standard deviation for " + attribute +" on merge of "+ Arrays.asList(possibleMerge).toString() + " is "+stdDev + ".");
+		log.finest("standard deviation: "+stdDev);
 		
 		// check if the calculated standard dev is smaller than the specified acuity
 		// if true use assign acuity to stddev.
 		if (stdDev < acuity) {
 			stdDev = acuity;
-			log.finer("standard deviation is smaller than acuity. Acuity ("+acuity+") is returned as standard deviation.");
+			log.finest("standard deviation is smaller than acuity. Acuity ("+acuity+") is returned as standard deviation.");
 		}
 		
 		return stdDev;
