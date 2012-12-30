@@ -24,7 +24,13 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 	
 	private static Logger log = TBLogger.getLogger(ClassitMaxCategoryUtilitySearcher.class.getName());
 
-	@Override
+	/**Calculates utility of merging nodes in possibleMerge based on Classit Category Utility formula
+	 * Utility is calulated as follows:
+	 * 1. For all attributes calculate 1/stdev
+	 * 2. Divide the sum of this values by the number of attributes
+	 * @param possibleMerge The nodes for which to calculate the utility
+	 * @return the utility of merging the nodes in possibleMerge
+	 **/
 	protected double calculateCategoryUtility(INode[] possibleMerge) {
 		Set<INode> allAttributes = new HashSet<INode>();
 
@@ -45,6 +51,12 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		return utility;
 	}
 		
+	/**
+	 * Calculates the support of attribute for the nodes in possibleMerge if these nodes were merged
+	 * @param attribute The attribute for which to calculate the support
+	 * @param possibleMerge The nodes for which to calculate the support if merged
+	 * @return support of attribute
+	 **/
 	public static int calcSupportOfAttribute(INode attribute, INode[] possibleMerge) {
 		int res = 0;
 		for (INode node : possibleMerge) {
@@ -57,6 +69,14 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		return res;
 	}
 	
+	/** 
+	 * Calculates the sum of the ratings for attribute in the nodes in possibleMerge.
+	 * This method is mainly used to calculate the new average of this attribute when two nodes are merged, 
+	 * or to calculate the standard deviation.
+	 * @param attribute The attribute whose sum needs to be calculated
+	 * @param possibleMerge The nodes who's attribute ratings are calculated
+	 * @return The sum of the ratings for attribute in the nodes
+	 */
 	public static double calcSumOfRatingsOfAttribute(INode attribute, INode[] possibleMerge) {
 		double res = 0.0;
 		for (INode node : possibleMerge) {
@@ -69,6 +89,14 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		return res;
 	}
 	
+	/**
+	 * Calculates the sum of squared ratings of attribute in the nodes in possibleMerge. This method is mainly
+	 * used to calculate the standard deviation or when merging nodes. 
+	 * @param attribute The attribute whose squared ratings are calculated
+	 * @param possibleMerge The nodes possibly containing the attribute for which the sum of the squared 
+	 * ratings. 
+	 * @return the sum of squared ratings of attribute
+	 */
 	public static double calcSumOfSquaredRatingsOfAttribute(INode attribute, INode[] possibleMerge) {
 		double res = 0;
 		for (INode node : possibleMerge) {
@@ -81,6 +109,13 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		return res;
 	}
 	
+	/**
+	 * Calculates the standard deviation of attribute if nodes in possibleMerge were merged.
+	 * @param attribute The attribute whose standard deviation is calculated
+	 * @param possibleMerge The nodes possibly containing the attribute
+	 * @return The standard deviation of attribute in the nodes. Returns acuity if no node in 
+	 * possibleMerge contains the attribute.
+	 */
 	public static double calcStdDevOfAttribute(INode attribute, INode[] possibleMerge) {
 		int support = calcSupportOfAttribute(attribute, possibleMerge);
 		double sumOfRatings = calcSumOfRatingsOfAttribute(attribute, possibleMerge);
@@ -92,7 +127,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 		} 
 
 		if ( support == 1 ){
-			// the stddev would be equal 0 but we return the acuity to prevent to prevent division by 0
+			// the stddev would be equal 0 but we return the acuity to prevent division by 0
 			return acuity;
 		}
 		
