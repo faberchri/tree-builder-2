@@ -3,6 +3,7 @@ package modules;
 import java.io.Serializable;
 import java.util.List;
 
+import utils.TBLogger;
 import clusterer.AttributeFactory;
 import clusterer.IAttribute;
 import clusterer.INode;
@@ -36,8 +37,11 @@ public class ClassitAttributeFactory extends AttributeFactory implements Seriali
 	 */
 	@Override
 	public IAttribute createAttribute(double rating) {
-		// avg = 1.0; stdev = 0.0; support = 1
-		return new Attribute(1.0, 0.0, 1);
+		// the stddev would be equal 0 but we use the acuity to prevent to prevent division by 0.
+		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
+		// sum of squared ratings  = ratings^2
+		return new Attribute(rating, ClassitMaxCategoryUtilitySearcher.getAcuity(),
+				1, rating, Math.pow(rating, 2.0));
 	}
 
 	/**
@@ -45,8 +49,18 @@ public class ClassitAttributeFactory extends AttributeFactory implements Seriali
 	 */
 	@Override
 	public IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge) {
-		// TODO incremental stdev calculation
-		return null;
+		INode[] merge = nodesToMerge.toArray(new INode[nodesToMerge.size()]);
+		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, merge);
+		if (support < 1) {
+			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
+			System.exit(-1);
+		}
+		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, merge);
+		double average = sumOfRatings / (double) support;
+		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, merge);
+		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
+		
+		return new Attribute(average, stdDev, support, sumOfRatings, sumOfSquaredRatings);
 	}
 
 	

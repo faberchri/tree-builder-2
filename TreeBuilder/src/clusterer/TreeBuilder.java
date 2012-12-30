@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import modules.CobwebAttributeFactory;
+import modules.ClassitAttributeFactory;
 import modules.ConcreteNodeFactory;
 import modules.IndexAwareSet;
 import storing.DBHandling;
@@ -60,9 +60,14 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 	private NodeFactory nodeFactory;
 	
 	/**
-	 * The factory that creates the attribute object of the created nodes.
+	 * The factory that creates the attribute object(s) of content nodes.
 	 */
-	private AttributeFactory attributeFactory;
+	private AttributeFactory contentNodeAttributeFactory;
+	
+	/**
+	 * The factory that creates the attribute object(s) user nodes.
+	 */
+	private AttributeFactory userNodeAttributeFactory;
 	
 	/**
 	 * The updater which performs the introduction 
@@ -128,10 +133,12 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 
 		this.dataset = dataset;
 		this.nodeFactory = ConcreteNodeFactory.getInstance();
-		this.attributeFactory = CobwebAttributeFactory.getInstance();
+
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = searcherUsers;
 		this.contentMCUSearcher = searcherContent;
+		this.userNodeAttributeFactory = ClassitAttributeFactory.getInstance();
+		this.contentNodeAttributeFactory = ClassitAttributeFactory.getInstance();;
 		this.treeVisualizer = new TreeVisualizer();
 	}
 	
@@ -286,7 +293,7 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<T> di : entry.getValue()) {
 				double normalizedRating = dataset.getNormalizer().normalizeRating( di.getValue());
-				attributes.put(contentsNodeMap.get(di.getContentId()), attributeFactory.createAttribute(normalizedRating));
+				attributes.put(contentsNodeMap.get(di.getContentId()), contentNodeAttributeFactory.createAttribute(normalizedRating));
 			}
 			usersNodeMap.get(entry.getKey()).setAttributes(attributes);
 			userNodes.add(usersNodeMap.get(entry.getKey()));
@@ -295,7 +302,7 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<T> di : entry.getValue()) {
 				double normalizedRating = dataset.getNormalizer().normalizeRating( di.getValue());
-				attributes.put(usersNodeMap.get(di.getUserId()), attributeFactory.createAttribute(normalizedRating));
+				attributes.put(usersNodeMap.get(di.getUserId()), userNodeAttributeFactory.createAttribute(normalizedRating));
 			}
 			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);
 			contentNodes.add(contentsNodeMap.get(entry.getKey()));
@@ -328,15 +335,15 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 			case User:
 				newNode = nodeFactory.createInternalNode(
 						ENodeType.User,
-						nodesToMerge,
-						attributeFactory);
+						nodesToMerge,					//  we need to pass the contentNodeAttributeFactory since
+						contentNodeAttributeFactory); // the attributes of the new user node are content nodes
 				counter.addUserNode();
 				break;
 			case Content:
 				newNode = nodeFactory.createInternalNode(
 						ENodeType.Content,
-						nodesToMerge,
-						attributeFactory);
+						nodesToMerge,				// we need to pass the userNodeAttributeFactory since
+						userNodeAttributeFactory);// the attributes of the new content node are user nodes
 				counter.addMovieNode();
 				break;
 			default:

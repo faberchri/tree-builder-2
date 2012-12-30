@@ -11,7 +11,7 @@ import java.util.Map.Entry;
  *
  */
 public interface IAttribute {
-	
+		
 	/**
 	 * Gets the average of this attribute
 	 * object based on all underlying ratings.
@@ -112,4 +112,12 @@ public interface IAttribute {
 	 * @return an iterator over all probability map entries.
 	 */
 	public Iterator<Entry<Object, Double>> getProbabilities();
+
+	
+	public double getSumOfSquaredRatings();
+
+	public double getSumOfRatings();
+	
+	
+
 }
