@@ -26,7 +26,15 @@ public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	@Override
+	/**Calculates utility of merging nodes in possibleMerge based on Cobweb Category Utility formula
+	 * Utility is calulated as follows:
+	 * 1. For each attribute calculate the square probability of having certain value in the merged node
+	 * P(A=V)^2
+	 * This is calculated for each occurring value in the merged node
+	 * 2. Divide the sum by the number of attributes in the merged node
+	 * @param possibleMerge The nodes for which to calculate the utility
+	 * @return the utility of merging the nodes in possibleMerge
+	 **/
 	protected double calculateCategoryUtility(INode[] possibleMerge) {
 				
 		Set<INode> allAttributes = new HashSet<INode>();
