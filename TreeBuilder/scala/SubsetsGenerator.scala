@@ -8,7 +8,7 @@ object SubsetsGenerator {
     (0 to (originalSetSize - 1)).toList combinations maxSubsetSize
     
   def subsetsAsList(originalSetSize: Int, maxSubsetSize: Int) =
-    (0 to (originalSetSize - 1) combinations maxSubsetSize).toList
+    ((0 to (originalSetSize - 1)).toList combinations maxSubsetSize).toList
     
   def append[T](xs: List[T], ys: List[T]): List[T] =
     xs match { 

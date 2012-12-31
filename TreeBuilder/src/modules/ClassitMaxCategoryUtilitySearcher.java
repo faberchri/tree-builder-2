@@ -22,6 +22,8 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 	
 	private static final double acuity = 1.0;
 	
+	private static final double maxThoereticalPossibleCategoryUtility = 1.0 / acuity;
+	
 	private static Logger log = TBLogger.getLogger(ClassitMaxCategoryUtilitySearcher.class.getName());
 
 	/**Calculates utility of merging nodes in possibleMerge based on Classit Category Utility formula
@@ -148,6 +150,11 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 	
 	public static double getAcuity() {
 		return acuity;
+	}
+	
+	@Override
+	protected double getMaxTheoreticalPossibleCategoryUtility() {
+		return maxThoereticalPossibleCategoryUtility;
 	}
 
 	

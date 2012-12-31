@@ -9,6 +9,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import utils.TBLogger;
@@ -99,7 +104,7 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		// Add the IMergeResults to a list.
 		List<IMergeResult> mergeResults = null;
 		try {
-			mergeResults = obtainMergeResultsMultithreaded(combinationIndicesList, openNodesList);
+			mergeResults = obtainMergeResultsMultithreadedMaxCUCheck(combinationIndicesList, openNodesList);
 		} catch (InterruptedException | ExecutionException e) {
 			log.severe(e.getStackTrace().toString());
 			log.severe(e.getMessage());
@@ -196,6 +201,8 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	 */
 	protected abstract double calculateCategoryUtility(INode[] possibleMerge);
 	
+	protected abstract double getMaxTheoreticalPossibleCategoryUtility();
+	
 	/**
 	 * Calculates for all entries in the combinationIndicesList the resulting IMergeResult, which includes the category utility.
 	 * <br>
@@ -252,6 +259,116 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 		        mergeResults.add(tmp);
 	    	}
 	    }
+	    return mergeResults;
+	}
+	
+	/**
+	 * Calculates for entries in the combinationIndicesList the resulting IMergeResult
+	 * until a MergeResult has the maximal theoretical possible
+	 * category utility or all entries in the combinationIndicesList are calculated.
+	 * <br>
+	 * Multi-threaded implementation using ExecutorService.
+	 * 
+	 * @param combinationIndicesList list of merge combinations. Corresponds to indices of the openNodesList.
+	 * @param openNodesList list of all open nodes
+	 * @return the list of all IMergeResults (length of return list == combinationIndicesList.size())
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private List<IMergeResult> obtainMergeResultsMultithreadedMaxCUCheck(List<scala.collection.immutable.List<Object>> combinationIndicesList, final IndexAwareSet<INode> openNodesList)
+	        throws InterruptedException, ExecutionException {
+
+		final Logger log = TBLogger.getLogger(getClass().getName());
+		
+	    int threads = Runtime.getRuntime().availableProcessors();
+//	    ExecutorService service = Executors.newFixedThreadPool(threads);
+
+	    ExecutorService service = new ThreadPoolExecutor(threads, threads,
+	    		0L, TimeUnit.MILLISECONDS,
+	    		new LinkedBlockingQueue<Runnable>()) {
+	    	@Override
+	    	protected void afterExecute(Runnable r, Throwable t) {
+	    		super.afterExecute(r, t);
+	    		FutureTask<IMergeResult> ft = (FutureTask<IMergeResult>) r;
+//	    		if (ft.isDone()) {
+	    			try {
+	    				IMergeResult mr = ft.get();
+	    				if (mr == null) return;
+	    				double cu = mr.getCategoryUtility();
+	    				double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
+	    				if (cu >= theoreticalMaxCu) {
+	    					if (cu > theoreticalMaxCu) {
+	    						// error. shouldn't be possible
+	    						log.severe("calculated category utility is greater than teoretical maximum.");
+	    						log.severe("Exiting application!");
+	    						System.exit(-1);
+	    					}
+	    					log.fine("Merge result with max theoretical category utility was found." +
+	    							" Terminating category utilitie calculation for remaining merges.");
+	    					
+	    					
+	    					shutdownNow();
+	    					awaitTermination(2, TimeUnit.SECONDS);
+	    				}
+	    			} catch (InterruptedException | ExecutionException e) {
+						log.warning("InterruptedException or ExecutionException in attempt to fetch calculatin result in afterExecute call.");  				
+	    			}
+//	    		}
+	    	}
+	    };
+
+	    List<Future<IMergeResult>> futures = new ArrayList<Future<IMergeResult>>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+	    for (final scala.collection.immutable.List<Object> sublist : combinationIndicesList) {
+	        Callable<IMergeResult> callable = new Callable<IMergeResult>() {
+
+	            public IMergeResult call() throws Exception {
+	                	    			
+	    			INode[] possibleMerge = new INode[sublist.length()];
+	    			int i = 0;
+	    			scala.collection.Iterator<Object> it = sublist.iterator();
+	    			boolean validSequence = true;
+	    			while (it.hasNext()) {
+	    				Integer openNodesListIndex = (Integer) it.next();
+	    				INode tmpN =  openNodesList.getByIndex(openNodesListIndex);
+	    				if (tmpN == null) {
+	    					validSequence = false;
+	    					break;
+	    				}
+	    				possibleMerge[i] = tmpN;
+	    				i++;
+	    			}
+	    			if (validSequence) {
+	    				return new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge);
+	    			} else {
+	    				return null;
+	    			}
+	    				                
+	            }
+	        };
+	        try {
+	        	futures.add(service.submit(callable));
+			} catch (RejectedExecutionException e) {
+				break; 
+			}
+	        
+	    }
+
+	    service.shutdown();
+	    service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+
+	    List<IMergeResult> mergeResults = new ArrayList<IMergeResult>(INITIAL_COMBINATION_INDICES_LIST_CAPACITY);
+	    for (Future<IMergeResult> future : futures) {
+	    	IMergeResult tmp = null;
+	    	
+	    	if (future.isDone()) {
+	    		tmp = future.get();
+	    	}
+
+	    	if (tmp != null) {
+	    		mergeResults.add(tmp);
+	    	}
+	    }
+
 	    return mergeResults;
 	}
 	

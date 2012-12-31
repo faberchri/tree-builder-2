@@ -93,6 +93,12 @@ public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher
 		return probabilities;
 	}
 	
+	@Override
+	protected double getMaxTheoreticalPossibleCategoryUtility() {
+		// TODO if needed
+		return Double.MAX_VALUE;
+	}
+	
 	
 	////////////////////////////////////////////////////////////////////
 	/////////////////	    		Back up 			////////////////
