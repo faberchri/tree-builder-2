@@ -2,6 +2,7 @@ package modules;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.IMaxCategoryUtilitySearcher;
 import clusterer.INode;
+import clusterer.TreeBuilder;
 
 public class ClassitMaxCategoryUtilitySearcherTest {
 	
@@ -63,8 +65,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 			Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 			
 			// add the corresponding attributes to the attribute map of node 2
-			attMap2.put(sharedAttribute, A4);
-			attMap2.put(new Node(ENodeType.Content, null, null), A3);
+			attMap2.put(sharedAttribute, A3);
+			attMap2.put(new Node(ENodeType.Content, null, null), A4);
 			
 			// create node 2
 			INode node2 = new Node(ENodeType.User, null, null);
@@ -85,12 +87,17 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 			System.out.println("Node 1: "+node1.getAttributesString());
 			System.out.println("Node 2: "+node2.getAttributesString());
 			
-			/*
-			 * ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
-			 * nodesToUpdate.add(node1);
-			 * nodesToUpdate.add(node2);
-			 */
-
+			
+			 ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
+			 nodesToUpdate.add(node1);
+			 nodesToUpdate.add(node2);
+			 
+			TreeBuilder<Number> tr = new TreeBuilder(null, new ClassitMaxCategoryUtilitySearcher(), 
+					new ClassitMaxCategoryUtilitySearcher(), null);
+			INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+			
+			System.out.println("New Node: "+newNode.getAttributesString());
+			
 			// evaluate the category utility result
 			assertEquals("category utility", 1.0/3.0, calcCatUt, 0.000001);
 
