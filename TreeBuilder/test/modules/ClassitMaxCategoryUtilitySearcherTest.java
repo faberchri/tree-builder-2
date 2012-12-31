@@ -81,6 +81,16 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 			// get the utility of the node resulting of a merge of node 1 and node 2
 			double calcCatUt = utilityCalc.getMaxCategoryUtilityMerge(openNodes).getCategoryUtility();
 			
+			//Print standard deviations
+			System.out.println("Node 1: "+node1.getAttributesString());
+			System.out.println("Node 2: "+node2.getAttributesString());
+			
+			/*
+			 * ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
+			 * nodesToUpdate.add(node1);
+			 * nodesToUpdate.add(node2);
+			 */
+
 			// evaluate the category utility result
 			assertEquals("category utility", 1.0/3.0, calcCatUt, 0.000001);
 
