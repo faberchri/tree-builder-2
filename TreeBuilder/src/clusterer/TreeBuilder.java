@@ -219,6 +219,8 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 		// serialize this TreeBuilder if clustering is completed.
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
+		// Create/Update Visualization
+		treeVisualizer.visualize();
 		// Close Database
 		//dbHandling.shutdown();
 	}
