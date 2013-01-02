@@ -21,7 +21,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 	/*
 	 * Arguments: 
 	 * 1: Creates 2 nodes with 2 attributes each, calculates utility and merges the nodes.
-	 * 2: Creates 6 nodes with 3 shared attributes, merges two of them
+	 * 2: Creates 6 nodes with 3 shared attributes. Merges nodes to create full tree. 
 	 */
 	public static void main(String[] args) {
 
@@ -48,7 +48,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 	@Test
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
 
-		System.out.println("Starting test 1..");
+		System.out.println("----------------------Starting test 1..----------------------");
 		
 		// Ratings are Integers
 
@@ -128,8 +128,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 	@Test
 	public void testSimpleMergeTwoLevels() {
 		
-		System.out.println("Starting test 2..");
-		// Ratings are Integers
+		System.out.println("----------------------Starting test 2..----------------------");
+		// Ratings are doubles
 
 		/* Based on example in J.H.Gennari et al. "Models of incremental concept formation",
 		 * page 35, Figure 10
@@ -240,7 +240,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		double maxUtility = utilityCalc.getMaxCategoryUtilityMerge(openNodes).getCategoryUtility();
 		utilityCalc.getMaxCategoryUtilityMerge(openNodes);
 		
-		System.out.println("The following nodes will be merged: ");
+		System.out.println("	The following nodes will be merged: ");
 		for(INode node:utilityCalc.getMaxCategoryUtilityMerge(openNodes).getNodes()){
 			System.out.println(node.getAttributesString());
 		}
@@ -252,9 +252,10 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				new ClassitMaxCategoryUtilitySearcher(), null);
 		INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 
-		System.out.println("New Node: " + newNode.getAttributesString());
+		
+		System.out.println("++ First New Node: " + newNode.getAttributesString());
 
-		System.out.println("Open nodes: ");
+		System.out.println("	Open nodes: ");
 		for(INode node:openNodes){
 			System.out.println(node.getAttributesString());
 		}
@@ -266,11 +267,36 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		
 		//TODO: Verify the values we assume to be correct are correct!!!
 		//and that the correct nodes were merged
-		//and that std dev is correct
-		assertEquals("Txt", (7.5+20)/2, newTxt, 0.000001);
-		assertEquals("Wid", (6.5+7)/2, newWid, 0.000001);
-		assertEquals("Ht", (13.0+12.0)/2, newHt, 0.000001);
+		//and that std dev is correct :)
+		assertEquals("Txt first merge", (7.5+20)/2, newTxt, 0.000001);
+		assertEquals("Wid first merge", (6.5+7)/2, newWid, 0.000001);
+		assertEquals("Ht first merge", (13.0+12.0)/2, newHt, 0.000001);
 		
+		//Create the full tree
 		
+		while(openNodes.size() >= 2){
+			nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(openNodes).getNodes();
+			newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+			System.out.println("Merging "+nodesToUpdate.size()+" more nodes");
+				for(INode node:nodesToUpdate){
+					System.out.println(node.getAttributesString());
+				}
+			System.out.println("++Created new node: "+newNode.getAttributesString());
+		}
+		
+		//Merging last two nodes to create root node
+		newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		
+		//Check avg values of root node
+		//TODO: Check std dev
+		newTxt = newNode.getAttributeValue(attTxt).getAverage();
+		newWid = newNode.getAttributeValue(attWid).getAverage();
+		newHt = newNode.getAttributeValue(attHt).getAverage();
+
+		assertEquals("Txt of root", ((35.25*4)+30)/5, newTxt, 0.000001);
+		assertEquals("Wid of root", ((10.375*4)+36)/5, newWid, 0.000001);
+		assertEquals("Ht of root", ((19.5*4)+41)/75, newHt, 0.000001);
+				
+		assertEquals("Size of openNodes",1,openNodes.size(),0.1);
 	}
 }
