@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -244,11 +245,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 			System.out.println(node.getAttributesString());
 		}
 		
-		
-		
-		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
-		nodesToUpdate.add(node1);
-		nodesToUpdate.add(node2);
+		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(openNodes).getNodes();
 		
 		TreeBuilder<Number> tr = new TreeBuilder(null,
 				new ClassitMaxCategoryUtilitySearcher(),
@@ -273,5 +270,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		assertEquals("Txt", (7.5+20)/2, newTxt, 0.000001);
 		assertEquals("Wid", (6.5+7)/2, newWid, 0.000001);
 		assertEquals("Ht", (13.0+12.0)/2, newHt, 0.000001);
+		
+		
 	}
 }
