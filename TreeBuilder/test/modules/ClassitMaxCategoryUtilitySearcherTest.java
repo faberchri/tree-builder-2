@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Test;
+
 import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.IMaxCategoryUtilitySearcher;
@@ -42,6 +44,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 	}
 
+	@Test
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
 
 		System.out.println("Starting test 1..");
@@ -120,7 +123,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		assertEquals("category utility", 1.0 / 3.0, calcCatUt, 0.000001);
 
 	}
-
+	
+	@Test
 	public void testSimpleMergeTwoLevels() {
 		
 		System.out.println("Starting test 2..");
