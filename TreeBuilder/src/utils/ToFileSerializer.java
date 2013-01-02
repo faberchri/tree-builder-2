@@ -52,28 +52,27 @@ public class ToFileSerializer {
 	 * @param pathToFile The location where the serialized file is written.
 	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
 	 */
-	public static void serialize(Object objectToSerialize, String pathToFile, UUID builderId) {
+	public static void serialize(Object objectToSerialize, String pathToFile, UUID objectUuid) {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
 		// do serialization
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
-		StringBuilder sb = new StringBuilder();
-		sb.append(pathToFile);
-		if (pathToFile.endsWith(".ser")) {
-			sb.delete(sb.length() - 4, sb.length());
+		
+		// create output file path
+		pathToFile = createOutputFilePath(objectToSerialize, pathToFile, objectUuid);
+	
+		File ser = new File(pathToFile);
+		
+		// create missing directories if necessary
+		if (! ser.getParentFile().exists()) {
+			ser.mkdirs();
 		}
-		if (! pathToFile.endsWith(File.separator)) {
-			sb.append("_");
-		}
-		sb.append("TreeBuilder_");
-		sb.append(builderId.toString());
-		pathToFile = sb.append(".ser").toString();
-		// use previous serialization step as back up if next serialization fails.
-		File oldSer = new File(pathToFile);
-		if (oldSer.exists()) {			
-			oldSer.renameTo(new File(pathToFile.concat(".backup")));
+		
+		// use previous serialization step as backup if next serialization fails.
+		if (ser.exists()) {			
+			ser.renameTo(new File(pathToFile.concat(".backup")));
 		}
 		try {
 			log.warning("Serialization started ... Don't terminate application!");
@@ -91,7 +90,7 @@ public class ToFileSerializer {
 			System.exit(-1);
 		}
 	}
-
+	
 	/**
 	 * De-serializes a TreeBuilder from the specified file.
 	 * 
@@ -121,6 +120,53 @@ public class ToFileSerializer {
 			System.exit(-1);
 		}
 		return tb;
+	}
+	
+	/**
+	 * Creates the path to the output file according to the following schema:
+	 * <br>
+	 * {@code <pathToFile-parent-directory>/<pathToFile-last-component-minus-possible-".ser">_<simple-class-name-of-objectToSerialize>_<objectId.toString()>.ser}
+	 * @param objectToSerialize the object that is serialized
+	 * @param pathToFile the output path as specified by the users input argument
+	 * @param objectId the uuid of the object to serialize
+	 * @return the path to the output file
+	 */
+	private static String createOutputFilePath(Object objectToSerialize, String pathToFile, UUID objectId) {
+		if (pathToFile == null) return null;
+		
+		// create default string
+		StringBuilder dsb = new StringBuilder(50);
+		dsb.append(objectToSerialize.getClass().getSimpleName());
+		dsb.append("_");
+		dsb.append(objectId.toString());
+		dsb.append(".ser");
+		String defaultString = dsb.toString();
+		
+		File outF = new File(pathToFile);
+		StringBuilder sb = new StringBuilder();
+		String customName = "";
+		if (! outF.isDirectory()) {
+			customName = outF.getName();
+			outF = outF.getParentFile();
+		}
+		
+		if (! customName.endsWith(defaultString)) {
+			if (customName.endsWith(".ser")) {
+				sb.append(customName.substring(0, customName.length() - 4));
+			} else {
+				sb.append(customName);
+			}
+			if (sb.length() != 0) {
+				sb.append("_");
+			}
+			sb.append(defaultString);
+		} else {
+			sb.append(customName);
+		}
+		
+		// combine parent file with new file name to obtain path
+		outF = new File(outF.getPath(), sb.toString());
+		return outF.getPath();
 	}
 }
 
