@@ -2,6 +2,8 @@ package modules;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import clusterer.Counter;
 import clusterer.ENodeType;
 import clusterer.IAttribute;
 import clusterer.IMaxCategoryUtilitySearcher;
@@ -19,10 +22,10 @@ import clusterer.TreeBuilder;
 public class ClassitMaxCategoryUtilitySearcherTest {
 
 	/*
-	 * Arguments: 1: Creates 2 nodes with 2 attributes each, calculates utility
-	 * and merges the nodes. 2: Creates 6 nodes with 3 shared attributes. Merges
-	 * nodes to create full tree. 3: Creates 3 nodes, each node having one
-	 * common attribute with each other node
+	 * Arguments: 
+	 * 1: Creates 2 nodes with 2 attributes each, calculates utility and merges the nodes. 
+	 * 2: Creates 6 nodes with 3 shared attributes. Merges nodes to create full tree. 
+	 * 3: Creates 3 nodes, each node having one common attribute with each other node ->> Needs to be checked (throws exception)
 	 */
 	public static void main(String[] args) {
 
@@ -37,6 +40,12 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				break;
 			case "2":
 				tester.testSimpleClassitTree();
+				break;
+			case "3":
+				tester.testMergeOfThreeNodes();
+				break;
+			case "4":
+				tester.testSimpleStDevCalculation();
 				break;
 			default:
 				System.out.println("Invalid argument: " + arg);
@@ -119,20 +128,20 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder<Number> tr = new TreeBuilder(null,
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(), null);
-		INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 
-		/*
+		
 		INode newNode = new Node(ENodeType.User);
 
 			try {
             Class[] parameterTypes = {List.class, Set.class, Counter.class};
-            Method method = TreeBuilder.class.getMethod("mergeNodes", parameterTypes);
+            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
             method.setAccessible(true);
             newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        */
+        
 				
 		System.out.println("New Node: " + newNode.getAttributesString());
 
@@ -274,7 +283,17 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder<Number> tr = new TreeBuilder(null,
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(), null);
-		INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		INode newNode = new Node(ENodeType.Content,null,null);
+		
+		try {
+            Class[] parameterTypes = {List.class, Set.class, Counter.class};
+            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
+            method.setAccessible(true);
+            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
 		System.out.println("++ First New Node: "
 				+ newNode.getAttributesString());
@@ -301,7 +320,17 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		while (openNodes.size() >= 2) {
 			nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(openNodes)
 					.getNodes();
-			newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+			//newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+			
+			try {
+	            Class[] parameterTypes = {List.class, Set.class, Counter.class};
+	            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
+	            method.setAccessible(true);
+	            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+	        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+	            e.printStackTrace();
+	        }
+			
 			System.out.println(" ");
 			System.out.println("Merging " + nodesToUpdate.size()
 					+ " more nodes");
@@ -314,7 +343,16 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// Merging last two nodes to create root node
 		System.out.println(" ");
-		newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		//newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		
+		try {
+            Class[] parameterTypes = {List.class, Set.class, Counter.class};
+            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
+            method.setAccessible(true);
+            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
 		// Check avg values of root node
 		// TODO: Check std dev
@@ -410,7 +448,6 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		// Calculate which nodes to merge
 		double maxUtility = utilityCalc.getMaxCategoryUtilityMerge(openNodes)
 				.getCategoryUtility();
-		utilityCalc.getMaxCategoryUtilityMerge(openNodes);
 
 		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
@@ -433,5 +470,73 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 		 */
 				
+	}
+
+	@Test
+	public void testSimpleStDevCalculation(){
+		
+		System.out.println(" ");
+		System.out
+				.println("----------------------Starting test 3..----------------------");
+		// Ratings are integers
+		
+		//Create the attributes
+		IAttribute A1 = ClassitAttributeFactory.getInstance().createAttribute(3);
+		IAttribute A2 = ClassitAttributeFactory.getInstance().createAttribute(7);
+		
+		//Create the attribute maps
+		Map<INode,IAttribute> attMap1 = new HashMap<INode,IAttribute>();
+		Map<INode,IAttribute> attMap2 = new HashMap<INode,IAttribute>();
+		
+		//Create shared Attribute node
+		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		
+		//Add the shared attribute to the attribute nodes
+		attMap1.put(sharedAttribute,A1);
+		attMap2.put(sharedAttribute,A2);
+		
+		//Create the nodes
+		INode node1 = new Node(ENodeType.User,null,null);
+		node1.setAttributes(attMap1);
+		INode node2 = new Node(ENodeType.User,null,null);		
+		node2.setAttributes(attMap2);
+		
+		//Create the utility calculator
+		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
+		
+		//Add the two nodes to a set
+		Set<INode> openNodes = new IndexAwareSet<INode>();
+		openNodes.add(node1);
+		openNodes.add(node2);
+		
+		System.out.println("Open nodes:");
+		for(INode node:openNodes){
+			System.out.println(node.getAttributesString());
+		}
+		
+		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
+				openNodes).getNodes();
+		
+		//Merge the two nodes
+		TreeBuilder<Number> tr = new TreeBuilder(null,new ClassitMaxCategoryUtilitySearcher(),new ClassitMaxCategoryUtilitySearcher(),null);
+		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		INode newNode = new Node(ENodeType.Content,null,null);
+		
+		try {
+            Class[] parameterTypes = {List.class, Set.class, Counter.class};
+            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
+            method.setAccessible(true);
+            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+		
+		System.out.println("New node: "+newNode.getAttributesString());
+		
+		//Retreive the attribute
+		double newStDev = newNode.getAttributeValue(sharedAttribute).getStdDev();
+		
+		assertEquals("Standard dev of new node",2,newStDev,0.000001);
 	}
 }
