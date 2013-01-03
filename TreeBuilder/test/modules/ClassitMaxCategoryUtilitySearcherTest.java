@@ -121,6 +121,19 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				new ClassitMaxCategoryUtilitySearcher(), null);
 		INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 
+		/*
+		INode newNode = new Node(ENodeType.User);
+
+			try {
+            Class[] parameterTypes = {List.class, Set.class, Counter.class};
+            Method method = TreeBuilder.class.getMethod("mergeNodes", parameterTypes);
+            method.setAccessible(true);
+            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        */
+				
 		System.out.println("New Node: " + newNode.getAttributesString());
 
 		// evaluate the category utility result
