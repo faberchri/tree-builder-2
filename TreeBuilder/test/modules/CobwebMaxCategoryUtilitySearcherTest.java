@@ -109,10 +109,10 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	 * A1 -> 4
 	 * 
 	 * N2 
-	 * A1 -> 4
+	 * A2 -> 4
 	 * 
 	 * N3 
-	 * A1 -> 3
+	 * A3 -> 3
 	 */
 	@Test
 	public void testGetMaxCategoryUtilityNoCommonAttributes() {
