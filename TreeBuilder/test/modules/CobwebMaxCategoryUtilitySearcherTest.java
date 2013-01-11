@@ -103,6 +103,16 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	}
 	/*
 	 * Creates three nodes not having any common attribute
+	 * 
+	 *  * Nodes: 
+	 * N1 
+	 * A1 -> 4
+	 * 
+	 * N2 
+	 * A1 -> 4
+	 * 
+	 * N3 
+	 * A1 -> 3
 	 */
 	@Test
 	public void testGetMaxCategoryUtilityNoCommonAttributes() {
