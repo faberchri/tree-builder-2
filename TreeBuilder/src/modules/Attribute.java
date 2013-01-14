@@ -15,7 +15,7 @@ import clusterer.IAttribute;
  * Is IMMUTABLE!
  *
  */
-class Attribute implements IAttribute, Serializable {
+final class Attribute implements IAttribute, Serializable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.

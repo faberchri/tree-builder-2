@@ -44,7 +44,7 @@ public class TestDriver {
 		TreeBuilder tb = null;
 		if (cla.resumePrevRun != null) {
 			log.info("Start loading serailized run at: " + cla.resumePrevRun);
-			tb = ToFileSerializer.deserialize(cla.resumePrevRun);
+			tb = (TreeBuilder) ToFileSerializer.deserialize(cla.resumePrevRun);
 			log.info("Resume clustering ...");
 			tb.resumeClustering(cla.serializeRun);
 		} else {

@@ -6,10 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.UUID;
 import java.util.logging.Logger;
-
-import clusterer.TreeBuilder;
 
 public class ToFileSerializer {
 	
@@ -32,7 +31,7 @@ public class ToFileSerializer {
 	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
 	 *
 	 */
-	public static void serializeConditionally(Object objectToSerialize, String pathToFile, UUID builderId) {
+	public static void serializeConditionally(Serializable objectToSerialize, String pathToFile, UUID builderId) {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
@@ -52,7 +51,7 @@ public class ToFileSerializer {
 	 * @param pathToFile The location where the serialized file is written.
 	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
 	 */
-	public static void serialize(Object objectToSerialize, String pathToFile, UUID objectUuid) {
+	public static void serialize(Serializable objectToSerialize, String pathToFile, UUID objectUuid) {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
@@ -92,22 +91,22 @@ public class ToFileSerializer {
 	}
 	
 	/**
-	 * De-serializes a TreeBuilder from the specified file.
+	 * De-serializes an object from the specified file.
 	 * 
 	 * @param pathToFile the file from which the TreeBuilder is de-serialized.
-	 * @return a de-serialized TreeBuilder or null if path is not readable or 
+	 * @return a de-serialized object or null if path is not readable or 
 	 * de-serialization failed.
 	 */
-	public static TreeBuilder deserialize(String pathToFile) {
+	public static Object deserialize(String pathToFile) {
 		File file  = new File(pathToFile);
 		if (! file.exists() || ! file.canRead()) return null;
 		FileInputStream fis = null;
 		ObjectInputStream in = null;
-		TreeBuilder tb = null;
+		Object o = null;
 		try {
 			fis = new FileInputStream(pathToFile);
 			in = new ObjectInputStream(fis);
-			tb = (TreeBuilder) in.readObject();		
+			o = in.readObject();		
 			log.info("TreeBuilder de-serialized from file " + pathToFile);
 			in.close();
 		} catch (ClassNotFoundException | IOException e) {
@@ -119,7 +118,7 @@ public class ToFileSerializer {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		return tb;
+		return o;
 	}
 	
 	/**
