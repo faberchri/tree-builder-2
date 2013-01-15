@@ -52,7 +52,7 @@ public class ClusterModelFolderRenderer extends AbstractRenderer {
 		} else if (renderable instanceof ClusterModel) {
 			return new ExtendedJScrollPane(new ClusterTreeVisualization((ClusterModel) renderable));
 		} else {
-			return new JLabel("no folder visualization supported for this kind of cluster model " + renderable.getClass());
+			return new JLabel("no folder ch.uzh.agglorecommender.visu supported for this kind of cluster model " + renderable.getClass());
 		}
 	}
 

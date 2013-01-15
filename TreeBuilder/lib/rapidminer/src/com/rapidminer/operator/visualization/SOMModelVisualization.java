@@ -33,7 +33,7 @@ import com.rapidminer.operator.ports.OutputPort;
 
 
 /**
- * This class provides an operator for the visualization of arbitrary models with
+ * This class provides an operator for the ch.uzh.agglorecommender.visu of arbitrary models with
  * help of the dimensionality reduction via a SOM of both the data set and the 
  * given model.
  * 
@@ -71,7 +71,7 @@ public class SOMModelVisualization extends Operator {
 	private InputPort modelInput = getInputPorts().createPort("model", Model.class);
 	private OutputPort exampleSetOutput = getOutputPorts().createPort("example set");
 	private OutputPort modelOutput = getOutputPorts().createPort("model");
-	private OutputPort visualizationOutput = getOutputPorts().createPort("visualization");
+	private OutputPort visualizationOutput = getOutputPorts().createPort("ch.uzh.agglorecommender.visu");
 
 	public SOMModelVisualization(OperatorDescription description) {
 		super(description);

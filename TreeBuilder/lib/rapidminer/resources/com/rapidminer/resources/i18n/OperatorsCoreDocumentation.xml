@@ -5652,7 +5652,7 @@
   </operator>
     <operator>
         <name>Top Down Clustering</name>
-        <synopsis>Hierarchical clustering by applying an inner flat clusterer
+        <synopsis>Hierarchical clustering by applying an inner flat ch.uzh.agglorecommender.clusterer
             scheme recursively</synopsis>
         <help>A top-down generic clustering that can be used with any (flat)
             clustering as inner operator. Note though, that the outer operator

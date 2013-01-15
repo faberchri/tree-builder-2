@@ -179,7 +179,7 @@ public abstract class AbstractDataTableTableRenderer extends NonGraphicalRendere
 			resultTable.setCellColorProvider(getCellColorProvider(resultTable, renderable));
 			return new ExtendedJScrollPane(resultTable);
 		} else {
-			return new JLabel("No visualization possible for table.");
+			return new JLabel("No ch.uzh.agglorecommender.visu possible for table.");
 		}
 	}
 

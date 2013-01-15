@@ -122,7 +122,7 @@ public abstract class AbstractIOObject implements IOObject {
      *  This method should also be used for clean up
      *  processes which should be performed before the actual writing is done. For 
      *  example, models might decide to keep the example set information directly
-     *  after learning (e.g. for visualization reasons) but not to write them down.
+     *  after learning (e.g. for ch.uzh.agglorecommender.visu reasons) but not to write them down.
      *  Please note that all fields will be written into files unless they are set
      *  to null in this method or they are marked as transient. */
 	protected void initWriting() {}

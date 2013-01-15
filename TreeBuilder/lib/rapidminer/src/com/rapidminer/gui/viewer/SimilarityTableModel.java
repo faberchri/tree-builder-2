@@ -30,7 +30,7 @@ import com.rapidminer.example.ExampleSet;
 import com.rapidminer.tools.math.similarity.DistanceMeasure;
 
 /**
- * The table model for the similarity visualization.
+ * The table model for the similarity ch.uzh.agglorecommender.visu.
  *
  * @author Ingo Mierswa
  */

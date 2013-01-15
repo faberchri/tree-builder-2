@@ -151,7 +151,7 @@ public class TopDownClustering extends OperatorChain {
 		// checking and creating ids if necessary
 		Tools.checkAndCreateIds(exampleSet);
 
-		// applying inner clusterer
+		// applying inner ch.uzh.agglorecommender.clusterer
 		exampleSetInnerSource.deliver(exampleSet);
 		getSubprocess(0).execute();		
 		ClusterModel currentModel = modelInnerSink.getData(ClusterModel.class);

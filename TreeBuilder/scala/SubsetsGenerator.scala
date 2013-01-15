@@ -1,6 +1,6 @@
 // Creates all possible combinations of indices
 // in the given range and of the specified length
-package modules
+package ch.uzh.agglorecommender.clusterer.treesearch
 
 object SubsetsGenerator {
   

@@ -173,7 +173,7 @@ public class SOMPlotter extends PlotterAdapter implements ProgressListener {
 			}  
 		});
 
-		colorSelection.setToolTipText("Select the color scheme used for the visualization of the matrix values.");
+		colorSelection.setToolTipText("Select the color scheme used for the ch.uzh.agglorecommender.visu of the matrix values.");
 		colorSelection.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent event) {
 				showColor = colorSelection.getSelectedIndex();
@@ -585,7 +585,7 @@ public class SOMPlotter extends PlotterAdapter implements ProgressListener {
 			return matrixSelection;
 		case 2:
 			label = new JLabel("Style");
-			label.setToolTipText("Select the color scheme used for the visualization of the matrix values.");
+			label.setToolTipText("Select the color scheme used for the ch.uzh.agglorecommender.visu of the matrix values.");
 			return label;
 		case 3:
 			return colorSelection;

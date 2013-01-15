@@ -428,7 +428,7 @@ public class Tools {
 	public static void checkAndCreateIds(ExampleSet es) throws OperatorException {
 		if (es.getAttributes().getId() == null) {
 			try {
-				// create ids (and visualization)
+				// create ids (and ch.uzh.agglorecommender.visu)
 				IdTagging idTagging = OperatorService.createOperator(IdTagging.class);
 				idTagging.apply(es);
 			} catch (OperatorCreationException e) {

@@ -3111,7 +3111,7 @@ Changes from Yale 2.0 beta 2 to Yale 2.0 [2003/08/28]
       - ConceptDriftAdaptor
       - ForwardWeighting
       - EvolutionaryWeighting
-      - UPGMA (tree clusterer)
+      - UPGMA (tree ch.uzh.agglorecommender.clusterer)
       - BatchedValidationChain
       - ExampleSetInformation
 

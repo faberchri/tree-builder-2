@@ -135,7 +135,7 @@
     JIT compiler: HotSpot 64-Bit Tiered Compilers
     VM Arguments: [-Dfile.encoding=MacRoman]
 2012-12-05 11:04:57.151+0000: Java classpath:
-     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-visualization-2.0.1.jar
+     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-ch.uzh.agglorecommender.visu-2.0.1.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/jsse.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/sunrsasign.jar
      [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/neo4j/neo4j-cypher-1.8.jar
@@ -296,7 +296,7 @@
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
+    sun.java.command = ch.uzh.agglorecommender.client.TestDriver ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treeupdate.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -516,7 +516,7 @@ Storage files: (filename : modification date - size)
     JIT compiler: HotSpot 64-Bit Tiered Compilers
     VM Arguments: [-Dfile.encoding=MacRoman]
 2012-12-05 11:10:27.450+0000: Java classpath:
-     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-visualization-2.0.1.jar
+     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-ch.uzh.agglorecommender.visu-2.0.1.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/jsse.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/sunrsasign.jar
      [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/neo4j/neo4j-cypher-1.8.jar
@@ -677,7 +677,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
+    sun.java.command = ch.uzh.agglorecommender.client.TestDriver ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treeupdate.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -899,7 +899,7 @@ Storage files: (filename : modification date - size)
     JIT compiler: HotSpot 64-Bit Tiered Compilers
     VM Arguments: [-Dfile.encoding=MacRoman]
 2012-12-05 11:11:36.085+0000: Java classpath:
-     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-visualization-2.0.1.jar
+     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-ch.uzh.agglorecommender.visu-2.0.1.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/jsse.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/sunrsasign.jar
      [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/neo4j/neo4j-cypher-1.8.jar
@@ -1060,7 +1060,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
+    sun.java.command = ch.uzh.agglorecommender.client.TestDriver ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treeupdate.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit
@@ -1285,7 +1285,7 @@ Storage files: (filename : modification date - size)
     JIT compiler: HotSpot 64-Bit Tiered Compilers
     VM Arguments: [-Dfile.encoding=MacRoman]
 2012-12-05 12:33:07.526+0000: Java classpath:
-     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-visualization-2.0.1.jar
+     [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/jung/jung-ch.uzh.agglorecommender.visu-2.0.1.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/jsse.jar
      [bootstrap] /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home/jre/lib/sunrsasign.jar
      [classpath + loader.0] file:/Users/danielhegglin/Workspace8/tree-builder-2/TreeBuilder/lib/neo4j/neo4j-cypher-1.8.jar
@@ -1446,7 +1446,7 @@ Storage files: (filename : modification date - size)
     user.timezone = Europe/Zurich
     file.encoding = MacRoman
     user.name = danielhegglin
-    sun.java.command = client.TestDriver modules.CobwebMaxCategoryUtilitySearcher modules.CobwebMaxCategoryUtilitySearcher modules.ClassitMaxCategoryUtilitySearcher modules.ComplexNodeUpdater
+    sun.java.command = ch.uzh.agglorecommender.client.TestDriver ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher ch.uzh.agglorecommender.clusterer.treeupdate.ComplexNodeUpdater
     sun.arch.data.model = 64
     user.language = en
     awt.toolkit = sun.lwawt.macosx.LWCToolkit

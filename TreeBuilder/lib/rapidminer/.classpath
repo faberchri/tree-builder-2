@@ -25,7 +25,7 @@
 	<classpathentry kind="lib" path="lib/jung-algorithms.jar"/>
 	<classpathentry kind="lib" path="lib/jung-api.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl.jar"/>
-	<classpathentry kind="lib" path="lib/jung-visualization.jar"/>
+	<classpathentry kind="lib" path="lib/jung-ch.uzh.agglorecommender.visu.jar"/>
 	<classpathentry kind="lib" path="lib/jdbc/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/jdbc/iijdbc.jar"/>
 	<classpathentry kind="lib" path="lib/jdbc/jtds-1.2.2.jar"/>

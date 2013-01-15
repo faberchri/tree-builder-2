@@ -91,7 +91,7 @@ public class DendrogramPlotter extends JPanel implements Renderable {
 		super.paintComponent(g);
 
 		if ((minDistance == maxDistance) || (Double.isNaN(minDistance)) || (Double.isInfinite(minDistance)) || (Double.isNaN(maxDistance)) || (Double.isInfinite(maxDistance))) {
-			g.drawString("Dendrogram not available for this cluster model. Use an agglomerative clusterer.", MARGIN, MARGIN + 15);
+			g.drawString("Dendrogram not available for this cluster model. Use an agglomerative ch.uzh.agglorecommender.clusterer.", MARGIN, MARGIN + 15);
 			return;
 		}
 

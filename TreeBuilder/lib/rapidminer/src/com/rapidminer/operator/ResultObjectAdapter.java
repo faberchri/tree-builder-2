@@ -39,7 +39,7 @@ import com.rapidminer.tools.Tools;
  * An adapter class for the interface {@link ResultObject}. Implements most
  * methods and can be used if the subclass does not need to extend other
  * classes. The method {@link #toResultString()} delivers the return value of
- * {@link #toString()}. The visualization components for the graphical user
+ * {@link #toString()}. The ch.uzh.agglorecommender.visu components for the graphical user
  * interface is simply the HTML representation of the result string.
  * 
  * @author Ingo Mierswa, Simon Fischer
@@ -63,7 +63,7 @@ public abstract class ResultObjectAdapter extends AbstractIOObject implements Re
 
 	/**
 	 * Adds an action to the list of Java Swing Actions which will shown in the
-	 * visualization component. If the class implements Saveable an action for
+	 * ch.uzh.agglorecommender.visu component. If the class implements Saveable an action for
 	 * saving is already added.
 	 * 
 	 * @deprecated Action concept for GUI components removed from result objects

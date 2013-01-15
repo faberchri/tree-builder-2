@@ -33,7 +33,7 @@ import com.rapidminer.operator.learner.associations.Item;
 import com.rapidminer.tools.Tools;
 
 /** 
- * This table model can be used as visualization for a set of frequent
+ * This table model can be used as ch.uzh.agglorecommender.visu for a set of frequent
  * item sets.
  * 
  * @author Ingo Mierswa

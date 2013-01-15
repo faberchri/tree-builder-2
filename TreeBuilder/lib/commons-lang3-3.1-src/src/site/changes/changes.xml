@@ -538,7 +538,7 @@
     <action type="fix" issue="LANG-51">Typo in documentation.</action>
     <action type="fix" issue="LANG-1">Patch for javadocs.</action>
     <action type="add" issue="LANG-244">Add join(..., char c) to StringUtils (and some performance fixes). Even contains tests!.</action>
-    <action type="add" issue="LANG-231">Resurrect the WordWrapUtils from commons-sandbox/utils.</action>
+    <action type="add" issue="LANG-231">Resurrect the WordWrapUtils from commons-sandbox/ch.uzh.agglorecommender.util.</action>
     <action type="fix" issue="LANG-139">EnumTest fails on Linux Sun JDK 1.3.0.</action>
     <action type="add" issue="LANG-234">What to do with FastDateFormat unused private constructors.</action>
     <action type="add" issue="LANG-240">Added class hierachy support to CompareToBuilder.reflectionCompare().</action>

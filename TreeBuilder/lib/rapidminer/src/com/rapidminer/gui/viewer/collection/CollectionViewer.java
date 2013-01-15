@@ -55,7 +55,7 @@ public class CollectionViewer extends JPanel {
 
 	private static final long serialVersionUID = -322963469866592863L;
 
-	/** The currently used visualization component. */
+	/** The currently used ch.uzh.agglorecommender.visu component. */
 	private Component current;
 
 	private final IOObject collection;

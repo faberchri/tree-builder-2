@@ -2,7 +2,7 @@
 
 	<operator
 		name        = "TreeBuilder"
-		class       = "clusterer.TreeBuilder"
+		class       = "ch.uzh.agglorecommender.clusterer.TreeBuilder"
 		description = "someDescription"
 		group       = "someGroup"/>
 

@@ -37,7 +37,7 @@ import javax.swing.event.ChangeListener;
 import com.rapidminer.gui.ApplicationFrame;
 
 /**
- * Some utils for the creation of a modal progress monitor dialog.
+ * Some ch.uzh.agglorecommender.util for the creation of a modal progress monitor dialog.
  *
  * @author Santhosh Kumar, Ingo Mierswa
  */

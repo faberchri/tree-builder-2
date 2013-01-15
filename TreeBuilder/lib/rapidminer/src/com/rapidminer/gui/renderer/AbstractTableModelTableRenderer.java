@@ -251,7 +251,7 @@ public abstract class AbstractTableModelTableRenderer extends NonGraphicalRender
 		if (tableModel != null) {
 			return new ExtendedJScrollPane(new ExtendedJTable(getTableModel(renderable, ioContainer, false), isSortable(), isColumnMovable(), isAutoresize()));
 		} else {
-			return new JLabel("No visualization possible for table.");
+			return new JLabel("No ch.uzh.agglorecommender.visu possible for table.");
 		}
 	}
 

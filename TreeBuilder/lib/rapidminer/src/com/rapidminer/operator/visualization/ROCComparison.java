@@ -30,7 +30,7 @@ import com.rapidminer.tools.math.ROCData;
 
 /**
  * This object can usually not be passed to other operators but can simply be
- * used for the inline visualization of a ROC comparison plot (without a dialog).
+ * used for the inline ch.uzh.agglorecommender.visu of a ROC comparison plot (without a dialog).
  * 
  * @author Ingo Mierswa
  */
@@ -51,7 +51,7 @@ public class ROCComparison extends ResultObjectAdapter {
 
 	@Override
 	public String toString() {
-		return "A comparison visualization based on the ROC plots for different classification schemes."; 
+		return "A comparison ch.uzh.agglorecommender.visu based on the ROC plots for different classification schemes."; 
 	}
 
 	public String getExtension() {

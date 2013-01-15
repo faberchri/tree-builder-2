@@ -25,7 +25,7 @@ package com.rapidminer.gui.plotter.som;
 import java.awt.Color;
 
 /**
- * This class provides a visualization for the SOMPlotter. Therefore it converts the value of a point to a color of a
+ * This class provides a ch.uzh.agglorecommender.visu for the SOMPlotter. Therefore it converts the value of a point to a color of a
  * blue and red scheme.
  * 
  * @author Sebastian Land

@@ -23,7 +23,7 @@
 package com.rapidminer;
 
 /**
- * Interface managing the visualization of objects. This might be a dialog
+ * Interface managing the ch.uzh.agglorecommender.visu of objects. This might be a dialog
  * showing the feature values ({@link com.rapidminer.gui.ExampleVisualizer})
  * or more sophisticated methods like displaying a text or playing a piece of
  * music. Please note that GUI components should not be constructed in the 

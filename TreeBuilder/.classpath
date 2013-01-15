@@ -97,8 +97,8 @@
 	<classpathentry kind="lib" path="lib/neo4j/lib/scala-library-2.9.1-1.jar" sourcepath="lib/scala/scala-library-src.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j/lib/server-api-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/guava/guava-14.0-rc1.jar" sourcepath="lib/guava/guava-14.0-rc1-sources.jar"/>
-	<classpathentry kind="lib" path="scala"/>
 	<classpathentry kind="lib" path="lib/scala/scala-library.jar" sourcepath="lib/scala/scala-library-src.jar"/>
 	<classpathentry kind="lib" path="lib/jcommander/jcommander-1.30.jar"/>
+	<classpathentry kind="lib" path="scala"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -165,7 +165,7 @@ ID Sev Pri Plt Owner State Result Summary
 18077  StringUtils.chomp does not match Perl  
 18723  RandomStringUtils infloops with length &lt; 1  
 18836  test.lang fails if compiled with non iso-8859-1 locales  
-18948  Resurrect the WordWrapUtils from commons-sandbox/utils  
+18948  Resurrect the WordWrapUtils from commons-sandbox/ch.uzh.agglorecommender.util  
 19296  [Lang] What to do with FastDateFormat unused private constru  
 19364  [Lang] time unit tests fail on Sundays  
 19756  [lang] java.lang.ExceptionInInitializerError thrown by JVMRa  

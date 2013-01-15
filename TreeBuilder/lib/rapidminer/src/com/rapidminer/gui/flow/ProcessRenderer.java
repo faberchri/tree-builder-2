@@ -127,7 +127,7 @@ import com.rapidminer.tools.ParameterService;
 import com.rapidminer.tools.ParentResolvingMap;
 
 /**
- * This class renders a process graph. It also stores all data about visualization
+ * This class renders a process graph. It also stores all data about ch.uzh.agglorecommender.visu
  * like location and size of the operators. This data is stored in a weak hash map
  * so it should be garbage collected when the operators are removed.
  * 

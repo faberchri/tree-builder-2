@@ -22864,7 +22864,7 @@ inserting it into the JavaDoc documentation (really being Asciidoc markup)
 via the +@@+ snippet markers and programmatic adding with runtime data
 in the Java code.
 
-- The annotated graph as http://www.graphviz.org/[GraphViz]-generated visualization:
+- The annotated graph as http://www.graphviz.org/[GraphViz]-generated ch.uzh.agglorecommender.visu:
 
 .Hello World Graph
 ["dot", "Hello-World-Graph-hello-world-Sample-Chapter.svg", "neoviz", ""]
@@ -22932,7 +22932,7 @@ the @@ snippet markers and programmatic adding with runtime data in the Java
 code.
 
   * The annotated graph as GraphViz <http://www.graphviz.org/>-generated
-    visualization:
+    ch.uzh.agglorecommender.visu:
 
 Figure 29.1. Hello World Graph
 
@@ -22978,7 +22978,7 @@ public class DocumentationTest extends AbstractJavaDocTestbase
      * via the +@@+ snippet markers and programmatic adding with runtime data
      * in the Java code.
      *
-     * - The annotated graph as http://www.graphviz.org/[GraphViz]-generated visualization:
+     * - The annotated graph as http://www.graphviz.org/[GraphViz]-generated ch.uzh.agglorecommender.visu:
      *
      * @@graph
      *
