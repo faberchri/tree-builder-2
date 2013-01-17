@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.client.IDatasetItem;
+import ch.uzh.agglorecommender.client.INormalizer;
 import ch.uzh.agglorecommender.client.SerializableRMOperatorDescription;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -35,7 +35,7 @@ import ch.uzh.agglorecommender.visu.TreeVisualizer;
  *
  * @param <T> the data type of the media ratings.
  */
-public final class TreeBuilder<T extends Number> extends DummyRMOperator implements Serializable {
+public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -49,7 +49,7 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 	/**
 	 * The data set to cluster.
 	 */
-	private transient IDataset<T> dataset; 
+	private transient IDataset<?> dataset; 
 	
 	/**
 	 * The set of all root nodes of type user.
@@ -136,9 +136,11 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
 	public TreeBuilder(
-			IDataset<T> dataset,
+			IDataset<?> dataset,
 			IMaxCategoryUtilitySearcher searcherContent,
 			IMaxCategoryUtilitySearcher searcherUsers,
+			TreeComponentFactory contentTreeComponentFactory,
+			TreeComponentFactory userTreeComponentFactory,
 			INodeUpdater nodeUpdater) {
 		
 		super(SerializableRMOperatorDescription.getOperatorDescription());
@@ -147,8 +149,8 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = searcherUsers;
 		this.contentMCUSearcher = searcherContent;
-		this.contentTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
-		this.userTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
+		this.contentTreeComponentFactory = contentTreeComponentFactory;
+		this.userTreeComponentFactory = userTreeComponentFactory;
 		this.treeVisualizer = new TreeVisualizer();
 	}
 	
@@ -265,26 +267,26 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 	 * 
 	 * @param dataset the data set to cluster.
 	 */
-	private void initLeafNodes(IDataset<T> dataset) {
+	private void initLeafNodes(IDataset<?> dataset) {
 
-		Map<Integer, List<IDatasetItem<T>>> usersMap = new HashMap<Integer, List<IDatasetItem<T>>>();
-		Map<Integer, List<IDatasetItem<T>>> contentsMap = new HashMap<Integer, List<IDatasetItem<T>>>();
+		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
+		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		
 		// sort data items according to user id and content id
-		Iterator<IDatasetItem<T>> it = dataset.iterateOverDatasetItems();
+		Iterator<?> it = dataset.iterateOverDatasetItems();
 		while(it.hasNext()) {
-			IDatasetItem<T> datasetItem = it.next();
+			IDatasetItem<?> datasetItem = (IDatasetItem<?>) it.next();
 			if (usersMap.containsKey(datasetItem.getUserId())) {
 				usersMap.get(datasetItem.getUserId()).add(datasetItem);
 			} else {
-				List<IDatasetItem<T>> li = new ArrayList<IDatasetItem<T>>();
+				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
 				li.add(datasetItem);
 				usersMap.put(datasetItem.getUserId(), li);
 			}
 			if (contentsMap.containsKey(datasetItem.getContentId())) {
 				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
 			} else {
-				List<IDatasetItem<T>> li = new ArrayList<IDatasetItem<T>>();
+				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
 				li.add(datasetItem);
 				contentsMap.put(datasetItem.getContentId(), li);
 			}
@@ -301,19 +303,19 @@ public final class TreeBuilder<T extends Number> extends DummyRMOperator impleme
 		}
 		
 		// attach to each node its attributes map
-		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : usersMap.entrySet()) {
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<T> di : entry.getValue()) {
-				double normalizedRating = dataset.getNormalizer().normalizeRating( di.getValue());
+			for (IDatasetItem<?> di : entry.getValue()) {
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( di.getValue());
 				attributes.put(contentsNodeMap.get(di.getContentId()), contentTreeComponentFactory.createAttribute(normalizedRating));
 			}
 			usersNodeMap.get(entry.getKey()).setAttributes(attributes);
 			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
-		for (Map.Entry<Integer, List<IDatasetItem<T>>> entry : contentsMap.entrySet()) {
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<T> di : entry.getValue()) {
-				double normalizedRating = dataset.getNormalizer().normalizeRating( di.getValue());
+			for (IDatasetItem<?> di : entry.getValue()) {			
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( di.getValue());
 				attributes.put(usersNodeMap.get(di.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating));
 			}
 			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);

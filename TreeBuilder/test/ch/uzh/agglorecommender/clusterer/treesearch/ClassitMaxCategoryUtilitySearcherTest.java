@@ -127,9 +127,12 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		nodesToUpdate.add(node1);
 		nodesToUpdate.add(node2);
 
-		TreeBuilder<Number> tr = new TreeBuilder(null,
+		TreeBuilder tr = new TreeBuilder(null,
 				new ClassitMaxCategoryUtilitySearcher(),
-				new ClassitMaxCategoryUtilitySearcher(), null);
+				new ClassitMaxCategoryUtilitySearcher(), 
+				ClassitTreeComponentFactory.getInstance(),
+				ClassitTreeComponentFactory.getInstance(),
+				null);
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 
 		
@@ -282,9 +285,12 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
 
-		TreeBuilder<Number> tr = new TreeBuilder(null,
+		TreeBuilder tr = new TreeBuilder(null,
 				new ClassitMaxCategoryUtilitySearcher(),
-				new ClassitMaxCategoryUtilitySearcher(), null);
+				new ClassitMaxCategoryUtilitySearcher(),
+				ClassitTreeComponentFactory.getInstance(),
+				ClassitTreeComponentFactory.getInstance(),
+				null);
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 		INode newNode = new Node(ENodeType.Content,null,null);
 		
@@ -520,7 +526,12 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				openNodes).getNodes();
 		
 		//Merge the two nodes
-		TreeBuilder<Number> tr = new TreeBuilder(null,new ClassitMaxCategoryUtilitySearcher(),new ClassitMaxCategoryUtilitySearcher(),null);
+		TreeBuilder tr = new TreeBuilder(null,
+				new ClassitMaxCategoryUtilitySearcher(),
+				new ClassitMaxCategoryUtilitySearcher(),
+				ClassitTreeComponentFactory.getInstance(),
+				ClassitTreeComponentFactory.getInstance(),
+				null);
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 		INode newNode = new Node(ENodeType.Content,null,null);
 		
@@ -536,9 +547,10 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		
 		System.out.println("New node: "+newNode.getAttributesString());
 		
-		
 		//Retreive the attribute
-		double newStDev = newNode.getAttributeValue(sharedAttribute).getStdDev();
+//		double newStDev = newNode.getAttributeValue(sharedAttribute).getStdDev();
+		INode[] merge = {sharedAttribute};
+		double newStDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(sharedAttribute, merge);
 		
 		assertEquals("Standard dev of new node",2,newStDev,0.000001);
 	}

@@ -7,7 +7,7 @@ package ch.uzh.agglorecommender.client;
  *
  * @param <T> The data type of raw ratings in the data set.
  */
-public interface INormalizer<T> {
+public interface INormalizer<T extends Number> {
 	
 	/**
 	 * Normalizes a rating.

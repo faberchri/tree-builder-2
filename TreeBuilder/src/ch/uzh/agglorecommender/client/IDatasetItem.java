@@ -8,7 +8,7 @@ package ch.uzh.agglorecommender.client;
  *
  * @param <T> the data type of the rating
  */
-public interface IDatasetItem<T> {
+public interface IDatasetItem<T extends Number> {
 	
 	/**
 	 * The id of the user, who submitted the rating.

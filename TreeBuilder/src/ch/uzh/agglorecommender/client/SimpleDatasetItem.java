@@ -6,7 +6,7 @@ package ch.uzh.agglorecommender.client;
  *
  * @param <T> the data type of a raw rating.
  */
-public class SimpleDatasetItem<T> implements IDatasetItem<T>{
+public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 
 	/**
 	 * The rating.
