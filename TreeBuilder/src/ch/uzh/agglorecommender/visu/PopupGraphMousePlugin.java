@@ -51,7 +51,7 @@ implements MouseListener {
             	
             	// Build Description Text
             	String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>" +
-            						 "<body> Content Node: " + pickedNode.getId() + "<br>" +
+            						 "<body> Node: " + pickedNode.getId() + "<br>" +
             						 "<table><tr><td>attr</td><td>mean</td><td>supp</td><td>std</td></tr>";
             	
             	Set<INode> attributeKeys = pickedNode.getAttributeKeys();
