@@ -7,12 +7,9 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
-
 import ch.uzh.agglorecommender.clusterer.Counter;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
-import ch.uzh.agglorecommender.visu.Display;
-import ch.uzh.agglorecommender.visu.VisualizationBuilder;
 
 
 
@@ -39,9 +36,9 @@ public class TreeVisualizer {
 		this.contentNodes = contentNodes;
 		this.userNodes = userNodes;
 		// Start Display of control Data and hang in to counter
-		Display display = new Display();
-		display.start(counter);
-		counter.setDisplay(display);
+		//Display display = new Display();
+		//display.start(counter);
+		//counter.setDisplay(display);
 		
 		// Initialize Visualization Frame
         visuFrame = new JFrame();

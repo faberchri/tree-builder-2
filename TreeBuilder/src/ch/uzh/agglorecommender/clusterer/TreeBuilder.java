@@ -188,9 +188,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		//this.dbHandling = new DBHandling();
 		//dbHandling.connect();
 				
-		// init counter and visualizer
-		Counter counter = Counter.getInstance();
-		counter.initCounter(userNodes, contentNodes);
+		// Initialize counter and visualizer
+		//Counter counter = Counter.getInstance();
+		//counter.initCounter(userNodes, contentNodes);
 
 		treeVisualizer.initVisualization(counter, userNodes, contentNodes);
 
@@ -216,9 +216,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			treeVisualizer.visualize();
 			
 			// Update counter
-			counter.setOpenMovieNode(contentNodes.size());
-			counter.setOpenUserNodeCount(userNodes.size());
-			counter.addCycle();
+//			counter.setOpenMovieNode(contentNodes.size());
+//			counter.setOpenUserNodeCount(userNodes.size());
+//			counter.addCycle();
 			
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and

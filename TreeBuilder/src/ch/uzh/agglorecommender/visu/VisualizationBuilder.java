@@ -19,9 +19,7 @@ import javax.swing.JPanel;
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 
-
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.visu.PopupGraphMousePlugin;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DelegateTree;
@@ -37,32 +35,29 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 
-
-
-
 @SuppressWarnings("serial")
 public class VisualizationBuilder extends JApplet {
 
 	private Set<INode> rootNodes = new HashSet<INode>();
 
 	    /**
-	     * the graph
+	     * Factories for the graph, tree, edges and vertices
 	     */
-	    Forest<String,Integer> graph;
+	    Forest<INode,Integer> graph;
 
-	    Factory<DirectedGraph<String,Integer>> graphFactory = 
-	    	new Factory<DirectedGraph<String,Integer>>() {
+	    Factory<DirectedGraph<INode,Integer>> graphFactory = 
+	    	new Factory<DirectedGraph<INode,Integer>>() {
 
-				public DirectedGraph<String, Integer> create() {
-					return new DirectedSparseMultigraph<String,Integer>();
+				public DirectedGraph<INode, Integer> create() {
+					return new DirectedSparseMultigraph<INode,Integer>();
 				}
 			};
 
-		Factory<Tree<String,Integer>> treeFactory =
-			new Factory<Tree<String,Integer>> () {
+		Factory<Tree<INode,Integer>> treeFactory =
+			new Factory<Tree<INode,Integer>> () {
 
-			public Tree<String, Integer> create() {
-				return new DelegateTree<String,Integer>(graphFactory);
+			public Tree<INode, Integer> create() {
+				return new DelegateTree<INode,Integer>(graphFactory);
 			}
 		};
 
@@ -81,21 +76,21 @@ public class VisualizationBuilder extends JApplet {
 	    /**
 	     * the visual component and renderer for the graph
 	     */
-	    VisualizationViewer<String,Integer> vv;
+	    VisualizationViewer<INode,Integer> vv;
 	    String root;
-	    TreeLayout<String,Integer> treeLayout;
+	    TreeLayout<INode,Integer> treeLayout;
 
 		public VisualizationBuilder(Set<INode> movieNodes, Set<INode> userNodes) {
 
 	        // Create the graph
-	        graph = new DelegateForest<String,Integer>();
+	        graph = new DelegateForest<INode,Integer>();
 	        createTree(movieNodes,userNodes);
 
 	        // Define Layout
-	        treeLayout 		= new TreeLayout<String,Integer>(graph);
+	        treeLayout 		= new TreeLayout<INode,Integer>(graph);
 
 	        // Define Visualization Viewer, add a listener for ToolTips
-	        vv =  new VisualizationViewer<String,Integer>(treeLayout, new Dimension(600,600));
+	        vv =  new VisualizationViewer<INode,Integer>(treeLayout, new Dimension(600,600));
 	        vv.setBackground(Color.white);
 	        vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
 	        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
@@ -111,7 +106,7 @@ public class VisualizationBuilder extends JApplet {
 	        // Create Mouse Listener class
 	        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
 	        vv.setGraphMouse(graphMouse);
-	        graphMouse.add(new PopupGraphMousePlugin()); // Integration of add. mouse functionality to show description of vertex
+	        graphMouse.add(new PopupGraphMousePlugin()); // Integration of mouse listener functionality to show attributes of vertex
 	        
 	        // Zooming Functions
 	        final ScalingControl scaler = new CrossoverScalingControl();
@@ -147,41 +142,29 @@ public class VisualizationBuilder extends JApplet {
 	     */
 	    private void createTree(Set<INode> movieNodes, Set<INode> userNodes) {
 
-	    	// Build movie Nodes
-	    	String prefix = "movie_";
+	    	// Build movie Nodes recursively
 			for (INode movieNode : movieNodes) {
-
-				// Start recursive build of Tree
-			 	processChildren(movieNode,prefix);
+			 	processChildren(movieNode);
             }
 
-		 	// Build user Nodes
-	    	prefix = "user_";
+		 	// Build user Nodes recursively
 			for (INode userNode : userNodes) {
-
-				// Start recursive build of Tree
-			 	processChildren(userNode,prefix);
+			 	processChildren(userNode);
             }
 
 	    }
 
-	    private void processChildren(INode parent, String prefix) {
-
-	    	String parentID = prefix.concat(String.valueOf(parent.getId()));
+	    private void processChildren(INode parent) {
+	    	
 	    	Iterator<INode> iter = parent.getChildren();
 	    	
+	    	// Process every child
 	    	while (iter.hasNext()) {
 	    		
-	    		// Define Name of Item
+	    		// Build edge between parent and child, build subtree recursively
 	    		INode child = (INode) iter.next();
-        		String childID = prefix.concat(String.valueOf(child.getId()));
-        		
-        		// Add Item to Tree
-        		String Description = ""; // Implement
-        		graph.addEdge(edgeFactory.create(),parentID,childID);
-        		
-        		// Build child items recursively
-        		processChildren(child,prefix);
+        		graph.addEdge(edgeFactory.create(),parent,child);
+        		processChildren(child);
 	    	}
 	    }
 }

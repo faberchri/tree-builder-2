@@ -4,10 +4,13 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
+import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
@@ -34,21 +37,39 @@ implements MouseListener {
      */
     protected void handlePopup(MouseEvent e) {
        
-    	final VisualizationViewer<String,Integer> vv =
-                (VisualizationViewer<String,Integer>)e.getSource();
-        final Point2D p = e.getPoint();
-        final Point2D ivp = p;
+    	@SuppressWarnings("unchecked")
+		final VisualizationViewer<INode,Integer> vv = (VisualizationViewer<INode,Integer>)e.getSource();
+        final Point2D ivp = e.getPoint();
 
-        GraphElementAccessor<String,Integer> pickSupport = vv.getPickSupport(); // Interesting
+        GraphElementAccessor<INode,Integer> pickSupport = vv.getPickSupport();
+        
         if(pickSupport != null) {
 
-            final String vertexID = pickSupport.getVertex(vv.getGraphLayout(), ivp.getX(), ivp.getY()); // Interesting
+            final INode pickedNode = pickSupport.getVertex(vv.getGraphLayout(), ivp.getX(), ivp.getY());
 
-            if(vertexID != null) {
+            if(pickedNode != null) {
             	
-            	// Get Data for this vertexID
-            	// Implement
-            	String description = "Vertex: " + vertexID;
+            	// Build Description Text
+            	String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>" +
+            						 "<body> Content Node: " + pickedNode.getId() + "<br>" +
+            						 "<table><tr><td>attr</td><td>mean</td><td>supp</td><td>std</td></tr>";
+            	
+            	Set<INode> attributeKeys = pickedNode.getAttributeKeys();
+            	
+            	// Sort AttributeKeys regarding ID
+            	
+            	
+            	// Incorporate attributes into description
+            	for(INode attributeKey : attributeKeys) {
+            		
+            		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
+            		description += "<tr><td>" + attributeKey.getId() + "</td><td>" + 
+            				(double)Math.round((AttributeValue.getSumOfRatings()/AttributeValue.getSupport())* 100) / 100 + "</td><td>" + 
+            				+ AttributeValue.getSupport()+ "</td><td></td></tr>";
+            		
+            	}
+            	
+            	description += "</table></body></html>";
             	
             	// Create Description Label
             	JLabel label = new JLabel();
