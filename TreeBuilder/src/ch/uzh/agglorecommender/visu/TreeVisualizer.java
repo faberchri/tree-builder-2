@@ -18,7 +18,8 @@ public class TreeVisualizer {
 	/**
 	 * Frame for tree structure ch.uzh.agglorecommender.visu.
 	 */
-	private JFrame visuFrame;
+	private JFrame visuFrameC;
+	private JFrame visuFrameU;
 	
 	/**
 	 * References to open node sets.
@@ -41,8 +42,11 @@ public class TreeVisualizer {
 		//counter.setDisplay(display);
 		
 		// Initialize Visualization Frame
-        visuFrame = new JFrame();
-        visuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        visuFrameC = new JFrame();
+        visuFrameC.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        visuFrameU = new JFrame();
+        visuFrameU.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
 	
@@ -53,18 +57,26 @@ public class TreeVisualizer {
 	 */
 	public void visualize() {
 		
-		Container content = visuFrame.getContentPane();
+		Container contentC = visuFrameC.getContentPane();
+		Container contentU = visuFrameU.getContentPane();
 		
 		// Instantiate VisualizationBuilder
-		VisualizationBuilder vb = new VisualizationBuilder(contentNodes, userNodes);
+		VisualizationBuilder vbC = new VisualizationBuilder(contentNodes);
+		VisualizationBuilder vbU = new VisualizationBuilder(userNodes);
 		
 		// Add Content to Swing Panel
-        content.removeAll();
-        content.add(vb);
+        contentC.removeAll();
+        contentC.add(vbC);
+        
+        contentU.removeAll();
+        contentU.add(vbU);
         
         // Repack Frame
-        visuFrame.pack();
-        visuFrame.setVisible(true);
+        visuFrameC.pack();
+        visuFrameC.setVisible(true);
+        
+        visuFrameU.pack();
+        visuFrameU.setVisible(true);
 	}
 	
 	/**

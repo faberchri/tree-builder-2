@@ -80,11 +80,11 @@ public class VisualizationBuilder extends JApplet {
 	    String root;
 	    TreeLayout<INode,Integer> treeLayout;
 
-		public VisualizationBuilder(Set<INode> movieNodes, Set<INode> userNodes) {
+		public VisualizationBuilder(Set<INode> nodes) {
 
-	        // Create the graph
-	        graph = new DelegateForest<INode,Integer>();
-	        createTree(movieNodes,userNodes);
+	        // Create the graphs
+	        graph 	= new DelegateForest<INode,Integer>();
+	        createTree(nodes);
 
 	        // Define Layout
 	        treeLayout 		= new TreeLayout<INode,Integer>(graph);
@@ -96,12 +96,11 @@ public class VisualizationBuilder extends JApplet {
 	        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 	        vv.setVertexToolTipTransformer(new ToStringLabeller());
 	        vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-
+	        
 	        // Add Elements to Visualization Viewer
 	        Container content = getContentPane();
-	        
-	        final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-	        content.add(panel);
+	        final GraphZoomScrollPane panelC = new GraphZoomScrollPane(vv);
+	        content.add(panelC);
 	        
 	        // Create Mouse Listener class
 	        final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
@@ -140,16 +139,11 @@ public class VisualizationBuilder extends JApplet {
 	     * @param rootNodes 
 	     * 
 	     */
-	    private void createTree(Set<INode> movieNodes, Set<INode> userNodes) {
+	    private void createTree(Set<INode> nodes) {
 
-	    	// Build movie Nodes recursively
-			for (INode movieNode : movieNodes) {
-			 	processChildren(movieNode);
-            }
-
-		 	// Build user Nodes recursively
-			for (INode userNode : userNodes) {
-			 	processChildren(userNode);
+	    	// Build Tree recursively
+			for (INode node : nodes) {
+			 	processChildren(node);
             }
 
 	    }
@@ -163,8 +157,8 @@ public class VisualizationBuilder extends JApplet {
 	    		
 	    		// Build edge between parent and child, build subtree recursively
 	    		INode child = (INode) iter.next();
-        		graph.addEdge(edgeFactory.create(),parent,child);
-        		processChildren(child);
+	    		graph.addEdge(edgeFactory.create(),parent,child);
+	    		processChildren(child);
 	    	}
 	    }
 }

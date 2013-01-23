@@ -49,6 +49,8 @@ implements MouseListener {
 
             if(pickedNode != null) {
             	
+            	// Differentiate Types here
+            	
             	// Build Description Text
             	String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>" +
             						 "<body> Node: " + pickedNode.getId() + "<br>" +
