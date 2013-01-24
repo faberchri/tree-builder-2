@@ -26,10 +26,10 @@ public class CobwebMergeTest {
 
 	
 	/*
-	 * This method is used in Cobweb tests to get the support for node 
+	 * This method is used in Cobweb tests to get the probability for node 
 	 * !!Not implemented yet!!
 	 */
-	private double getSupport(INode node){
+	private double getProbability(INode node){
 		/*
 		try{
 			Class nodeClass = newNode.getClass();
@@ -40,7 +40,7 @@ public class CobwebMergeTest {
 			//getP.setAccessible(true);
 			
 			//TODO: Fix the following statement
-			CobwebAttribute newAttributes = (CobwebAttribute)attributes.getP(nodeClass);
+			CobwebAttribute newAttributes = (CobwebAttribute)attributes.get(nodeClass);
 			
 			rating = newAttributes.getSumOfRatings();
 			support = newAttributes.getSupport();
@@ -142,7 +142,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode);
-		double support = tester.getSupport(newNode);
+		double support = tester.getProbability(newNode);
 		
 		
 	//TODO: Check rating & support	
@@ -230,7 +230,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode);
-		double support = tester.getSupport(newNode);
+		double support = tester.getProbability(newNode);
 		
 		
 	//TODO: Check rating & support	
@@ -318,7 +318,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode);
-		double support = tester.getSupport(newNode);
+		double support = tester.getProbability(newNode);
 		
 		
 	//TODO: Check rating & support	
@@ -406,7 +406,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode);
-		double support = tester.getSupport(newNode);
+		double support = tester.getProbability(newNode);
 		
 		
 	//TODO: Check rating & support	
@@ -494,7 +494,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode);
-		double support = tester.getSupport(newNode);
+		double support = tester.getProbability(newNode);
 		
 		
 	//TODO: Check rating & support	
@@ -609,7 +609,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode123);
-		double support = tester.getSupport(newNode123);
+		double support = tester.getProbability(newNode123);
 		
 	//TODO: Check rating & support of newNode123
 		//The following line alerts that getter have not yet been implemented. To be deleted when done.
@@ -724,7 +724,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode123);
-		double support = tester.getSupport(newNode123);
+		double support = tester.getProbability(newNode123);
 		
 	//TODO: Check rating & support of newNode123
 		//The following line alerts that getter have not yet been implemented. To be deleted when done.
@@ -839,7 +839,7 @@ public class CobwebMergeTest {
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
 		double rating = tester.getValue(newNode123);
-		double support = tester.getSupport(newNode123);
+		double support = tester.getProbability(newNode123);
 		
 	//TODO: Check rating & support of newNode123
 		//The following line alerts that getter have not yet been implemented. To be deleted when done.
