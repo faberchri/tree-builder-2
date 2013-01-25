@@ -33,7 +33,6 @@ import ch.uzh.agglorecommender.visu.TreeVisualizer;
  * agglomerative two-dimensional clustering algorithm 
  * for media recommendation generation.
  *
- * @param <T> the data type of the media ratings.
  */
 public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	
@@ -70,16 +69,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * The tree component factory of the user tree.
 	 */
 	private TreeComponentFactory userTreeComponentFactory;
-	
-//	/**
-//	 * The factory that creates the attribute object(s) of content nodes.
-//	 */
-//	private AttributeFactory contentNodeAttributeFactory;
-//	
-//	/**
-//	 * The factory that creates the attribute object(s) user nodes.
-//	 */
-//	private AttributeFactory userNodeAttributeFactory;
 	
 	/**
 	 * The updater which performs the introduction 
@@ -245,7 +234,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private INode searchAndMergeNode(Set<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
 		INode newNode = null;
-		if(nodes.size() >= 2) {
+		if(nodes.size() > 1) {
 			IMergeResult cN = mcus.getMaxCategoryUtilityMerge(nodes);
 			
 			log.info("Best node merge has category utility of "
@@ -372,19 +361,13 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			// Updating relationships and remove
 			for (INode nodeToMerge : nodesToMerge) {	
 				
-				// Create parent/child relationships
-// is done on instantiation of node can be removed from here				
-//				nodeToMerge.setParent(newNode);
-//				newNode.addChild(nodeToMerge);
-	
 				// Remove merged Nodes
 				if (!openSet.remove(nodeToMerge)) {
 					log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 					System.exit(-1);
 				}
 			}
-			
-
+		
 			return newNode;
 			
 		} 

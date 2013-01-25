@@ -70,19 +70,19 @@
 	<classpathentry kind="lib" path="lib/jung/colt-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jung/concurrent-1.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/jung/j3d-core-1.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-3d-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-3d-demos-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-algorithms-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-jai-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-jai-samples-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-samples-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-3d-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-3d-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-3d-demos-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-3d-demos-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-algorithms-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-algorithms-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-api-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-api-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-io-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-io-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-jai-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-jai-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-jai-samples-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-jai-samples-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-samples-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-samples-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-visualization-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-visualization-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jung/stax-api-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung/vecmath-1.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung/wstx-asl-3.2.6.jar"/>
-	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-graph-impl-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j/lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j/lib/lucene-core-3.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/neo4j/lib/neo4j-cypher-1.8.jar"/>
