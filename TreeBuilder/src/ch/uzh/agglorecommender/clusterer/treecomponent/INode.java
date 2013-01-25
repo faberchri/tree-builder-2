@@ -1,7 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +39,13 @@ public interface INode {
 	 * in this nodes attribute map.
 	 */
 	public Set<INode> getAttributeKeys();
+	
+	/**
+	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
+	 * 
+	 * @return description of type
+	 */
+	public String getAttributesType();
 		
 	/**
 	 * Adds a child to the nodes children container.
@@ -133,20 +139,6 @@ public interface INode {
 	 * or null if no mapping was present.
 	 */
 	public IAttribute removeAttribute(INode attribute);
-	
-	/**
-	 * Adds a set of nodes to this nodes attribute group list.
-	 * 
-	 * @param attributegroup to add to this nodes attribute groups
-	 */
-	public void addAttributeGroup(Set<INode> attributegroup);
-	
-	/**
-	 * Gets a list of the attribute groupings.
-	 * 
-	 * @return list all the attribute groups for {@code this} node.
-	 */
-	public List<Set<INode>> getAttributeGroups();
 		
 	/**
 	 * Gets the total count of children

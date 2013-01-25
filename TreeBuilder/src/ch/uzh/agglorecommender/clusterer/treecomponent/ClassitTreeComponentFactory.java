@@ -35,7 +35,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 */
 	@Override
 	public IAttribute createAttribute(double rating) {
-		// the stddev would be equal 0 but we use the acuity to prevent to prevent division by 0.
+		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
 		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0));

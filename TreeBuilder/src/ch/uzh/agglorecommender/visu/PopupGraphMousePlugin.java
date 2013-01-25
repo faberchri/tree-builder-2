@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -49,28 +51,55 @@ implements MouseListener {
 
             if(pickedNode != null) {
             	
-            	// Differentiate Types here
-            	
-            	// Build Description Text
+            	// Differentiate Types for specific display
             	String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>" +
-            						 "<body> Node: " + pickedNode.getId() + "<br>" +
-            						 "<table><tr><td>attr</td><td>mean</td><td>supp</td><td>std</td></tr>";
+						 "<body> Node: " + pickedNode.getId() + "<br><table><tr>";
             	
-            	Set<INode> attributeKeys = pickedNode.getAttributeKeys();
-            	
-            	// Sort AttributeKeys regarding ID
-            	
-            	
-            	// Incorporate attributes into description
-            	for(INode attributeKey : attributeKeys) {
+            	if(pickedNode.getAttributesType() == "Classit") {
             		
-            		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
-            		description += "<tr><td>" + attributeKey.getId() + "</td><td>" + 
-            				(double)Math.round((AttributeValue.getSumOfRatings()/AttributeValue.getSupport())* 100) / 100 + "</td><td>" + 
-            				+ AttributeValue.getSupport()+ "</td><td></td></tr>";
+            		// Header
+            		description += "<td>attr</td><td>mean</td><td>std</td></tr>";
+            		
+            		// Data
+            		Set<INode> attributeKeys = pickedNode.getAttributeKeys();
+                	for(INode attributeKey : attributeKeys) {
+                		
+                		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
+                		description += "<tr><td>" + attributeKey.getId() + "</td>" +
+                				"<td>" + (double)Math.round((AttributeValue.getSumOfRatings()/AttributeValue.getSupport())* 100) / 100 + "</td>" +
+                				"<td>" + AttributeValue.getStd() + "</td></tr>";
+                		
+                	}
             		
             	}
             	
+            	else if(pickedNode.getAttributesType() == "Cobweb"){
+            		
+            		// Header
+            		description += "<td>attr</td><td>value</td><td>probability</td></tr>";
+            		
+            		// Data
+            		Set<INode> attributeKeys = pickedNode.getAttributeKeys();
+                	for(INode attributeKey : attributeKeys) {
+                		
+                		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
+                		description += "<tr><td>" + attributeKey.getId() + "</td>";
+                		
+                		Iterator<Entry<Object,Double>> values = AttributeValue.getProbabilities();
+                		 while ( values.hasNext() ){
+                		
+                				description += "<td>" + values.next().toString() + "</td>" +
+                				"<td>" + "AttributeValue.getStd()" + "</td></tr>";
+                		
+                		 }
+                	}
+            	}
+            	
+            	
+						 
+            	
+            	
+	
             	description += "</table></body></html>";
             	
             	// Create Description Label

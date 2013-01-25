@@ -83,5 +83,27 @@ final class ClassitAttribute implements IAttribute, Serializable {
 		sb.append(String.valueOf(getSumOfSquaredRatings()));
 		return sb.toString();
 	}
+
+	@Override
+	public String getClusteringMethod() {
+		return "Classit";
+	}
+
+	@Override
+	public double getStd() throws UnsupportedOperationException {
+		
+		// Die einzelnen Values fehlen
+		
+		// Mean
+		double mean = 0;
+		
+		// Sum of Differences (value - mean)^2
+		double sumOfDifferences = Math.pow(0,2);
+		
+		// Divide through number of variants, take root
+		double std = Math.sqrt(0);
+		
+		return std;
+	}
 	
 }

@@ -90,5 +90,16 @@ public class CobwebAttribute implements IAttribute, Serializable {
 		}
 		return sb.toString();
 	}
+
+	@Override
+	public String getClusteringMethod() {
+		return "Cobweb";
+	}
+
+	@Override
+	public double getStd() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException(
+				"Method of ClassitAttribute object called on CobwebAttribute object");
+	}
 	
 }

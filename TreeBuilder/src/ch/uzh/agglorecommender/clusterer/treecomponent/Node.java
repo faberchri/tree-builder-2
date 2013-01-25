@@ -58,12 +58,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private INode parent = null;
 
-	/**
-	 * What is this ? (Fabian)
-	 */
-	private List<Set<INode>> attributeGroups = new ArrayList<Set<INode>>();
-
-	public Node( ENodeType nodeType) {
+	public Node(ENodeType nodeType) {
 		this.nodeType = nodeType;
 	}
 /**
@@ -168,6 +163,17 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public IAttribute getAttributeValue(INode node) {
 		return attributes.get(node);
 	}
+	
+	@Override
+	public String getAttributesType() {
+		// Notlšsung
+		String type = "";
+		Set<INode> attributeKeys = attributes.keySet();
+		for(INode attributeKey : attributeKeys) {
+			type = attributes.get(attributeKey).getClusteringMethod();
+		}
+		return type;
+	}
 
 	@Override
 	public String toString() {
@@ -198,16 +204,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public IAttribute removeAttribute(INode attribute) {
 		return attributes.remove(attribute);
 
-	}
-
-	@Override
-	public List<Set<INode>> getAttributeGroups() {
-		return attributeGroups;
-	}
-
-	@Override
-	public void addAttributeGroup(Set<INode> attributeGroup) {
-		attributeGroups.add(attributeGroup);
 	}	
 
 	@Override

@@ -43,6 +43,8 @@ public interface IAttribute {
 
 	public double getSumOfRatings() throws UnsupportedOperationException;
 	
+	public double getStd() throws UnsupportedOperationException;
+	
 	/**
 	 * Gets an iterator over the attributes probability map.
 	 * <br>
@@ -65,5 +67,9 @@ public interface IAttribute {
 	 */
 	public Iterator<Entry<Object, Double>> getProbabilities() throws UnsupportedOperationException;
 
-	
+	/**
+	 * Get the clustering method used in this attribute (classit/cobweb/..)
+	 *
+	 */
+	public String getClusteringMethod();
 }
