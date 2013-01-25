@@ -1,6 +1,8 @@
 package ch.uzh.agglorecommender.visu;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
@@ -9,8 +11,10 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -117,18 +121,18 @@ implements MouseListener {
             	label.setHorizontalAlignment(JLabel.CENTER);
                 label.setForeground(Color.blue);
                 label.setText(description);
+
+                // Create dialog that displays label                
+                JDialog dia = new JDialog((Frame) SwingUtilities.windowForComponent(e.getComponent()), "Node attribute map", false);
                 
-                // Add to ScrollPane
-                //JScrollPane scroller = new JScrollPane(label, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            	
-                // Create Popup that displays label
-            	JPopupMenu popup = new JPopupMenu();
-            	popup.add(label);
-            	 
-                if(popup.getComponentCount() > 0) {
-                  popup.show(vv, e.getX(), e.getY());
-                }                
-           }
-       }
+                dia.add(new JScrollPane(label));
+               
+                dia.pack();
+                dia.setSize(new Dimension(label.getWidth() + 20, 400));
+                dia.setLocation(e.getX() + 50, e.getY() + 50);
+                dia.setVisible(true);
+                             
+            }
+        }
     }
 }
