@@ -60,6 +60,7 @@ implements MouseListener {
             	INode[] merge = {pickedNode};
             	
             	DecimalFormat formater = new DecimalFormat("#.##");
+
             	if(pickedNode.getAttributesType() == "Classit") {
             		
             		// Header
@@ -71,9 +72,10 @@ implements MouseListener {
                 		
                 		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
                 		description += "<tr><td>" + attributeKey.getId() + "</td>" +
-                				"<td>" +  formater.format(AttributeValue.getSumOfRatings()/AttributeValue.getSupport())  + "</td>" +
+
+                				"<td>" + formater.format(AttributeValue.getSumOfRatings()/AttributeValue.getSupport())+ "</td>" +
                 				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td></tr>";
-                		
+
                 	}
             		
             	}
@@ -81,22 +83,25 @@ implements MouseListener {
             	else if(pickedNode.getAttributesType() == "Cobweb"){
             		
             		// Header
-            		description += "<td>attr</td><td>value</td><td>probability</td></tr>";
+            		description += "<td>attr</td><td width='150'>value -> probability</td></tr>";
             		
             		// Data
             		Set<INode> attributeKeys = pickedNode.getAttributeKeys();
                 	for(INode attributeKey : attributeKeys) {
                 		
-                		IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
+                		IAttribute attributeValue = pickedNode.getAttributeValue(attributeKey);
                 		description += "<tr><td>" + attributeKey.getId() + "</td>";
                 		
-                		Iterator<Entry<Object,Double>> values = AttributeValue.getProbabilities();
+                		Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
+                		description += "<td>";
                 		 while ( values.hasNext() ){
-                		
-                				description += "<td>" + values.next().toString() + "</td>" +
-                				"<td>" + "AttributeValue.getStd()" + "</td></tr>";
+                			 	Entry<Object,Double> tempEntry = values.next();
+                				description += tempEntry.getKey().toString() + " -> " +
+                							   formater.format(tempEntry.getValue().doubleValue()) + "<br>";
                 		
                 		 }
+                		 
+                		 description += "</td></tr>";
                 	}
             	}
             	
@@ -112,10 +117,13 @@ implements MouseListener {
             	label.setHorizontalAlignment(JLabel.CENTER);
                 label.setForeground(Color.blue);
                 label.setText(description);
+                
+                // Add to ScrollPane
+                //JScrollPane scroller = new JScrollPane(label, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             	
                 // Create Popup that displays label
             	JPopupMenu popup = new JPopupMenu();
-            	 popup.add(label);
+            	popup.add(label);
             	 
                 if(popup.getComponentCount() > 0) {
                   popup.show(vv, e.getX(), e.getY());

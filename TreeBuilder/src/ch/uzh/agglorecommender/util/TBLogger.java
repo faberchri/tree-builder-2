@@ -53,8 +53,8 @@ public class TBLogger {
 		// e.g.: logLevelMap.put("exampleLogger", Level.ALL);
 		
 		logLevelMap.put("ch.uzh.agglorecommender.clusterer.Counter", Level.INFO);
-		logLevelMap.put("modules.CobwebMaxCategoryUtilitySearcher", Level.FINER);
-		logLevelMap.put("modules.ClassitMaxCategoryUtilitySearcher", Level.FINER);
+		logLevelMap.put("ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher", Level.FINER);
+		logLevelMap.put("ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher", Level.FINER);
 	}
 
 	private static final String logDirName = "TreeBuilder_logs";
