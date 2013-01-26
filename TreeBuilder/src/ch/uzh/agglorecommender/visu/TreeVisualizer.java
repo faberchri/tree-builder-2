@@ -1,25 +1,27 @@
 package ch.uzh.agglorecommender.visu;
 
-import java.awt.Container;
+import java.awt.BorderLayout;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JSplitPane;
+import javax.swing.border.TitledBorder;
 
 import ch.uzh.agglorecommender.clusterer.Counter;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 
-
 public class TreeVisualizer {
 
 	/**
-	 * Frame for tree structure ch.uzh.agglorecommender.visu.
+	 * JPanels which contains the JUNG items for cluster tree visualization.
 	 */
-	private JFrame visuFrameC;
-	private JFrame visuFrameU;
+	private VisualizationBuilder vbC;
+	private VisualizationBuilder vbU;
 	
 	/**
 	 * References to open node sets.
@@ -36,47 +38,36 @@ public class TreeVisualizer {
 			Set<INode> contentNodes) {
 		this.contentNodes = contentNodes;
 		this.userNodes = userNodes;
-		// Start Display of control Data and hang in to counter
-		//Display display = new Display();
-		//display.start(counter);
-		//counter.setDisplay(display);
 		
 		// Initialize Visualization Frame
-        visuFrameC = new JFrame();
-        visuFrameC.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        visuFrameU = new JFrame();
-        visuFrameU.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-	}
+		JFrame frame = new JFrame("Cluster trees");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		split.setOneTouchExpandable(true);
+		frame.getContentPane().add(split);
+		
+		// Instantiate VisualizationBuilder
+		vbC = new VisualizationBuilder(contentNodes);
+		vbC.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Content Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
+		vbU = new VisualizationBuilder(userNodes);
+		vbU.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "User Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
 	
+		split.setLeftComponent(vbU);
+		split.setRightComponent(vbC);
+		frame.pack();
+		frame.setVisible(true);
+		visualize();		
+	}
+		
 	/**
 	 * Creates a graphical representation of the current state of the cluster tree.
 	 * @param frame
 	 * @param content
 	 */
 	public void visualize() {
-		
-		Container contentC = visuFrameC.getContentPane();
-		Container contentU = visuFrameU.getContentPane();
-		
-		// Instantiate VisualizationBuilder
-		VisualizationBuilder vbC = new VisualizationBuilder(contentNodes);
-		VisualizationBuilder vbU = new VisualizationBuilder(userNodes);
-		
-		// Add Content to Swing Panel
-        contentC.removeAll();
-        contentC.add(vbC);
-        
-        contentU.removeAll();
-        contentU.add(vbU);
-        
-        // Repack Frame
-        visuFrameC.pack();
-        visuFrameC.setVisible(true);
-        
-        visuFrameU.pack();
-        visuFrameU.setVisible(true);
+			vbC.updateGraph(contentNodes);
+			vbU.updateGraph(userNodes);
 	}
 	
 	/**
