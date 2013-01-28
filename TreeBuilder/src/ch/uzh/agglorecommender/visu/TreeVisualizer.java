@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
 import ch.uzh.agglorecommender.clusterer.Counter;
@@ -38,7 +40,16 @@ public class TreeVisualizer {
 			Set<INode> contentNodes) {
 		this.contentNodes = contentNodes;
 		this.userNodes = userNodes;
-		
+
+		// Set System L&F
+		try {
+			UIManager.setLookAndFeel(
+					UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
 		// Initialize Visualization Frame
 		JFrame frame = new JFrame("Cluster trees");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

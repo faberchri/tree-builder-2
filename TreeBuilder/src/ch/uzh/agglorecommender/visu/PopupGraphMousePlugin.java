@@ -129,7 +129,7 @@ implements MouseListener {
                
                 dia.pack();
                 dia.setSize(new Dimension(label.getWidth() + 20, 400));
-                dia.setLocation(e.getX() + 50, e.getY() + 50);
+                dia.setLocation(e.getXOnScreen() + 20, e.getYOnScreen() + 20);
                 dia.setVisible(true);
                              
             }
