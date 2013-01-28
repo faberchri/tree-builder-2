@@ -1,10 +1,14 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import static org.junit.Assert.assertEquals;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.junit.Test;
@@ -25,41 +29,31 @@ public class CobwebMergeTest {
 	*/
 
 	
-	/*
-	 * This method is used in Cobweb tests to get the probability for node 
-	 * !!Not implemented yet!!
-	 */
-	private double getProbability(INode node){
-		/*
-		try{
-			Class nodeClass = newNode.getClass();
-			Field attributes = nodeClass.getDeclaredField("attributes");
-			attributes.setAccessible(true);
+	private double getProbability(Double value, INode node, INode attributeNode){
+		IAttribute attribute = node.getAttributeValue(attributeNode);
+		Iterator<Entry<Object,Double>> iterator = attribute.getProbabilities();
+		Double probability = 2.0;
+		while (iterator.hasNext()) {
+			Entry<Object,Double> e = iterator.next();
+			Integer key = (Integer) e.getKey();
+			Double value2 = e.getValue();
 			
-			//Method getP = CobwebAttribute.class.getDeclaredMethod("getProbabilities");
-			//getP.setAccessible(true);
-			
-			//TODO: Fix the following statement
-			CobwebAttribute newAttributes = (CobwebAttribute)attributes.get(nodeClass);
-			
-			rating = newAttributes.getSumOfRatings();
-			support = newAttributes.getSupport();
-			
+			if(value.doubleValue() == ((Integer)e.getKey()).doubleValue() ){
+				probability = e.getValue();
+			}
 		}
-		catch(NoSuchFieldException | //NoSuchMethodException | 
-				IllegalAccessException e){
-			e.printStackTrace();
-		}
-		*/
-		return 0;
+		return probability;
 	}
 	
-	/*
-	 * This method is used in Cobweb tests to get the value (rating) for node 
-	 * !!Not implemented yet!!
-	 */
-	private double getValue(INode node){
-		return 0;
+	private int getNumberOfValues(INode node, INode attributeNode){
+		IAttribute attribute = node.getAttributeValue(attributeNode);
+		Iterator<Entry<Object,Double>> iterator = attribute.getProbabilities();
+		int counter = 0; 
+		while(iterator.hasNext()){
+			counter++;
+			iterator.next();
+		}
+		return counter;
 	}
 		
 	/*
@@ -138,21 +132,25 @@ public class CobwebMergeTest {
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
+		System.out.println("New node: "+newNode.getAttributesString());
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode);
-		double support = tester.getProbability(newNode);
+		double numberOfRatings = tester.getNumberOfValues(newNode,sharedAttribute);
+		double p1 = tester.getProbability(1.0,newNode,sharedAttribute);
+		double p3 = tester.getProbability(3.0,newNode,sharedAttribute);
 		
+		assertEquals("Number of Ratings", 2.0, numberOfRatings, 0.000001);
+		assertEquals("P for value 1",0.4,p1,0.000001);
+		assertEquals("P for value 3",0.1,p3,0.000001);
 		
-	//TODO: Check rating & support	
-	//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		System.out.println("Done");
+	
 	}
 	
 	/*
-	 * Node 1: rating = 1, p = 0.00000000000001
-	 * Node 2: rating = 5, p = 0.9865435678653654584
+	 * Node 1: rating = 8, p = 1.0
+	 * Node 2: rating = 8, p = 1.0
 	 * 
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
@@ -165,11 +163,11 @@ public class CobwebMergeTest {
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
-		attMap.put(1, 0.00000000000001);
+		attMap.put(8, 1.0);
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(5, 0.9865435678653654584);
+		attMap.put(8, 1.0);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 		
 		// attribute maps
@@ -227,20 +225,22 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
+		System.out.println("New node: "+newNode.getAttributesString());
+		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode);
-		double support = tester.getProbability(newNode);
+		double numberOfRatings = tester.getNumberOfValues(newNode,sharedAttribute);
+		double p8 = tester.getProbability(8.0,newNode,sharedAttribute);
 		
+		assertEquals("Number of Ratings", 1.0, numberOfRatings, 0.000001);
+		assertEquals("P for value 1",1.0,p8,0.000001);
 		
-	//TODO: Check rating & support	
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		System.out.println("Done");
 	}
 	
 	/*
-	 * Node 1: rating = 1, p = 0.0001
-	 * Node 2: rating = 1, p = 0.98
+	 * Node 1: Attribute 1: rating = 1, p = 0.5 Attribute 2: rating = 2, p = 1
+	 * Node 2: Attribute 1: rating = 1, p = 0.5 Attribute 2: rating = 8, p = 1
 	 * 
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
@@ -253,23 +253,36 @@ public class CobwebMergeTest {
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
-		attMap.put(1, 0.0001);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		attMap.put(1, 0.5);
+		IAttribute attribute1N1 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(1, 0.98);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		attMap.put(1, 0.5);
+		IAttribute attribute1N2 = new CobwebAttribute(attMap);
+		
+		attMap = new HashMap<Integer, Double>();
+		attMap.put(2, 1.0);
+		IAttribute attribute2N1 = new CobwebAttribute(attMap);
+		
+		attMap = new HashMap<Integer, Double>();
+		attMap.put(8, 1.0);
+		IAttribute attribute2N2 = new CobwebAttribute(attMap);
+		
+		
 		
 		// attribute maps
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
-		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		// common attributes
+		INode sharedAttribute1 = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute2 = new Node(ENodeType.Content, null, null);
 		
 		// add the corresponding attributes to the attribute maps
-		attMap1.put(sharedAttribute, attribute_1);
-		attMap2.put(sharedAttribute, attribute_2);
+		attMap1.put(sharedAttribute1, attribute1N1);
+		attMap1.put(sharedAttribute2, attribute2N1);
+		attMap2.put(sharedAttribute1, attribute1N2);
+		attMap2.put(sharedAttribute2, attribute2N2);
 		
 		// create nodes
 		INode node1 = new Node(ENodeType.User, null, null);
@@ -314,16 +327,30 @@ public class CobwebMergeTest {
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
+		/*
+		 * Node 1: Attribute 1: rating = 1, p = 0.5 Attribute 2: rating = 2, p = 1
+		 * Node 2: Attribute 1: rating = 1, p = 0.5 Attribute 2: rating = 8, p = 1
+		 * 
+		 * Merged node: Attribute 1: rating = 1, p = 1 Attribute 2: rating = 2, p = 0.5. rating = 8, p = 0.5
+		 */
+		
+		System.out.println("New node: "+newNode.getAttributesString());
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode);
-		double support = tester.getProbability(newNode);
+		double numberOfRatingsAtt1 = tester.getNumberOfValues(newNode,sharedAttribute1);
+		double numberOfRatingsAtt2 = tester.getNumberOfValues(newNode,sharedAttribute2);
+		double pAtt1 = tester.getProbability(1.0,newNode,sharedAttribute1);
+		double pAtt2Value2 = tester.getProbability(2.0,newNode,sharedAttribute2);
+		double pAtt2Value8 = tester.getProbability(8.0,newNode,sharedAttribute2);
 		
+		assertEquals("Number of Ratings Attribute 1", 1.0, numberOfRatingsAtt1, 0.000001);
+		assertEquals("Number of Ratings Attribute 2", 2.0, numberOfRatingsAtt2, 0.000001);
+		assertEquals("P value 1 in attribute 1", 0.5, pAtt1, 0.00001);
+		assertEquals("P value 2 in attribute 2", 0.5, pAtt2Value2, 0.00001);
+		assertEquals("P value 8 in attribute 2", 0.5, pAtt2Value8, 0.00001);
 		
-	//TODO: Check rating & support	
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		System.out.println("Done");
 	}
 
 	/*
@@ -332,7 +359,7 @@ public class CobwebMergeTest {
 	 * 
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
-	@Test
+	
 	public void simpleTestIV() {
 		
 		System.out.println(" ");
@@ -403,10 +430,32 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
+		System.out.println("New node: "+newNode.getAttributesString());
+		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode);
-		double support = tester.getProbability(newNode);
+		/*
+		 * Node 1: rating = 1, p = 0.5
+		 * Node 2: rating = 1, p = 0.5
+		 * 
+		 * This test merges the two nodes and checks rating and p for the merged node
+		 */
+		
+		/*
+		double numberOfRatingsAtt1 = tester.getNumberOfValues(newNode,sharedAttribute1);
+		double numberOfRatingsAtt2 = tester.getNumberOfValues(newNode,sharedAttribute2);
+		double pAtt1 = tester.getProbability(1.0,newNode,sharedAttribute1);
+		double pAtt2Value2 = tester.getProbability(2.0,newNode,sharedAttribute2);
+		double pAtt2Value8 = tester.getProbability(8.0,newNode,sharedAttribute2);
+		
+		assertEquals("Number of Ratings Attribute 1", 1.0, numberOfRatingsAtt1, 0.000001);
+		assertEquals("Number of Ratings Attribute 2", 2.0, numberOfRatingsAtt2, 0.000001);
+		assertEquals("P value 1 in attribute 1", 0.5, pAtt1, 0.00001);
+		assertEquals("P value 2 in attribute 2", 0.5, pAtt2Value2, 0.00001);
+		assertEquals("P value 8 in attribute 2", 0.5, pAtt2Value8, 0.00001);
+		
+		System.out.println("Done");
+		*/
 		
 		
 	//TODO: Check rating & support	
@@ -420,7 +469,7 @@ public class CobwebMergeTest {
 	 * 
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
-	@Test
+	
 	public void simpleTestV() {
 		
 		System.out.println(" ");
@@ -509,7 +558,7 @@ public class CobwebMergeTest {
 	 * 
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
-	@Test
+	
 	public void twoLevelTestI() {
 		
 		System.out.println(" ");
@@ -623,7 +672,7 @@ public class CobwebMergeTest {
 	 * 
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
-	@Test
+	
 	public void twoLevelTestII() {
 		
 		System.out.println(" ");
@@ -738,7 +787,7 @@ public class CobwebMergeTest {
 	 * 
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
-	@Test
+	
 	public void twoLevelTestIII() {
 		
 		System.out.println(" ");
