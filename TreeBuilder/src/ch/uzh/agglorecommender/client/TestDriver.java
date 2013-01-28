@@ -4,12 +4,14 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -55,18 +57,18 @@ public class TestDriver {
 		EvaluationBuilder eb = new EvaluationBuilder();
 		
 		// Recommendation Type 1 -> rmse calculation
-		INode inputNode1 = eb.pickRandomLeaf(tb);
+		INode inputNode1 = eb.pickRandomLeaf(tb,ENodeType.User);
 		RecommendationBuilder rb1 = new RecommendationBuilder(tb,inputNode1,0,0);
-		double rmse = eb.evaluate(rb1);
+		double rmse = eb.evaluate(inputNode1,rb1);
 		
 		System.out.println("Calculated RMSE: " + rmse);
 		
 		// Recommendation Type 2 -> no rmse calculation possible
-		INode inputNode2 = eb.createRandomUser();
-		RecommendationBuilder rb2 = new RecommendationBuilder(tb,inputNode2,0,0);
-		Set<INode> recommendedMovies = rb2.runRecommendation();
+		INode inputNode2 = eb.createRandomUser(tb);
+		RecommendationBuilder rb2 = new RecommendationBuilder(tb,inputNode2,2,0);
+		Map<INode,IAttribute> recommendedMovies = rb2.runRecommendation();
 		
-		System.out.println("Recommended Movies: " + recommendedMovies.toString());
+		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
 		
 	}
 	

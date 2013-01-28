@@ -1,8 +1,10 @@
 package ch.uzh.agglorecommender.recommender;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
@@ -23,10 +25,12 @@ public final class RecommendationBuilder {
 	
 	private INode position = null;
 	
-	private Map<INode,Double> moviesToCollect;
-	private Set<IAttribute> collectedRatings;
+	private Map<INode,Double> moviesToCollect = new HashMap();
+	private Map<INode,IAttribute> collectedRatings = new HashMap();
 	
 	private double highestUtility = 0;
+	
+	Random randomGenerator = new Random();
 	
 	// Recommendation Type 1 -> Return predicted ratings of movies a user hat already seen -> Evalution
 	// Recommendation Type 2 -> Recommend Movies that the user has not seen yet -> Automatic evaluation is not possible
@@ -47,7 +51,7 @@ public final class RecommendationBuilder {
 	
 	//---------------- Methods for Type 1 Recommendation -----------------------------------
 	
-	public Set<IAttribute> runTestRecommendation(){
+	public Map<INode, IAttribute> runTestRecommendation(){
 		
 		// Searching for the node with same ID as the inputNode in the tree
 		getPosition(rootU,inputNode);
@@ -62,7 +66,7 @@ public final class RecommendationBuilder {
 		// Collect predicted ratings of all movies featured in the input node by going upwards in the tree
 		collectRatings(this.position,inputNode);
 		
-		return this.collectedRatings;
+		return collectedRatings;
 	}
 	
 	public void getPosition(INode parent, INode inputNode) {
@@ -86,30 +90,28 @@ public final class RecommendationBuilder {
 	public void collectRatings(INode position, INode inputNode) {
 		
 		//Create Map for all movies
-		if(moviesToCollect == null) {
+		if(moviesToCollect.size() == 0) {
 			Set<INode> inputAttKeys = inputNode.getAttributeKeys();
 			for(INode attributeKey : inputAttKeys) {
-				System.out.println("WŸrde " + attributeKey.toString() + "Ÿbergeben");
-				//moviesToCollect.put(attributeKey,0.0);
+				moviesToCollect.put(attributeKey,0.0);
 			}
 		}
 		
-		INode parent = position.getParent();
+		System.out.println("These movies need to be found: " + moviesToCollect.keySet().toString());
 		
 		// Retrieve necessary ratings and add to collectedRatings
+		INode parent = position.getParent();
 		Set<INode> attributeKeys = position.getAttributeKeys();
 		for(INode attributeKey : attributeKeys){
 			
 			// look if attribute is in inputNode
 			if(moviesToCollect.containsKey(attributeKey)){
 				
-				System.out.println("Found movie in list");
+				//System.out.println("Found movie that is on the list: " + attributeKey);
 				
 				// Look if attribute is not already added to Set
-				if(!collectedRatings.contains(attributeKey)){
-					
-					System.out.println("Movie Rating was not added yet");
-					collectedRatings.add(position.getAttributeValue(attributeKey));
+				if(collectedRatings.containsKey(attributeKey) == false){
+					collectedRatings.put(attributeKey,position.getAttributeValue(attributeKey));
 				}
 			}
 		}
@@ -130,102 +132,135 @@ public final class RecommendationBuilder {
 	
 	//---------------- Methods for Type 2 Recommendation -----------------------------------
 
-	public Set<INode> runRecommendation(){
-		return null;
+	public Map<INode, IAttribute> runRecommendation(){
 		
 		// Ausgehend von der Input Node sucht man die Node die am Šhnlichsten ist im Baum (findPosition)
+		findPosition(inputNode,rootU,0);
+		
 		// Dann wird ausgehend von dieser Position eine Empfehlung ausgesprochen (recommend)
+		Map<INode,IAttribute> recommendedContent = new HashMap();
+		
+		if(!(position == null)){
+			recommendedContent = recommend(position,radiusU,radiusC);
+		}
+		
+		return recommendedContent;
 		
 	}
 	
-	public INode findPosition(INode node,INode parent,double cutoff) {
+	public void findPosition(INode inputNode,INode parent,double cutoff) {
 		
 		INode[] nodesToCalculate = new INode[2];
-		ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // Sollte je nach Typ anderst sein
+		nodesToCalculate[0] = inputNode;
+		nodesToCalculate[1] = parent;
+		ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // <--------- Sollte je nach Typ anderst sein
 		
-		// Stop find process when cutoff is 0
+		// Establish cut off value when 0
 		if(cutoff == 0) {
-			nodesToCalculate[0] = node;
-			nodesToCalculate[1] = parent;
 		    cutoff = helper.calculateCategoryUtility(nodesToCalculate);
+			System.out.println("Established cut off: " + cutoff);
 		}
-
-		Iterator<INode> compareSet = parent.getChildren();
-		INode position = null;
-		while(compareSet.hasNext()) {
-			  INode tempPosition = compareSet.next();
-			  
-			  nodesToCalculate[1] = tempPosition;
-		      double utility = helper.calculateCategoryUtility(nodesToCalculate);
-		      if(utility> highestUtility)
-		             highestUtility = utility;
-		             position = tempPosition;
-		}
-
-		if(highestUtility > cutoff) {
-		   findPosition(node,position,cutoff);
+		
+		if(parent.getChildrenCount() > 0){
+	
+			Iterator<INode> compareSet = parent.getChildren();
+			INode nextPosition = null;
+			while(compareSet.hasNext()) {
+				  
+				INode tempPosition = compareSet.next();
+				nodesToCalculate[1] = tempPosition;
+				double utility = helper.calculateCategoryUtility(nodesToCalculate);
+				
+				if(utility > highestUtility){
+					System.out.println("Found higher utility: " + utility + ">" + highestUtility);
+					highestUtility = utility;
+					nextPosition = tempPosition;
+				}
+				
+			}
+	
+			if(highestUtility > cutoff) {
+				System.out.println("Continue one level down");
+				findPosition(inputNode,nextPosition,cutoff);
+			}
+			else {
+				System.out.println("Best position was found " + parent.toString() + "; better utility than children");
+				position = parent;
+			}
 		}
 		else {
-		   return parent; // utility mit parent ist hšher als mit dem besten child
+			System.out.println("Best position was found " + parent.toString() + "; no children left");
+			position = parent;
 		}
-		return null;
 	}
 	
-	public Set<INode> recommend(INode position) {
+	public Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
 		
-		int radiusU = 0;
-		int radiusC = 0;
+		System.out.println("running recommendation from position " + position.toString());
 		
-		Set<INode> recommendation = null;
+		Map<INode,IAttribute> recommendation = new HashMap();
 		
-		Set<INode> relevantUsers = relevantUsers(position,radiusU);
+		// Find relevant Users
+		INode relevantUser = relevantUser(position,radiusU);
+		System.out.println("found relevant user node: " + relevantUser.toString());
+		
+		// Find relevant Content for every relevant User
+		Set<INode> userAttributes = relevantUser.getAttributeKeys();
+		for(INode attributeKey : userAttributes){
+			INode relevantContent = relevantContent(attributeKey,radiusC,null);
+			
+			if(relevantContent != null) {
+				//System.out.println("found relevantContent: " + relevantContent);
 
-		for(INode user : relevantUsers){
-			Set<INode> userAttributes = user.getAttributeKeys();
-			for(INode attributeKey : userAttributes){
-				Set<INode> movies = relevantContent(attributeKey,radiusC);
-				recommendation.addAll(movies);
+				Set<INode> attKeysContent = relevantContent.getAttributeKeys();
+				for(INode attKeyContent : attKeysContent){
+					if(!(recommendation.containsKey(attKeyContent))){
+						recommendation.put(attKeyContent,relevantContent.getAttributeValue(attKeyContent));
+					}
+				}
 			}
 		}
 
 	    return recommendation;
 	}
 
-	public Set<INode> relevantUsers(INode position,int radiusU){
+	public INode relevantUser(INode position,int radiusU){
+		
+//		System.out.println("User tree: " + position.toString());
 
-		Set<INode> relevantUsers = null;
+		INode relevantUser = null;
 
-		// Alle Nutzer abholen die in die Empfehlung einfliessen
+		// Going one level up if radius parameter stills allows it
 		if(radiusU > 0){
-			INode parent = position.getParent();
-	    	Iterator<INode> children = parent.getChildren();
-	    	while(children.hasNext()) {
-	    		INode child = children.next();
-	    		relevantUsers.addAll(relevantUsers(child,radiusU - 1));
-	    	}
+			if(position.getParent() != null) {
+				INode parent = position.getParent();
+		    	relevantUser = relevantUser(parent,radiusU - 1);
+			}
+			else {
+				relevantUser = position;
+			}
 		}
 		else {
-			relevantUsers.add(position);
+			relevantUser = position;
 		}
 		
-		return relevantUsers;
+		return relevantUser;
 	}
 
-	public Set<INode> relevantContent(INode content, int radiusC){
+	public INode relevantContent(INode content, int radiusC, INode relevantContent){
 	
-		Set<INode> relevantContent = null;
-	
-		// Alle Filme abholen die Empfohlen werden sollen (Rating spielt keine Rolle)
+		// Get all content nodes for recommendation, rating does not matter
 		if(radiusC > 0){
-	      INode parent = content.getParent();
-	      Iterator<INode> children = parent.getChildren();
-	      while(children.hasNext()) {
-	    	  INode child = children.next();
-	          relevantContent.addAll(relevantContent(child,radiusC -1));
-	      }
+			if(content.getParent() != null){
+				INode parent = content.getParent();
+				relevantContent(parent,radiusC -1,relevantContent);
+			}
+			else{
+					relevantContent = content;
+			}
 	    }
 	    else {
-	      relevantContent.add(content);
+	    		relevantContent = content;
 	    }
 	
 		return relevantContent;
