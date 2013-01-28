@@ -61,6 +61,11 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private Set<INode> contentNodes = new IndexAwareSet<INode>();
 	
 	/**
+	 * The final set of root nodes of type user and type content.
+	 */
+	private ArrayList<INode> rootNodes = new ArrayList<INode>();
+	
+	/**
 	 * The tree component factory of the content tree.
 	 */
 	private TreeComponentFactory contentTreeComponentFactory;
@@ -177,10 +182,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		//this.dbHandling = new DBHandling();
 		//dbHandling.connect();
 				
-		// Initialize counter and visualizer
-		//Counter counter = Counter.getInstance();
-		//counter.initCounter(userNodes, contentNodes);
-
+		// Initialize Visualizer
 		treeVisualizer.initVisualization(counter, userNodes, contentNodes);
 
         
@@ -204,11 +206,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			// Create/Update Visualization
 			treeVisualizer.visualize();
 			
-			// Update counter
-//			counter.setOpenMovieNode(contentNodes.size());
-//			counter.setOpenUserNodeCount(userNodes.size());
-//			counter.addCycle();
-			
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
 			// allows to terminate clustering process and to resume later.
@@ -216,12 +213,18 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			// ToFileSerializer.serializationTimeInterval
 			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
 		} 
+		
+		// Save final root nodes
+		rootNodes.addAll(userNodes);
+		rootNodes.addAll(contentNodes);
+		
 		log.info("Clustering completed! Serializing TreeBuilder...");
 		// serialize this TreeBuilder if clustering is completed.
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
 		// Create/Update Visualization
 		treeVisualizer.visualize();
+		
 		// Close Database
 		//dbHandling.shutdown();
 	}
@@ -377,4 +380,15 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns root nodes for further operations on the trees.
+	 * More like a quick solution for the recommender implementation. Could be done more elegant.
+	 * The Clusterer Method could return the root nodes.
+	 * 
+	 * @return the root nodes of the user and the content trees
+	 */
+	public ArrayList<INode> getRootNodes(){
+		return rootNodes;
 	}
+}

@@ -185,10 +185,10 @@ public class VisualizationBuilder extends JPanel {
 		panelC.setBorder(BorderFactory.createLoweredBevelBorder());
 
 		this.add(panelC);
-		this.add(getControlElemnts());
+		this.add(getControlElements());
 	}
 
-	private JComponent getControlElemnts() {
+	private JComponent getControlElements() {
 		final PredicatedParallelEdgeIndexFunction eif = PredicatedParallelEdgeIndexFunction.getInstance();
 		final Set exclusions = new HashSet();
 		eif.setPredicate(new Predicate() {

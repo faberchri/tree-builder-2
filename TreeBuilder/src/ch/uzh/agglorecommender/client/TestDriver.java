@@ -9,10 +9,14 @@ import java.util.logging.Logger;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -24,14 +28,17 @@ public class TestDriver {
 	private static JCommander jc;
 
 	public static void main(String[] args) {
-
+		
+		// Create Logger
 		Logger log = TBLogger.getLogger(TestDriver.class.toString());
-			
+		
+		// Process Command Line Arguments
 		jc = new JCommander(cla, args);
 		jc.setProgramName("TreeBuilder");
 		
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
+		// Build Tree
 		TreeBuilder tb = null;
 		if (cla.resumePrevRun != null) {
 			log.info("Start loading serailized run at: " + cla.resumePrevRun);
@@ -42,7 +49,16 @@ public class TestDriver {
 			log.info("Starting new run ...");
 			tb = createNewTreeBuilder();
 			tb.startClustering(cla.serializeRun);
-		}	
+		}
+		
+		// Recommendation Type 1
+		INode inputNode = new Node(ENodeType.User);
+		RecommendationBuilder rb = new RecommendationBuilder(tb,inputNode,0,0); // Build recommendation for User 1
+		// Evaluate Here
+		
+		// Recommendation Type 2
+		
+		
 	}
 	
 	/**
