@@ -32,7 +32,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	/**
 	 * The unique id of this node.
 	 */
-	private final long id = idCounter++;
+	private long id = idCounter++;
 
 	/**
 	 * The node type.
@@ -243,5 +243,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 		idCounter = ois.readLong();
 
+	}
+	@Override
+	public void setId(long id) {
+		this.id = id;
 	}
 }

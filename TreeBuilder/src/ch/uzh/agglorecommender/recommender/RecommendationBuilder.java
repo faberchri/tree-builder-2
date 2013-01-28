@@ -2,9 +2,11 @@ package ch.uzh.agglorecommender.recommender;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
@@ -19,7 +21,12 @@ public final class RecommendationBuilder {
 	private int radiusU = 0;
 	private int radiusC = 0;
 	
-	double highestUtility = 0;
+	private INode position = null;
+	
+	private Map<INode,Double> moviesToCollect;
+	private Set<IAttribute> collectedRatings;
+	
+	private double highestUtility = 0;
 	
 	// Recommendation Type 1 -> Return predicted ratings of movies a user hat already seen -> Evalution
 	// Recommendation Type 2 -> Recommend Movies that the user has not seen yet -> Automatic evaluation is not possible
@@ -38,26 +45,99 @@ public final class RecommendationBuilder {
 		this.radiusC = radiusC;
 	}
 	
-	//---------------- Runner Methods -----------------------------------
+	//---------------- Methods for Type 1 Recommendation -----------------------------------
 	
-	public void runTestRecommendation(){
+	public Set<IAttribute> runTestRecommendation(){
 		
-		// Ausgehend von der inputNode sucht man die Node mit derselben ID im User Baum (getPosition) -> Irgendwo im Leafbereich
-		// Dann wird solange den Baum hinaufgeklettert bis alle filme gesammelt sind die der user tatsächlich gerated hat (collectRatings)
-		// Rückgabe einer predictedNode
+		// Searching for the node with same ID as the inputNode in the tree
+		getPosition(rootU,inputNode);
 		
+		if(this.position == null) {
+			System.out.println("No Node with this ID was found in the user tree");
+			return null;
+		}
+			
+		System.out.println("Found position of the node in the user Tree");
+		
+		// Collect predicted ratings of all movies featured in the input node by going upwards in the tree
+		collectRatings(this.position,inputNode);
+		
+		return this.collectedRatings;
 	}
 	
-	public void runRecommendation(){
+	public void getPosition(INode parent, INode inputNode) {
+		
+		// Look for position recursively
+		Iterator<INode> children = parent.getChildren();
+		while(children.hasNext()) {
+			INode child = children.next();
+			
+			if(child.getId() == inputNode.getId()) {
+				System.out.println("found the node: " + child.toString());
+				this.position = child;
+			}
+			else {
+				getPosition(child, inputNode);
+			}
+		}
+	}
+	
+	// Collect all movies of inputNode starting from defined position
+	public void collectRatings(INode position, INode inputNode) {
+		
+		//Create Map for all movies
+		if(moviesToCollect == null) {
+			Set<INode> inputAttKeys = inputNode.getAttributeKeys();
+			for(INode attributeKey : inputAttKeys) {
+				System.out.println("Würde " + attributeKey.toString() + "übergeben");
+				//moviesToCollect.put(attributeKey,0.0);
+			}
+		}
+		
+		INode parent = position.getParent();
+		
+		// Retrieve necessary ratings and add to collectedRatings
+		Set<INode> attributeKeys = position.getAttributeKeys();
+		for(INode attributeKey : attributeKeys){
+			
+			// look if attribute is in inputNode
+			if(moviesToCollect.containsKey(attributeKey)){
+				
+				System.out.println("Found movie in list");
+				
+				// Look if attribute is not already added to Set
+				if(!collectedRatings.contains(attributeKey)){
+					
+					System.out.println("Movie Rating was not added yet");
+					collectedRatings.add(position.getAttributeValue(attributeKey));
+				}
+			}
+		}
+		
+		// Check if all movies were found
+		if(position.getAttributeKeys() == inputNode.getAttributeKeys()){ // Suche besseren Vergleich
+			System.out.println("Found all movie ratings");
+		}
+		else {
+			if(parent.getParent() != null) {
+				collectRatings(parent,inputNode);
+			}
+			else {
+				System.out.println("Did not find all movie ratings");
+			}
+		}
+	}
+	
+	//---------------- Methods for Type 2 Recommendation -----------------------------------
+
+	public Set<INode> runRecommendation(){
+		return null;
 		
 		// Ausgehend von der Input Node sucht man die Node die am ähnlichsten ist im Baum (findPosition)
 		// Dann wird ausgehend von dieser Position eine Empfehlung ausgesprochen (recommend)
 		
 	}
 	
-	//------------------Postion Finding Methods ---------------------------------
-	
-	// Finden der am besten passenden Position
 	public INode findPosition(INode node,INode parent,double cutoff) {
 		
 		INode[] nodesToCalculate = new INode[2];
@@ -91,22 +171,6 @@ public final class RecommendationBuilder {
 		return null;
 	}
 	
-	//Verschieben zum Evaluator
-	// Für Variante 2 -> wenn man userId kennt kann darüber die attribute abholen
-	public INode getPosition(INode inputNode) {
-		
-		// Muss die Node finden im Leaf Set -> Fabian mach Leaf Set Anpassungen -> warten
-		return null;
-	}
-	
-	//------------------- Movie collecting Methods --------------------------------
-	
-	// Collect all movies of inputNode starting from defined position
-	public INode collectRatings(INode position, INode inputNode) {
-		return null;
-	}
-	
-	// Recommendation geben ausgehend von gefundener Position
 	public Set<INode> recommend(INode position) {
 		
 		int radiusU = 0;
@@ -166,5 +230,4 @@ public final class RecommendationBuilder {
 	
 		return relevantContent;
 	}
-
 }

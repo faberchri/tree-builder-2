@@ -176,4 +176,11 @@ public interface INode {
 	 * @return the node id
 	 */
 	public long getId();
+	
+	/**
+	 * Sets the id of the node. Used for evaluations.
+	 * 
+	 * @param the node id
+	 */
+	public void setId(long id);
 }

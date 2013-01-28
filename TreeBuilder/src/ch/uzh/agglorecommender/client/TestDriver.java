@@ -4,18 +4,18 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.evaluator.EvaluationBuilder;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
@@ -51,13 +51,22 @@ public class TestDriver {
 			tb.startClustering(cla.serializeRun);
 		}
 		
-		// Recommendation Type 1
-		INode inputNode = new Node(ENodeType.User);
-		RecommendationBuilder rb = new RecommendationBuilder(tb,inputNode,0,0); // Build recommendation for User 1
-		// Evaluate Here
+		// Instantiate Evaluations Builder
+		EvaluationBuilder eb = new EvaluationBuilder();
 		
-		// Recommendation Type 2
+		// Recommendation Type 1 -> rmse calculation
+		INode inputNode1 = eb.pickRandomLeaf(tb);
+		RecommendationBuilder rb1 = new RecommendationBuilder(tb,inputNode1,0,0);
+		double rmse = eb.evaluate(rb1);
 		
+		System.out.println("Calculated RMSE: " + rmse);
+		
+		// Recommendation Type 2 -> no rmse calculation possible
+		INode inputNode2 = eb.createRandomUser();
+		RecommendationBuilder rb2 = new RecommendationBuilder(tb,inputNode2,0,0);
+		Set<INode> recommendedMovies = rb2.runRecommendation();
+		
+		System.out.println("Recommended Movies: " + recommendedMovies.toString());
 		
 	}
 	
