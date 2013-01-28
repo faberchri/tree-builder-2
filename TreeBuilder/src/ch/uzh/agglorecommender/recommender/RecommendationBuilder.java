@@ -38,13 +38,24 @@ public final class RecommendationBuilder {
 		this.radiusC = radiusC;
 	}
 	
-	public void runRecommending1(){
+	//---------------- Runner Methods -----------------------------------
+	
+	public void runTestRecommendation(){
 		
-		
+		// Ausgehend von der inputNode sucht man die Node mit derselben ID im User Baum (getPosition) -> Irgendwo im Leafbereich
+		// Dann wird solange den Baum hinaufgeklettert bis alle filme gesammelt sind die der user tatsächlich gerated hat (collectRatings)
+		// Rückgabe einer predictedNode
 		
 	}
 	
-	//---------------------------------------------------
+	public void runRecommendation(){
+		
+		// Ausgehend von der Input Node sucht man die Node die am ähnlichsten ist im Baum (findPosition)
+		// Dann wird ausgehend von dieser Position eine Empfehlung ausgesprochen (recommend)
+		
+	}
+	
+	//------------------Postion Finding Methods ---------------------------------
 	
 	// Finden der am besten passenden Position
 	public INode findPosition(INode node,INode parent,double cutoff) {
@@ -88,7 +99,12 @@ public final class RecommendationBuilder {
 		return null;
 	}
 	
-	//---------------------------------------------------
+	//------------------- Movie collecting Methods --------------------------------
+	
+	// Collect all movies of inputNode starting from defined position
+	public INode collectRatings(INode position, INode inputNode) {
+		return null;
+	}
 	
 	// Recommendation geben ausgehend von gefundener Position
 	public Set<INode> recommend(INode position) {
@@ -150,48 +166,5 @@ public final class RecommendationBuilder {
 	
 		return relevantContent;
 	}
-	
-//	// Evaluate
-//	public double evaluate(int k) {
-//	
-////		ArrayList <Double> rmse = new Arraylist<Double>();
-//		Set<Set<INode>> dataSets = null;
-//	
-//		while (k > 0) {
-//			for (Set<INode> dataset : dataSets) {
-//	            
-//	            // Build Cluster without testset
-////	            if(dataset != dataset){
-////					TreeBuilder treebuilder = new TreeBuilder(null, null, null, null, null, null);
-////	            	treebuilder.cluster(dataset.toString());
-//////	            }
-//	           
-//	           // Test testset against recommendations
-//	          user = pickLine(dataSet)
-//	          testUser = pickAttributes(user)
-//	          position = find(node,root,0)
-//	          recommendations = recommend(position,x,y)
-//	          difference = calculateDifference(user,recommendations)
-//	          
-//	          rmse.add(root(difference/testUser.attributes.size))
-//			}
-//	    k--;
-//		}
-//	
-//	
-//		double rmse = sumRMSE / rmse.size;
-//		return rmse;
-//	}
-
-	
-//	// Incorporate
-//	public void incorporate() {
-//		
-//	}
-//	
-//	// Add
-//	public void add() {
-//		
-//	}
 
 }
