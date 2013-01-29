@@ -97,16 +97,6 @@ public class VisualizationBuilder extends JPanel {
 		// Define Visualization Viewer, add a listener for ToolTips
 		vv =  new CustomVisualizationViewer(layout);
 		
-<<<<<<< HEAD
-
-		// Add Elements to Visualization Viewer
-		final GraphZoomScrollPane panelC = new GraphZoomScrollPane(vv);
-		this.add(panelC);
-		panelC.setBorder(BorderFactory.createLoweredBevelBorder());
-
-		this.add(panelC);
-		this.add(getControlElements());
-=======
 		this.add(vv);
 		this.add(getControlElements());
 	}
@@ -125,7 +115,6 @@ public class VisualizationBuilder extends JPanel {
 			}
 		}
 		return li;
->>>>>>> some bugs removed in visu
 	}
 
 	private JComponent getControlElements() {
