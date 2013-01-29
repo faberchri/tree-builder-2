@@ -115,7 +115,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -207,7 +207,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -310,7 +310,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -412,7 +412,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -522,7 +522,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -620,7 +620,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode12 = new Node(ENodeType.User);
+		INode newNode12 = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -641,7 +641,7 @@ public class CobwebMergeTest {
 		// merging resulting node with node 3
 		openNodes.add(node3);
 		
-		INode newNode123 = new Node(ENodeType.User);
+		INode newNode123 = new Node(ENodeType.User,0);
 		
 		nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
@@ -734,7 +734,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode12 = new Node(ENodeType.User);
+		INode newNode12 = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(null,
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -755,7 +755,7 @@ public class CobwebMergeTest {
 		// merging resulting node with node 3
 		openNodes.add(node3);
 		
-		INode newNode123 = new Node(ENodeType.User);
+		INode newNode123 = new Node(ENodeType.User,0);
 
 		nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
@@ -849,7 +849,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode12 = new Node(ENodeType.User);
+		INode newNode12 = new Node(ENodeType.User,0);
 
 		nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
@@ -873,7 +873,7 @@ public class CobwebMergeTest {
 		// merging resulting node with node 3
 		openNodes.add(node3);
 		
-		INode newNode123 = new Node(ENodeType.User);
+		INode newNode123 = new Node(ENodeType.User,0);
 
 		//Merge the nodes
 		try {

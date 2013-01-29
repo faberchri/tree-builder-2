@@ -194,17 +194,17 @@ public class Dendrogram {
             filename = "/Users/faber/TreeBuilder_logs/PersistentLayoutDemo.out";
         Dendrogram plot = new Dendrogram(filename);
         Set<INode> set = new HashSet<INode>();
-        set.add(new Node(ENodeType.User));
-        set.add(new Node(ENodeType.User));
-        set.add(new Node(ENodeType.User));
-        set.add(new Node(ENodeType.User));
-        INode n1 = new Node(ENodeType.User);
-        INode n2 = new Node(ENodeType.User);
+        set.add(new Node(ENodeType.User,0));
+        set.add(new Node(ENodeType.User,0));
+        set.add(new Node(ENodeType.User,0));
+        set.add(new Node(ENodeType.User,0));
+        INode n1 = new Node(ENodeType.User,0);
+        INode n2 = new Node(ENodeType.User,0);
         set.add(n1);
         set.add(n2);
         plot.notify(set);
         
-        INode n3 = new Node(ENodeType.User);
+        INode n3 = new Node(ENodeType.User,0);
         n3.addChild(n1);
         n3.addChild(n2);
         n1.setParent(n3);

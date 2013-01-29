@@ -280,11 +280,11 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		// create for each user and content id one node
 		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : usersMap.keySet()) {
-			usersNodeMap.put(i, userTreeComponentFactory.createLeafNode(ENodeType.User));
+			usersNodeMap.put(i, userTreeComponentFactory.createLeafNode(ENodeType.User, i));
 		}		
 		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : contentsMap.keySet()) {
-			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content));
+			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i));
 		}
 		
 		// attach to each node its attributes map

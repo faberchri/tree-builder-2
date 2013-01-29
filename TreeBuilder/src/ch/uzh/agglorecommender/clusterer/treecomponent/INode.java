@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -176,6 +177,18 @@ public interface INode {
 	 * @return the node id
 	 */
 	public long getId();
+	
+	/**
+	 * Gets the id(s) of the data item(s) (i.e. user or contend item) 
+	 * contained in this cluster from the clustered data set. 
+	 * 
+	 * @return an immutable list of all data set id's of the
+	 * containing data set item, which are contained in this cluster.
+	 * The size of the list is equal to 1 for if this node is a leaf
+	 * and equal to the number of cluster instances (e.g. users) if
+	 * this node is the root.
+	 */
+	public List<Integer> getDataSetIds();
 	
 	/**
 	 * Sets the id of the node. Used for evaluations.

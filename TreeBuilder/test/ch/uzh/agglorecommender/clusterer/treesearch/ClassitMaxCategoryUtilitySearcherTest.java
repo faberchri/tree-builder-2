@@ -136,7 +136,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 
 		
-		INode newNode = new Node(ENodeType.User);
+		INode newNode = new Node(ENodeType.User, 0);
 
 			try {
             Class[] parameterTypes = {List.class, Set.class, Counter.class};

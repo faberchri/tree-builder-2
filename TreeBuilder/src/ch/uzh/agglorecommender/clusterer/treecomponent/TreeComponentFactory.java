@@ -26,10 +26,12 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * Instantiates the leaf nodes of the cluster tree.
 	 * 
 	 * @param typeOfNewNode the type of new node.
+	 * @param dataSetId the id of the corresponding
+	 * instance in the data set.
 	 * @return a new node instance.
 	 */
-	public final INode createLeafNode(ENodeType typeOfNewNode) {
-		return new Node(typeOfNewNode);
+	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId) {
+		return new Node(typeOfNewNode, dataSetId);
 	}
 
 	/**

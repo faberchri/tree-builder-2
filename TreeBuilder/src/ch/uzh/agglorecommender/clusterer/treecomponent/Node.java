@@ -1,8 +1,5 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,9 +54,16 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Is null s long as the node was not merged.
 	 */
 	private INode parent = null;
+	
+	/**
+	 * The id of the represented data item in the data set.
+	 * Is null if the size of this cluster is > 1.
+	 */
+	private final Integer dataSetId;
 
-	public Node(ENodeType nodeType) {
+	public Node(ENodeType nodeType, int dataSetId) {
 		this.nodeType = nodeType;
+		this.dataSetId = dataSetId;
 	}
 /**
  * Node constructor
@@ -76,6 +80,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			}	
 		}
 		this.attributes = attributes;
+		this.dataSetId = null;
 	}
 
 	@Override
@@ -166,7 +171,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	
 	@Override
 	public String getAttributesType() {
-		// Notlšsung
+		// hack
 		String type = "";
 		Set<INode> attributeKeys = attributes.keySet();
 		for(INode attributeKey : attributeKeys) {
@@ -231,21 +236,36 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return sum;
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-
-		oos.writeLong(idCounter);
-	}
-
-	private void readObject(ObjectInputStream ois) throws IOException,
-			ClassNotFoundException {
-		ois.defaultReadObject();
-
-		idCounter = ois.readLong();
-
-	}
+//	private void writeObject(ObjectOutputStream oos) throws IOException {
+//		oos.defaultWriteObject();
+//
+//		oos.writeLong(idCounter);
+//	}
+//
+//	private void readObject(ObjectInputStream ois) throws IOException,
+//			ClassNotFoundException {
+//		ois.defaultReadObject();
+//
+//		idCounter = ois.readLong();
+//
+//	}
+	
 	@Override
 	public void setId(long id) {
 		this.id = id;
+	}
+	
+	@Override
+	public List<Integer> getDataSetIds() {
+		List<Integer> li = new ArrayList<Integer>();
+		if (isLeaf()) {
+			li.add(dataSetId);
+		} else {
+			Iterator<INode> i = getChildren();
+			while (i.hasNext()) {
+				li.addAll(i.next().getDataSetIds());
+			}
+		}
+		return li;
 	}
 }
