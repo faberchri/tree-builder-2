@@ -56,6 +56,7 @@ public class TreeVisualizer {
 		frame.setLayout(new BorderLayout());
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		split.setOneTouchExpandable(true);
+        split.setResizeWeight(0.5);
 		frame.getContentPane().add(split);
 		
 		// Instantiate VisualizationBuilder

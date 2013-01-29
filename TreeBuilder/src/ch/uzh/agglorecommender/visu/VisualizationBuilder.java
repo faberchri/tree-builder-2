@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.visu;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Shape;
@@ -21,8 +22,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
@@ -33,16 +34,14 @@ import org.apache.commons.collections15.functors.ConstantTransformer;
 import org.apache.commons.collections15.map.LazyMap;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Forest;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.Tree;
-import edu.uci.ics.jung.samples.TreeCollapseDemo;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
+import edu.uci.ics.jung.graph.util.Context;
+import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
@@ -51,12 +50,13 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.BasicEdgeRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
+import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 
 
-//@SuppressWarnings("serial")
 public class VisualizationBuilder extends JPanel {
 
 	/**
@@ -64,35 +64,13 @@ public class VisualizationBuilder extends JPanel {
 	 */
 	Forest<INode,Integer> graph;
 
-	Factory<DirectedGraph<INode,Integer>> graphFactory = new Factory<DirectedGraph<INode,Integer>>() {
-		@Override
-		public DirectedGraph<INode, Integer> create() {
-			return new DirectedSparseMultigraph<INode,Integer>();
-		}
-	};
-
-	Factory<Tree<INode,Integer>> treeFactory = new Factory<Tree<INode,Integer>> () {
-		@Override
-		public Tree<INode, Integer> create() {
-			return new DelegateTree<INode,Integer>(graphFactory);
-		}
-	};
-
-	Factory<Integer> edgeFactory = new Factory<Integer>() {
+	private Factory<Integer> edgeFactory = new Factory<Integer>() {
 		int i=0;
 		@Override
 		public Integer create() {
 			return i++;
 		}
 	};
-
-	//	Factory<String> vertexFactory = new Factory<String>() {
-	//		int i=0;
-	//		@Override
-	//		public String create() {
-	//			return "V"+i++;
-	//		}
-	//	};
 
 	/**
 	 * the visual component and renderer for the graph
@@ -101,7 +79,7 @@ public class VisualizationBuilder extends JPanel {
 	private TreeLayout<INode,Integer> layout;
 
 	private TreeCollapser collapser;
-
+	
 	private Set<INode> nodes;
 
 	public VisualizationBuilder(Set<INode> nodes) {
@@ -114,70 +92,12 @@ public class VisualizationBuilder extends JPanel {
 		collapser = new TreeCollapser();
 
 		// Define Layout
-		layout = new TreeLayout(graph, 50, 100){ // x-dir and y-dir spacing between vertices
-			@Override
-			public void reset() {
-				alreadyDone = new HashSet<INode>();
-				basePositions = new HashMap<INode, Integer>();
-
-				locations =    	LazyMap.decorate(new HashMap(),
-						new Transformer() {
-					public Point2D transform(Object arg0) {
-						return new Point2D.Double();
-					}
-				});
-			}
-
-			//			@Override
-			//			public void setLocation(Object v, Point2D location) {
-			//				System.err.println("Hello!!!!");
-			//				Point2D p = (Point2D) locations.get(v);
-			//				p.setLocation(location);
-			//			}
-		};
-
-		// Define Visualization Viewer, add a listener for ToolTips
-		vv =  new VisualizationViewer<INode,Integer>(layout);
-
-		vv.setBackground(Color.white);
-		vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
-		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-		vv.setVertexToolTipTransformer(new ToStringLabeller());
-		vv.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-        vv.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
-		vv.getRenderer().getVertexLabelRenderer().setPosition(Position.S);
-		vv.getRenderContext().setVertexLabelTransformer(new ConstantTransformer(null) {
-			@Override
-			public Object transform(Object input) {
-
-				String s = input.toString();
-				if (input instanceof Graph) {
-					Graph<INode, Integer> g = (Graph<INode, Integer>) input;
-					List<Long> li = getCollapsedNodeIds(g);
-					Collections.sort(li);
-					s = "Ids: " + li.toString();
-				} else {
-					s = s.replace("User Node", "Id: ");
-					s = s.replace("Content Node", "Id: ");
-				}
-				return s;
-			}
-			
-			private List<Long> getCollapsedNodeIds(Graph<INode, Integer> input) {
-				Graph<INode, Integer> g = (Graph<INode, Integer>) input;
-				Collection<INode> c = g.getVertices();
-				List<Long> li = new ArrayList<Long>();
-				for (Object o : c) {
-					if (o instanceof Graph) {
-						li.addAll(getCollapsedNodeIds((Graph<INode, Integer>) o));
-					} else {
-						li.add(((INode) o).getId());
-					}
-				}
-				return li;
-			}
-		});
+		layout = new CustomTreeLayout(graph);
 		
+		// Define Visualization Viewer, add a listener for ToolTips
+		vv =  new CustomVisualizationViewer(layout);
+		
+<<<<<<< HEAD
 
 		// Add Elements to Visualization Viewer
 		final GraphZoomScrollPane panelC = new GraphZoomScrollPane(vv);
@@ -186,6 +106,26 @@ public class VisualizationBuilder extends JPanel {
 
 		this.add(panelC);
 		this.add(getControlElements());
+=======
+		this.add(vv);
+		this.add(getControlElements());
+	}
+	
+	// not used currently
+	private List<JScrollBar> getAllJScrollBarsInComponent(Container c) {
+		List<JScrollBar> li = new ArrayList<JScrollBar>();
+		for (int i = 0; i < c.getComponentCount(); i++) {
+			Component tc = c.getComponent(i);
+			if (tc instanceof JScrollBar) {
+				li.add((JScrollBar) tc);
+			} else if (tc instanceof Container){
+				li.addAll(getAllJScrollBarsInComponent((Container) tc));
+			} else {
+				// nothing to do
+			}
+		}
+		return li;
+>>>>>>> some bugs removed in visu
 	}
 
 	private JComponent getControlElements() {
@@ -207,7 +147,8 @@ public class VisualizationBuilder extends JPanel {
 		graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
 		final ScalingControl scaler = new CrossoverScalingControl();
-
+		
+		
 		JButton plus = new JButton("+");
 		plus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -277,13 +218,25 @@ public class VisualizationBuilder extends JPanel {
 			}
 		});
 
+		final VisualizationBuilder vb = this;
 		JButton reset = new JButton("Reset");
 		reset.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				layout.setGraph(graph);
-				exclusions.clear();
 				updateGraph(nodes);
+				exclusions.clear();
+				layout = new CustomTreeLayout(graph);
+				vb.removeAll();
+				vv = new CustomVisualizationViewer(layout);
+
+				vb.add(vv);
+				vb.add(getControlElements());
+				vb.validate();
+
+				// for same effect and more efficient we could call:
+				// vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).setToIdentity();
+				// vv.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.VIEW).setToIdentity();
+				
 			}
 		});
 
@@ -297,9 +250,13 @@ public class VisualizationBuilder extends JPanel {
 		collapseControls.setBorder(BorderFactory.createTitledBorder("Picked"));
 		collapseControls.add(collapse);
 		collapseControls.add(expand);
-		collapseControls.add(reset);
 		controls.add(collapseControls);
-		controls.add(modeBox);
+		JPanel genControls = new JPanel(new FlowLayout());
+		genControls.add(reset);
+		genControls.add(modeBox);
+		genControls.setBorder(BorderFactory.createEmptyBorder(13, 0, 0, 0));
+		controls.add(genControls);
+		controls.setLayout(new FlowLayout());
 		controls.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
 		JScrollPane scrollP = new JScrollPane(controls);
 		scrollP.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -312,7 +269,6 @@ public class VisualizationBuilder extends JPanel {
 		graph = new DelegateForest<INode,Integer>();
 		createTree();
 		layout.setGraph(graph);
-		//		collapser = new GraphCollapser(graph);
 		vv.repaint();
 	}
 
@@ -398,16 +354,92 @@ public class VisualizationBuilder extends JPanel {
 		}
 	}
 
-	/**
-	 * a driver for this demo
-	 */
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		Container content = frame.getContentPane();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private class CustomTreeLayout extends TreeLayout<INode, Integer> {
 
-		content.add(new TreeCollapseDemo());
-		frame.pack();
-		frame.setVisible(true);
+		public CustomTreeLayout(Forest<INode, Integer> g) {
+			super(g, 50, 100); // x-dir and y-dir spacing between vertices
+		}
+		
+		@Override
+		public void reset() {
+			alreadyDone = new HashSet<INode>();
+			basePositions = new HashMap<INode, Integer>();
+
+			locations =    	LazyMap.decorate(new HashMap(),
+					new Transformer() {
+				public Point2D transform(Object arg0) {
+					return new Point2D.Double();
+				}
+			});
+		}
+		
+	}
+	
+	private class CustomVisualizationViewer extends VisualizationViewer<INode, Integer> {
+
+		public CustomVisualizationViewer(Layout<INode, Integer> layout) {
+			super(layout);
+			init();
+		}
+		
+		private void init() {
+			this.setBackground(Color.white);
+			this.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
+			this.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+			this.setVertexToolTipTransformer(new ToStringLabeller());
+			this.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
+	        this.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
+			this.getRenderer().getVertexLabelRenderer().setPosition(Position.S);
+			this.getRenderContext().setVertexLabelTransformer(new ConstantTransformer(null) {
+				@Override
+				public Object transform(Object input) {
+
+					String s = input.toString();
+					if (input instanceof Graph) {
+						Graph<INode, Integer> g = (Graph<INode, Integer>) input;
+						List<Long> li = getCollapsedNodeIds(g);
+						Collections.sort(li);
+						s = "Ids: " + li.toString();
+					} else {
+						s = s.replace("User Node", "Id: ");
+						s = s.replace("Content Node", "Id: ");
+					}
+					return s;
+				}
+				
+				private List<Long> getCollapsedNodeIds(Graph<INode, Integer> input) {
+					Graph<INode, Integer> g = (Graph<INode, Integer>) input;
+					Collection<INode> c = g.getVertices();
+					List<Long> li = new ArrayList<Long>();
+					for (Object o : c) {
+						if (o instanceof Graph) {
+							li.addAll(getCollapsedNodeIds((Graph<INode, Integer>) o));
+						} else {
+							li.add(((INode) o).getId());
+						}
+					}
+					return li;
+				}
+			});
+			this.setBorder(BorderFactory.createLoweredBevelBorder());
+			this.getRenderer().setEdgeRenderer(new BasicEdgeRenderer<INode, Integer>() {
+				// prevents of some null pointer exceptions during drawing.
+				@Override
+				public void paintEdge(RenderContext rc, Layout layout, Integer e) {
+					GraphicsDecorator g2d = rc.getGraphicsContext();
+					Graph<INode, Integer> graph = layout.getGraph();
+					if (!rc.getEdgeIncludePredicate().evaluate(Context.<Graph<INode, Integer>,Integer>getInstance(graph,e)))
+						return;
+
+					// don't draw edge if either incident vertex is not drawn
+					Pair<INode> endpoints = graph.getEndpoints(e);
+					if (endpoints == null || endpoints.getFirst() == null || endpoints.getSecond() == null) return;
+					
+					super.paintEdge(rc, layout, e);
+				}
+			});
+
+		}
+		
 	}
 }
