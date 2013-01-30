@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.Counter;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
@@ -125,10 +124,10 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -217,10 +216,10 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -320,10 +319,10 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -355,11 +354,12 @@ public class CobwebMergeTest {
 
 	/*
 	 * Node 1: rating = 1, p = 0.5
-	 * Node 2: rating = 1, p = 0.5
+	 * Node 2: rating = 1, p = 1
 	 * 
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
 	
+	@Test
 	public void simpleTestIV() {
 		
 		System.out.println(" ");
@@ -372,7 +372,7 @@ public class CobwebMergeTest {
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(1, 0.5);
+		attMap.put(1, 1.0);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 		
 		// attribute maps
@@ -422,45 +422,34 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
 		
 		System.out.println("New node: "+newNode.getAttributesString());
+	
+	/*
+	 * Node 1: rating = 1, p = 0.5
+	 * Node 2: rating = 1, p = 1
+	 * 
+	 * This test merges the two nodes and checks rating and p for the merged node
+	 */
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		/*
-		 * Node 1: rating = 1, p = 0.5
-		 * Node 2: rating = 1, p = 0.5
-		 * 
-		 * This test merges the two nodes and checks rating and p for the merged node
-		 */
+		double numberOfRatingsAtt = tester.getNumberOfValues(newNode,sharedAttribute);
+		double p = tester.getProbability(1.0,newNode,sharedAttribute);
 		
-		/*
-		double numberOfRatingsAtt1 = tester.getNumberOfValues(newNode,sharedAttribute1);
-		double numberOfRatingsAtt2 = tester.getNumberOfValues(newNode,sharedAttribute2);
-		double pAtt1 = tester.getProbability(1.0,newNode,sharedAttribute1);
-		double pAtt2Value2 = tester.getProbability(2.0,newNode,sharedAttribute2);
-		double pAtt2Value8 = tester.getProbability(8.0,newNode,sharedAttribute2);
-		
-		assertEquals("Number of Ratings Attribute 1", 1.0, numberOfRatingsAtt1, 0.000001);
-		assertEquals("Number of Ratings Attribute 2", 2.0, numberOfRatingsAtt2, 0.000001);
-		assertEquals("P value 1 in attribute 1", 0.5, pAtt1, 0.00001);
-		assertEquals("P value 2 in attribute 2", 0.5, pAtt2Value2, 0.00001);
-		assertEquals("P value 8 in attribute 2", 0.5, pAtt2Value8, 0.00001);
+		assertEquals("Number of values attribute 1", 1.0, numberOfRatingsAtt, 0.000001);
+		assertEquals("Probability of attribute 1", 0.75, p, 0.00001);
 		
 		System.out.println("Done");
-		*/
 		
-		
-	//TODO: Check rating & support	
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+
 	}
  
 	/*
@@ -470,6 +459,7 @@ public class CobwebMergeTest {
 	 * This test merges the two nodes and checks rating and p for the merged node
 	 */
 	
+	@Test
 	public void simpleTestV() {
 		
 		System.out.println(" ");
@@ -532,33 +522,43 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
 		
+		System.out.println("New node: "+newNode.getAttributesString());
+		/*
+		 * Node 1: rating = 3, p = 0.6
+		 * Node 2: rating = 3, p = 0.3
+		 * 
+		 * This test merges the two nodes and checks rating and p for the merged node
+		 */
+		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode);
-		double support = tester.getProbability(newNode);
+		double numberOfRatingsAtt = tester.getNumberOfValues(newNode,sharedAttribute);
+		double p = tester.getProbability(3.0,newNode,sharedAttribute);
 		
+		assertEquals("Number of values attribute 1", 1.0, numberOfRatingsAtt, 0.000001);
+		assertEquals("Probability of attribute 1", (0.6+0.3)/2, p, 0.00001);
 		
-	//TODO: Check rating & support	
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		System.out.println("Done");
+		
 	}
  
 	/*
 	 * Node 1: rating = 1, p = 1
 	 * Node 2: rating = 2, p = 1
-	 * Node 3: rating = 5, p = 1
+	 * Node 3: rating = 2, p = 1
 	 * 
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
 	
+	@Test
 	public void twoLevelTestI() {
 		
 		System.out.println(" ");
@@ -575,7 +575,7 @@ public class CobwebMergeTest {
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(5, 1.0);
+		attMap.put(2, 1.0);
 		IAttribute attribute_3 = new CobwebAttribute(attMap);
 		
 		// attribute maps
@@ -615,7 +615,7 @@ public class CobwebMergeTest {
 		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
 		
-		System.out.println("	Merging the following nodes: ");
+		System.out.println("	Merging first two nodes: ");
 		for (INode node : nodesToUpdate) {
 			System.out.println(node.getAttributesString());
 		}
@@ -630,14 +630,16 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode12 = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode12 = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
 				
+		System.out.println("New node: "+newNode12.getAttributesString());
+		
 		// merging resulting node with node 3
 		openNodes.add(node3);
 		
@@ -645,34 +647,65 @@ public class CobwebMergeTest {
 		
 		nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
+		
+		System.out.println("	Merging remaining two nodes: ");
+		for (INode node : nodesToUpdate) {
+			System.out.println(node.getAttributesString());
+		}
 
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode123 = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode123 = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
 		
+		System.out.println("New node: "+newNode123.getAttributesString());
+	
+		/*
+		 * Node 1: rating = 1, p = 1
+		 * Node 2: rating = 2, p = 1
+		 * Node 3: rating = 2, p = 1
+		 * 
+		 * This test merges node 1 and 2. Then merges resulting node with node 3.
+		 */
+		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode123);
-		double support = tester.getProbability(newNode123);
+		//Values for successful first merge
+		double numberOfRatingsAtt12 = tester.getNumberOfValues(newNode12,sharedAttribute);
+		double pNode12Value1 = tester.getProbability(1.0,newNode12,sharedAttribute);
+		double pNode12Value2 = tester.getProbability(2.0,newNode12,sharedAttribute);
 		
-	//TODO: Check rating & support of newNode123
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		//Values for successful second merge
+		double numberOfRatingsAtt123 = tester.getNumberOfValues(newNode123, sharedAttribute);
+		double pNode123Value1 = tester.getProbability(1.0, newNode123, sharedAttribute);
+		double pNode123Value2 = tester.getProbability(2.0, newNode123, sharedAttribute);
+		
+		//Assertions for first merge
+		assertEquals("Number of distinct attribute values first merge", 2.0, numberOfRatingsAtt12, 0.000001);
+		assertEquals("Probability value 1 after first merge", 0.5, pNode12Value1 , 0.00001);
+		assertEquals("Probability value 2 after first merge", 0.5, pNode12Value2, 0.00001);
+		
+		//Assertions for second merge
+		assertEquals("Number of distinct attribute values second merge",2.0,numberOfRatingsAtt123,0.00001);
+		assertEquals("Probability value 1 after second merge",1.0/3,pNode123Value1,0.00001);
+		assertEquals("Probability value 2 after second merge",1.0/3*2,pNode123Value2,0.00001);
+		
+		System.out.println("Done");
 	}
  
 	/*
-	 * Node 1: rating = 1, p = 0.8
-	 * Node 2: rating = 2, p = 0.2
-	 * Node 3: rating = 5, p = 0.1
+	 * Node 1: rating = 1, p = 0.5
+	 * Node 2: rating = 1, p = 0.5
+	 * Node 3: rating = 1, p = 0.8
 	 * 
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
 	
+	@Test
 	public void twoLevelTestII() {
 		
 		System.out.println(" ");
@@ -681,15 +714,15 @@ public class CobwebMergeTest {
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
-		attMap.put(1, 0.8);
+		attMap.put(1, 0.5);
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(2, 0.2);
+		attMap.put(1, 0.5);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
-		attMap.put(5, 0.1);
+		attMap.put(1, 0.8);
 		IAttribute attribute_3 = new CobwebAttribute(attMap);
 		
 		// attribute maps
@@ -712,7 +745,7 @@ public class CobwebMergeTest {
 		node2.setAttributes(attMap2);
 		INode node3 = new Node(ENodeType.User, null, null);
 		node3.setAttributes(attMap3);
-
+		
 		// create the utility calcultaor
 		IMaxCategoryUtilitySearcher utilityCalc = new CobwebMaxCategoryUtilitySearcher();
 
@@ -729,7 +762,7 @@ public class CobwebMergeTest {
 		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
 		
-		System.out.println("	Merging the following nodes: ");
+		System.out.println("	Merging first two nodes: ");
 		for (INode node : nodesToUpdate) {
 			System.out.println(node.getAttributesString());
 		}
@@ -744,40 +777,67 @@ public class CobwebMergeTest {
 				null);
 		//Merge the nodes
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode12 = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode12 = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
+				
+		System.out.println("New node: "+newNode12.getAttributesString());
 		
 		// merging resulting node with node 3
 		openNodes.add(node3);
 		
 		INode newNode123 = new Node(ENodeType.User,0);
-
+		
 		nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
 		
-		//Merge the nodes
+		System.out.println("	Merging remaining two nodes: ");
+		for (INode node : nodesToUpdate) {
+			System.out.println(node.getAttributesString());
+		}
+
 		try {
-        Class[] parameterTypes = {List.class, Set.class, Counter.class};
+        Class[] parameterTypes = {List.class, Set.class};
         Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
         method.setAccessible(true);
-        newNode123 = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+        newNode123 = (INode) method.invoke(tr, nodesToUpdate, openNodes);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
 		
+		System.out.println("New node: "+newNode123.getAttributesString());
+	
+		/*
+		 * Node 1: rating = 1, p = 0.5
+		 * Node 2: rating = 1, p = 0.5
+		 * Node 3: rating = 1, p = 0.8
+		 * 
+		 * This test merges node 1 and 2. Then merges resulting node with node 3.
+		 */
+		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
-		double rating = tester.getValue(newNode123);
-		double support = tester.getProbability(newNode123);
+		//Values for successful first merge
+		double numberOfRatingsAtt12 = tester.getNumberOfValues(newNode12,sharedAttribute);
+		double pNode12Value1 = tester.getProbability(1.0,newNode12,sharedAttribute);
 		
-	//TODO: Check rating & support of newNode123
-		//The following line alerts that getter have not yet been implemented. To be deleted when done.
-		System.out.println("****** NO RESULTS AVAILABLE ******");
+		//Values for successful second merge
+		double numberOfRatingsAtt123 = tester.getNumberOfValues(newNode123, sharedAttribute);
+		double pNode123Value1 = tester.getProbability(1.0, newNode123, sharedAttribute);
+		
+		//Assertions for first merge
+		assertEquals("Number of distinct attribute values first merge", 1.0, numberOfRatingsAtt12, 0.000001);
+		assertEquals("Probability value 1 after first merge", 0.5, pNode12Value1 , 0.00001);
+		
+		//Assertions for second merge
+		assertEquals("Number of distinct attribute values second merge",1.0,numberOfRatingsAtt123,0.00001);
+		assertEquals("Probability value 1 after second merge", ((0.5*2)+0.8)/3,pNode123Value1,0.00001);
+		
+		System.out.println("Done");
 	}
  
 	/*
@@ -788,6 +848,7 @@ public class CobwebMergeTest {
 	 * This test merges node 1 and 2. Then merges resulting node with node 3.
 	 */
 	
+	/*
 	public void twoLevelTestIII() {
 		
 		System.out.println(" ");
@@ -894,4 +955,5 @@ public class CobwebMergeTest {
 		//The following line alerts that getter have not yet been implemented. To be deleted when done.
 		System.out.println("****** NO RESULTS AVAILABLE ******");
 	}
+	*/
 }
