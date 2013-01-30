@@ -4,14 +4,12 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
-import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -51,35 +49,37 @@ public class TestDriver {
 		} else {
 			log.info("Starting new run ...");
 			tb = createNewTreeBuilder();
-			InitalNodesCreator in = new InitalNodesCreator(
+			InitialNodesCreator in = new InitialNodesCreator(
 					getTrainingDataset(),
 					cla.contentTreeComponentFactory,
 					cla.userTreeComponentFactory);
 			clusterResult = tb.startClustering(cla.serializeRun, in);
 		}
 		
-
-
-		
 		// Instantiate Evaluations Builder
 		EvaluationBuilder eb = new EvaluationBuilder();
-		RecommendationBuilder rb = new RecommendationBuilder(tb,0,0);
+		RecommendationBuilder rb = new RecommendationBuilder(clusterResult,0,0);
 		
 		// Run Recommendation Type 1 -> RMSE calculation
 		System.out.println("Starting Recommendation Type 1");
-		InitalNodesCreator testSet = new InitalNodesCreator(
+		InitialNodesCreator testSet = new InitialNodesCreator(
 				getTestDataset(),
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
-		Set<INode> inputNodes = eb.pickTestUsers(testSet,1);
-		double rmse = eb.kFoldEvaluation(inputNodes, rb);
+		Set<INode> inputNodes = eb.getTestUsers(testSet,1);
+		double rmse = 0;
+		for(INode inputNode : inputNodes){
+			rmse = eb.evaluate(inputNode, rb);
+			break;
+		}
+		//double rmse = eb.kFoldEvaluation(inputNodes, rb);
 		System.out.println("Calculated RMSE: " + rmse);
 		
 		// Recommendation Type 2 -> No rmse calculation possible
-		System.out.println("Starting Recommendation Type 2");
-		INode inputNode = eb.createRandomUser();
-		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
+//		System.out.println("Starting Recommendation Type 2");
+//		INode inputNode = eb.createRandomUser();
+//		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
+//		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
 	}
 	
 	/**

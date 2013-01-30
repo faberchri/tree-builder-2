@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import ch.uzh.agglorecommender.client.InitalNodesCreator;
+import ch.uzh.agglorecommender.client.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -67,7 +67,7 @@ public class EvaluationBuilder {
 				return rmse;
 			}
 			catch (NullPointerException e) {
-				System.out.println("Recommendation Data fehlerhaft/null");
+				System.out.println("Recommendation Data fehlerhaft/null: " + e);
 				return -1;
 			}
 		}
@@ -112,11 +112,11 @@ public class EvaluationBuilder {
 	 * @param testSet reference on the test set
 	 * @param percentage how many of the test users should be picked
 	 */
-	public Set<INode> pickTestUsers(InitalNodesCreator testSet, double percentage){
+	public Set<INode> getTestUsers(InitialNodesCreator testSet, double percentage){
 		
 		Set<INode> testUsers = new IndexAwareSet<INode>();
 		
-		// Dirty trick for now
+		// Dirty trick for now -> InitialNodesCreator -> get user leaves, liefert real id
 		for(int i = 0; i < 2; i++){
 			testUsers.add(createRandomUser());
 		}
@@ -137,6 +137,11 @@ public class EvaluationBuilder {
 		INode A2n = new Node(ENodeType.Content, null, null);
 		INode A3n = new Node(ENodeType.Content, null, null);
 		INode A4n = new Node(ENodeType.Content, null, null);
+		
+		A1n.setId(3);
+		A2n.setId(47);
+		A3n.setId(5);
+		A4n.setId(6);
 		
 		// Creating the attributes
 		IAttribute A1a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));

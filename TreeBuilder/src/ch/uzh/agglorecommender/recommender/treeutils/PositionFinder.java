@@ -5,9 +5,16 @@ import java.util.Iterator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
+import com.google.common.collect.ImmutableMap;
+
 public class PositionFinder {
 	
 	private double highestUtility = 0;
+	ImmutableMap<Integer,INode> leavesMapU;
+	
+//	public PositionFinder(ImmutableMap<Integer,INode> leafMapU) {
+//		this.leavesMapU = leafMapU;
+//	}
 	
 	/**
 	 * Finds the best position (most similar node) in the tree for a given node
@@ -55,7 +62,10 @@ public class PositionFinder {
 		
 				if(highestUtility > cutoff) {
 					System.out.println("Continue one level down");
-					findPosition(inputNode,nextPosition,cutoff);
+					INode position = findPosition(inputNode,nextPosition,cutoff);
+					if (position != null){
+						return position;
+					}
 				}
 				else {
 					System.out.println("Best position was found " + parent.toString() + "; better utility than children");
@@ -70,32 +80,39 @@ public class PositionFinder {
 			return null;
 		}
 		
-		System.out.println("Position Finder hat keine korrekten Werte erhalten");
+		System.out.println("Position Finder hat keine korrekten Werte erhalten: " + inputNode.toString() + "/" + parent.toString());
 		return null;
 	}
 	
-	/**
-	 * Find position of a node with a given id in the tree
-	 * 
-	 * @param parent the current node from which the search is starting
-	 * @param inputNodeID the node that should be found has this id
-	 */
-	public INode getPosition(INode parent, long inputNodeID) {
-		
-		// Look for position recursively
-		Iterator<INode> children = parent.getChildren();
-		while(children.hasNext()) {
-			INode child = children.next();
-			
-			if(child.getId() == inputNodeID) {
-				System.out.println("found the node: " + child.toString());
-				return child;
-			}
-			else {
-				getPosition(child, inputNodeID);
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * Find position of a node with a given id in the tree
+//	 * 
+//	 * @param parent the current node from which the search is starting
+//	 * @param inputNodeID the node that should be found has this id
+//	 */
+//	public INode getPosition(INode parent, long inputNodeID) {
+//		
+//		// Look for position recursively
+//		Iterator<INode> children = parent.getChildren();
+//		INode position = null;
+//		while(children.hasNext()) {
+//			INode child = children.next();
+//			
+//			// Find real id of child
+//			int childID = leavesMapU.get(child.getId()); <----- Problem ist ich muss das umgekehrte haben
+//			
+//			if(childID == inputNodeID) { // <-----------------------------------------!!!! ERROR: Muss reale ID nehmen
+//				System.out.println("found the node: " + child.toString());
+//				return child;
+//			}
+//			else {
+//				position = getPosition(child, inputNodeID);
+//				if (position != null){
+//					return position;
+//				}
+//			}
+//		}
+//		return null;
+//	}
 
 }

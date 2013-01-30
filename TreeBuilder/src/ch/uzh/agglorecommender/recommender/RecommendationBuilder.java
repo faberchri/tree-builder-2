@@ -1,14 +1,15 @@
 package ch.uzh.agglorecommender.recommender;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ch.uzh.agglorecommender.clusterer.TreeBuilder;
+import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.treeutils.PositionFinder;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * 
@@ -20,26 +21,23 @@ import ch.uzh.agglorecommender.recommender.treeutils.PositionFinder;
 public final class RecommendationBuilder {
 	
 	// Parameters
+	private ImmutableMap<Integer,INode> leavesMapU;
 	private INode rootU;
 	private int radiusU = 0;
 	private int radiusC = 0;
 	
-	// Calculation Process
-	private Map<INode,Double> moviesToCollect = new HashMap<INode,Double>();
-	private Map<INode,IAttribute> collectedRatings = new HashMap<INode,IAttribute>();
-	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
 	 * 
-	 * @param tree the trees on which the recommendation calculation is done
+	 * @param clusterResult the trees on which the recommendation calculation is done
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(TreeBuilder tree, int radiusU, int radiusC) {
+	public RecommendationBuilder(ClusterResult clusterResult, int radiusU, int radiusC) {
 		
 		// Retrieve Root Nodes of the user tree
-		ArrayList<INode> rootNodes = tree.getRootNodes();
-		this.rootU = rootNodes.get(0);
+		this.rootU  		= clusterResult.getUserTreeRoot();
+		this.leavesMapU 	= clusterResult.getUserTreeLeavesMap();
 		
 		// Parameters for Recommendation
 		this.radiusU = radiusU;
@@ -54,8 +52,11 @@ public final class RecommendationBuilder {
 	public Map<INode, IAttribute> runTestRecommendation(INode testNode){
 		
 		// Find position of the similar node in the tree
-		PositionFinder finder = new PositionFinder();
-		INode position = finder.getPosition(rootU,testNode.getId());
+		int testNodeID = 1; // Woher kriege ich diese ID?
+		INode position = leavesMapU.get(testNodeID);
+		System.out.println("Looking for " + testNodeID + "," + testNode.toString() + "/ Found " + position.toString());
+//		PositionFinder finder = new PositionFinder(leavesMapU);
+//		INode position = finder.getPosition(rootU,testNodeID);
 		
 		if(position == null) {
 			System.out.println("getPosition: No Node with this ID was found in the user tree");
@@ -66,9 +67,14 @@ public final class RecommendationBuilder {
 			System.out.println("getPosition: Found position of the node in the user Tree");
 			
 			// Collect ratings of all content given by the input node
-			collectRatings(position,testNode);
-			
-			return collectedRatings;
+			Map<INode,IAttribute> contentRatings = collectRatings(position,testNode,null);
+			if(contentRatings != null){
+				System.out.println("Received collected content ratings");
+				return contentRatings;
+			}
+			else {
+				return null;
+			}
 		}
 	}
 	
@@ -78,47 +84,56 @@ public final class RecommendationBuilder {
 	 * @param position this is the starting point for collecting
 	 * @param inputNodeID this node gives the content that needs to be collected
 	 */
-	public void collectRatings(INode position, INode inputNode) {
+	public Map<INode,IAttribute> collectRatings(INode position, INode inputNode, Map<INode,IAttribute> contentRatings) {
 		
-		//Create Map for all movies
-		if(moviesToCollect.size() == 0) {
+		System.out.println("current position: " + position);
+		
+		//Create Map for content of test user with empty values if not existing
+		if(contentRatings == null) {
+			contentRatings = new HashMap<INode,IAttribute>();
 			Set<INode> inputAttKeys = inputNode.getAttributeKeys();
 			for(INode attributeKey : inputAttKeys) {
-				moviesToCollect.put(attributeKey,0.0);
+				contentRatings.put(attributeKey,null);
 			}
+			
+			System.out.println("These movies need to be found: " + contentRatings.keySet().toString());
 		}
 		
-		System.out.println("These movies need to be found: " + moviesToCollect.keySet().toString());
-		
-		// Retrieve necessary ratings and add to collectedRatings
-		INode parent = position.getParent();
+		// Look for content nodes on the list and add it to collected ratings map		
 		Set<INode> attributeKeys = position.getAttributeKeys();
 		for(INode attributeKey : attributeKeys){
 			
-			// look if attribute is in inputNode
-			if(moviesToCollect.containsKey(attributeKey)){
+			// Check if content node is in the map
+			if(contentRatings.containsKey(attributeKey)){
 				
-				//System.out.println("Found movie that is on the list: " + attributeKey);
+				System.out.println("Found movie that is on the list: " + attributeKey);
 				
-				// Look if attribute is not already added to Set
-				if(collectedRatings.containsKey(attributeKey) == false){
-					collectedRatings.put(attributeKey,position.getAttributeValue(attributeKey));
+				// Check if specific content node already has a rating in the map
+				if(contentRatings.get(attributeKey) == null){
+					contentRatings.put(attributeKey, position.getAttributeValue(attributeKey));
+					System.out.println("Added movie to list");
 				}
 			}
 		}
 		
-		// Check if all movies were found
-		if(position.getAttributeKeys() == inputNode.getAttributeKeys()){ // Suche besseren Vergleich
+		// Check if all movies were found -> If no null values are left in the map
+		if(contentRatings.containsValue(null) != true){
 			System.out.println("Found all movie ratings");
+			return contentRatings;
 		}
 		else {
-			if(parent.getParent() != null) {
-				collectRatings(parent,inputNode);
+			
+			// Go one level up if possible
+			if(position.getParent() != null) {
+				collectRatings(position.getParent(),inputNode,contentRatings);	
 			}
 			else {
 				System.out.println("Did not find all movie ratings");
+				return contentRatings; // Return sparse map
 			}
 		}
+		
+		return null;
 	}
 
 	/**

@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
  * by the cluster and recommendation engines.
  *
  */
-public class InitalNodesCreator {
+public class InitialNodesCreator {
 
 	/**
 	 * Map of user id as in data set to the corresponding node.
@@ -43,7 +43,7 @@ public class InitalNodesCreator {
 	 * @param contentTreeComponentFactory the initially specified factory
 	 * @param userTreeComponentFactory the initially specified factory
 	 */
-	public InitalNodesCreator(IDataset<?> dataset,
+	public InitialNodesCreator(IDataset<?> dataset,
 			TreeComponentFactory contentTreeComponentFactory,
 			TreeComponentFactory userTreeComponentFactory) {
 		
@@ -100,8 +100,8 @@ public class InitalNodesCreator {
 //			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		
-		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);
-		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap);
+		userLeavesMap = ImmutableMap.copyOf(usersNodeMap); // ERROR ---> Need an inverted version of this
+		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap); // ERROR ---> Need an inverted version of this
 	}
 	
 	/**
