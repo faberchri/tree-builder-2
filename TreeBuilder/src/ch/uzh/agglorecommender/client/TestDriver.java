@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.jfree.data.general.Dataset;
-
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
@@ -44,23 +42,35 @@ public class TestDriver {
 		
 		// Build Tree
 		TreeBuilder tb = null;
+		ClusterResult clusterResult = null;
 		if (cla.resumePrevRun != null) {
 			log.info("Start loading serailized run at: " + cla.resumePrevRun);
 			tb = (TreeBuilder) ToFileSerializer.deserialize(cla.resumePrevRun);
 			log.info("Resume clustering ...");
-			tb.resumeClustering(cla.serializeRun);
+			clusterResult = tb.resumeClustering(cla.serializeRun);
 		} else {
 			log.info("Starting new run ...");
 			tb = createNewTreeBuilder();
-			tb.startClustering(cla.serializeRun);
+			InitalNodesCreator in = new InitalNodesCreator(
+					getTrainingDataset(),
+					cla.contentTreeComponentFactory,
+					cla.userTreeComponentFactory);
+			clusterResult = tb.startClustering(cla.serializeRun, in);
 		}
 		
-		// Instantiate Recommendation & Evaluation Builders
+
+
+		
+		// Instantiate Evaluations Builder
 		EvaluationBuilder eb = new EvaluationBuilder();
 		RecommendationBuilder rb = new RecommendationBuilder(tb,0,0);
 		
 		// Recommendation Type 1 -> rmse calculation
-		Dataset testSet = null; // Wie kann ich das holen?
+		// Instantiate Recommendation & Evaluation Builders
+		InitalNodesCreator testSet = new InitalNodesCreator(
+				getTestDataset(),
+				cla.contentTreeComponentFactory,
+				cla.userTreeComponentFactory);
 		Set<INode> inputNodes = eb.pickTestUser(testSet,1);
 		double rmse = eb.kFoldEvaluation(inputNodes, rb);
 		System.out.println("Calculated RMSE: " + rmse);
@@ -83,12 +93,19 @@ public class TestDriver {
 		SerializableRMOperatorDescription.setOperatorDescription("groupKey", "key", "iconName");
 		
 		return new TreeBuilder(
-				getDataset(),
 				getSearcher(cla.contentTreeComponentFactory),
 				getSearcher(cla.userTreeComponentFactory),
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory,
 				cla.nodeUpdater);		
+	}
+	
+	private static IDataset<?> getTestDataset() {
+		return getDataset(cla.testFile, DataSetSplit.TEST);
+	}
+	
+	private static IDataset<?> getTrainingDataset() {
+		return getDataset(cla.trainingFile, DataSetSplit.TRAINING);
 	}
 	
 	/**
@@ -97,7 +114,7 @@ public class TestDriver {
 	 * 
 	 * @return the IDataset to process
 	 */
-	private static IDataset<?> getDataset() {
+	private static IDataset<?> getDataset(File inputFile, DataSetSplit split) {
 		// Load specified data set (with default input file)	
 		IDataset<?> dataset = null;
 		try {
@@ -108,8 +125,13 @@ public class TestDriver {
 					dataset = (IDataset<?>) constructor.newInstance();
 					break;
 				}
-				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
-					dataset = (IDataset<?>) constructor.newInstance(cla.datasetFile);
+//				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
+//					// training and test data set is the same
+//					dataset = (IDataset<?>) constructor.newInstance(inputFile);
+//					break;
+//				}
+				if (parameterTypes.length == 2 && parameterTypes[0] == File.class && parameterTypes[1] == DataSetSplit.class) {
+					dataset = (IDataset<?>) constructor.newInstance(inputFile, split);
 					break;
 				}
 			}
@@ -123,6 +145,7 @@ public class TestDriver {
 		}
 		return dataset;
 	}
+	
 	
 	/**
 	 * Selects the correct {@link IMaxCategoryUtilitySearcher} for the passed {@link TreeComponentFactory}. 
@@ -144,6 +167,9 @@ public class TestDriver {
 		return null;
 	}
 
+	protected enum DataSetSplit{
+		TRAINING, TEST
+	}
 
 	/**
 	 * Must not be instantiated.

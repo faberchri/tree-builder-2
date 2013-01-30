@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
 import ch.uzh.agglorecommender.datasets.DatasetLocator;
 import ch.uzh.agglorecommender.util.TBLogger;
 
@@ -46,11 +47,11 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * 
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
-	public AbstractDataset(INormalizer<T> normalizer, File datasetFile, String pathToDefaultInputFile) {
+	public AbstractDataset(INormalizer<T> normalizer, File datasetFile, DataSetSplit split) {
 		this.normalizer = normalizer;
 		try {
 			if (datasetFile == null) {
-				this.input = DatasetLocator.getDataset(pathToDefaultInputFile);
+				this.input = DatasetLocator.getDataset(getPathToDefaultInputFile(split));
 			} else {
 				this.input = new FileInputStream(datasetFile);
 			}
@@ -122,6 +123,9 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * @param line the line to parse
 	 */
 	abstract void parseLine(String line);
+	
+	
+	abstract protected String getPathToDefaultInputFile(DataSetSplit split);
 	
 	/**
 	 * Adds a data item to the list of data

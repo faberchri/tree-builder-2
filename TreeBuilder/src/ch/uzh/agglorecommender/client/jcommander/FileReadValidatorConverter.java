@@ -1,10 +1,12 @@
 package ch.uzh.agglorecommender.client.jcommander;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.beust.jcommander.IParameterValidator;
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
 
 
@@ -13,7 +15,7 @@ import com.beust.jcommander.ParameterException;
  * Application exits if no read access is granted.
  * @param path to check access.
  */
-public class FileReadValidator implements IParameterValidator {		
+public class FileReadValidatorConverter implements IParameterValidator, IStringConverter<File> {		
 	@Override
 	public void validate(String name, String path)
 			throws ParameterException {
@@ -30,5 +32,10 @@ public class FileReadValidator implements IParameterValidator {
 		} catch (IOException e) {
 			throw new ParameterException("The specified path " + path + " could not be accessed due to IOException");
 		}			
-	}		
+	}
+
+	@Override
+	public File convert(String value) {
+		return new File(value);
+	}
 }

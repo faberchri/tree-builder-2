@@ -80,7 +80,7 @@ implements MouseListener {
 				INode[] merge = {pickedNode};
 
 				DecimalFormat formater = new DecimalFormat("#.##");
-
+				
 				if(pickedNode.getAttributesType() == "Classit") {
 
 					// Header

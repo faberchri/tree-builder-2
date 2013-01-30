@@ -43,7 +43,7 @@ public interface IAttribute {
 
 	public double getSumOfRatings() throws UnsupportedOperationException;
 	
-	public double getStd() throws UnsupportedOperationException;
+//	public double getStd() throws UnsupportedOperationException;
 	
 	/**
 	 * Gets an iterator over the attributes probability map.

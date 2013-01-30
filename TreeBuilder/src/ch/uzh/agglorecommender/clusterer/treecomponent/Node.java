@@ -258,12 +258,15 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	@Override
 	public List<Integer> getDataSetIds() {
 		List<Integer> li = new ArrayList<Integer>();
+		return getDataSetIds(li);
+	}
+	
+	private List<Integer> getDataSetIds(List<Integer> li) {
 		if (isLeaf()) {
 			li.add(dataSetId);
 		} else {
-			Iterator<INode> i = getChildren();
-			while (i.hasNext()) {
-				li.addAll(i.next().getDataSetIds());
+			for (INode child : children) {
+				((Node)child).getDataSetIds(li);
 			}
 		}
 		return li;

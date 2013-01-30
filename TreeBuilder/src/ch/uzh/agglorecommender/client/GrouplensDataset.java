@@ -1,6 +1,10 @@
 package ch.uzh.agglorecommender.client;
 
 import java.io.File;
+import java.util.logging.Logger;
+
+import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
+import ch.uzh.agglorecommender.util.TBLogger;
 
 
 /**
@@ -19,9 +23,14 @@ import java.io.File;
 public class GrouplensDataset extends AbstractDataset<Integer> {
 		
 	/**
-	 * Path to default input file.
+	 * Path to default training input file.
 	 */
-	private static final String pathToDefaultInputFile = "Grouplens/u1.test";
+	private static final String pathToDefaultTrainingInputFile = "Grouplens/u1.base";
+	
+	/**
+	 * Path to default test input file.
+	 */
+	private static final String pathToDefaultTestInputFile = "Grouplens/u1.test";
 	
 	/**
 	 * Instantiates a new data set and parses the data from the specified or 
@@ -29,9 +38,9 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	 * 
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
-	public GrouplensDataset(File datasetFile) {
+	public GrouplensDataset(File datasetFile, DataSetSplit split) {
 		//data set has rating min value = 1 and max value = 5
-		super(new IntegerNormalizer(1, 5), datasetFile, pathToDefaultInputFile);
+		super(new IntegerNormalizer(1, 5), datasetFile, split);
 	}
 	
 	/**
@@ -52,6 +61,21 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 			}
 		}
 		addToDatasetItems(new SimpleDatasetItem<Integer>(intFields[2], intFields[0], intFields[1]));
+	}
+	
+	@Override
+	protected String getPathToDefaultInputFile(DataSetSplit split) {
+		switch (split) {
+		case TEST:
+			return pathToDefaultTestInputFile;
+		case TRAINING:
+			return pathToDefaultTrainingInputFile;
+		default:
+			Logger log = TBLogger.getLogger(getClass().getName());
+			log.severe("Unknown data set split requested.");
+			System.exit(-1);
+			return null;
+		}
 	}
 
 }

@@ -89,21 +89,21 @@ final class ClassitAttribute implements IAttribute, Serializable {
 		return "Classit";
 	}
 
-	@Override
-	public double getStd() throws UnsupportedOperationException {
-		
-		// Die einzelnen Values fehlen
-		
-		// Mean
-		double mean = 0;
-		
-		// Sum of Differences (value - mean)^2
-		double sumOfDifferences = Math.pow(0,2);
-		
-		// Divide through number of variants, take root
-		double std = Math.sqrt(0);
-		
-		return std;
-	}
+//	@Override
+//	public double getStd() throws UnsupportedOperationException {
+//		
+//		// Die einzelnen Values fehlen
+//		
+//		// Mean
+//		double mean = 0;
+//		
+//		// Sum of Differences (value - mean)^2
+//		double sumOfDifferences = Math.pow(0,2);
+//		
+//		// Divide through number of variants, take root
+//		double std = Math.sqrt(0);
+//		
+//		return std;
+//	}
 	
 }

@@ -2,6 +2,8 @@ package ch.uzh.agglorecommender.client;
 
 import java.io.File;
 
+import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
+
 /**
  * The data set of Floraea. 
  */
@@ -18,7 +20,7 @@ public class FloareaDataset extends AbstractDataset<Double> {
 	 * 
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
-	public FloareaDataset(File datasetFile) {
+	public FloareaDataset(File datasetFile, DataSetSplit split) {
 		super(new INormalizer<Double>() {
 
 			@Override
@@ -29,7 +31,7 @@ public class FloareaDataset extends AbstractDataset<Double> {
 				return rating.doubleValue() * 10.0;
 			}
 		},
-		datasetFile, FloareaDataset.pathToDefaultInputFile);
+		datasetFile, split);
 
 	}
 
@@ -53,5 +55,8 @@ public class FloareaDataset extends AbstractDataset<Double> {
 		addToDatasetItems(di);
 	}
 
-
+	@Override
+	protected String getPathToDefaultInputFile(DataSetSplit split) {
+		return pathToDefaultInputFile;
+	}
 }

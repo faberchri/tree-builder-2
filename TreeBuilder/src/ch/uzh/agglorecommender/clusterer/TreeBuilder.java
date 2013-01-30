@@ -1,20 +1,14 @@
 package ch.uzh.agglorecommender.clusterer;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import ch.uzh.agglorecommender.client.IDataset;
-import ch.uzh.agglorecommender.client.IDatasetItem;
-import ch.uzh.agglorecommender.client.INormalizer;
+import ch.uzh.agglorecommender.client.ClusterResult;
+import ch.uzh.agglorecommender.client.InitalNodesCreator;
 import ch.uzh.agglorecommender.client.SerializableRMOperatorDescription;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
-import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
@@ -44,10 +38,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * The data set to cluster.
-	 */
-	private transient IDataset<?> dataset; 
+//	/**
+//	 * The data set to cluster.
+//	 */
+//	private transient IDataset<?> dataset; 
 	
 	/**
 	 * The set of all root nodes of type user.
@@ -59,11 +53,16 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private Set<INode> contentNodes = new IndexAwareSet<INode>();
 	
-	/**
-	 * The final set of root nodes of type user and type content.
-	 */
-	private ArrayList<INode> rootNodes = new ArrayList<INode>();
+//	/**
+//	 * The final set of root nodes of type user and type content.
+//	 */
+//	private ArrayList<INode> rootNodes = new ArrayList<INode>();
 	
+	/**
+	 * The result of the clustering process.
+	 */
+	private ClusterResult result;
+			
 	/**
 	 * The tree component factory of the content tree.
 	 */
@@ -128,7 +127,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
 	public TreeBuilder(
-			IDataset<?> dataset,
 			IMaxCategoryUtilitySearcher searcherContent,
 			IMaxCategoryUtilitySearcher searcherUsers,
 			TreeComponentFactory contentTreeComponentFactory,
@@ -137,44 +135,68 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
-		this.dataset = dataset;
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = searcherUsers;
 		this.contentMCUSearcher = searcherContent;
 		this.contentTreeComponentFactory = contentTreeComponentFactory;
 		this.userTreeComponentFactory = userTreeComponentFactory;
-		this.treeVisualizer = new TreeVisualizer();
+		this.treeVisualizer = new TreeVisualizer();	
 	}
-	
+		
 	/**
 	 * Resumes a previously start clustering process.
 	 * 
 	 * @param pathToWriteSerializedObject location for the new serialization file.
-	 * If null no file is created. 
+	 * If null no file is created.
+	 * @return the result of the clustering process
 	 */
-	public void resumeClustering(String pathToWriteSerializedObject) {
+	public ClusterResult resumeClustering(String pathToWriteSerializedObject) {
 		log = TBLogger.getLogger(getClass().getName());
 		treeVisualizer = new TreeVisualizer();
-		cluster(pathToWriteSerializedObject);
+		return cluster(pathToWriteSerializedObject);
 	}
 	
 	/**
-	 * Starts a new clustering from scratch.
+	 * Starts a new clustering process from scratch.
+	 * 
 	 * @param pathToWriteSerializedObject location for the serialization file.
-	 * If null no file is created. 
+	 * If null no file is created.
+	 * @return the result of the clustering process
 	 */
-	public void startClustering(String pathToWriteSerializedObject) {
-		initLeafNodes(dataset);	
-		cluster(pathToWriteSerializedObject);
+	public ClusterResult startClustering(String pathToWriteSerializedObject, InitalNodesCreator leafNodes) {
+		log = TBLogger.getLogger(getClass().getName());
+		userNodes.clear();
+		contentNodes.clear();
+		this.result = new ClusterResult(
+				leafNodes.getUserLeaves(), leafNodes.getContentLeaves(),
+				null, null, builderId);
+		initNodeSets(leafNodes);
+		return cluster(pathToWriteSerializedObject);
+	}
+	
+	/**
+	 * Creates references to the leaf nodes in the set of nodes to cluster.
+	 * 
+	 * @param leafNodes the initial leaf nodes 
+	 */
+	private void initNodeSets(InitalNodesCreator leafNodes) {
+		for (INode n : leafNodes.getContentLeaves().values()) {
+			contentNodes.add(n);
+		}	
+		for (INode n : leafNodes.getUserLeaves().values()) {
+			userNodes.add(n);
+		}
 	}
 	
 	/**
 	 * Performs the cluster tree creation of the data set.
 	 * 
 	 * @param pathToWriteSerializedObject location for the serialization file.
-	 * If null no file is created. 
+	 * If null no file is created.
+	 * 
+	 * @return The resulting @code{cluster result} object.
 	 */
-	private void cluster(String pathToWriteSerializedObject) {
+	private ClusterResult cluster(String pathToWriteSerializedObject) {
 				
 		// Initialize Visualizer
 		treeVisualizer.initVisualization(userNodes, contentNodes);
@@ -213,18 +235,29 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
 		} 
 		
-		// Save final root nodes
-		rootNodes.addAll(userNodes);
-		rootNodes.addAll(contentNodes);
+//		// Save final root nodes
+//		rootNodes.addAll(userNodes);
+//		rootNodes.addAll(contentNodes);
 		
-		log.info("Clustering completed! Serializing TreeBuilder...");
+		log.info("Clustering terminated! Serializing TreeBuilder...");
 		// serialize this TreeBuilder if clustering is completed.
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
 		// Create/Update Visualization
 		treeVisualizer.visualize();
+		
+		if (contentNodes.size() == 1 && userNodes.size() == 1) {
+			result = new ClusterResult(
+					result.getUserTreeLeavesMap(), result.getContentTreeLeavesMap(), 
+					userNodes.iterator().next(), contentNodes.iterator().next(), builderId);
+		} else {
+			log.severe("clustering terminated before the user or content cluster forests converged to trees");
+			System.exit(-1);
+		}
+		return result;
+		
 	}
-	
+		
 	/**
 	 * Gets the best merge from the passed set and returns the resulting new node.
 	 * 
@@ -248,69 +281,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		return newNode;
 	}
 	
-	/**
-	 * Initializes the leaf nodes of the tree at the start of the clustering process.
-	 * For each user and each content item one node is created.
-	 * 
-	 * @param dataset the data set to cluster.
-	 */
-	private void initLeafNodes(IDataset<?> dataset) {
-
-		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
-		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
-		
-		// sort data items according to user id and content id
-		Iterator<?> it = dataset.iterateOverDatasetItems();
-		while(it.hasNext()) {
-			IDatasetItem<?> datasetItem = (IDatasetItem<?>) it.next();
-			if (usersMap.containsKey(datasetItem.getUserId())) {
-				usersMap.get(datasetItem.getUserId()).add(datasetItem);
-			} else {
-				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
-				li.add(datasetItem);
-				usersMap.put(datasetItem.getUserId(), li);
-			}
-			if (contentsMap.containsKey(datasetItem.getContentId())) {
-				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
-			} else {
-				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
-				li.add(datasetItem);
-				contentsMap.put(datasetItem.getContentId(), li);
-			}
-		}
-		
-		// create for each user and content id one node
-		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
-		for (Integer i : usersMap.keySet()) {
-			usersNodeMap.put(i, userTreeComponentFactory.createLeafNode(ENodeType.User, i));
-		}		
-		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
-		for (Integer i : contentsMap.keySet()) {
-			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i));
-		}
-		
-		// attach to each node its attributes map
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
-			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( di.getValue());
-				attributes.put(contentsNodeMap.get(di.getContentId()), contentTreeComponentFactory.createAttribute(normalizedRating));
-			}
-			usersNodeMap.get(entry.getKey()).setAttributes(attributes);
-			userNodes.add(usersNodeMap.get(entry.getKey()));
-		}
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
-			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {			
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( di.getValue());
-				attributes.put(usersNodeMap.get(di.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating));
-			}
-			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);
-			contentNodes.add(contentsNodeMap.get(entry.getKey()));
-		}
-						
-	}
-	
 	
 	/**
 	 * Creates a new node and initializes the nodes attributes based on a list of close nodes.
@@ -325,8 +295,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
-		Logger log = TBLogger.getLogger(getClass().getName());
+	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
+//		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
 			
@@ -374,14 +344,14 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		return null;
 	}
 	
-	/**
-	 * Returns root nodes for further operations on the trees.
-	 * More like a quick solution for the recommender implementation. Could be done more elegant.
-	 * The Clusterer Method could return the root nodes.
-	 * 
-	 * @return the root nodes of the user and the content trees
-	 */
-	public ArrayList<INode> getRootNodes(){
-		return rootNodes;
-	}
+//	/**
+//	 * Returns root nodes for further operations on the trees.
+//	 * More like a quick solution for the recommender implementation. Could be done more elegant.
+//	 * The Clusterer Method could return the root nodes.
+//	 * 
+//	 * @return the root nodes of the user and the content trees
+//	 */
+//	public ArrayList<INode> getRootNodes(){
+//		return rootNodes;
+//	}
 }

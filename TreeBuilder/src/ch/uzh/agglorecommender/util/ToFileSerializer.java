@@ -57,7 +57,7 @@ public class ToFileSerializer {
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
-		// do serialization
+		// ok we serialize ... 
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
 		

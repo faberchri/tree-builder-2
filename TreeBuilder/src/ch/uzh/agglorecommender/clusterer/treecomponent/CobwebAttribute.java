@@ -96,10 +96,10 @@ public class CobwebAttribute implements IAttribute, Serializable {
 		return "Cobweb";
 	}
 
-	@Override
-	public double getStd() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(
-				"Method of ClassitAttribute object called on CobwebAttribute object");
-	}
+//	@Override
+//	public double getStd() throws UnsupportedOperationException {
+//		throw new UnsupportedOperationException(
+//				"Method of ClassitAttribute object called on CobwebAttribute object");
+//	}
 	
 }
