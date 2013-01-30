@@ -18,7 +18,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
 
 
-public class DBHandling {
+public class DBHandler {
 	
 	private GraphDatabaseService graphDb;
 	private Index nodeIndex;

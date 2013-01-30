@@ -21,7 +21,7 @@ import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
 import ch.uzh.agglorecommender.clusterer.treesearch.IndexAwareSet;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
-import ch.uzh.agglorecommender.util.DBHandling;
+import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 import ch.uzh.agglorecommender.visu.TreeVisualizer;
@@ -93,7 +93,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	/**
 	 * Handles storing of nodes to db
 	 */
-	private transient DBHandling dbHandling;
+	private transient DBHandler dbHandling;
 
 	/**
 	 * Manages the graphical representation of the tree structure ch.uzh.agglorecommender.visu.

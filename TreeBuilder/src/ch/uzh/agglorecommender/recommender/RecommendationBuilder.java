@@ -2,15 +2,13 @@ package ch.uzh.agglorecommender.recommender;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.recommender.treeutils.PositionFinder;
 
 /**
  * 
@@ -21,37 +19,27 @@ import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySea
  */
 public final class RecommendationBuilder {
 	
-	// Basic Input Data
+	// Parameters
 	private INode rootU;
-	private INode inputNode;
-	
-	// Futher Parameters
 	private int radiusU = 0;
 	private int radiusC = 0;
 	
 	// Calculation Process
-	private INode position = null;
-	private double highestUtility = 0;
 	private Map<INode,Double> moviesToCollect = new HashMap<INode,Double>();
 	private Map<INode,IAttribute> collectedRatings = new HashMap<INode,IAttribute>();
-	private Random randomGenerator = new Random();
 	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
 	 * 
 	 * @param tree the trees on which the recommendation calculation is done
-	 * @param inputNode this node is the base for the recommendation calculation
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(TreeBuilder tree, INode inputNode, int radiusU, int radiusC) {
+	public RecommendationBuilder(TreeBuilder tree, int radiusU, int radiusC) {
 		
 		// Retrieve Root Nodes of the user tree
 		ArrayList<INode> rootNodes = tree.getRootNodes();
 		this.rootU = rootNodes.get(0);
-		
-		// Input for Recommendation
-		this.inputNode = inputNode;
 		
 		// Parameters for Recommendation
 		this.radiusU = radiusU;
@@ -63,44 +51,24 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<INode, IAttribute> runTestRecommendation(){
+	public Map<INode, IAttribute> runTestRecommendation(INode testNode){
 		
 		// Find position of the similar node in the tree
-		getPosition(rootU,inputNode.getId());
+		PositionFinder finder = new PositionFinder();
+		INode position = finder.getPosition(rootU,testNode.getId());
 		
-		if(this.position == null) {
-			System.out.println("No Node with this ID was found in the user tree");
+		if(position == null) {
+			System.out.println("getPosition: No Node with this ID was found in the user tree");
 			return null;
-		}
+		}	
+		else {
 			
-		System.out.println("Found position of the node in the user Tree");
-		
-		// Collect ratings of all content given by the input node
-		collectRatings(this.position,inputNode);
-		
-		return collectedRatings;
-	}
-	
-	/**
-	 * Find position of a node with a given id in the tree
-	 * 
-	 * @param parent the current node from which the search is starting
-	 * @param inputNodeID the node that should be found has this id
-	 */
-	public void getPosition(INode parent, long inputNodeID) {
-		
-		// Look for position recursively
-		Iterator<INode> children = parent.getChildren();
-		while(children.hasNext()) {
-			INode child = children.next();
+			System.out.println("getPosition: Found position of the node in the user Tree");
 			
-			if(child.getId() == inputNodeID) {
-				System.out.println("found the node: " + child.toString());
-				this.position = child;
-			}
-			else {
-				getPosition(child, inputNodeID);
-			}
+			// Collect ratings of all content given by the input node
+			collectRatings(position,testNode);
+			
+			return collectedRatings;
 		}
 	}
 	
@@ -158,10 +126,11 @@ public final class RecommendationBuilder {
 	 * The scope of nodes that is incorporated into the recommendation depends on defined radius
 	 * This recommendation type does not allow a statistical check on the quality of the recommendation
 	 */
-	public Map<INode, IAttribute> runRecommendation(){
+	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
 		
 		// Find the most similar node in the tree
-		findPosition(inputNode,rootU,0);
+		PositionFinder finder = new PositionFinder();
+		INode position = finder.findPosition(inputNode,rootU,0);
 		
 		// Calculate recommendation based on this position
 		Map<INode,IAttribute> recommendedContent = new HashMap<INode,IAttribute>();
@@ -172,63 +141,6 @@ public final class RecommendationBuilder {
 		
 		return recommendedContent;
 		
-	}
-	
-	/**
-	 * Finds the best position (most similar node) in the tree for a given node
-	 * Calculations are based on category utility. If the previously calculated
-	 * utility value is higher than the best utility value on the current level
-	 * then the previous position is the best. If the search does not stop in
-	 * the tree, it ends on a leaf node.
-	 * 
-	 * @param inputNodeID this node is the base of the search
-	 * @param parent this is the current starting point of the search
-	 * @param cutoff this is the previously calculated utility value
-	 */
-	public void findPosition(INode inputNode,INode parent,double cutoff) {
-		
-		INode[] nodesToCalculate = new INode[2];
-		nodesToCalculate[0] = inputNode;
-		nodesToCalculate[1] = parent;
-		ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // <--------- unschšn, sollte je nach Typ anderst sein
-		
-		// Establish cut off value when 0
-		if(cutoff == 0) {
-		    cutoff = helper.calculateCategoryUtility(nodesToCalculate); //unschšn
-			System.out.println("Established cut off: " + cutoff);
-		}
-		
-		if(parent.getChildrenCount() > 0){
-	
-			Iterator<INode> compareSet = parent.getChildren();
-			INode nextPosition = null;
-			while(compareSet.hasNext()) {
-				  
-				INode tempPosition = compareSet.next();
-				nodesToCalculate[1] = tempPosition;
-				double utility = helper.calculateCategoryUtility(nodesToCalculate);
-				
-				if(utility > highestUtility){
-					System.out.println("Found higher utility: " + utility + ">" + highestUtility);
-					highestUtility = utility;
-					nextPosition = tempPosition;
-				}
-				
-			}
-	
-			if(highestUtility > cutoff) {
-				System.out.println("Continue one level down");
-				findPosition(inputNode,nextPosition,cutoff);
-			}
-			else {
-				System.out.println("Best position was found " + parent.toString() + "; better utility than children");
-				position = parent;
-			}
-		}
-		else {
-			System.out.println("Best position was found " + parent.toString() + "; no children left");
-			position = parent;
-		}
 	}
 	
 	/**
