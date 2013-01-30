@@ -14,36 +14,41 @@ import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySea
 
 /**
  * 
- * Implementation of COBWEB inspired hierarchical
- * agglomerative two-dimensional clustering algorithm 
- * for media recommendation generation.
+ * Calculates different recommendations based on a given tree structure
+ * A test of the rmse value of the recommendation can be run by runTestRecommendation()
+ * A recommendation of movies a user has not yet rated can be run by runRecommendation()
  *
  */
 public final class RecommendationBuilder {
 	
+	// Basic Input Data
 	private INode rootU;
-	
 	private INode inputNode;
 	
+	// Futher Parameters
 	private int radiusU = 0;
 	private int radiusC = 0;
 	
+	// Calculation Process
 	private INode position = null;
-	
+	private double highestUtility = 0;
 	private Map<INode,Double> moviesToCollect = new HashMap<INode,Double>();
 	private Map<INode,IAttribute> collectedRatings = new HashMap<INode,IAttribute>();
+	private Random randomGenerator = new Random();
 	
-	private double highestUtility = 0;
-	
-	Random randomGenerator = new Random();
-	
-	// Recommendation Type 1 -> Return predicted ratings of movies a user hat already seen -> Evalution
-	// Recommendation Type 2 -> Recommend Movies that the user has not seen yet -> Automatic evaluation is not possible
+	/**
+	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
+	 * 
+	 * @param tree the trees on which the recommendation calculation is done
+	 * @param inputNode this node is the base for the recommendation calculation
+	 * @param radiusU indicates the number of levels that should be incorporated from user tree
+	 * @param radiusC indicates the number of levels that should be incorporated from content tree
+	 */
 	public RecommendationBuilder(TreeBuilder tree, INode inputNode, int radiusU, int radiusC) {
 		
-		// Retrieve Root Nodes
+		// Retrieve Root Nodes of the user tree
 		ArrayList<INode> rootNodes = tree.getRootNodes();
-		this.rootU = rootNodes.get(0); // wacklig
+		this.rootU = rootNodes.get(0);
 		
 		// Input for Recommendation
 		this.inputNode = inputNode;
@@ -53,12 +58,15 @@ public final class RecommendationBuilder {
 		this.radiusC = radiusC;
 	}
 	
-	//---------------- Methods for Type 1 Recommendation -----------------------------------
-	
+	/**
+	 * Runs a test that compares the tree calculation with the real values of a given user
+	 * This recommendation type allows to calculate an RMSE value that indicates the quality
+	 * of the recommendations produced by the clusterer
+	 */
 	public Map<INode, IAttribute> runTestRecommendation(){
 		
-		// Searching for the node with same ID as the inputNode in the tree
-		getPosition(rootU,inputNode);
+		// Find position of the similar node in the tree
+		getPosition(rootU,inputNode.getId());
 		
 		if(this.position == null) {
 			System.out.println("No Node with this ID was found in the user tree");
@@ -67,30 +75,41 @@ public final class RecommendationBuilder {
 			
 		System.out.println("Found position of the node in the user Tree");
 		
-		// Collect predicted ratings of all movies featured in the input node by going upwards in the tree
+		// Collect ratings of all content given by the input node
 		collectRatings(this.position,inputNode);
 		
 		return collectedRatings;
 	}
 	
-	public void getPosition(INode parent, INode inputNode) {
+	/**
+	 * Find position of a node with a given id in the tree
+	 * 
+	 * @param parent the current node from which the search is starting
+	 * @param inputNodeID the node that should be found has this id
+	 */
+	public void getPosition(INode parent, long inputNodeID) {
 		
 		// Look for position recursively
 		Iterator<INode> children = parent.getChildren();
 		while(children.hasNext()) {
 			INode child = children.next();
 			
-			if(child.getId() == inputNode.getId()) {
+			if(child.getId() == inputNodeID) {
 				System.out.println("found the node: " + child.toString());
 				this.position = child;
 			}
 			else {
-				getPosition(child, inputNode);
+				getPosition(child, inputNodeID);
 			}
 		}
 	}
 	
-	// Collect all movies of inputNode starting from defined position
+	/**
+	 * Collect ratings of all content given by the input node
+	 * 
+	 * @param position this is the starting point for collecting
+	 * @param inputNodeID this node gives the content that needs to be collected
+	 */
 	public void collectRatings(INode position, INode inputNode) {
 		
 		//Create Map for all movies
@@ -133,16 +152,19 @@ public final class RecommendationBuilder {
 			}
 		}
 	}
-	
-	//---------------- Methods for Type 2 Recommendation -----------------------------------
 
+	/**
+	 * Calculates a recommendation that includes content the user has not rated yet
+	 * The scope of nodes that is incorporated into the recommendation depends on defined radius
+	 * This recommendation type does not allow a statistical check on the quality of the recommendation
+	 */
 	public Map<INode, IAttribute> runRecommendation(){
 		
-		// Ausgehend von der Input Node sucht man die Node die am Šhnlichsten ist im Baum (findPosition)
+		// Find the most similar node in the tree
 		findPosition(inputNode,rootU,0);
 		
-		// Dann wird ausgehend von dieser Position eine Empfehlung ausgesprochen (recommend)
-		Map<INode,IAttribute> recommendedContent = new HashMap();
+		// Calculate recommendation based on this position
+		Map<INode,IAttribute> recommendedContent = new HashMap<INode,IAttribute>();
 		
 		if(!(position == null)){
 			recommendedContent = recommend(position,radiusU,radiusC);
@@ -152,6 +174,17 @@ public final class RecommendationBuilder {
 		
 	}
 	
+	/**
+	 * Finds the best position (most similar node) in the tree for a given node
+	 * Calculations are based on category utility. If the previously calculated
+	 * utility value is higher than the best utility value on the current level
+	 * then the previous position is the best. If the search does not stop in
+	 * the tree, it ends on a leaf node.
+	 * 
+	 * @param inputNodeID this node is the base of the search
+	 * @param parent this is the current starting point of the search
+	 * @param cutoff this is the previously calculated utility value
+	 */
 	public void findPosition(INode inputNode,INode parent,double cutoff) {
 		
 		INode[] nodesToCalculate = new INode[2];
@@ -198,11 +231,18 @@ public final class RecommendationBuilder {
 		}
 	}
 	
+	/**
+	 * Finds the best position (most similar node) in the tree for a given node
+	 * 
+	 * @param position starting point to calculate recommendation 
+	 * @param radiusU defines how many levels of users should be incorporated 
+	 * @param radiusC defines how many levels of content should be incorporated 
+	 */
 	public Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
 		
 		System.out.println("running recommendation from position " + position.toString());
 		
-		Map<INode,IAttribute> recommendation = new HashMap();
+		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
 		// Find relevant Users
 		INode relevantUser = relevantUser(position,radiusU);
@@ -228,6 +268,12 @@ public final class RecommendationBuilder {
 	    return recommendation;
 	}
 
+	/**
+	 * Gives back the relevant user node based on the given radius
+	 * 
+	 * @param position starting point to calculate recommendation 
+	 * @param radiusU defines how many levels of users should be incorporated 
+	 */
 	public INode relevantUser(INode position,int radiusU){
 		
 //		System.out.println("User tree: " + position.toString());
@@ -251,6 +297,13 @@ public final class RecommendationBuilder {
 		return relevantUser;
 	}
 
+	/**
+	 * Gives back the relevant content node based on the given radius
+	 * 
+	 * @param content this node is the starting point to calculate recommendation 
+	 * @param radiusC defines how many levels of content should be incorporated 
+	 * @param relevantContent collection of previously collected content
+	 */
 	public INode relevantContent(INode content, int radiusC, INode relevantContent){
 	
 		// Get all content nodes for recommendation, rating does not matter
