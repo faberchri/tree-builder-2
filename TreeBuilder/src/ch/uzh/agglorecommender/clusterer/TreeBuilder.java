@@ -26,7 +26,6 @@ import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 import ch.uzh.agglorecommender.visu.TreeVisualizer;
 
-
 /**
  * 
  * Implementation of COBWEB inspired hierarchical
@@ -113,11 +112,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private final UUID builderId = UUID.randomUUID();
 	
 	/**
-	 * Keeping this reference ensures that the counter gets serialized 
+	 * Keeping this reference ensures that the monitor gets serialized 
 	 * together with the TreeBuilder.
 	 */
-	private final Counter counter = Counter.getInstance();
-	
+	private final Monitor monitor = Monitor.getInstance();
 	
 	/**
 	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
@@ -179,9 +177,11 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private void cluster(String pathToWriteSerializedObject) {
 				
 		// Initialize Visualizer
-		treeVisualizer.initVisualization(counter, userNodes, contentNodes);
+		treeVisualizer.initVisualization(userNodes, contentNodes);
+		
+		// Initialize Monitor
+		monitor.initMonitoring(userNodes.size(), contentNodes.size());
 
-        
 		// Process Nodes
 		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
 
@@ -189,18 +189,21 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			INode newUserNode = searchAndMergeNode(userNodes, userMCUSearcher);
 			
 			log.info("Get closest content nodes & merge them");
-			INode newMovieNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
+			INode newContentNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
 			
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null && contentNodes.size() > 1) {
 				nodeUpdater.updateNodes(newUserNode,contentNodes); 
 			}
-			if(newMovieNode != null && userNodes.size() > 1) {
-				nodeUpdater.updateNodes(newMovieNode,userNodes);
+			if(newContentNode != null && userNodes.size() > 1) {
+				nodeUpdater.updateNodes(newContentNode,userNodes);
 			}
 			
 			// Create/Update Visualization
 			treeVisualizer.visualize();
+			
+			// Update Monitor
+			monitor.update(userNodes.size(),contentNodes.size());
 			
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
@@ -236,10 +239,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			log.info("Best node merge has category utility of "
 						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
 			
-			Counter counter = Counter.getInstance();
-			newNode = mergeNodes(cN.getNodes(), nodes, counter);
-			
-			log.info("cycle "+ counter.getCycleCount() + "| number of open nodes: " + 
+			Monitor counter = Monitor.getInstance();
+			newNode = mergeNodes(cN.getNodes(), nodes);
+			log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
 						nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
 //			treeVisualizer.printAllOpenUserNodes();
 		}
@@ -323,7 +325,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
+	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
@@ -335,13 +337,11 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 				newNode = userTreeComponentFactory.createInternalNode(
 						ENodeType.User,
 						nodesToMerge); 
-				counter.addUserNode();
 				break;
 			case Content:
 				newNode = contentTreeComponentFactory.createInternalNode(
 						ENodeType.Content,
 						nodesToMerge);
-				counter.addMovieNode();
 				break;
 			default:
 				newNode = null;

@@ -3,22 +3,16 @@ package ch.uzh.agglorecommender.clusterer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Set;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.visu.Display;
-
-
 
 /**
  * Class that keeps current count of nodes in the tree
  * Can be used for other data saving during clustering.
- * 
- * That's a singleton, right?
  *
  */
-public class Counter implements Serializable {
+public class Monitor implements Serializable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -29,11 +23,11 @@ public class Counter implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static Counter counter = new Counter();
+	private static Monitor monitor = new Monitor();
 	
-	private long movieNodeCount = 0;
+	private long contentNodeCount = 0;
 	private long userNodeCount = 0;
-	private long openMovieNodes = 0;
+	private long openContentNodes = 0;
 	private long openUserNodes = 0;
 	
 	private long totalComparisons = 0;
@@ -44,26 +38,26 @@ public class Counter implements Serializable {
 	/**
 	 * Constructor to establish node counts and display
 	 */
-	private Counter () {
+	private Monitor () {
 		// singleton
 	}
 	
-	public static Counter getInstance() {
-		return counter;
+	public static Monitor getInstance() {
+		return monitor;
 	}
 	
 	/**
 	 * Initialize the counter on start of clustering process.
 	 * 
-	 * @param userNodes the set of open user nodes. 
-	 * @param contentNodes the set of open content nodes.
+	 * @param Count of userNodes in userNode Set 
+	 * @param Count of contentNodes in contentNode Set
 	 */
-	public void initCounter(Set<INode> userNodes,
-			Set<INode> contentNodes) {
-		setInitialCounts(contentNodes.size(), userNodes.size());
-		setOpenUserNodeCount(userNodes.size());
-		setOpenMovieNode(contentNodes.size());
-		setStartTime(System.currentTimeMillis());
+	public void initMonitoring(int openUserNodes,int openContentNodes) {
+		setInitialCounts(openContentNodes,openUserNodes);
+		this.openUserNodes 		= openUserNodes;
+		this.openContentNodes 	= openContentNodes;
+		this.startTime = System.currentTimeMillis();
+		//createDisplay();
 	}
 	
 	/**
@@ -73,18 +67,18 @@ public class Counter implements Serializable {
 	 * @param userNodeCounts number of user nodes
 	 */
 	public void setInitialCounts(long contentNodeCounts, long userNodeCounts) {
-		this.movieNodeCount = contentNodeCounts;
+		this.contentNodeCount = contentNodeCounts;
 		this.userNodeCount = userNodeCounts;
 	}
 	
-	public void setDisplay(Display display) {
-		this.display = display;
-		//display.update(this);
+	/**
+	 * Create Graphical Representation of results
+	 */	
+	public void createDisplay() {
+		this.display = new Display();
 	}
 	
-	public long getTotalComparisons() {
-		return totalComparisons;
-	}
+	
 
 	public void addComparison() {
 		this.totalComparisons++;
@@ -92,57 +86,13 @@ public class Counter implements Serializable {
 		display.update(this);
 	}
 	
-	public long getOpenMovieNodeCount() {
-		return openMovieNodes;
-	}
-
-	public void setOpenMovieNode(int movieNodeCountOnCurrentLevel) {
-		this.openMovieNodes = movieNodeCountOnCurrentLevel;
-	}
-
-	public long getOpenUserNodeCount() {
-		return openUserNodes;
-	}
-
-	public void setOpenUserNodeCount(int userNodeCountOnCurrentLevel) {
-		this.openUserNodes = userNodeCountOnCurrentLevel;
-	}
-
-	public long getMovieNodeCount() {
-		return movieNodeCount;
-	}
-
-	public void setMovieNodeCount(int movieNodeCount) {
-		this.movieNodeCount = movieNodeCount;
-	}
-
-	public long getUserNodeCount() {
-		return userNodeCount;
-	}
-
-	public void setUserNodeCount(int userNodeCount) {
-		this.userNodeCount = userNodeCount;
-	}
-	
-	public void addMovieNode() {
-		this.movieNodeCount++;
-	}
-	
-	public void addUserNode() {
-		this.userNodeCount++;
-	}
-	
-	public void addCycle() {
+	private void addCycle() {
 		this.cycles++;
 		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
 	}
 	
 	public long getCycleCount() {
 		return cycles;
-	}
-	
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
 	}
 	
     /*
@@ -158,8 +108,8 @@ public class Counter implements Serializable {
 	public long getTotalOpenNodes() {
     	
 		long toBeCompared = 0;
-    	toBeCompared += getOpenMovieNodeCount();
-    	toBeCompared += getOpenUserNodeCount();
+    	toBeCompared += openContentNodes;
+    	toBeCompared += openUserNodes;
     	
     	return toBeCompared;
 	}
@@ -170,8 +120,8 @@ public class Counter implements Serializable {
 	public long getTotalMergedNodes() {
     	
 		long totalMergedNodes = 0;
-    	totalMergedNodes += getMovieNodeCount() - getOpenMovieNodeCount();
-    	totalMergedNodes += getUserNodeCount() - getOpenUserNodeCount();
+    	totalMergedNodes += contentNodeCount - openContentNodes;
+    	totalMergedNodes += userNodeCount - openUserNodes;
     	
     	return totalMergedNodes;
 	}
@@ -212,21 +162,42 @@ public class Counter implements Serializable {
     	return totalComparisons;
     }
     
+    /*
+     * Calulates the time used for comparison
+     */
+    public double calculateTimePerComparison() {
+    	return 0; // IMPLEMENT
+    }
+    
+    /*
+     * Calulates the percentage of comparisons actually calculated
+     */
+    public double calculatePercentageOfComparisons() {
+    	return 0; // IMPLEMENT
+    }
+    
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
     	ois.defaultReadObject();
-    	Counter c = Counter.getInstance();
-    	c.movieNodeCount = this.movieNodeCount;
-
-    	c.userNodeCount = this.userNodeCount;
-    	c.openMovieNodes = this.openMovieNodes;
-    	c.openUserNodes = this.openUserNodes;
+    	Monitor c = Monitor.getInstance();
     	
+    	c.contentNodeCount = this.contentNodeCount;
+    	c.userNodeCount = this.userNodeCount;
+    	c.openContentNodes = this.openContentNodes;
+    	c.openUserNodes = this.openUserNodes;
     	c.totalComparisons = this.totalComparisons;
-
     	c.cycles = this.cycles;
-
     	c.startTime = this.startTime;
     	c.display = new Display();
     }
+
+	public void update(int openUserNodes, int openContentNodes) {
+		
+		// Update Cycle
+		addCycle();
+		
+		// Update Open Nodes
+		this.openUserNodes = openUserNodes;
+		this.openContentNodes = openContentNodes;
+	}
 
 }

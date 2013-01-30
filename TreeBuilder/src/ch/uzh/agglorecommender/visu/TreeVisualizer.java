@@ -12,7 +12,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
-import ch.uzh.agglorecommender.clusterer.Counter;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
@@ -35,7 +34,7 @@ public class TreeVisualizer {
 	 * 
 	 * @param counter
 	 */
-	public void initVisualization(Counter counter,
+	public void initVisualization(
 			Set<INode> userNodes,
 			Set<INode> contentNodes) {
 		this.contentNodes = contentNodes;

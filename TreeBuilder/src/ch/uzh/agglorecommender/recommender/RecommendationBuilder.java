@@ -12,12 +12,17 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
+/**
+ * 
+ * Implementation of COBWEB inspired hierarchical
+ * agglomerative two-dimensional clustering algorithm 
+ * for media recommendation generation.
+ *
+ */
 public final class RecommendationBuilder {
 	
 	private INode rootU;
-	private INode rootC;
 	
-	private double userID;
 	private INode inputNode;
 	
 	private int radiusU = 0;
@@ -25,8 +30,8 @@ public final class RecommendationBuilder {
 	
 	private INode position = null;
 	
-	private Map<INode,Double> moviesToCollect = new HashMap();
-	private Map<INode,IAttribute> collectedRatings = new HashMap();
+	private Map<INode,Double> moviesToCollect = new HashMap<INode,Double>();
+	private Map<INode,IAttribute> collectedRatings = new HashMap<INode,IAttribute>();
 	
 	private double highestUtility = 0;
 	
@@ -38,8 +43,7 @@ public final class RecommendationBuilder {
 		
 		// Retrieve Root Nodes
 		ArrayList<INode> rootNodes = tree.getRootNodes();
-		this.rootU = rootNodes.get(0);
-		this.rootC = rootNodes.get(1);
+		this.rootU = rootNodes.get(0); // wacklig
 		
 		// Input for Recommendation
 		this.inputNode = inputNode;
@@ -153,11 +157,11 @@ public final class RecommendationBuilder {
 		INode[] nodesToCalculate = new INode[2];
 		nodesToCalculate[0] = inputNode;
 		nodesToCalculate[1] = parent;
-		ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // <--------- Sollte je nach Typ anderst sein
+		ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // <--------- unschšn, sollte je nach Typ anderst sein
 		
 		// Establish cut off value when 0
 		if(cutoff == 0) {
-		    cutoff = helper.calculateCategoryUtility(nodesToCalculate);
+		    cutoff = helper.calculateCategoryUtility(nodesToCalculate); //unschšn
 			System.out.println("Established cut off: " + cutoff);
 		}
 		
