@@ -1,13 +1,17 @@
 package ch.uzh.agglorecommender.recommender.evaluator;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.jfree.data.general.Dataset;
-
+import ch.uzh.agglorecommender.client.InitalNodesCreator;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
+import ch.uzh.agglorecommender.clusterer.treesearch.IndexAwareSet;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 
 /**
@@ -19,18 +23,7 @@ import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
  */
 public class EvaluationBuilder {
 
-//	private INode rootU;
-//	private INode rootC;
-//	private TreeComponentFactory userTreeComponentFactory;
 	Random randomGenerator = new Random();
-	
-//	/**
-//	 * Instantiates a new evaluation builder
-//	 * 
-//	 */
-//	public EvaluationBuilder() {
-//		// No parameters necessary
-//	}
 	
 	/**
 	 * Evaluates a given training-set based recommendation with a test node from a test set
@@ -40,9 +33,7 @@ public class EvaluationBuilder {
 	 */
 	public double evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
 		
-		// Test on input data
 		try{
-		
 			// Get Predicitions & Real Values
 			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
 			
@@ -77,12 +68,12 @@ public class EvaluationBuilder {
 			}
 			catch (NullPointerException e) {
 				System.out.println("Recommendation Data fehlerhaft/null");
-				return 0;
+				return -1;
 			}
 		}
 		catch (NullPointerException e) {
 			System.out.println("Input Node fehlerhaft/null");
-			return 0;
+			return -1;
 		}
 	}
 	
@@ -118,11 +109,19 @@ public class EvaluationBuilder {
 	 * Randomly picks certain percentage of test users from the test set
 	 * Helper method for recommendations of type 1 (rmse test)
 	 * 
-	 * @param testset reference on the test set
+	 * @param testSet reference on the test set
 	 * @param percentage how many of the test users should be picked
 	 */
-	public Set<INode> pickTestUser(Dataset testset, double percentage){
-		return null; // Implement
+	public Set<INode> pickTestUsers(InitalNodesCreator testSet, double percentage){
+		
+		Set<INode> testUsers = new IndexAwareSet<INode>();
+		
+		// Dirty trick for now
+		for(int i = 0; i < 2; i++){
+			testUsers.add(createRandomUser());
+		}
+		
+		return testUsers;
 	}
 	
 	/**
@@ -132,53 +131,31 @@ public class EvaluationBuilder {
 	 * @param testset reference on the test set
 	 */
 	public INode createRandomUser() {
-		INode randomUser = null; // Implement
-	return randomUser;
-}
-	
-	// ---------- For deletion ------------------------------------
-	
-//	// Quick Solution for Recommendations of Type 1 Testing -> Not a very useful solution, adds movies afterwards
-//	public INode pickRandomLeaf(TreeBuilder tb, ENodeType type) {
-//		
-//		// Retrieve Root Nodes
-//		ArrayList<INode> rootNodes = tb.getRootNodes();
-//		this.rootU = rootNodes.get(0);
-//		this.rootC = rootNodes.get(1);
-//		
-//		INode tempNode = null;
-//		
-//		if(type == ENodeType.User){
-//			tempNode = rootU;
-//		}
-//		
-//		if(type == ENodeType.Content){
-//			tempNode = rootC;
-//		}
-//		
-//		// Pick random leaf from user tree
-//		while(tempNode.getChildrenCount() > 0) {
-//			Iterator<INode> children = tempNode.getChildren();
-//			
-//			// Pick random child -> ERROR: Not random yet, the last element is picked
-//			while(children.hasNext()){
-//				tempNode = children.next();
-//			}
-//		}
-//		
-//		// Add more movies to it if Type is user
-//		if(type == ENodeType.User){
-////			INode movie1key = pickRandomLeaf(tb,ENodeType.Content);
-////			IAttribute movie1att = userTreeComponentFactory.createAttribute(randomGenerator.nextInt(10));
-////			tempNode.addAttribute(movie1key,movie1att);
-////			INode movie2key = pickRandomLeaf(tb,ENodeType.Content);
-////			IAttribute movie2att = userTreeComponentFactory.createAttribute(randomGenerator.nextInt(10));
-////			tempNode.addAttribute(movie2key,movie2att);
-////			INode movie3key = pickRandomLeaf(tb,ENodeType.Content);
-////			IAttribute movie3att = userTreeComponentFactory.createAttribute(randomGenerator.nextInt(10));
-////			tempNode.addAttribute(movie3key,movie3att);
-//		}
-//		
-//		return tempNode;
-//	}
+		
+		// Creating the content nodes
+		INode A1n = new Node(ENodeType.Content, null, null);
+		INode A2n = new Node(ENodeType.Content, null, null);
+		INode A3n = new Node(ENodeType.Content, null, null);
+		INode A4n = new Node(ENodeType.Content, null, null);
+		
+		// Creating the attributes
+		IAttribute A1a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
+		IAttribute A2a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
+		IAttribute A3a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
+		IAttribute A4a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
+
+		// ClassitAttribute map
+		Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
+		attMap.put(A1n, A1a);
+		attMap.put(A2n, A2a);
+		attMap.put(A3n, A3a);
+		attMap.put(A4n, A4a);
+
+		// Create the user node
+		INode randomUser = new Node(ENodeType.User, null, null);
+		randomUser.setAttributes(attMap);
+		randomUser.setId(1);
+		
+		return randomUser;
+	}
 }

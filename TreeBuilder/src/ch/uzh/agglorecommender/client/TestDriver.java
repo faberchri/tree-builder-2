@@ -65,17 +65,18 @@ public class TestDriver {
 		EvaluationBuilder eb = new EvaluationBuilder();
 		RecommendationBuilder rb = new RecommendationBuilder(tb,0,0);
 		
-		// Recommendation Type 1 -> rmse calculation
-		// Instantiate Recommendation & Evaluation Builders
+		// Run Recommendation Type 1 -> RMSE calculation
+		System.out.println("Starting Recommendation Type 1");
 		InitalNodesCreator testSet = new InitalNodesCreator(
 				getTestDataset(),
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
-		Set<INode> inputNodes = eb.pickTestUser(testSet,1);
+		Set<INode> inputNodes = eb.pickTestUsers(testSet,1);
 		double rmse = eb.kFoldEvaluation(inputNodes, rb);
 		System.out.println("Calculated RMSE: " + rmse);
 		
-		// Recommendation Type 2 -> no rmse calculation possible
+		// Recommendation Type 2 -> No rmse calculation possible
+		System.out.println("Starting Recommendation Type 2");
 		INode inputNode = eb.createRandomUser();
 		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
 		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
