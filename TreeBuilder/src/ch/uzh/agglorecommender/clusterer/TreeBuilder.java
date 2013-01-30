@@ -295,7 +295,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet, Counter counter) {
+	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
 //		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
