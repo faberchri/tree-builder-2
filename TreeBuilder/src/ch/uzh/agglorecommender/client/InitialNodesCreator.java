@@ -100,8 +100,8 @@ public class InitialNodesCreator {
 //			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		
-		userLeavesMap = ImmutableMap.copyOf(usersNodeMap); // ERROR ---> Need an inverted version of this
-		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap); // ERROR ---> Need an inverted version of this
+		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);
+		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap);
 	}
 	
 	/**
