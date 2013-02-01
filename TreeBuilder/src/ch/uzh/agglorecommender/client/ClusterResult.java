@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.client;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -12,7 +13,17 @@ import com.google.common.collect.ImmutableMap;
  * Is immutable.
  *
  */
-public class ClusterResult {
+public class ClusterResult implements Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 
 	/**
 	 * Map of user id as in data set to the corresponding node.

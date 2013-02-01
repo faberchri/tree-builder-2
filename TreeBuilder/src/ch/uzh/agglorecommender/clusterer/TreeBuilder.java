@@ -207,6 +207,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		// Process Nodes
 		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
 
+			// check if clustering is interrupted
+			interrupt();
+			
 			log.info("Get closest user nodes & merge them");
 			INode newUserNode = searchAndMergeNode(userNodes, userMCUSearcher);
 			
@@ -234,11 +237,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			// ToFileSerializer.serializationTimeInterval
 			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
 		} 
-		
-//		// Save final root nodes
-//		rootNodes.addAll(userNodes);
-//		rootNodes.addAll(contentNodes);
-		
+				
 		log.info("Clustering terminated! Serializing TreeBuilder...");
 		// serialize this TreeBuilder if clustering is completed.
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
@@ -296,7 +295,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
 	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
-//		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		if (nodesToMerge.size() > 1) {
 			
@@ -344,14 +342,20 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		return null;
 	}
 	
-//	/**
-//	 * Returns root nodes for further operations on the trees.
-//	 * More like a quick solution for the recommender implementation. Could be done more elegant.
-//	 * The Clusterer Method could return the root nodes.
-//	 * 
-//	 * @return the root nodes of the user and the content trees
-//	 */
-//	public ArrayList<INode> getRootNodes(){
-//		return rootNodes;
-//	}
+	/**
+	 * Checks TreeVisualizer if clustering process is interrupted. If true 
+	 * the TreeVisualizer is polled every 0.5 s to check for status change.
+	 */
+	private void interrupt() {
+		while (treeVisualizer.isPaused()) {
+			try {
+				synchronized(this) {
+					wait(500);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 }

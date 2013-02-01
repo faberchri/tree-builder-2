@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.visu;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -84,7 +84,7 @@ public class VisualizationBuilder extends JPanel {
 
 	public VisualizationBuilder(Set<INode> nodes) {
 		this.nodes = nodes;
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		this.setLayout(new BorderLayout());
 
 		// Create the graphs
 		graph = new DelegateForest<INode,Integer>();
@@ -97,8 +97,8 @@ public class VisualizationBuilder extends JPanel {
 		// Define Visualization Viewer, add a listener for ToolTips
 		vv =  new CustomVisualizationViewer(layout);
 		
-		this.add(vv);
-		this.add(getControlElements());
+		this.add(vv, BorderLayout.CENTER);
+		this.add(getControlElements(), BorderLayout.PAGE_END);
 	}
 	
 	// not used currently

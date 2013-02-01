@@ -37,7 +37,7 @@ implements MouseListener {
 	public PopupGraphMousePlugin(int modifiers) {
 		super(modifiers);
 	}
-
+	
 	/**
 	 * If this event is over a station (vertex), pop up a menu to
 	 * allow the user to perform a few actions; else, pop up a menu over the layout/canvas

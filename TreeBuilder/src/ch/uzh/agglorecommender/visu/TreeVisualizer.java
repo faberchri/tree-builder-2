@@ -1,12 +1,16 @@
 package ch.uzh.agglorecommender.visu;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -23,6 +27,8 @@ public class TreeVisualizer {
 	 */
 	private VisualizationBuilder vbC;
 	private VisualizationBuilder vbU;
+	
+	private boolean isPaused = false;
 	
 	/**
 	 * References to open node sets.
@@ -49,14 +55,22 @@ public class TreeVisualizer {
 			e.printStackTrace();
 		}
 
-		// Initialize Visualization Frame
+		// Initialize Visualization Frame		
 		JFrame frame = new JFrame("Cluster trees");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
+		frame.getContentPane().setLayout(new BorderLayout());
+				
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		split.setOneTouchExpandable(true);
         split.setResizeWeight(0.5);
-		frame.getContentPane().add(split);
+        frame.getContentPane().add(split, BorderLayout.CENTER);
+       
+        JPanel controlPanel = new JPanel();
+        JButton pB = new PlayButton();
+        controlPanel.add(pB);
+        controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Clustering Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
+        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
+
 		
 		// Instantiate VisualizationBuilder
 		vbC = new VisualizationBuilder(contentNodes);
@@ -66,6 +80,7 @@ public class TreeVisualizer {
 	
 		split.setLeftComponent(vbU);
 		split.setRightComponent(vbC);
+		
 		frame.pack();
 		frame.setVisible(true);
 		visualize();		
@@ -112,6 +127,51 @@ public class TreeVisualizer {
 	 */
 	public void printAllOpenMovieNodes() {
 		printAllNodesInSet((Set)contentNodes, "ContentNodes:");
+	}
+	
+	public boolean isPaused() {
+		return isPaused;
+	}
+	
+	private class PlayButton extends JButton implements MouseListener {
+		
+		public PlayButton() {
+			addMouseListener(this);
+			this.setText("Interrupt");
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// nothing to do			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// nothing to do			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (! e.getSource().equals(this)) return;
+			if (isPaused) {
+				this.setText("Interrupt");
+				isPaused = false;
+			} else {
+				this.setText("Continue");
+				isPaused = true;
+			}			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// nothing to do			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// nothing to do			
+		}
+		
 	}
 	
 }
