@@ -184,8 +184,10 @@ public final class RecommendationBuilder {
 		
 		// Find relevant Content for every relevant User
 		Set<INode> userAttributes = relevantUser.getAttributeKeys();
-		for(INode attributeKey : userAttributes){
-			INode relevantContent = relevantContent(attributeKey,radiusC,null);
+		for(INode content : userAttributes){
+			
+			System.out.println("content: " + content.toString());
+			INode relevantContent = relevantContent(content,radiusC,null);
 			
 			if(relevantContent != null) {
 				//System.out.println("found relevantContent: " + relevantContent);
@@ -247,7 +249,7 @@ public final class RecommendationBuilder {
 				relevantContent(parent,radiusC -1,relevantContent);
 			}
 			else{
-					relevantContent = content;
+					relevantContent = content; // Fehler hier
 			}
 	    }
 	    else {

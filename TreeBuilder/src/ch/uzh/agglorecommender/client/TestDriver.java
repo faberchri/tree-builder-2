@@ -4,12 +4,14 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -76,10 +78,10 @@ public class TestDriver {
 		System.out.println("Calculated RMSE: " + rmse);
 		
 		// Recommendation Type 2 -> No rmse calculation possible
-//		System.out.println("Starting Recommendation Type 2");
-//		INode inputNode = eb.createRandomUser();
-//		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-//		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
+		System.out.println("Starting Recommendation Type 2");
+		INode inputNode = eb.createRandomUser();
+		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
+		System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
 	}
 	
 	/**

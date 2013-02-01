@@ -29,7 +29,7 @@ public class PositionFinder {
 	 */
 	public INode findPosition(INode inputNode,INode parent,double cutoff) {
 		
-		if(inputNode != null && parent != null) {
+		if(inputNode != null) {
 		
 			INode[] nodesToCalculate = new INode[2];
 			nodesToCalculate[0] = inputNode;
@@ -80,7 +80,7 @@ public class PositionFinder {
 			return null;
 		}
 		
-		System.out.println("Position Finder hat keine korrekten Werte erhalten: " + inputNode.toString() + "/" + parent.toString());
+		System.out.println("Position Finder hat keine korrekten Werte erhalten");
 		return null;
 	}
 	
