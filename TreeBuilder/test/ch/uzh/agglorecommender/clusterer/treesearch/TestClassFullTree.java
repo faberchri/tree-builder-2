@@ -1,6 +1,10 @@
-package ch.uzh.agglorecommender.client;
+package ch.uzh.agglorecommender.clusterer.treesearch;
+
+
 
 import org.junit.Test;
+
+import ch.uzh.agglorecommender.client.TestDriver;
 
 public class TestClassFullTree {
 

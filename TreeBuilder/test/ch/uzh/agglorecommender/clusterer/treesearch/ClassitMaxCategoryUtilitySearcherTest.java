@@ -127,7 +127,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		nodesToUpdate.add(node1);
 		nodesToUpdate.add(node2);
 
-		TreeBuilder tr = new TreeBuilder(null,
+		TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(), 
 				ClassitTreeComponentFactory.getInstance(),
@@ -285,7 +285,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		List<INode> nodesToUpdate = utilityCalc.getMaxCategoryUtilityMerge(
 				openNodes).getNodes();
 
-		TreeBuilder tr = new TreeBuilder(null,
+		TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(),
 				ClassitTreeComponentFactory.getInstance(),
@@ -526,7 +526,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 				openNodes).getNodes();
 		
 		//Merge the two nodes
-		TreeBuilder tr = new TreeBuilder(null,
+		TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(),
 				ClassitTreeComponentFactory.getInstance(),
