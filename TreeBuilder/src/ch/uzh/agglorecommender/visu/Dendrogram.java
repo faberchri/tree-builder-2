@@ -35,7 +35,6 @@ public class Dendrogram {
 	
 	Forest<INode, String> forest = new DelegateForest<INode, String>();
 
-
     /**
      * the name of the file where the layout is saved
      */
