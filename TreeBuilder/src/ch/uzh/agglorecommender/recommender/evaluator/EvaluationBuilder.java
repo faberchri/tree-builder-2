@@ -11,8 +11,9 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.clusterer.treesearch.IndexAwareSet;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Instantiates a new evaluation builder
@@ -31,11 +32,11 @@ public class EvaluationBuilder {
 	 * @param testnode this node is from the test set
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 */
-	public double evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
+	public double evaluate(INode testNode, int testNodeID, RecommendationBuilder rb) throws NullPointerException {
 		
 		if(testNode != null){
 			// Get Predicitions & Real Values
-			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
+			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode,testNodeID);
 			
 			if(predictedRatings != null) {
 				Set<INode> realRatingsKeys = testNode.getAttributeKeys();
@@ -77,7 +78,7 @@ public class EvaluationBuilder {
 			}
 		}
 		else {
-			System.out.println("Input Node fehlerhaft/null");
+			System.out.println("Input Node is null");
 			return -1;
 		}
 	}
@@ -89,14 +90,14 @@ public class EvaluationBuilder {
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 * 
 	 */
-	public double kFoldEvaluation(Set<INode> testNodes, RecommendationBuilder rb) throws NullPointerException{
+	public double kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
 		
 		try {
 			double sumOfRMSE = 0;
 			
 			// Get all RMSE Values
-			for(INode testNode : testNodes) {
-				sumOfRMSE += evaluate(testNode,rb);
+			for(INode testNode : testNodes.keySet()) {
+				sumOfRMSE += evaluate(testNode,testNodes.get(testNode),rb);
 			}
 			
 			// Take Mean
@@ -111,26 +112,25 @@ public class EvaluationBuilder {
 	}
 	
 	/**
-	 * Randomly picks certain percentage of test users from the test set
+	 * Creates usable Map of test users for evaluation
 	 * Helper method for recommendations of type 1 (rmse test)
 	 * 
 	 * @param testSet reference on the test set
-	 * @param percentage how many of the test users should be picked
 	 */
-	public Set<INode> getTestUsers(InitialNodesCreator testSet, double percentage){
+	public Map<INode, Integer> getTestUsers(InitialNodesCreator testSet){
 		
-		Set<INode> testUsers = new IndexAwareSet<INode>();
+		Map<INode,Integer> testUsers = new HashMap<INode,Integer>();
 		
-		// Dirty trick for now -> InitialNodesCreator -> get user leaves, liefert real id
-		for(int i = 0; i < 2; i++){
-			testUsers.add(createRandomUser());
+		ImmutableMap<Integer, INode> userLeaves = testSet.getUserLeaves();
+		for(Integer userLeaf : userLeaves.keySet()){
+			testUsers.put(userLeaves.get(userLeaf), userLeaf);
 		}
 		
 		return testUsers;
 	}
 	
 	/**
-	 * Creates a random user 
+	 * Creates a random user with random ratings 
 	 * Helper method for recommendations of type 2 (recommend unknown content)
 	 * 
 	 * @param testset reference on the test set

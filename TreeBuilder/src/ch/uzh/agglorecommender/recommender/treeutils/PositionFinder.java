@@ -12,10 +12,6 @@ public class PositionFinder {
 	private double highestUtility = 0;
 	ImmutableMap<Integer,INode> leavesMapU;
 	
-//	public PositionFinder(ImmutableMap<Integer,INode> leafMapU) {
-//		this.leavesMapU = leafMapU;
-//	}
-	
 	/**
 	 * Finds the best position (most similar node) in the tree for a given node
 	 * Calculations are based on category utility. If the previously calculated
@@ -39,80 +35,52 @@ public class PositionFinder {
 			// Establish cut off value when 0
 			if(cutoff == 0) {
 			    cutoff = helper.calculateCategoryUtility(nodesToCalculate); //unschšn
-				System.out.println("Established cut off: " + cutoff);
+				//System.out.println("Established cut off: " + cutoff);
 			}
 			
-			if(parent.getChildrenCount() > 0){
-		
-				Iterator<INode> compareSet = parent.getChildren();
-				INode nextPosition = null;
-				while(compareSet.hasNext()) {
-					  
-					INode tempPosition = compareSet.next();
-					nodesToCalculate[1] = tempPosition;
-					double utility = helper.calculateCategoryUtility(nodesToCalculate);
-					
-					if(utility > highestUtility){
-						System.out.println("Found higher utility: " + utility + ">" + highestUtility);
-						highestUtility = utility;
-						nextPosition = tempPosition;
+			if(parent != null) {
+				if(parent.getChildrenCount() > 0){
+			
+					Iterator<INode> compareSet = parent.getChildren();
+					INode nextPosition = null;
+					while(compareSet.hasNext()) {
+						  
+						INode tempPosition = compareSet.next();
+						nodesToCalculate[1] = tempPosition;
+						double utility = helper.calculateCategoryUtility(nodesToCalculate);
+						
+						if(utility > highestUtility){
+							//System.out.println("Found higher utility: " + utility + ">" + highestUtility);
+							highestUtility = utility;
+							nextPosition = tempPosition;
+						}
 					}
-					
-				}
-		
-				if(highestUtility > cutoff) {
-					System.out.println("Continue one level down");
-					INode position = findPosition(inputNode,nextPosition,cutoff);
-					if (position != null){
-						return position;
+			
+					if(highestUtility > cutoff) {
+						//System.out.println("Continue one level down");
+						INode position = findPosition(inputNode,nextPosition,cutoff);
+						if (position != null){
+							return position;
+						}
+					}
+					else {
+						System.out.println("Best position was found " + parent.toString() + "; better utility than all children");
+						return parent;
 					}
 				}
 				else {
-					System.out.println("Best position was found " + parent.toString() + "; better utility than children");
+					System.out.println("Best position was found " + parent.toString() + "; is leaf node");
 					return parent;
 				}
+				
+				return null;
 			}
 			else {
-				System.out.println("Best position was found " + parent.toString() + "; no children left");
-				return parent;
+				System.out.println("Parent Node is null");
 			}
-			
-			return null;
 		}
 		
-		System.out.println("Position Finder hat keine korrekten Werte erhalten");
+		System.out.println("Position Finder has not received correct values");
 		return null;
 	}
-	
-//	/**
-//	 * Find position of a node with a given id in the tree
-//	 * 
-//	 * @param parent the current node from which the search is starting
-//	 * @param inputNodeID the node that should be found has this id
-//	 */
-//	public INode getPosition(INode parent, long inputNodeID) {
-//		
-//		// Look for position recursively
-//		Iterator<INode> children = parent.getChildren();
-//		INode position = null;
-//		while(children.hasNext()) {
-//			INode child = children.next();
-//			
-//			// Find real id of child
-//			int childID = leavesMapU.get(child.getId()); <----- Problem ist ich muss das umgekehrte haben
-//			
-//			if(childID == inputNodeID) { // <-----------------------------------------!!!! ERROR: Muss reale ID nehmen
-//				System.out.println("found the node: " + child.toString());
-//				return child;
-//			}
-//			else {
-//				position = getPosition(child, inputNodeID);
-//				if (position != null){
-//					return position;
-//				}
-//			}
-//		}
-//		return null;
-//	}
-
 }

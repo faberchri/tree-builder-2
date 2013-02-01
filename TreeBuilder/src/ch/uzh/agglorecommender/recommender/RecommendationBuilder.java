@@ -1,6 +1,8 @@
 package ch.uzh.agglorecommender.recommender;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,24 +51,22 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<INode, IAttribute> runTestRecommendation(INode testNode){
+	public Map<INode, IAttribute> runTestRecommendation(INode testNode, long testNodeID){
 		
-		// Find position of the similar node in the tree <------ Besprechen
-		long testNodeID = 1; // ?
-		System.out.println(leavesMapU.toString());
-		INode position = leavesMapU.get(1);
-
-//		System.out.println("Looking for " + testNodeID + "," + testNode.toString() + "/ Found " + position.toString());
-//		PositionFinder finder = new PositionFinder(leavesMapU);
-//		INode position = finder.getPosition(rootU,testNodeID);
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 1");
+		System.out.println("-------------------------------");
+		
+		// Find position of the similar node in the tree
+		INode position = leavesMapU.get(testNodeID);
 		
 		if(position == null) {
-			System.out.println("getPosition: No Node with the Dataset ID " + testNodeID + " was found in the user tree");
+			System.out.println("No Node with the Dataset ID " + testNodeID + " was found in the user tree -> wrong training set?");
 			return null;
 		}	
 		else {
 			
-			System.out.println("getPosition: Found position of the node in the user Tree");
+			System.out.println("Found position of the node in the user Tree");
 			
 			// Collect ratings of all content given by the input node
 			Map<INode,IAttribute> contentRatings = collectRatings(position,testNode,null);
@@ -150,6 +150,10 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
 		
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 2");
+		System.out.println("-------------------------------");
+		
 		// Find the most similar node in the tree
 		PositionFinder finder = new PositionFinder();
 		INode position = finder.findPosition(inputNode,rootU,0);
@@ -174,29 +178,38 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
 		
-		System.out.println("running recommendation from position " + position.toString());
+		//System.out.println("running recommendation from position " + position.toString());
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
 		// Find relevant Users
-		INode relevantUser = relevantUser(position,radiusU);
-		System.out.println("found relevant user node: " + relevantUser.toString());
+		INode relUserNode = collectNode(position,radiusU);
+		System.out.println("starting recommendation from user node: " + relUserNode.toString());
 		
 		// Find relevant Content for every relevant User
-		Set<INode> userAttributes = relevantUser.getAttributeKeys();
+		Set<INode> userAttributes = relUserNode.getAttributeKeys();
 		for(INode content : userAttributes){
 			
-			System.out.println("content: " + content.toString());
-			INode relevantContent = relevantContent(content,radiusC,null);
+			// Find appropriate level for given radius
+			INode relContentNode = collectNode(content,radiusC);
 			
-			if(relevantContent != null) {
-				//System.out.println("found relevantContent: " + relevantContent);
-
-				Set<INode> attKeysContent = relevantContent.getAttributeKeys();
-				for(INode attKeyContent : attKeysContent){
-					if(!(recommendation.containsKey(attKeyContent))){
-						recommendation.put(attKeyContent,relevantContent.getAttributeValue(attKeyContent));
+			//System.out.println("relevant Content Node: " + relContentNode.toString());
+			
+			// Find leave nodes related to the relevantContent
+			if(relContentNode != null) {
+				
+				Set<INode> contentLeaves = collectLeaves(relContentNode,null);
+				
+				if(contentLeaves != null){
+				
+					// Add recommendation into Map
+					for(INode contentLeaf : contentLeaves){
+						recommendation.put(contentLeaf, contentLeaf.getAttributeValue(contentLeaf));
 					}
+					
+				}
+				else {
+					System.out.println("contentLeaves == null");
 				}
 			}
 		}
@@ -205,57 +218,70 @@ public final class RecommendationBuilder {
 	}
 
 	/**
-	 * Gives back the relevant user node based on the given radius
+	 * Gives back the relevant node based on the given radius
 	 * 
 	 * @param position starting point to calculate recommendation 
-	 * @param radiusU defines how many levels of users should be incorporated 
+	 * @param radius defines how many levels above start position should be incorporated 
 	 */
-	public INode relevantUser(INode position,int radiusU){
+	public INode collectNode(INode position,int radius){
 		
 //		System.out.println("User tree: " + position.toString());
 
-		INode relevantUser = null;
+		INode relevantNode = null;
 
 		// Going one level up if radius parameter stills allows it
-		if(radiusU > 0){
+		if(radius > 0){
 			if(position.getParent() != null) {
 				INode parent = position.getParent();
-		    	relevantUser = relevantUser(parent,radiusU - 1);
+		    	relevantNode = collectNode(parent,radius - 1);
 			}
 			else {
-				relevantUser = position;
+				relevantNode = position;
 			}
 		}
 		else {
-			relevantUser = position;
+			relevantNode = position;
 		}
 		
-		return relevantUser;
+		return relevantNode;
 	}
 
 	/**
-	 * Gives back the relevant content node based on the given radius
+	 * Gives back the leaf nodes related to a given node
 	 * 
-	 * @param content this node is the starting point to calculate recommendation 
-	 * @param radiusC defines how many levels of content should be incorporated 
-	 * @param relevantContent collection of previously collected content
+	 * @param position this node is the starting point to find leaves 
+	 * @param leaves collection of all leaves
 	 */
-	public INode relevantContent(INode content, int radiusC, INode relevantContent){
+	public Set<INode> collectLeaves(INode position, Set<INode> leaves){
+		
+		// Create leaves set if not exists
+		if(leaves == null){
+			leaves = new HashSet<INode>();
+			//System.out.println("leave set erstellt");
+		}
+		
+		//System.out.println("position: " + position);
+		
+		// If position is leaf
+		if(position.getChildrenCount() == 0){
+			leaves.add(position);
+			return leaves;
+		}
 	
-		// Get all content nodes for recommendation, rating does not matter
-		if(radiusC > 0){
-			if(content.getParent() != null){
-				INode parent = content.getParent();
-				relevantContent(parent,radiusC -1,relevantContent);
+		// If position is no leaf
+		Iterator<INode> children = position.getChildren();
+		
+		while(children.hasNext()){
+			
+			INode child = children.next();
+			Set<INode> tempLeaves = (collectLeaves(child,leaves));
+			for(INode tempLeaf : tempLeaves){
+				if(!leaves.contains(tempLeaf)){
+					leaves.add(tempLeaf);
+				}
 			}
-			else{
-					relevantContent = content; // Fehler hier
-			}
-	    }
-	    else {
-	    		relevantContent = content;
-	    }
-	
-		return relevantContent;
+		}
+		
+		return leaves;
 	}
 }
