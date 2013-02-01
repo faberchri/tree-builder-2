@@ -25,20 +25,27 @@ import com.beust.jcommander.JCommander;
 
 public class TestDriver {
 	
-	private static CommandLineArgs cla = new CommandLineArgs();
+	protected static CommandLineArgs cla = new CommandLineArgs();
 	private static JCommander jc;
+	
+	// Create Logger
+	private static Logger log = TBLogger.getLogger(TestDriver.class.toString());
+	
 
 	public static void main(String[] args) {
 		
-		// Create Logger
-		Logger log = TBLogger.getLogger(TestDriver.class.toString());
-		
+
 		// Process Command Line Arguments
 		jc = new JCommander(cla, args);
 		jc.setProgramName("TreeBuilder");
 		
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
+		test(training());
+				
+	}
+	
+	private static ClusterResult training() {
 		// Build Tree
 		TreeBuilder tb = null;
 		ClusterResult clusterResult = null;
@@ -56,29 +63,34 @@ public class TestDriver {
 					cla.userTreeComponentFactory);
 			clusterResult = tb.startClustering(cla.serializeRun, in);
 		}
-		
+		return clusterResult;
+	}	
+	
+	private static void test(ClusterResult trsainingOutput) {
 		// Instantiate Evaluations Builder
-		EvaluationBuilder eb = new EvaluationBuilder();
-		RecommendationBuilder rb = new RecommendationBuilder(clusterResult,0,0);
-		
-		// Run Recommendation Type 1 -> RMSE calculation
-		InitialNodesCreator testSet = new InitialNodesCreator(
-				getTestDataset(),
-				cla.contentTreeComponentFactory,
-				cla.userTreeComponentFactory);
-		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
-		double rmse = 0;
-		for(INode testNode : testNodes.keySet()){
-			rmse = eb.evaluate(testNode,testNodes.get(testNode), rb);
-			break;
-		}
-		//double rmse = eb.kFoldEvaluation(testNodes, rb);
-		System.out.println("=> Calculated RMSE: " + rmse);
-		
-		// Recommendation Type 2 -> No rmse calculation possible
-		INode inputNode = eb.createRandomUser();
-		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-		System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+				EvaluationBuilder eb = new EvaluationBuilder();
+				RecommendationBuilder rb = new RecommendationBuilder(trsainingOutput,0,0);
+				
+				// Run Recommendation Type 1 -> RMSE calculation
+				System.out.println("Starting Recommendation Type 1");
+				InitialNodesCreator testSet = new InitialNodesCreator(
+						getTestDataset(),
+						cla.contentTreeComponentFactory,
+						cla.userTreeComponentFactory);
+				Set<INode> inputNodes = eb.getTestUsers(testSet,1);
+				double rmse = 0;
+				for(INode inputNode : inputNodes){
+					rmse = eb.evaluate(inputNode, rb);
+					break;
+				}
+				//double rmse = eb.kFoldEvaluation(inputNodes, rb);
+				System.out.println("Calculated RMSE: " + rmse);
+				
+				// Recommendation Type 2 -> No rmse calculation possible
+				System.out.println("Starting Recommendation Type 2");
+				INode inputNode = eb.createRandomUser();
+				Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
+				System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
 	}
 	
 	/**
