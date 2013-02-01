@@ -51,15 +51,17 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode, IAttribute> runTestRecommendation(INode testNode){
 		
-		// Find position of the similar node in the tree
-		int testNodeID = 1; // Woher kriege ich diese ID?
-		INode position = leavesMapU.get(testNodeID);
-		System.out.println("Looking for " + testNodeID + "," + testNode.toString() + "/ Found " + position.toString());
+		// Find position of the similar node in the tree <------ Besprechen
+		long testNodeID = 1; // ?
+		System.out.println(leavesMapU.toString());
+		INode position = leavesMapU.get(1);
+
+//		System.out.println("Looking for " + testNodeID + "," + testNode.toString() + "/ Found " + position.toString());
 //		PositionFinder finder = new PositionFinder(leavesMapU);
 //		INode position = finder.getPosition(rootU,testNodeID);
 		
 		if(position == null) {
-			System.out.println("getPosition: No Node with this ID was found in the user tree");
+			System.out.println("getPosition: No Node with the Dataset ID " + testNodeID + " was found in the user tree");
 			return null;
 		}	
 		else {
@@ -69,10 +71,11 @@ public final class RecommendationBuilder {
 			// Collect ratings of all content given by the input node
 			Map<INode,IAttribute> contentRatings = collectRatings(position,testNode,null);
 			if(contentRatings != null){
-				System.out.println("Received collected content ratings");
+				System.out.println("Delivering contentRatings");
 				return contentRatings;
 			}
 			else {
+				System.out.println("contentRatings is null!");
 				return null;
 			}
 		}
@@ -86,8 +89,6 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode,IAttribute> collectRatings(INode position, INode inputNode, Map<INode,IAttribute> contentRatings) {
 		
-		System.out.println("current position: " + position);
-		
 		//Create Map for content of test user with empty values if not existing
 		if(contentRatings == null) {
 			contentRatings = new HashMap<INode,IAttribute>();
@@ -96,8 +97,11 @@ public final class RecommendationBuilder {
 				contentRatings.put(attributeKey,null);
 			}
 			
-			System.out.println("These movies need to be found: " + contentRatings.keySet().toString());
+			System.out.println("Ratings for these movies need to be found: " + contentRatings.keySet().toString());
 		}
+		
+		//System.out.println("contentRatings: " + contentRatings.toString());
+		System.out.println("current position in tree: " + position);
 		
 		// Look for content nodes on the list and add it to collected ratings map		
 		Set<INode> attributeKeys = position.getAttributeKeys();
@@ -118,18 +122,21 @@ public final class RecommendationBuilder {
 		
 		// Check if all movies were found -> If no null values are left in the map
 		if(contentRatings.containsValue(null) != true){
-			System.out.println("Found all movie ratings");
+			System.out.println("Found all movie ratings: " + contentRatings);
 			return contentRatings;
 		}
 		else {
 			
 			// Go one level up if possible
 			if(position.getParent() != null) {
-				collectRatings(position.getParent(),inputNode,contentRatings);	
+				contentRatings = collectRatings(position.getParent(),inputNode,contentRatings);
+				if (contentRatings != null){
+					return contentRatings;
+				}
 			}
 			else {
-				System.out.println("Did not find all movie ratings");
-				return contentRatings; // Return sparse map
+				System.out.println("Did not find all movie ratings: " + contentRatings);
+				return contentRatings; // Return map with some null values
 			}
 		}
 		

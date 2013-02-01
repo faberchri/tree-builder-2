@@ -33,21 +33,26 @@ public class EvaluationBuilder {
 	 */
 	public double evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
 		
-		try{
+		if(testNode != null){
 			// Get Predicitions & Real Values
 			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
 			
-			try {
+			if(predictedRatings != null) {
 				Set<INode> realRatingsKeys = testNode.getAttributeKeys();
 				
 				// Calculate Difference of predicted values to real values
 				double sumOfSquaredDifferences = 0;
 				for(INode ratingKey: realRatingsKeys) {
 					
+					// Calculate predicted rating - value could be null
+					double pRating = 0;
 					IAttribute pRatingAtt = predictedRatings.get(ratingKey);
-					double pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
+					if(pRatingAtt != null){
+						pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
+					}
 					//System.out.println("pRating: " + pRating);
 					
+					// Calculate real rating
 					IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
 					double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
 					//System.out.println("rRating: " + rRating);
@@ -66,12 +71,12 @@ public class EvaluationBuilder {
 			
 				return rmse;
 			}
-			catch (NullPointerException e) {
-				System.out.println("Recommendation Data fehlerhaft/null: " + e);
+			else {
+				System.out.println("Recommendation Data is null");
 				return -1;
 			}
 		}
-		catch (NullPointerException e) {
+		else {
 			System.out.println("Input Node fehlerhaft/null");
 			return -1;
 		}
