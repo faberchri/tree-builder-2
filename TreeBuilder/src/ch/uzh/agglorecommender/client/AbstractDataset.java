@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
 import ch.uzh.agglorecommender.datasets.DatasetLocator;
 import ch.uzh.agglorecommender.util.TBLogger;
 

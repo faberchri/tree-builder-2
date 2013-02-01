@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.client;
 
 import java.io.File;
 
-import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
 
 /**
  * The data set of Floraea. 

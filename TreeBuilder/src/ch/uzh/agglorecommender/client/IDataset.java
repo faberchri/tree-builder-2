@@ -26,4 +26,8 @@ public interface IDataset <T extends Number> {
 	 * @return the corresponding normalizer.
 	 */
 	public INormalizer<T> getNormalizer();
+	
+	public enum DataSetSplit{
+		TRAINING, TEST
+	}
 }

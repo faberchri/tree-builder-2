@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
@@ -55,12 +56,12 @@ public class TestDriver {
 			log.info("Resume clustering ...");
 			clusterResult = tb.resumeClustering(cla.serializeRun);
 		} else {
-			log.info("Starting new run ...");
 			tb = createNewTreeBuilder();
 			InitialNodesCreator in = new InitialNodesCreator(
 					getTrainingDataset(),
 					cla.contentTreeComponentFactory,
 					cla.userTreeComponentFactory);
+			log.info("Starting new run ...");
 			clusterResult = tb.startClustering(cla.serializeRun, in);
 		}
 		return clusterResult;
@@ -177,10 +178,6 @@ public class TestDriver {
 		jc.usage();
 		System.exit(-1);
 		return null;
-	}
-
-	protected enum DataSetSplit{
-		TRAINING, TEST
 	}
 
 	/**

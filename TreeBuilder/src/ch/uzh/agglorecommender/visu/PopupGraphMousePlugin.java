@@ -7,7 +7,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -18,6 +21,7 @@ import javax.swing.SwingUtilities;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.graph.Graph;
@@ -88,7 +92,9 @@ implements MouseListener {
 
 					// Data
 					Set<INode> attributeKeys = pickedNode.getAttributeKeys();
-					for(INode attributeKey : attributeKeys) {
+					List<Node> atKeyLi = new ArrayList(attributeKeys);
+					Collections.sort(atKeyLi);
+					for(INode attributeKey : atKeyLi) {
 
 						IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
 						description += "<tr><td>" + attributeKey.getId() + "</td>" +

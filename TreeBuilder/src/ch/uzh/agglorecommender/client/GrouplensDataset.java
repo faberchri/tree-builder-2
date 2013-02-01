@@ -3,7 +3,6 @@ package ch.uzh.agglorecommender.client;
 import java.io.File;
 import java.util.logging.Logger;
 
-import ch.uzh.agglorecommender.client.TestDriver.DataSetSplit;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 
