@@ -1,13 +1,17 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
 
 public class Node implements INode, Comparable<Node>, Serializable {
@@ -60,10 +64,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Is null if the size of this cluster is > 1.
 	 */
 	private final Integer dataSetId;
+	
+	
+	private double categoryUtility;
 
 	public Node(ENodeType nodeType, int dataSetId) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
+		categoryUtility = 1.0;
 	}
 /**
  * Node constructor
@@ -71,7 +79,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
  * @param children List of children
  * @param attributes Map of INode and IAttributes
  */
-	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes) {
+	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes, double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
 			for (INode child : children) {
@@ -81,6 +89,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		this.attributes = attributes;
 		this.dataSetId = null;
+		this.categoryUtility = categoryUtility;
 	}
 
 	@Override
@@ -235,6 +244,61 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return sum;
 	}
+	
+	@Override
+	public String getAttributeHTMLLabelString() {
+		DecimalFormat formater = new DecimalFormat("#.####");
+		String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>"
+				+ "<body> Node: "
+				+ getId()
+				+ "<br> Category Utility: "
+				+ formater.format(getCategoryUtility())
+				+ "<br><table><tr>";
+
+		INode[] merge = {this};
+
+
+//		Set<INode> attributeKeys = getAttributeKeys();
+		List<Node> atKeyLi = new ArrayList(attributes.keySet());
+		Collections.sort(atKeyLi);
+		if (attributes.values().iterator().next() instanceof ClassitAttribute) {
+			// Header
+			description += "<td>attr</td><td>mean</td><td>std</td><td>support</td></tr>";
+
+			// Data
+			for(INode attributeKey : atKeyLi) {
+
+				IAttribute attributeValue = getAttributeValue(attributeKey);
+				description += "<tr><td>" + attributeKey.getId() + "</td>" +
+        				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
+        				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
+        				"<td>" + attributeValue.getSupport()+ "</td></tr>";
+			}
+		}
+		if (attributes.values().iterator().next() instanceof CobwebAttribute) {
+			// Header
+			description += "<td>attr</td><td width='150'>value -> probability</td></tr>";
+
+			// Data
+			for(INode attributeKey : atKeyLi) {
+
+				IAttribute attributeValue = getAttributeValue(attributeKey);
+				description += "<tr><td>" + attributeKey.getId() + "</td>";
+
+				Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
+				description += "<td>";
+				while ( values.hasNext() ){
+					Entry<Object,Double> tempEntry = values.next();
+					description += tempEntry.getKey().toString() + " -> " +
+							formater.format(tempEntry.getValue().doubleValue()) + "<br>";
+
+				}
+
+				description += "</td></tr>";
+			}
+		}
+		return description += "</table></body></html>";
+	}
 
 //	private void writeObject(ObjectOutputStream oos) throws IOException {
 //		oos.defaultWriteObject();
@@ -270,5 +334,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			}
 		}
 		return li;
+	}
+	
+	@Override
+	public double getCategoryUtility() {
+		return categoryUtility;
 	}
 }

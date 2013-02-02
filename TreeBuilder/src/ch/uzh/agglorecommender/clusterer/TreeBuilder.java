@@ -272,7 +272,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
 			
 			Monitor counter = Monitor.getInstance();
-			newNode = mergeNodes(cN.getNodes(), nodes);
+			newNode = mergeNodes(cN, nodes);
 			log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
 						nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
 //			treeVisualizer.printAllOpenUserNodes();
@@ -294,8 +294,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(List<INode> nodesToMerge, Set<INode> openSet) {
-		
+	private INode mergeNodes(IMergeResult mergeResult, Set<INode> openSet) {
+		List<INode> nodesToMerge = mergeResult.getNodes();
 		if (nodesToMerge.size() > 1) {
 			
 			// Create a new node (product of nodesToMerge)
@@ -304,12 +304,14 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			case User:
 				newNode = userTreeComponentFactory.createInternalNode(
 						ENodeType.User,
-						nodesToMerge); 
+						nodesToMerge,
+						mergeResult.getCategoryUtility()); 
 				break;
 			case Content:
 				newNode = contentTreeComponentFactory.createInternalNode(
 						ENodeType.Content,
-						nodesToMerge);
+						nodesToMerge,
+						mergeResult.getCategoryUtility());
 				break;
 			default:
 				newNode = null;
@@ -348,6 +350,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private void interrupt() {
 		while (treeVisualizer.isPaused()) {
+			log.info("clustering is interrupted!");
 			try {
 				synchronized(this) {
 					wait(500);
@@ -356,6 +359,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 				e.printStackTrace();
 			}
 		}
+		log.info("clustering continues ...");
 	}
 	
 }

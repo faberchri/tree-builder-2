@@ -311,7 +311,8 @@ public abstract class MaxCategoryUtilitySearcher implements IMaxCategoryUtilityS
 	    					awaitTermination(2, TimeUnit.SECONDS);
 	    				}
 	    			} catch (InterruptedException | ExecutionException e) {
-						log.warning("InterruptedException or ExecutionException in attempt to fetch calculatin result in afterExecute call.");  				
+						log.info("InterruptedException or ExecutionException in attempt " +
+								"to fetch calculation result in afterExecute call.");  				
 	    			}
 //	    		}
 	    	}

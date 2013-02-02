@@ -6,23 +6,13 @@ import java.awt.Frame;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -77,61 +67,7 @@ implements MouseListener {
 
 			if(pickedNode != null) {
 
-				// Differentiate Types for specific display
-				String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>" +
-						"<body> Node: " + pickedNode.getId() + "<br><table><tr>";
-
-				INode[] merge = {pickedNode};
-
-				DecimalFormat formater = new DecimalFormat("#.##");
-				
-				if(pickedNode.getAttributesType() == "Classit") {
-
-					// Header
-					description += "<td>attr</td><td>mean</td><td>std</td></tr>";
-
-					// Data
-					Set<INode> attributeKeys = pickedNode.getAttributeKeys();
-					List<Node> atKeyLi = new ArrayList(attributeKeys);
-					Collections.sort(atKeyLi);
-					for(INode attributeKey : atKeyLi) {
-
-						IAttribute AttributeValue = pickedNode.getAttributeValue(attributeKey);
-						description += "<tr><td>" + attributeKey.getId() + "</td>" +
-
-                				"<td>" + formater.format(AttributeValue.getSumOfRatings()/AttributeValue.getSupport())+ "</td>" +
-                				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td></tr>";
-
-					}
-
-				}
-
-				else if(pickedNode.getAttributesType() == "Cobweb"){
-
-					// Header
-					description += "<td>attr</td><td width='150'>value -> probability</td></tr>";
-
-					// Data
-					Set<INode> attributeKeys = pickedNode.getAttributeKeys();
-					for(INode attributeKey : attributeKeys) {
-
-						IAttribute attributeValue = pickedNode.getAttributeValue(attributeKey);
-						description += "<tr><td>" + attributeKey.getId() + "</td>";
-
-						Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
-						description += "<td>";
-						while ( values.hasNext() ){
-							Entry<Object,Double> tempEntry = values.next();
-							description += tempEntry.getKey().toString() + " -> " +
-									formater.format(tempEntry.getValue().doubleValue()) + "<br>";
-
-						}
-
-						description += "</td></tr>";
-					}
-				}
-
-				description += "</table></body></html>";
+				String description = pickedNode.getAttributeHTMLLabelString();
 
 				// Create Description Label
 				JLabel label = new JLabel();

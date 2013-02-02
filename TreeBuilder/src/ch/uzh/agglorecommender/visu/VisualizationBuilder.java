@@ -215,11 +215,12 @@ public class VisualizationBuilder extends JPanel {
 				updateGraph(nodes);
 				exclusions.clear();
 				layout = new CustomTreeLayout(graph);
+				
 				vb.removeAll();
 				vv = new CustomVisualizationViewer(layout);
 
-				vb.add(vv);
-				vb.add(getControlElements());
+				vb.add(vv, BorderLayout.CENTER);
+				vb.add(getControlElements(), BorderLayout.PAGE_END);
 				vb.validate();
 
 				// for same effect and more efficient we could call:

@@ -46,7 +46,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 */
 	public final INode createInternalNode(
 			ENodeType typeOfNewNode,
-			List<INode> nodesToMerge) {
+			List<INode> nodesToMerge, double categoryUtility) {
 
 
 		if (nodesToMerge.size() < 2) {
@@ -55,7 +55,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		}
 
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
-		INode newN = new Node(typeOfNewNode, nodesToMerge, attMap);
+		INode newN = new Node(typeOfNewNode, nodesToMerge, attMap, categoryUtility);
 
 		return newN;
 	}

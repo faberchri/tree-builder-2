@@ -13,7 +13,7 @@ import java.util.Map.Entry;
  * Is immutable.
  *
  */
-public class CobwebAttribute implements IAttribute, Serializable {
+public final class CobwebAttribute implements IAttribute, Serializable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.

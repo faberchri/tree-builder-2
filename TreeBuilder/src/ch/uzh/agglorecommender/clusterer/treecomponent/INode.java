@@ -196,4 +196,8 @@ public interface INode {
 	 * @param the node id
 	 */
 	public void setId(long id);
+	
+	public String getAttributeHTMLLabelString();
+	
+	public double getCategoryUtility();
 }
