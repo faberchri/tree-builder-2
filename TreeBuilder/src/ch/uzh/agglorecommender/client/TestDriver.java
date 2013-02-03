@@ -19,6 +19,7 @@ import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySear
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
+import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -68,30 +69,33 @@ public class TestDriver {
 	}	
 	
 	private static void test(ClusterResult trsainingOutput) {
+				
 		// Instantiate Evaluations Builder
-				EvaluationBuilder eb = new EvaluationBuilder();
-				RecommendationBuilder rb = new RecommendationBuilder(trsainingOutput,0,0);
-				
-				// Run Recommendation Type 1 -> RMSE calculation
-				System.out.println("Starting Recommendation Type 1");
-				InitialNodesCreator testSet = new InitialNodesCreator(
-						getTestDataset(),
-						cla.contentTreeComponentFactory,
-						cla.userTreeComponentFactory);
-				Set<INode> inputNodes = eb.getTestUsers(testSet,1);
-				double rmse = 0;
-				for(INode inputNode : inputNodes){
-					rmse = eb.evaluate(inputNode, rb);
-					break;
-				}
-				//double rmse = eb.kFoldEvaluation(inputNodes, rb);
-				System.out.println("Calculated RMSE: " + rmse);
-				
-				// Recommendation Type 2 -> No rmse calculation possible
-				System.out.println("Starting Recommendation Type 2");
-				INode inputNode = eb.createRandomUser();
-				Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-				System.out.println("Recommended Movies: " + recommendedMovies.keySet().toString());
+		EvaluationBuilder eb = new EvaluationBuilder();
+		RecommendationBuilder rb = new RecommendationBuilder(trsainingOutput,0,0);
+		
+		// Run Recommendation Type 1 -> RMSE, AME calculation
+		InitialNodesCreator testSet = new InitialNodesCreator(
+				getTestDataset(),
+				cla.contentTreeComponentFactory,
+				cla.userTreeComponentFactory);
+		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
+//		double eval = 0;
+//		for(INode testNode : testNodes.keySet()){
+//			eval = eb.evaluate(testNode,testNodes.get(testNode), rb);
+//			break;
+//		}
+		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		
+		// Recommendation Type 2 -> No rmse calculation possible
+		INode inputNode = eb.createRandomUser();
+		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
+		System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+		
+		// Insert Nodes
+		NodeInserter nodeInserter = new NodeInserter(trsainingOutput,cla.userTreeComponentFactory);
+		nodeInserter.insert(inputNode);
 	}
 	
 	/**
