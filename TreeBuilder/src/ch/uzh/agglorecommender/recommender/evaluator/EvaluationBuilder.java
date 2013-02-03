@@ -206,10 +206,10 @@ public class EvaluationBuilder {
 	public INode createRandomUser() {
 		
 		// Creating the content nodes
-		INode A1n = new Node(ENodeType.Content, null, null);
-		INode A2n = new Node(ENodeType.Content, null, null);
-		INode A3n = new Node(ENodeType.Content, null, null);
-		INode A4n = new Node(ENodeType.Content, null, null);
+		INode A1n = new Node(ENodeType.Content, null, null,0);
+		INode A2n = new Node(ENodeType.Content, null, null,0);
+		INode A3n = new Node(ENodeType.Content, null, null,0);
+		INode A4n = new Node(ENodeType.Content, null, null,0);
 		
 		A1n.setId(3);
 		A2n.setId(47);
@@ -230,7 +230,7 @@ public class EvaluationBuilder {
 		attMap.put(A4n, A4a);
 
 		// Create the user node
-		INode randomUser = new Node(ENodeType.User, null, null);
+		INode randomUser = new Node(ENodeType.User, null, null,0);// FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
 		randomUser.setAttributes(attMap);
 		randomUser.setId(1);
 		

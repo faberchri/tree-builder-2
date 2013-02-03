@@ -62,7 +62,7 @@ public class NodeInserter {
 		
 		INode newNode = userTreeComponentFactory.createInternalNode(
 				ENodeType.User,
-				nodesToMerge);
+				nodesToMerge,0); // FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
 		
 		// Insert new Node into tree
 		newNode.setParent(position.getParent());
