@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.UnmodifiableIterator;
 
 public class TestClassFullTree {
-
+	static String fileLocation = "C:/Users/usr/Desktop/Workspace/tree-builder-2/TreeBuilder/test/ch/uzh/agglorecommender/client/TestClassFullTree.java";
 
   /*
 	 * Tests Cobweb implementation using a test set containing 10 nodes (testData.cobweb)
@@ -29,7 +29,7 @@ public class TestClassFullTree {
 		//Create tree
 		TestDriver.cla.contentTreeComponentFactory = CobwebTreeComponentFactory.getInstance();
 		TestDriver.cla.userTreeComponentFactory = CobwebTreeComponentFactory.getInstance();
-		TestDriver.cla.trainingFile = new File("C:\\Users\\IBM_ADMIN\\Documents\\Eclipse\\Workstation\\tree-builder-2\\tree-builder-2\\TreeBuilder\\test\\ch\\uzh\\agglorecommender\\client\\u1.base");
+		TestDriver.cla.trainingFile = new File(fileLocation);
 		
 		
 		//TestDriver.main(new String[] {});
