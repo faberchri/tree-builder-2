@@ -27,7 +27,7 @@ public class ClassitMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearche
 	private static Logger log = TBLogger.getLogger(ClassitMaxCategoryUtilitySearcher.class.getName());
 
 	/**Calculates utility of merging nodes in possibleMerge based on Classit Category Utility formula
-	 * Utility is calulated as follows:
+	 * Utility is calculated as follows:
 	 * 1. For all attributes calculate 1/stdev
 	 * 2. Divide the sum of this values by the number of attributes
 	 * @param possibleMerge The nodes for which to calculate the utility
