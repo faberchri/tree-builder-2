@@ -32,54 +32,31 @@ public class EvaluationBuilder {
 	 * @param testnode this node is from the test set
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 */
-	public double evaluate(INode testNode, int testNodeID, RecommendationBuilder rb) throws NullPointerException {
+	public Map<String,Double> evaluate(INode testNode, int testNodeID, RecommendationBuilder rb) throws NullPointerException {
 		
 		if(testNode != null){
 			// Get Predicitions & Real Values
 			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode,testNodeID);
 			
 			if(predictedRatings != null) {
+				
+				Map<String,Double> eval = new HashMap<String,Double>();
 				Set<INode> realRatingsKeys = testNode.getAttributeKeys();
 				
-				// Calculate Difference of predicted values to real values
-				double sumOfSquaredDifferences = 0;
-				for(INode ratingKey: realRatingsKeys) {
-					
-					// Calculate predicted rating - value could be null
-					double pRating = 0;
-					IAttribute pRatingAtt = predictedRatings.get(ratingKey);
-					if(pRatingAtt != null){
-						pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
-					}
-					//System.out.println("pRating: " + pRating);
-					
-					// Calculate real rating
-					IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
-					double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
-					//System.out.println("rRating: " + rRating);
-					
-					sumOfSquaredDifferences += Math.pow(rRating - pRating,2);
-				}
-				//System.out.println("ssd: " + sumOfSquaredDifferences);
+				eval.put("RMSE",calculateRMSE(realRatingsKeys, testNode, predictedRatings));
+				eval.put("AME",calculateAME(realRatingsKeys, testNode, predictedRatings));
 				
-				// Division through number of Content Items
-				double mse = sumOfSquaredDifferences / realRatingsKeys.size();
-				//System.out.println("mse: " + mse);
+				return eval;
 				
-				// Take root
-				double rmse = Math.sqrt(mse);
-				//System.out.println("rmse: " + rmse);
-			
-				return rmse;
 			}
 			else {
 				System.out.println("Recommendation Data is null");
-				return -1;
+				return null;
 			}
 		}
 		else {
 			System.out.println("Input Node is null");
-			return -1;
+			return null;
 		}
 	}
 	
@@ -90,27 +67,118 @@ public class EvaluationBuilder {
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 * 
 	 */
-	public double kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
+	public Map<String,Double> kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
 		
 		try {
-			double sumOfRMSE = 0;
 			
-			// Get all RMSE Values
+			// Establish Maps
+			Map<String,Double> eval = null;
+			Map<String,Double> sumOfEval = new HashMap<String,Double>();
+			
+			// Calculate evaluation for all test nodes
 			for(INode testNode : testNodes.keySet()) {
-				sumOfRMSE += evaluate(testNode,testNodes.get(testNode),rb);
+				eval = evaluate(testNode,testNodes.get(testNode),rb);
+				
+				// Add up results
+				for(String eKey : eval.keySet()){
+					Double eValue = eval.get(eKey);
+					Double sumOfEValue = sumOfEval.get(eKey);
+					sumOfEValue += eValue;
+					sumOfEval.put(eKey, sumOfEValue);
+				}
 			}
 			
-			// Take Mean
-			double rmse = sumOfRMSE / testNodes.size();
+			// Take Mean of every value
+			for(String eKey : sumOfEval.keySet()){
+				Double meanEvalValue = sumOfEval.get(eKey) / testNodes.size();
+				sumOfEval.put(eKey, meanEvalValue);
+			}
 			
-			return rmse;
+			return eval;
 		}
 		catch (NullPointerException e) {
-			return -1;
+			return null;
 		}
 		
 	}
 	
+	/**
+	 * Calculate Evalution Value with Root Mean Squared Error (RMSE) Method
+	 * 
+	 * @param realRatingsKeys set of the real ratings
+	 * @param testNode the node that needs to be compared
+	 * @param predictedRatings set of the predicted ratings
+	 * 
+	 */
+	public double calculateRMSE (Set<INode> realRatingsKeys, INode testNode, Map<INode, IAttribute> predictedRatings){
+		
+		// Calculate Difference of predicted values to real values
+		double sumOfSquaredDifferences = 0;
+		for(INode ratingKey: realRatingsKeys) {
+			
+			// Calculate predicted rating - value could be null
+			double pRating = 0;
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey);
+			if(pRatingAtt != null){
+				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
+			}
+			
+			// Calculate real rating
+			IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
+			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
+			
+			// Real Difference Squared
+			sumOfSquaredDifferences += Math.pow(rRating - pRating,2);
+		}
+		
+		// Division through number of Content Items
+		double mse = sumOfSquaredDifferences / realRatingsKeys.size();
+		
+		// Take root
+		double rmse = Math.sqrt(mse);
+	
+		return rmse;
+	}
+	
+	/**
+	 * Calculate Evalution Value as Absolute Min Error (AME)
+	 * 
+	 * @param realRatingsKeys set of the real ratings
+	 * @param testNode the node that needs to be compared
+	 * @param predictedRatings set of the predicted ratings
+	 * 
+	 */
+	private double calculateAME(Set<INode> realRatingsKeys, INode testNode,
+			Map<INode, IAttribute> predictedRatings) {
+		
+		// Calculate Difference of predicted values to real values
+		double sumOfSquaredDifferences = 0;
+		for(INode ratingKey: realRatingsKeys) {
+			
+			// Calculate predicted rating - value could be null
+			double pRating = 0;
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey);
+			if(pRatingAtt != null){
+				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
+			}
+			
+			// Calculate real rating
+			IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
+			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
+			
+			// Absolute Difference Squared
+			sumOfSquaredDifferences += Math.pow(Math.abs(rRating - pRating),2);
+		}
+		
+		// Division through number of Content Items
+		double mse = sumOfSquaredDifferences / realRatingsKeys.size();
+		
+		// Take root
+		double ame = Math.sqrt(mse);
+	
+		return ame;
+	}
+
 	/**
 	 * Creates usable Map of test users for evaluation
 	 * Helper method for recommendations of type 1 (rmse test)

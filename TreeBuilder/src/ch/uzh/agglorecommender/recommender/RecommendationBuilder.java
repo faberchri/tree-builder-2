@@ -170,7 +170,7 @@ public final class RecommendationBuilder {
 	}
 	
 	/**
-	 * Finds the best position (most similar node) in the tree for a given node
+	 * Collect all the content that should be recommended based on given user and radius
 	 * 
 	 * @param position starting point to calculate recommendation 
 	 * @param radiusU defines how many levels of users should be incorporated 
@@ -231,7 +231,7 @@ public final class RecommendationBuilder {
 
 		// Going one level up if radius parameter stills allows it
 		if(radius > 0){
-			if(position.getParent() != null) {
+			if(!position.isRoot()) {
 				INode parent = position.getParent();
 		    	relevantNode = collectNode(parent,radius - 1);
 			}
@@ -263,7 +263,7 @@ public final class RecommendationBuilder {
 		//System.out.println("position: " + position);
 		
 		// If position is leaf
-		if(position.getChildrenCount() == 0){
+		if(position.isLeaf()){
 			leaves.add(position);
 			return leaves;
 		}

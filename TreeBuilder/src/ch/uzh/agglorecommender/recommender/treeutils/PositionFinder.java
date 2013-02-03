@@ -30,11 +30,17 @@ public class PositionFinder {
 			INode[] nodesToCalculate = new INode[2];
 			nodesToCalculate[0] = inputNode;
 			nodesToCalculate[1] = parent;
-			ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher(); // <--------- unschšn, sollte je nach Typ anderst sein
+			
+//			if(1==1){ // FIX Need type of clustering that was used
+				ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher();
+//			}
+//			else if(1==0){
+//				CobwebMaxCategoryUtilitySearcher helper = new CobwebMaxCategoryUtilitySearcher();
+//			}
 			
 			// Establish cut off value when 0
 			if(cutoff == 0) {
-			    cutoff = helper.calculateCategoryUtility(nodesToCalculate); //unschšn
+			    cutoff = helper.calculateCategoryUtility(nodesToCalculate);
 				//System.out.println("Established cut off: " + cutoff);
 			}
 			
