@@ -206,7 +206,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		// Initialize Monitor
 		monitor.initMonitoring(userNodes.size(), contentNodes.size());
 		
-		ClusteringBalancer<INode> balancer = new ClusteringBalancer<>(userNodes, contentNodes);
+		// Initialize the balancer for the clustering process.
+		ClusteringBalancer<INode> balancer = new ClusteringBalancer<INode>(userNodes, contentNodes);
 
 		// Process Nodes
 		while (userNodes.size() > 1 || contentNodes.size() > 1) {

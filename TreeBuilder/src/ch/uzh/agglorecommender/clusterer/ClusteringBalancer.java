@@ -25,6 +25,12 @@ import org.jfree.ui.RefineryUtilities;
 
 import ch.uzh.agglorecommender.util.TBLogger;
 
+/**
+ * 
+ * Ensures a balanced clustering of the two sets passed to the constructor.
+ *
+ * @param <T> the item stored in the set
+ */
 public class ClusteringBalancer<T> implements Serializable {
 
 	/**
@@ -36,23 +42,55 @@ public class ClusteringBalancer<T> implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The set of all root nodes of type user.
+	 */
 	private final Set<T> userNodes;
+
+	/**
+	 * Saves the length of the userNodes set at each cluster cycle iteration.
+	 */
 	private  List<Integer> userSizeList = new ArrayList<Integer>();
 
+	/**
+	 * The set of all root nodes of type content.
+	 */
 	private final Set<T> contentNodes;
+
+	/**
+	 * Saves the length of the contentNodes set at each cluster cycle iteration.
+	 */
 	private  List<Integer> contentSizeList = new ArrayList<Integer>();
 
-	public ClusteringBalancer(Set<T> userNodes, Set<T> contentNodes) {
-		this.userNodes = userNodes;
-		this.contentNodes = contentNodes;
+	/**
+	 * Creates a new ClusteringBalancer for the passed sets.
+	 * 
+	 * @param setA one of the sets to cluster
+	 * @param setB the other set to cluster
+	 */
+	public ClusteringBalancer(Set<T> setA, Set<T> setB) {
+		this.userNodes = setA;
+		this.contentNodes = setB;
 		updateSizeLists();
 	}
 
+	/**
+	 * Adds the current size of the open sets to the length lists.
+	 */
 	private void updateSizeLists() {
 		userSizeList.add(userNodes.size());
 		contentSizeList.add(contentNodes.size());
 	}
 
+	/**
+	 * Estimates the number of remaining needed cluster cycles to reduce 
+	 * the set corresponding to the passed list to size == 1 based on the 
+	 * size reduction of the previous cycles.
+	 * 
+	 * @param lengthList the list with all size changes per cycle for
+	 * a corresponding open nodes set.
+	 * @return an estimate of the remaining needed cycles.
+	 */
 	private long getProjectedNumberOfRemainigCycles(List<Integer> lengthList) {
 		if (lengthList.size() < 2) {
 			Logger log = TBLogger.getLogger(this.getClass().getName());
@@ -71,7 +109,7 @@ public class ClusteringBalancer<T> implements Serializable {
 		avgReduction /= lengthList.size() - 1;
 
 		if (avgReduction == 0.0) return Long.MAX_VALUE; // does only apply to the set that
-														// was not selected in the first round 
+		// was not selected in the first round 
 
 		int currentLength = lengthList.get(lengthList.size() - 1);
 
@@ -86,13 +124,15 @@ public class ClusteringBalancer<T> implements Serializable {
 	 * Gets one of the two sets passed to the constructor that should be clustered next,
 	 * in order to ensure a balanced clustering progress of both sets / trees.
 	 * 
-	 * @return the set that should be cluster next or null if both sets have size == 1.
+	 * @return the set that should be cluster next or null if both sets have size <= 1.
 	 */
 	public Set<T> getNextClusterSet() {
 		updateSizeLists();
 		long userProjection = getProjectedNumberOfRemainigCycles(userSizeList);
 		long contentProjection = getProjectedNumberOfRemainigCycles(contentSizeList);
-
+		if (userNodes.size() == 0 && contentNodes.size() == 0) return null;
+		if (userNodes.size() == 0) return contentNodes;
+		if (contentNodes.size() == 0) return userNodes;
 		if (userProjection == 0 && contentProjection == 0) return null;
 		if (userProjection == contentProjection) {
 			Random r = new Random();
@@ -103,19 +143,19 @@ public class ClusteringBalancer<T> implements Serializable {
 		if (userProjection < contentProjection) return contentNodes;
 		return userNodes;
 	}
-	
-	
+
+
 	///////////////////////////////////////////////////////
 	///					 Test section 					///
 	///////////////////////////////////////////////////////
 
 	public static void main(String[] args) {
 		Set<Integer> sU = new HashSet<Integer>();
-		for (int i = 0; i < 9791; i++) {
+		for (int i = 0; i < 0; i++) {
 			sU.add(10000 + i);
 		}		
 		Set<Integer> sC = new HashSet<Integer>();
-		for (int i = 0; i < 6263; i++) {
+		for (int i = 0; i < 1; i++) {
 			sC.add(i);
 		}
 
@@ -124,6 +164,8 @@ public class ClusteringBalancer<T> implements Serializable {
 		Random r = new Random();
 		final XYSeries userSetSize= new XYSeries("user set size");
 		final XYSeries contentSetSize= new XYSeries("content set size");
+		userSetSize.add(cycleC, cB.userNodes.size());
+		contentSetSize.add(cycleC, cB.contentNodes.size());
 		while (true) {
 			System.out.print("cycle: " + cycleC++ + ", ");
 			Set<Integer> selectedSet = cB.getNextClusterSet();
@@ -132,6 +174,7 @@ public class ClusteringBalancer<T> implements Serializable {
 				System.out.println("null");
 				break;
 			}
+
 			System.out.print("set size: " + selectedSet.size() + ", ");
 			int rI = r.nextInt(1);
 			Iterator<Integer> i = selectedSet.iterator();
@@ -143,10 +186,11 @@ public class ClusteringBalancer<T> implements Serializable {
 
 			userSetSize.add(cycleC, cB.userNodes.size());
 			contentSetSize.add(cycleC, cB.contentNodes.size());
-			if (selectedSet.equals(sU)) {
+
+			if (selectedSet == sU) {
 				System.out.println("user");
 			}
-			if (selectedSet.equals(sC)) {
+			if (selectedSet == sC) {
 				System.out.println("content");
 			}
 		}
@@ -154,7 +198,7 @@ public class ClusteringBalancer<T> implements Serializable {
 		dataset.addSeries(userSetSize);
 		dataset.addSeries(contentSetSize);
 		MyPlot p = new MyPlot("Set sizes", dataset);
-		
+
 		p.pack();
 		RefineryUtilities.centerFrameOnScreen(p);
 		p.setVisible(true);
