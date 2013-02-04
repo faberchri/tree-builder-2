@@ -2,8 +2,10 @@ package ch.uzh.agglorecommender.clusterer.treeupdate;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.util.TBLogger;
 
 
 
@@ -20,8 +22,14 @@ public class SimpleNodeUpdater implements INodeUpdater, Serializable {
 	
 	@Override
 	public void updateNodes(INode newNode, Set<INode> nodesToUpdate) {
+		Logger log = TBLogger.getLogger(getClass().getName());
 		for (INode attNode : newNode.getAttributeKeys()) {
-			attNode.addAttribute(newNode, newNode.getAttributeValue(attNode));
+			if (nodesToUpdate.contains(attNode)) {
+				attNode.addAttribute(newNode, newNode.getAttributeValue(attNode));
+				log.finest(attNode.toString() + " updated with " + newNode);
+			} else {
+//				log.finest(attNode.toString() + " NOT updated with " + newNode);
+			}
 		}
 	}
 

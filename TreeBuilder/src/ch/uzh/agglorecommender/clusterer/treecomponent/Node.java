@@ -270,6 +270,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 				IAttribute attributeValue = getAttributeValue(attributeKey);
 				description += "<tr><td>" + attributeKey.getId() + "</td>" +
+						"<td>" + attributeKey.getNodeType().toString() + "</td>"+
         				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
         				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
         				"<td>" + attributeValue.getSupport()+ "</td></tr>";
@@ -283,8 +284,8 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			for(INode attributeKey : atKeyLi) {
 
 				IAttribute attributeValue = getAttributeValue(attributeKey);
-				description += "<tr><td>" + attributeKey.getId() + "</td>";
-
+				description += "<tr><td>" + attributeKey.getId() + "</td>" +
+							"<td>" + attributeKey.getNodeType().toString() + "</td>";
 				Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
 				description += "<td>";
 				while ( values.hasNext() ){

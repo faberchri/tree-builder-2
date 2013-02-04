@@ -188,6 +188,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		}
 	}
 	
+	
+	
 	/**
 	 * Performs the cluster tree creation of the data set.
 	 * 
@@ -203,26 +205,16 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		
 		// Initialize Monitor
 		monitor.initMonitoring(userNodes.size(), contentNodes.size());
+		
+		ClusteringBalancer<INode> balancer = new ClusteringBalancer<>(userNodes, contentNodes);
 
 		// Process Nodes
-		while (userNodes.size() >= 2 || contentNodes.size() >= 2) {
+		while (userNodes.size() > 1 || contentNodes.size() > 1) {
 
 			// check if clustering is interrupted
 			interrupt();
 			
-			log.info("Get closest user nodes & merge them");
-			INode newUserNode = searchAndMergeNode(userNodes, userMCUSearcher);
-			
-			log.info("Get closest content nodes & merge them");
-			INode newContentNode = searchAndMergeNode(contentNodes, contentMCUSearcher);
-			
-			// Update Trees with info from other tree on current level - only if nodes merged
-			if(newUserNode != null && contentNodes.size() > 1) {
-				nodeUpdater.updateNodes(newUserNode,contentNodes); 
-			}
-			if(newContentNode != null && userNodes.size() > 1) {
-				nodeUpdater.updateNodes(newContentNode,userNodes);
-			}
+			performClusterCycle(balancer.getNextClusterSet());
 			
 			// Create/Update Visualization
 			treeVisualizer.visualize();
@@ -256,28 +248,58 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		return result;
 		
 	}
+	
+	
+	/**
+	 * Searches and performs the best merge in the passed set and updates the other set with the new node.
+	 * 
+	 * @param openSet the set to cluster
+	 */
+	private void performClusterCycle(Set<INode> openSet) {
+		
+		if (openSet == userNodes) {
+			log.info("Get closest user nodes & merge them");
+			INode newUserNode = merge(searchBestMergeResult(userNodes, userMCUSearcher), userNodes);
+
+			// Update Trees with info from other tree on current level - only if nodes merged
+			if(newUserNode != null) {
+				nodeUpdater.updateNodes(newUserNode, contentNodes); 
+			}
+		}
+		
+		if (openSet == contentNodes) {
+			log.info("Get closest content nodes & merge them");
+			INode newContentNode = merge(searchBestMergeResult(contentNodes, contentMCUSearcher), contentNodes);		
+			
+			// Update Trees with info from other tree on current level - only if nodes merged
+			if(newContentNode != null) {
+				nodeUpdater.updateNodes(newContentNode, userNodes); 
+			}
+		}
+	}
 		
 	/**
 	 * Gets the best merge from the passed set and returns the resulting new node.
 	 * 
 	 * @param nodes the set of nodes in which the best merge is searched.
+	 * @param mcus the max category searcher to use
 	 * @return the merge result or null if no possible merge was found.
 	 */
-	private INode searchAndMergeNode(Set<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
-		INode newNode = null;
-		if(nodes.size() > 1) {
-			IMergeResult cN = mcus.getMaxCategoryUtilityMerge(nodes);
-			
-			log.info("Best node merge has category utility of "
-						+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
-			
-			Monitor counter = Monitor.getInstance();
-			newNode = mergeNodes(cN, nodes);
-			log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
-						nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-//			treeVisualizer.printAllOpenUserNodes();
-		}
-		return newNode;
+	private IMergeResult searchBestMergeResult(Set<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
+
+		if(nodes.size() < 2) return null;
+
+		IMergeResult cN = mcus.getMaxCategoryUtilityMerge(nodes);
+
+		log.info("Best node merge has category utility of "
+				+cN.getCategoryUtility() +" and includes: " + cN.getNodes());
+
+		Monitor counter = Monitor.getInstance();
+
+		log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
+				nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+		//			treeVisualizer.printAllOpenUserNodes();
+		return cN;
 	}
 	
 	
@@ -294,7 +316,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode mergeNodes(IMergeResult mergeResult, Set<INode> openSet) {
+	private INode merge(IMergeResult mergeResult, Set<INode> openSet) {
 		List<INode> nodesToMerge = mergeResult.getNodes();
 		if (nodesToMerge.size() > 1) {
 			
@@ -320,7 +342,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 				break;
 			}
 			
-			// Add new node to openset
+			// Add new node to open set
 			openSet.add(newNode);
 			log.fine("New node added to open set: " + newNode);
 			
