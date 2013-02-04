@@ -12,8 +12,8 @@ public class OptimizedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator{
 
 	@Override
 	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO implement optimization strategy
+		return decoratedSearcher.getMaxCategoryUtilityMerge(openNodes);
 	}
 
 }
