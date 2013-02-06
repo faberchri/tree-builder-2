@@ -47,7 +47,7 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 		Map<Object, Double> attMap = ImmutableMap.copyOf(
 				CobwebMaxCategoryUtilitySearcher
 					.calculateAttributeProbabilities(
-							attributeKey, nodesToMerge.toArray(new INode[nodesToMerge.size()]), totalLeafCount
+							attributeKey, nodesToMerge, totalLeafCount
 					)
 				);
 		return new CobwebAttribute(attMap);

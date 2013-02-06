@@ -16,12 +16,14 @@ import java.util.Set;
  * An element is only accessible if it is contained in the internal set.
  * <br>
  * <br>
- * Beside the usual set methods the datastructure provides two additional methods, namely:
+ * Beside the usual set methods the data structure provides three additional methods, namely:
  * <br>
  * <br>
  * - E getByIndex(int index)
  * <br>
  * - int getLastIndex() 
+ * <br>
+ * - int indexOf(E element)
  * <br>
  * <br>
  * All set methods behave like the corresponding methods of java.util.HashSet with the following exceptions:
@@ -107,7 +109,7 @@ public class IndexAwareSet<E> implements Set<E>, Serializable{
 				internalList.add(e);			
 			}
 		}
-		return false;
+		return internalSet.addAll(c);
 	}
 
 	@Override
@@ -132,7 +134,7 @@ public class IndexAwareSet<E> implements Set<E>, Serializable{
 	 * @return the element at position index or null if the index is invalid.
 	 * Invalid means either that the element at the specified index has been
 	 * removed or that the index is not in the range of allowed indices.
-	 * The range of allowed indices is number of elements added to data structure minus 1.
+	 * The range of allowed indices is [0, number of elements added to data structure minus 1].
 	 */
 	public E getByIndex(int index) {
 		if (index < 0 || index > internalList.size() - 1) {
@@ -153,6 +155,21 @@ public class IndexAwareSet<E> implements Set<E>, Serializable{
 	 */
 	public int getLastIndex() {
 		return internalList.size() - 1;
+	}
+	
+	/**
+	 * Get the index of the passed element.
+	 * 
+     * @param o element to search for
+     * @return the index of the specified element or -1 if the 
+     * IndexAwareSet does not contain the element
+	 */
+	public int indexOf(Object o) {
+		if (contains(o)) {
+			return internalList.indexOf(o);
+		} else {
+			return -1;	
+		}
 	}
 
 }

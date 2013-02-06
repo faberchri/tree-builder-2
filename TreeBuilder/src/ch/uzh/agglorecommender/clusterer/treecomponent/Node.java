@@ -251,11 +251,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>"
 				+ "<body> Node: "
 				+ getId()
+				+ "<br> data set id: "
+				+ getSimpleDataSetIdString(this)
 				+ "<br> Category Utility: "
 				+ formater.format(getCategoryUtility())
 				+ "<br><table><tr>";
 
-		INode[] merge = {this};
+		List<INode> merge = new ArrayList<INode>();
+		merge.add(this);
 
 
 //		Set<INode> attributeKeys = getAttributeKeys();
@@ -263,13 +266,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		Collections.sort(atKeyLi);
 		if (attributes.values().iterator().next() instanceof ClassitAttribute) {
 			// Header
-			description += "<td>attr</td><td>mean</td><td>std</td><td>support</td></tr>";
+			description += "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
 
 			// Data
 			for(INode attributeKey : atKeyLi) {
-
+				 
 				IAttribute attributeValue = getAttributeValue(attributeKey);
 				description += "<tr><td>" + attributeKey.getId() + "</td>" +
+						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
 						"<td>" + attributeKey.getNodeType().toString() + "</td>"+
         				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
         				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
@@ -278,13 +282,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		if (attributes.values().iterator().next() instanceof CobwebAttribute) {
 			// Header
-			description += "<td>attr</td><td width='150'>value -> probability</td></tr>";
+			description += "<td>attr</td><td>data set id</td><td>type</td><td width='150'>value -> probability</td></tr>";
 
 			// Data
 			for(INode attributeKey : atKeyLi) {
-
+				
 				IAttribute attributeValue = getAttributeValue(attributeKey);
 				description += "<tr><td>" + attributeKey.getId() + "</td>" +
+							"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
 							"<td>" + attributeKey.getNodeType().toString() + "</td>";
 				Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
 				description += "<td>";
@@ -299,6 +304,18 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			}
 		}
 		return description += "</table></body></html>";
+	}
+	
+	private String getSimpleDataSetIdString(INode node) {
+		String dataSetIdsString = "";
+		List<Integer> ids = node.getDataSetIds();
+		if (ids.size() > 1) {
+			dataSetIdsString = ids.get(0) + ", " + ids.get(1) + " ...";
+		}
+		if (node.getDataSetIds().size() == 1) {
+			dataSetIdsString = ids.get(0).toString();
+		}
+		return dataSetIdsString;
 	}
 
 //	private void writeObject(ObjectOutputStream oos) throws IOException {

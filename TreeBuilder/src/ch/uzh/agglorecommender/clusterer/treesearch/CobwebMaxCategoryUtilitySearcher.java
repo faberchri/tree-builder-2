@@ -12,7 +12,7 @@ import java.util.Set;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
-public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher implements Serializable {
+public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySearcher implements Serializable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -32,7 +32,7 @@ public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
 	 **/
-	protected double calculateCategoryUtility(INode[] possibleMerge) {
+	protected double calculateCategoryUtility(List<INode> possibleMerge) {
 				
 		Set<INode> allAttributes = new HashSet<INode>();
 		int totalLeafCount = 0;
@@ -68,7 +68,7 @@ public class CobwebMaxCategoryUtilitySearcher extends MaxCategoryUtilitySearcher
 	 * @param leafCount the number of all leaves of the resulting subtree of the merge.
 	 * @return the map of all non-zero probabilities for the passed attribute (rating-value is key, probability is value).
 	 */
-	public static Map<Object,Double> calculateAttributeProbabilities(INode attribute, INode[] possibleMerge, int leafCount) {
+	public static Map<Object,Double> calculateAttributeProbabilities(INode attribute, List<INode> possibleMerge, int leafCount) {
 		Map<Object,Double> probabilities = new HashMap<Object, Double>();
 		for (INode node : possibleMerge) {
 			if (node.hasAttribute(attribute)) {
