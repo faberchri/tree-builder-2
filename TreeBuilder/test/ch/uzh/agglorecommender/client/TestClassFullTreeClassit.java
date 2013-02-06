@@ -23,7 +23,7 @@ public class TestClassFullTreeClassit {
 		@Test
 		public void runTest(){
 			
-			System.out.println("------------Starting Full Cobweb Test (10 nodes)------------");
+			System.out.println("------------Starting Full Classit Test (10 nodes)------------");
 			
 			//Create tree
 			TestDriver.cla.contentTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
