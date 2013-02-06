@@ -67,10 +67,16 @@ public class TestClassFullTreeCobweb {
 		UnmodifiableIterator<Entry<Integer, INode>> entries = leafNodes.entrySet().iterator();
 		while (entries.hasNext()) {
 		  Entry thisEntry = (Entry) entries.next();
-		  Object key = thisEntry.getKey();
-		  System.out.println("Entry "+key+":");
-		  Object value = thisEntry.getValue();
-		  System.out.println("Is node: "+((INode) value).getAttributesString());
+		  int key = (int) thisEntry.getKey();
+		  System.out.println("\nNode "+key+" has the following "+key+" nodes:");
+		  INode value = (INode)thisEntry.getValue();
+		  System.out.println("Is node: "+value.getAttributesString());
+		  //Temporary: Check attributes of node 10:
+		  /*if(key==10){
+			  System.out.println("Number of attributes for node"+key);
+			  System.out.println(value.getAttributeKeys().size());
+		  }*/
+		  
 		}
 		
 		//Temporary solution: Print 1st level merges
@@ -79,8 +85,8 @@ public class TestClassFullTreeCobweb {
 			//System.out.println("Node: "+leafNodes.get("1"));
 		//}
 		
-		//Give user time to see visualization before it's closed
-		System.out.println("You can pause the visualization now!");
+		//Give user time to see visualization before it is closed
+		System.out.println("\n You can pause the visualization now!");
 		try {
 			Thread.sleep(500000000);
 		} catch (InterruptedException e) {
