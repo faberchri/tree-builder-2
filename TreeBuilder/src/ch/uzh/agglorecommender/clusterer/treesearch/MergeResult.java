@@ -1,19 +1,34 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
 
-
+/**
+ * 
+ * Immutable parameter object for merge candidates.
+ *
+ */
 public class MergeResult implements IMergeResult {
 	
 	private final double utility;
-	private final INode[] mergeNodes;
+	private final INode[] mergeNodesArr;
+	private final List<INode> mergeNodesLi;
 	
 	public MergeResult(double utility, INode[] nodesOfThisMerge) {
-		this.mergeNodes = nodesOfThisMerge;		
+		if (nodesOfThisMerge == null) throw new InvalidParameterException("passed merge array is null");
+ 		this.mergeNodesArr = nodesOfThisMerge;	
+		this.mergeNodesLi = null;
+		this.utility = utility;
+	}
+	
+	public MergeResult(double utility, List<INode> nodesOfThisMerge) {
+		if (nodesOfThisMerge == null) throw new InvalidParameterException("passed merge list is null");
+		this.mergeNodesLi = nodesOfThisMerge;
+		this.mergeNodesArr = null;
 		this.utility = utility;
 	}
 		
@@ -23,7 +38,8 @@ public class MergeResult implements IMergeResult {
 	
 	@Override
 	public List<INode> getNodes() {
-		return Arrays.asList(mergeNodes);
+		if (mergeNodesLi != null) return mergeNodesLi;
+		return Arrays.asList(mergeNodesArr);
 	}
 
 	
@@ -40,7 +56,7 @@ public class MergeResult implements IMergeResult {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Category Utility of merging\n");
-		for (INode n : mergeNodes) {
+		for (INode n : getNodes()) {
 			sb.append(n.toString());
 			sb.append("\n");
 		}

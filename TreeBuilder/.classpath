@@ -100,5 +100,6 @@
 	<classpathentry kind="lib" path="lib/scala/scala-library.jar" sourcepath="lib/scala/scala-library-src.jar"/>
 	<classpathentry kind="lib" path="lib/jcommander/jcommander-1.30.jar"/>
 	<classpathentry kind="lib" path="scala"/>
+	<classpathentry kind="lib" path="lib/commons-math3/commons-math3-3.1.1.jar" sourcepath="lib/commons-math3/commons-math3-3.1.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -46,15 +46,14 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 */
 	@Override
 	public IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge) {
-		INode[] merge = nodesToMerge.toArray(new INode[nodesToMerge.size()]);
-		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, merge);
+		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
 		if (support < 1) {
 			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
 			System.exit(-1);
 		}
-		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, merge);
+		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, nodesToMerge);
 //		double average = sumOfRatings / (double) support;
-		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, merge);
+		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
 //		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 		
 		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);

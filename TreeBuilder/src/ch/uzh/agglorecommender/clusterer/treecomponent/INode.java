@@ -184,9 +184,9 @@ public interface INode {
 	 * 
 	 * @return an immutable list of all data set id's of the
 	 * containing data set item, which are contained in this cluster.
-	 * The size of the list is equal to 1 for if this node is a leaf
+	 * The size of the list is equal to 1 if this node is a leaf
 	 * and equal to the number of cluster instances (e.g. users) if
-	 * this node is the root.
+	 * node is the root.
 	 */
 	public List<Integer> getDataSetIds();
 	

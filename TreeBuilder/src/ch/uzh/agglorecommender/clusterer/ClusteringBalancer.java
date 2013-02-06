@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -23,7 +22,10 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
+import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
 import ch.uzh.agglorecommender.util.TBLogger;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * 
@@ -45,7 +47,7 @@ public class ClusteringBalancer<T> implements Serializable {
 	/**
 	 * The set of all root nodes of type user.
 	 */
-	private final Set<T> userNodes;
+	private final ClusterSet<T> userNodes;
 
 	/**
 	 * Saves the length of the userNodes set at each cluster cycle iteration.
@@ -55,7 +57,7 @@ public class ClusteringBalancer<T> implements Serializable {
 	/**
 	 * The set of all root nodes of type content.
 	 */
-	private final Set<T> contentNodes;
+	private final ClusterSet<T> contentNodes;
 
 	/**
 	 * Saves the length of the contentNodes set at each cluster cycle iteration.
@@ -68,7 +70,7 @@ public class ClusteringBalancer<T> implements Serializable {
 	 * @param setA one of the sets to cluster
 	 * @param setB the other set to cluster
 	 */
-	public ClusteringBalancer(Set<T> setA, Set<T> setB) {
+	public ClusteringBalancer(ClusterSet<T> setA, ClusterSet<T> setB) {
 		this.userNodes = setA;
 		this.contentNodes = setB;
 		updateSizeLists();
@@ -126,7 +128,7 @@ public class ClusteringBalancer<T> implements Serializable {
 	 * 
 	 * @return the set that should be cluster next or null if both sets have size <= 1.
 	 */
-	public Set<T> getNextClusterSet() {
+	public ClusterSet<T> getNextClusterSet() {
 		updateSizeLists();
 		long userProjection = getProjectedNumberOfRemainigCycles(userSizeList);
 		long contentProjection = getProjectedNumberOfRemainigCycles(contentSizeList);
@@ -137,7 +139,7 @@ public class ClusteringBalancer<T> implements Serializable {
 		if (userProjection == contentProjection) {
 			Random r = new Random();
 			boolean b = r.nextBoolean();
-			Set<T> res = b ? userNodes : contentNodes;
+			ClusterSet<T> res = b ? userNodes : contentNodes;
 			return res;
 		}
 		if (userProjection < contentProjection) return contentNodes;
@@ -150,16 +152,20 @@ public class ClusteringBalancer<T> implements Serializable {
 	///////////////////////////////////////////////////////
 
 	public static void main(String[] args) {
-		Set<Integer> sU = new HashSet<Integer>();
-		for (int i = 0; i < 0; i++) {
-			sU.add(10000 + i);
-		}		
-		Set<Integer> sC = new HashSet<Integer>();
-		for (int i = 0; i < 1; i++) {
-			sC.add(i);
+		Set<Integer> leaves1 = new HashSet<Integer>();
+		for (int i = 0; i < 5; i++) {
+			leaves1.add(10000 + i);
 		}
+		
+		ClusterSet<Integer> sU = new ClusterSet<Integer>(ImmutableSet.copyOf(leaves1));
+		
+		leaves1.clear();
+		for (int i = 0; i < 10; i++) {
+			leaves1.add(i);
+		}
+		ClusterSet<Integer> sC = new ClusterSet<Integer>(ImmutableSet.copyOf(leaves1));
 
-		ClusteringBalancer<Integer> cB = new ClusteringBalancer<>(sU, sC);
+		ClusteringBalancer<Integer> cB = new ClusteringBalancer<Integer>(sU, sC);
 		int cycleC = 0;
 		Random r = new Random();
 		final XYSeries userSetSize= new XYSeries("user set size");
@@ -168,7 +174,7 @@ public class ClusteringBalancer<T> implements Serializable {
 		contentSetSize.add(cycleC, cB.contentNodes.size());
 		while (true) {
 			System.out.print("cycle: " + cycleC++ + ", ");
-			Set<Integer> selectedSet = cB.getNextClusterSet();
+			ClusterSet<Integer> selectedSet = cB.getNextClusterSet();
 
 			if (selectedSet == null) {
 				System.out.println("null");
@@ -176,12 +182,16 @@ public class ClusteringBalancer<T> implements Serializable {
 			}
 
 			System.out.print("set size: " + selectedSet.size() + ", ");
-			int rI = r.nextInt(1);
-			Iterator<Integer> i = selectedSet.iterator();
-			while (i.hasNext() && rI > -1) {
-				i.next();
-				i.remove();
+			int rI = r.nextInt(1) + 1;
+//			Iterator<Integer> i = selectedSet.getSetView().iterator();
+			while (! selectedSet.clusteringDone() && rI > -1) {
+//				i.next();
+//				i.remove();
+				selectedSet.remove(selectedSet.getAnyElement());
 				rI--;
+			}
+			if (! selectedSet.clusteringDone()) {
+				selectedSet.add(new Integer(-1 * cycleC));				
 			}
 
 			userSetSize.add(cycleC, cB.userNodes.size());

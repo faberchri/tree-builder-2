@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import java.util.List;
 import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -15,14 +16,13 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 public interface IMaxCategoryUtilitySearcher {
 
 	/**
-	 * Searches in {@code openNodes} for the nodes for
-	 * which a merge produces a new node with the
-	 * greatest category utility of all possible merges.
+	 * Searches in {@code combinationsToCheck} for the node combinations for
+	 * which a merge produces a new node with a high category utility value.
 	 * 
-	 * @param openNodes Set of nodes to search in.
-	 * @return List of closest nodes.
+	 * @param combinationsToCheck the node combinations to test.
+	 * @return Set of IMergeResult with a high category utility.
 	 */
-	public IMergeResult getMaxCategoryUtilityMerge(Set<INode> openNodes);
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck);
 
 	
 }
