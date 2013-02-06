@@ -14,6 +14,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
+import ch.uzh.agglorecommender.clusterer.treesearch.OptimizedMaxCUSearcher;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -136,8 +137,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
 		this.nodeUpdater = nodeUpdater;
-		this.userMCUSearcher = searcherUsers;
-		this.contentMCUSearcher = searcherContent;
+		this.userMCUSearcher = new OptimizedMaxCUSearcher(searcherUsers);
+		this.contentMCUSearcher = new OptimizedMaxCUSearcher(searcherContent);
 		this.contentTreeComponentFactory = contentTreeComponentFactory;
 		this.userTreeComponentFactory = userTreeComponentFactory;
 		this.treeVisualizer = new TreeVisualizer();	

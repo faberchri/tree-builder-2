@@ -111,7 +111,6 @@ public class ClusterSet<E> implements Serializable {
 			res = ArithmeticUtils.addAndCheck(res, Ints.checkedCast(ArithmeticUtils.binomialCoefficient(openNodes.size(), minSubsetSize)));
 			minSubsetSize++;
 		}
-		System.err.println("num of init combs: " + res);
 		return res;
 	}
 	
@@ -285,7 +284,9 @@ public class ClusterSet<E> implements Serializable {
 			while(i.hasNext()) {
 				E e = openNodes.getByIndex(i.next());
 				if (e == null) {
-					System.err.println("null");
+					Logger log = TBLogger.getLogger(getClass().getName());
+					log.severe("Error in ClusterSet: Invalid index queried from IndexAwareSet!");
+					System.exit(-1);
 				}
 				eL.add(e);
 			}
