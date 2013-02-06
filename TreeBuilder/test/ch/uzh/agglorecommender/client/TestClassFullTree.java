@@ -11,15 +11,16 @@ import org.junit.Test;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treeupdate.NullUpdater;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.UnmodifiableIterator;
 
 public class TestClassFullTree {
-	static String fileLocation = "C:/Users/usr/Desktop/Workspace/tree-builder-2/TreeBuilder/test/ch/uzh/agglorecommender/client/TestClassFullTree.java";
+	static String fileLocation = "test/ch/uzh/agglorecommender/client/testNodes.base";
 
   /*
-	 * Tests Cobweb implementation using a test set containing 10 nodes (testData.cobweb)
+	 * Tests Cobweb implementation using a test set containing 10 nodes 
 	 */
 	@Test
 	public void runTest(){
@@ -30,7 +31,7 @@ public class TestClassFullTree {
 		TestDriver.cla.contentTreeComponentFactory = CobwebTreeComponentFactory.getInstance();
 		TestDriver.cla.userTreeComponentFactory = CobwebTreeComponentFactory.getInstance();
 		TestDriver.cla.trainingFile = new File(fileLocation);
-		
+		TestDriver.cla.nodeUpdater = new NullUpdater();
 		
 		//TestDriver.main(new String[] {});
 //		TestDriver.main(new String[] {"-tr", "C:/Users/IBM_ADMIN/Documents/Eclipse/Workstation/tree-builder-2/tree-builder-2/TreeBuilder/test/ch/uzh/agglorecommender/clusterer/treesearch/u1.base", "-c", "Cobweb", "-u","Cobweb"});
@@ -57,6 +58,9 @@ public class TestClassFullTree {
 		
 		//Get values from tree
 		INode tempNode;
+		
+		rootNode.getChildrenCount();
+		
 		
 		//Temporary solution
 		UnmodifiableIterator<Entry<Integer, INode>> entries = leafNodes.entrySet().iterator();
