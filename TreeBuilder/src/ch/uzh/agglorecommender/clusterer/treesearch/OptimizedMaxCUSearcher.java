@@ -22,9 +22,9 @@ public class OptimizedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator 
 	}
 
 	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinations) {
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinations, IClusterSet<INode> clusterSet) {
 		// TODO implement optimization strategy, i.e. removing entries in combinations set.
-		return decoratedSearcher.getMaxCategoryUtilityMerges(combinations);
+		return decoratedSearcher.getMaxCategoryUtilityMerges(combinations, clusterSet);
 	}
 
 

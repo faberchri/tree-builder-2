@@ -11,10 +11,11 @@ import ch.uzh.agglorecommender.client.SerializableRMOperatorDescription;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
+import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
-import ch.uzh.agglorecommender.clusterer.treesearch.OptimizedMaxCUSearcher;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -47,12 +48,12 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	/**
 	 * The set of all root nodes of type user.
 	 */
-	private ClusterSet<INode> userNodes;
+	private IClusterSet<INode> userNodes;
 	
 	/**
 	 * The set of all root nodes of type content.
 	 */
-	private ClusterSet<INode> contentNodes;
+	private IClusterSet<INode> contentNodes;
 	
 //	/**
 //	 * The final set of root nodes of type user and type content.
@@ -137,8 +138,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
 		this.nodeUpdater = nodeUpdater;
-		this.userMCUSearcher = new OptimizedMaxCUSearcher(searcherUsers);
-		this.contentMCUSearcher = new OptimizedMaxCUSearcher(searcherContent);
+		this.userMCUSearcher = new CachedMaxCUSearcher(searcherUsers);
+		this.contentMCUSearcher = new CachedMaxCUSearcher(searcherContent);
 		this.contentTreeComponentFactory = contentTreeComponentFactory;
 		this.userTreeComponentFactory = userTreeComponentFactory;
 		this.treeVisualizer = new TreeVisualizer();	
@@ -258,7 +259,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @param openSet the set to cluster
 	 */
-	private void performClusterCycle(ClusterSet<INode> openSet) {
+	private void performClusterCycle(IClusterSet<INode> openSet) {
 		
 		if (openSet == userNodes) {
 			log.info("Get closest user nodes & merge them");
@@ -288,14 +289,14 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param mcus the max category searcher to use
 	 * @return the merge result or null if no possible merge was found.
 	 */
-	private IMergeResult searchBestMergeResult(ClusterSet<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
+	private IMergeResult searchBestMergeResult(IClusterSet<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
 
 		if(nodes.size() < 2) return null;
 
 		// get the IMergeResult with the highest utility value
 		// from the obtained IMergeResults
 		IMergeResult best = null;
-		Set<IMergeResult> shortList = mcus.getMaxCategoryUtilityMerges(nodes.getCombinations());
+		Set<IMergeResult> shortList = mcus.getMaxCategoryUtilityMerges(nodes.getCombinations(), nodes);
 		double max = -Double.MAX_VALUE; // initialized with the smallest possible double value
 		for (IMergeResult r : shortList) {
 			double cUt = r.getCategoryUtility();
@@ -334,7 +335,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * 
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
-	private INode merge(IMergeResult mergeResult, ClusterSet<INode> openSet) {
+	private INode merge(IMergeResult mergeResult, IClusterSet<INode> openSet) {
 		List<INode> nodesToMerge = mergeResult.getNodes();
 		if (nodesToMerge.size() > 1) {
 			

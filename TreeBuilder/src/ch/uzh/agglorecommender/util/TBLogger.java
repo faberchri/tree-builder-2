@@ -55,6 +55,7 @@ public class TBLogger {
 		logLevelMap.put("ch.uzh.agglorecommender.clusterer.Counter", Level.INFO);
 		logLevelMap.put("ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher", Level.FINER);
 		logLevelMap.put("ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher", Level.FINER);
+		logLevelMap.put("ch.uzh.agglorecommender.clusterer.treeupdate.SimpleNodeUpdater", Level.FINER);
 	}
 
 	private static final String logDirName = "TreeBuilder_logs";

@@ -64,21 +64,29 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Is null if the size of this cluster is > 1.
 	 */
 	private final Integer dataSetId;
-	
-	
+
+	/**
+	 * The category utility of the merge of this nodes children or 1 if node is leaf
+	 */
 	private double categoryUtility;
+
+	/**
+	 * All nodes with recently changed attributes.
+	 */
+	private static Set<INode> dirtySet = new HashSet<INode>();
 
 	public Node(ENodeType nodeType, int dataSetId) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
 	}
-/**
- * Node constructor
- * @param nodeType Type of the node
- * @param children List of children
- * @param attributes Map of INode and IAttributes
- */
+	
+	/**
+	 * Node constructor
+	 * @param nodeType Type of the node
+	 * @param children List of children
+	 * @param attributes Map of INode and IAttributes
+	 */
 	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes, double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
@@ -165,12 +173,13 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public void setAttributes(Map<INode, IAttribute> movies) {
+		dirtySet.add(this);
 		this.attributes = movies;
 	}
 
 	@Override
 	public Set<INode> getAttributeKeys() {
-		return attributes.keySet();
+		return Collections.unmodifiableSet(attributes.keySet());
 	}
 
 	@Override
@@ -201,6 +210,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public void addAttribute(INode node, IAttribute attribute) {
+		dirtySet.add(this);
 		attributes.put(node, attribute);		
 	}
 
@@ -216,6 +226,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public IAttribute removeAttribute(INode attribute) {
+		dirtySet.add(this);
 		return attributes.remove(attribute);
 
 	}	
@@ -357,5 +368,24 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	@Override
 	public double getCategoryUtility() {
 		return categoryUtility;
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirtySet.contains(this);
+	}
+	
+	@Override
+	public void setClean() {
+		dirtySet.remove(this);
+		
+	}
+	
+	/**
+	 * Gets the set of dirty nodes.
+	 * @return all nodes with recently changed attributes.
+	 */
+	public static Set<INode> getAllDirtyNodes() {
+		return dirtySet;
 	}
 }

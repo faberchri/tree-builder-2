@@ -36,8 +36,8 @@ public interface INode {
 	/**
 	 * Gets all nodes from the attribute map of this node.
 	 * 
-	 * @return a set with all nodes contained
-	 * in this nodes attribute map.
+	 * @return an unmodifiable set with all nodes (keys)
+	 * contained in this nodes attribute map.
 	 */
 	public Set<INode> getAttributeKeys();
 	
@@ -197,7 +197,27 @@ public interface INode {
 	 */
 	public void setId(long id);
 	
+	/**
+	 * Gets A HTML string representation of this nodes attributes.
+	 * @return HTML string
+	 */
 	public String getAttributeHTMLLabelString();
 	
+	/**
+	 * The category utility of this nodes children merge.
+	 * 1 if node is leaf.
+	 * @return the category utility
+	 */
 	public double getCategoryUtility();
+	
+	/**
+	 * Queries for recent node attributes change.
+	 * @return true if node attributes were changed recently, else false.
+	 */
+	public boolean isDirty();
+	
+	/**
+	 * Invalidates the dirty flag (sets the flag to false).
+	 */
+	public void setClean();
 }

@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -15,7 +17,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
 
@@ -27,7 +29,7 @@ import com.google.common.primitives.Ints;
  *
  * @param <E> the type of objects to cluster
  */
-public class ClusterSet<E> implements Serializable {
+public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -84,7 +86,10 @@ public class ClusterSet<E> implements Serializable {
 	 * Maps to each currently valid comparison index all possible comparisons (multimap).
 	 * Used for keeping the combinationIndices set in sync with the cluster set.
 	 */
-	private Multimap<Integer, scala.collection.immutable.List<Integer>> combinationsMap;
+	private HashMultimap<Integer, scala.collection.immutable.List<Integer>> combinationsMap;
+	
+	private Map<scala.collection.immutable.List<Integer>, List<E>> cachedNodeLists
+			= new HashMap<scala.collection.immutable.List<Integer>, List<E>>();
 	
 	/**
 	 * Instantiates a new cluster set.
@@ -186,13 +191,19 @@ public class ClusterSet<E> implements Serializable {
 			combinationIndices.addAll(combinationsMap.get(newIndex));
 		}
 	}
-
-	/**
-	 * Removes an object from this ClusterSet and 
-	 * updates the combinationsMap and combinationIndices.
-	 * @param o the object to remove
-	 * @return false if object was not contained in this ClusterSet, else true
+	
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#remove(java.lang.Object)
 	 */
+	@Override
+	public boolean contains(Object o) {
+		return openNodes.contains(o);
+	}
+
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#remove(java.lang.Object)
+	 */
+	@Override
 	public boolean remove(Object o) {
 
 		if (! openNodes.contains(o)) return false;
@@ -203,13 +214,10 @@ public class ClusterSet<E> implements Serializable {
 		return openNodes.remove(o);
 	}
 	
-	/**
-	 * Adds a new element to the ClusterSet if the passed element
-	 * is not already contained in the ClusterSet.
-	 * Updates the combinationsMap and combinationIndices.
-	 * @param e element to add.
-	 * @return false if passed element already present, else true
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#add(E)
 	 */
+	@Override
 	public boolean add(E e) {
 		if (openNodes.contains(e)) return false;
 		boolean b = openNodes.add(e);
@@ -218,52 +226,45 @@ public class ClusterSet<E> implements Serializable {
 
 	}
 
-	/**
-	 * Gets the size of the set.
-	 * @return the size
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#size()
 	 */
+	@Override
 	public int size() {
 		return openNodes.size();
 
 	}
 	
-	/**
-	 * Checks if this cluster set is already fully clustered.
-	 * @return true if set is clustered, else false.
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#clusteringDone()
 	 */
+	@Override
 	public boolean clusteringDone(){
 		return size() < 2;
 	}
 	
-	/**
-	 * Gets a read only view of the set to cluster.
-	 * The set reflects changes to the underlying set but
-	 * the underlying set can not be changed
-	 * through the returned set.
-	 * @return a read only view of the set to cluster
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getUnmodifiableSetView()
 	 */
+	@Override
 	public Set<E> getUnmodifiableSetView() {
 		return Collections.unmodifiableSet(openNodes);
 	}
 	
-	/**
-	 * Gets the root of a cluster set if clustering is completed.
-	 * @return the root cluster of the cluster set if or 
-	 * null if clusteringDone() == false or set was initialized with 0 leaves.
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getRoot()
 	 */
+	@Override
 	public E getRoot() {
 		if (! clusteringDone()) return null;
 		if (size() == 0) return null;
 		return openNodes.iterator().next();
 	}
 	
-	/**
-	 * Gets any cluster.
-	 * <br>
-	 * <br>
-	 * Used for testing.
-	 * @return any cluster
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getAnyElement()
 	 */
+	@Override
 	public E getAnyElement() {
 		E e = null;
 		if (openNodes.iterator().hasNext()){
@@ -272,13 +273,22 @@ public class ClusterSet<E> implements Serializable {
 		return e;
 	}
 	
-	/**
-	 * Gets the Set of all possible cluster combinations with a size <= {@code MAX_SUBSET_SIZE}.
-	 * @return the possible combinations.
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getCombinations()
 	 */
+	@Override
 	public Set<List<E>> getCombinations() {
 		Set<List<E>> combinations = new HashSet<List<E>>(combinationIndices.size());
 		for (scala.collection.immutable.List<Integer> l : combinationIndices) {
+			combinations.add(convertIndexListToElementList(l));
+		}
+		return combinations;
+	}
+	
+	private List<E> convertIndexListToElementList(scala.collection.immutable.List<Integer> l) {
+		if (cachedNodeLists.containsKey(l)) {
+			return cachedNodeLists.get(l);
+		} else {
 			List<E> eL = new ArrayList<E>(l.size());
 			scala.collection.Iterator<Integer> i = l.iterator();
 			while(i.hasNext()) {
@@ -288,9 +298,25 @@ public class ClusterSet<E> implements Serializable {
 					log.severe("Error in ClusterSet: Invalid index queried from IndexAwareSet!");
 					System.exit(-1);
 				}
-				eL.add(e);
+				eL.add(e);			
 			}
-			combinations.add(eL);
+			cachedNodeLists.put(l, eL);
+			return eL;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getCombinations(E)
+	 */
+	@Override
+	public Set<List<E>> getCombinations(E element) {
+		int elIndex = openNodes.indexOf(element);
+		if (elIndex == -1) return null;
+		Set<scala.collection.immutable.List<Integer>> intersection = Sets.intersection(combinationsMap.get(elIndex), combinationIndices);
+		
+		Set<List<E>> combinations = new HashSet<List<E>>(intersection.size());
+		for (scala.collection.immutable.List<Integer> l : intersection) {
+			combinations.add(convertIndexListToElementList(l));
 		}
 		return combinations;
 	}

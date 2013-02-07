@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,16 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
  * Immutable parameter object for merge candidates.
  *
  */
-public class MergeResult implements IMergeResult {
+public class MergeResult implements IMergeResult, Serializable {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private final double utility;
 	private final INode[] mergeNodesArr;

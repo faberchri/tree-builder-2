@@ -22,7 +22,7 @@ public interface IMaxCategoryUtilitySearcher {
 	 * @param combinationsToCheck the node combinations to test.
 	 * @return Set of IMergeResult with a high category utility.
 	 */
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck);
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet);
 
 	
 }

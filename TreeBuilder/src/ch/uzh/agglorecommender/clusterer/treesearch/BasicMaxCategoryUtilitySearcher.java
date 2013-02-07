@@ -39,7 +39,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 
 
 	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck) {
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time = System.nanoTime();
 		
