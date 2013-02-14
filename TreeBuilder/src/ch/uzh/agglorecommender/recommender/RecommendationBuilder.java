@@ -38,7 +38,7 @@ public final class RecommendationBuilder {
 	public RecommendationBuilder(ClusterResult clusterResult, int radiusU, int radiusC) {
 		
 		// Retrieve Root Nodes of the user tree
-		this.rootU  		= clusterResult.getUserTreeRoot();
+		this.rootU  		= clusterResult.getUserTreeRoot(); 
 		this.leavesMapU 	= clusterResult.getUserTreeLeavesMap();
 		
 		// Parameters for Recommendation
@@ -51,13 +51,14 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<INode, IAttribute> runTestRecommendation(INode testNode, long testNodeID){
+	public Map<INode, IAttribute> runTestRecommendation(INode testNode, int testNodeID){
 		
 		System.out.println("-------------------------------");
 		System.out.println("Starting Recommendation Type 1");
 		System.out.println("-------------------------------");
 		
 		// Find position of the similar node in the tree
+		//System.out.println(leavesMapU.toString());
 		INode position = leavesMapU.get(testNodeID);
 		
 		if(position == null) {
@@ -66,7 +67,7 @@ public final class RecommendationBuilder {
 		}	
 		else {
 			
-			System.out.println("Found position of the node in the user Tree");
+			System.out.println("Found position of the node with Dataset ID " + testNodeID + " in the user Tree: " + position.toString());
 			
 			// Collect ratings of all content given by the input node
 			Map<INode,IAttribute> contentRatings = collectRatings(position,testNode,null);
@@ -101,7 +102,7 @@ public final class RecommendationBuilder {
 		}
 		
 		//System.out.println("contentRatings: " + contentRatings.toString());
-		System.out.println("current position in tree: " + position);
+		//System.out.println("current position in tree: " + position);
 		
 		// Look for content nodes on the list and add it to collected ratings map		
 		Set<INode> attributeKeys = position.getAttributeKeys();
@@ -283,5 +284,10 @@ public final class RecommendationBuilder {
 		}
 		
 		return leaves;
+	}
+
+	public Map<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation){
+		// Implement
+		return unsortedRecommendation;
 	}
 }

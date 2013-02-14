@@ -32,7 +32,7 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
 	 **/
-	protected double calculateCategoryUtility(List<INode> possibleMerge) {
+	public double calculateCategoryUtility(List<INode> possibleMerge) {
 				
 		Set<INode> allAttributes = new HashSet<INode>();
 		int totalLeafCount = 0;

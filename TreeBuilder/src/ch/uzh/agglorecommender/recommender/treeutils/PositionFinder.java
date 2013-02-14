@@ -20,70 +20,89 @@ public class PositionFinder {
 	 * the tree, it ends on a leaf node.
 	 * 
 	 * @param inputNodeID this node is the base of the search
-	 * @param parent this is the current starting point of the search
+	 * @param position this is the current starting point of the search
 	 * @param cutoff this is the previously calculated utility value
 	 */
-	public INode findPosition(INode inputNode,INode parent,double cutoff) {
+	public INode findPosition(INode inputNode,INode position,double cutoff) {
 		
 		if(inputNode != null) {
-		
+			
+			// Prepare nodes array
 			INode[] nodesToCalculate = new INode[2];
 			nodesToCalculate[0] = inputNode;
-			nodesToCalculate[1] = parent;
+			nodesToCalculate[1] = position;
 			
-//			if(1==1){ // FIX Need type of clustering that was used
+			// Error TESTS
+			// Beide Sets haben die Werte, mann kann aber nicht mit dem attKey von input den value holen?!
+//			// Tests because of error -> keys sind nicht vergleichbar!!!!!!!!!!!!
+			for(INode attKey : inputNode.getAttributeKeys()){
+				for(INode attKey2 : position.getAttributeKeys()){
+					if(attKey == attKey2){
+						System.out.println("Found same key");
+					}
+				}
+			}
+			
+			
+//			if(1==1){ // FIX Need type of clustering that was used	
 				ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher();
 //			}
 //			else if(1==0){
 //				CobwebMaxCategoryUtilitySearcher helper = new CobwebMaxCategoryUtilitySearcher();
 //			}
 			
-			// Establish cut off value when 0
+			// Establish cut off value when 0, ie. when position is on root
 			if(cutoff == 0) {
-			    cutoff = helper.calculateCategoryUtility(nodesToCalculate);
-				//System.out.println("Established cut off: " + cutoff);
+				if(position != null){
+//					System.out.println("Compare: " + inputNode.toString() + "(" + inputNode.getAttributeKeys().toString() + ")/" + position.toString() + "(" + position.getAttributeKeys().toString());
+					cutoff = helper.calculateCategoryUtility(nodesToCalculate); // FIXME Utility Berechnung liefert 0
+				}
+				else {
+					System.out.println("Root node is null");
+				}
+				System.out.println("Established cut off: " + cutoff);
 			}
 			
-			if(parent != null) {
-				if(parent.getChildrenCount() > 0){
+			if(position != null) {
+				if(position.getChildrenCount() > 0){
 			
-					Iterator<INode> compareSet = parent.getChildren();
+					Iterator<INode> compareSet = position.getChildren();
 					INode nextPosition = null;
 					while(compareSet.hasNext()) {
 						  
 						INode tempPosition = compareSet.next();
 						nodesToCalculate[1] = tempPosition;
-						double utility = helper.calculateCategoryUtility(nodesToCalculate);
+						double utility = helper.calculateCategoryUtility(nodesToCalculate); // FIXME Utility Berechnung liefert 0
 						
-						if(utility > highestUtility){
+						if(utility >= highestUtility){
 							//System.out.println("Found higher utility: " + utility + ">" + highestUtility);
 							highestUtility = utility;
 							nextPosition = tempPosition;
 						}
 					}
 			
-					if(highestUtility > cutoff) {
+					if(highestUtility >= cutoff) {
 						//System.out.println("Continue one level down");
-						INode position = findPosition(inputNode,nextPosition,cutoff);
-						if (position != null){
-							return position;
+						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
+						if (finalPosition != null){
+							return finalPosition;
 						}
 					}
 					else {
-						System.out.println("Best position was found " + parent.toString() + "; better utility than all children");
-						return parent;
+						System.out.println("Best position was found " + position.toString() + "; better utility than all children");
+						return position;
 					}
 				}
 				else {
-					System.out.println("Best position was found " + parent.toString() + "; is leaf node");
-					return parent;
+					System.out.println("Best position was found " + position.toString() + "; is leaf node");
+					return position;
 				}
 				
 				return null;
 			}
-			else {
-				System.out.println("Parent Node is null");
-			}
+//			else {
+//				System.out.println("Parent Node is null");
+//			}
 		}
 		
 		System.out.println("Position Finder has not received correct values");

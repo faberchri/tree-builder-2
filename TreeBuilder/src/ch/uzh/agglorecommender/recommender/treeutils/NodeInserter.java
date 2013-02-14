@@ -40,8 +40,11 @@ public class NodeInserter {
 	 * 
 	 */
 	public void newNode(INode node) {
+		
 		INode position = positionFinder.findPosition(node, null, 0);
-		position.addChild(node);
+		if(position != null){
+			position.addChild(node);
+		}
 	}
 	
 	/**
@@ -51,26 +54,29 @@ public class NodeInserter {
 	 * 
 	 */
 	public void incorporateNode(INode node) {
-		
+			
 		// Find position to insert node
 		INode position = positionFinder.findPosition(node, null, 0);
-		
-		// Create new Node
-		List<INode> nodesToMerge = new LinkedList<INode>();
-		nodesToMerge.add(node);
-		nodesToMerge.add(position);
-		
-		INode newNode = userTreeComponentFactory.createInternalNode(
-				ENodeType.User,
-				nodesToMerge,0); // FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
-		
-		// Insert new Node into tree
-		newNode.setParent(position.getParent());
-		Iterator<INode> children = position.getChildren();
-		while(children.hasNext()){	
-			INode child = children.next();
-			child.setParent(newNode);
-			newNode.addChild(child);
+			
+		if(position != null){
+			
+			// Create new Node
+			List<INode> nodesToMerge = new LinkedList<INode>();
+			nodesToMerge.add(node);
+			nodesToMerge.add(position);
+			
+			INode newNode = userTreeComponentFactory.createInternalNode(
+					ENodeType.User,
+					nodesToMerge,0); // FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
+			
+			// Insert new Node into tree
+			newNode.setParent(position.getParent());
+			Iterator<INode> children = position.getChildren();
+			while(children.hasNext()){	
+				INode child = children.next();
+				child.setParent(newNode);
+				newNode.addChild(child);
+			}
 		}
 	}
 

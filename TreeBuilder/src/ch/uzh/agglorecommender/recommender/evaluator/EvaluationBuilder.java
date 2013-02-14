@@ -35,6 +35,7 @@ public class EvaluationBuilder {
 	public Map<String,Double> evaluate(INode testNode, int testNodeID, RecommendationBuilder rb) throws NullPointerException {
 		
 		if(testNode != null){
+			
 			// Get Predicitions & Real Values
 			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode,testNodeID);
 			

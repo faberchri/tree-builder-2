@@ -34,7 +34,8 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
 	 **/
-	protected double calculateCategoryUtility(List<INode> possibleMerge) {
+	public double calculateCategoryUtility(List<INode> possibleMerge) {
+		
 		Set<INode> allAttributes = new HashSet<INode>();
 
 		for (INode node : possibleMerge) {

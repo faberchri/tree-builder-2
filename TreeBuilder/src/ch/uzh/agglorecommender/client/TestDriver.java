@@ -68,11 +68,11 @@ public class TestDriver {
 		return clusterResult;
 	}	
 	
-	private static void test(ClusterResult trsainingOutput) {
+	private static void test(ClusterResult trainingOutput) {
 				
 		// Instantiate Evaluations Builder
 		EvaluationBuilder eb = new EvaluationBuilder();
-		RecommendationBuilder rb = new RecommendationBuilder(trsainingOutput,0,0);
+		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput,0,0);
 		
 		// Run Recommendation Type 1 -> RMSE, AME calculation
 		InitialNodesCreator testSet = new InitialNodesCreator(
@@ -80,21 +80,32 @@ public class TestDriver {
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
+		System.out.println("TestUsers size: " + testNodes.size());
 //		double eval = 0;
 //		for(INode testNode : testNodes.keySet()){
 //			eval = eb.evaluate(testNode,testNodes.get(testNode), rb);
 //			break;
 //		}
 		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
-		System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		if(eval != null){
+			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		}
+		else {
+			System.out.println("Errors during calculation");
+		}
 		
 		// Recommendation Type 2 -> No rmse calculation possible
 		INode inputNode = eb.createRandomUser();
 		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-		System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+		if(recommendedMovies != null){
+			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+		}
+		else {
+			System.out.println("Errors during calculation");
+		}
 		
 		// Insert Nodes
-		NodeInserter nodeInserter = new NodeInserter(trsainingOutput,cla.userTreeComponentFactory);
+		NodeInserter nodeInserter = new NodeInserter(trainingOutput,cla.userTreeComponentFactory);
 		nodeInserter.insert(inputNode);
 	}
 	
@@ -128,7 +139,7 @@ public class TestDriver {
 	/**
 	 * Instantiates the data set object to process. Data are loaded from the specified
 	 * file or the default file.
-	 * 
+	 * 	
 	 * @return the IDataset to process
 	 */
 	private static IDataset<?> getDataset(File inputFile, DataSetSplit split) {
