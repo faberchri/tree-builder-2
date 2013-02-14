@@ -179,6 +179,13 @@ public interface INode {
 	public long getId();
 	
 	/**
+	 * Gets the datasetID of the node.
+	 * 
+	 * @return the datasetID
+	 */
+	public long getDatasetId();
+	
+	/**
 	 * Gets the id(s) of the data item(s) (i.e. user or contend item) 
 	 * contained in this cluster from the clustered data set. 
 	 * 

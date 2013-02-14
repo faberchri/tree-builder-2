@@ -1,6 +1,8 @@
 package ch.uzh.agglorecommender.recommender.treeutils;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -28,9 +30,9 @@ public class PositionFinder {
 		if(inputNode != null) {
 			
 			// Prepare nodes array
-			INode[] nodesToCalculate = new INode[2];
-			nodesToCalculate[0] = inputNode;
-			nodesToCalculate[1] = position;
+			List<INode> nodesToCalculate = new LinkedList<INode>();
+			nodesToCalculate.add(inputNode);
+			nodesToCalculate.add(position);
 			
 			// Error TESTS
 			// Beide Sets haben die Werte, mann kann aber nicht mit dem attKey von input den value holen?!
@@ -71,7 +73,7 @@ public class PositionFinder {
 					while(compareSet.hasNext()) {
 						  
 						INode tempPosition = compareSet.next();
-						nodesToCalculate[1] = tempPosition;
+						nodesToCalculate.set(0, tempPosition);
 						double utility = helper.calculateCategoryUtility(nodesToCalculate); // FIXME Utility Berechnung liefert 0
 						
 						if(utility >= highestUtility){

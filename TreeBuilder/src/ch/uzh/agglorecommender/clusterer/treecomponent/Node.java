@@ -388,4 +388,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public static Set<INode> getAllDirtyNodes() {
 		return dirtySet;
 	}
+
+	@Override
+	public long getDatasetId() {
+		return dataSetId;
+	}
 }

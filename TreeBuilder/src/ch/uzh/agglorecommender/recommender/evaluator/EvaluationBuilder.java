@@ -3,7 +3,6 @@ package ch.uzh.agglorecommender.recommender.evaluator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import ch.uzh.agglorecommender.client.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
@@ -32,20 +31,23 @@ public class EvaluationBuilder {
 	 * @param testnode this node is from the test set
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 */
-	public Map<String,Double> evaluate(INode testNode, int testNodeID, RecommendationBuilder rb) throws NullPointerException {
+	public Map<String,Double> evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
 		
 		if(testNode != null){
 			
 			// Get Predicitions & Real Values
-			Map<INode, IAttribute> predictedRatings = rb.runTestRecommendation(testNode,testNodeID);
+			Map<Long, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
 			
 			if(predictedRatings != null) {
 				
 				Map<String,Double> eval = new HashMap<String,Double>();
-				Set<INode> realRatingsKeys = testNode.getAttributeKeys();
 				
-				eval.put("RMSE",calculateRMSE(realRatingsKeys, testNode, predictedRatings));
-				eval.put("AME",calculateAME(realRatingsKeys, testNode, predictedRatings));
+				//----------- WORK ----------------------------------------------------------------
+				// Pick the real ratings for the predicted ratings from the recommendation
+				
+				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
+				eval.put("AME",calculateAME(testNode, predictedRatings));
+				//----------- WORK ----------------------------------------------------------------
 				
 				return eval;
 				
@@ -78,7 +80,7 @@ public class EvaluationBuilder {
 			
 			// Calculate evaluation for all test nodes
 			for(INode testNode : testNodes.keySet()) {
-				eval = evaluate(testNode,testNodes.get(testNode),rb);
+				eval = evaluate(testNode,rb);
 				
 				// Add up results
 				for(String eKey : eval.keySet()){
@@ -106,20 +108,21 @@ public class EvaluationBuilder {
 	/**
 	 * Calculate Evalution Value with Root Mean Squared Error (RMSE) Method
 	 * 
-	 * @param realRatingsKeys set of the real ratings
+	 * @param datasetIDs set of the real ratings
 	 * @param testNode the node that needs to be compared
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	public double calculateRMSE (Set<INode> realRatingsKeys, INode testNode, Map<INode, IAttribute> predictedRatings){
+	public double calculateRMSE (INode testNode, Map<Long, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
-		for(INode ratingKey: realRatingsKeys) {
+		
+		for(INode ratingKey: testNode.getAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get(ratingKey);
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
@@ -133,7 +136,7 @@ public class EvaluationBuilder {
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / realRatingsKeys.size();
+		double mse = sumOfSquaredDifferences / testNode.getAttributeKeys().size();
 		
 		// Take root
 		double rmse = Math.sqrt(mse);
@@ -144,21 +147,20 @@ public class EvaluationBuilder {
 	/**
 	 * Calculate Evalution Value as Absolute Min Error (AME)
 	 * 
-	 * @param realRatingsKeys set of the real ratings
+	 * @param datasetIDs set of the real ratings
 	 * @param testNode the node that needs to be compared
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	private double calculateAME(Set<INode> realRatingsKeys, INode testNode,
-			Map<INode, IAttribute> predictedRatings) {
+	private double calculateAME(INode testNode,Map<Long, IAttribute> predictedRatings) {
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
-		for(INode ratingKey: realRatingsKeys) {
+		for(INode ratingKey: testNode.getAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get(ratingKey);
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
@@ -172,7 +174,7 @@ public class EvaluationBuilder {
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / realRatingsKeys.size();
+		double mse = sumOfSquaredDifferences / testNode.getAttributeKeys().size();
 		
 		// Take root
 		double ame = Math.sqrt(mse);
