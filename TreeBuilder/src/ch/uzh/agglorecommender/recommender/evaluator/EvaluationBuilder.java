@@ -26,6 +26,51 @@ public class EvaluationBuilder {
 	Random randomGenerator = new Random();
 	
 	/**
+	 * Runs multiple evaluations with different test nodes to eliminate variances
+	 * 
+	 * @param testNodes Set of nodes from test set
+	 * @param rb this recommendation builder was initialized with the tree of the training set
+	 * 
+	 */
+	public Map<String,Double> kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
+		
+		System.out.println("Starting kFoldEvaluation");
+			
+		// Establish Maps
+		Map<String,Double> eval = null;
+		Map<String,Double> sumOfEval = new HashMap<String,Double>();
+			
+		// Calculate evaluation for all test nodes
+		for(INode testNode : testNodes.keySet()) {
+				
+			System.out.println("Running evaluation for " + testNode.toString());
+				
+			eval = evaluate(testNode,rb);
+			System.out.println(eval.toString());
+				
+			// Add up results
+			Double sumOfEValue = 0.0;
+			for(String eKey : eval.keySet()){
+				if(eval.get(eKey) != null){
+					sumOfEValue = sumOfEval.get(eKey);
+					sumOfEValue += eval.get(eKey);
+					sumOfEval.put(eKey, sumOfEValue);
+				}
+			}
+		}
+		
+		System.out.println("sumOfEval: " + sumOfEval);
+			
+		// Take Mean of every value
+		for(String eKey : sumOfEval.keySet()){
+			Double meanEvalValue = sumOfEval.get(eKey) / testNodes.size();
+			sumOfEval.put(eKey, meanEvalValue);
+		}
+		
+		return eval;
+	}
+
+	/**
 	 * Evaluates a given training-set based recommendation with a test node from a test set
 	 * 
 	 * @param testnode this node is from the test set
@@ -36,7 +81,7 @@ public class EvaluationBuilder {
 		if(testNode != null){
 			
 			// Get Predicitions & Real Values
-			Map<Long, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
+			Map<Integer, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
 			
 			if(predictedRatings != null) {
 				
@@ -44,10 +89,14 @@ public class EvaluationBuilder {
 				
 				//----------- WORK ----------------------------------------------------------------
 				// Pick the real ratings for the predicted ratings from the recommendation
-				
+				System.out.println("Starting Calculation...");
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
 				//----------- WORK ----------------------------------------------------------------
+				
+				if(eval == null){
+					System.out.println("Errors during calculation");
+				}
 				
 				return eval;
 				
@@ -64,48 +113,6 @@ public class EvaluationBuilder {
 	}
 	
 	/**
-	 * Runs multiple evaluations with different test nodes to eliminate variances
-	 * 
-	 * @param testNodes Set of nodes from test set
-	 * @param rb this recommendation builder was initialized with the tree of the training set
-	 * 
-	 */
-	public Map<String,Double> kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
-		
-		try {
-			
-			// Establish Maps
-			Map<String,Double> eval = null;
-			Map<String,Double> sumOfEval = new HashMap<String,Double>();
-			
-			// Calculate evaluation for all test nodes
-			for(INode testNode : testNodes.keySet()) {
-				eval = evaluate(testNode,rb);
-				
-				// Add up results
-				for(String eKey : eval.keySet()){
-					Double eValue = eval.get(eKey);
-					Double sumOfEValue = sumOfEval.get(eKey);
-					sumOfEValue += eValue;
-					sumOfEval.put(eKey, sumOfEValue);
-				}
-			}
-			
-			// Take Mean of every value
-			for(String eKey : sumOfEval.keySet()){
-				Double meanEvalValue = sumOfEval.get(eKey) / testNodes.size();
-				sumOfEval.put(eKey, meanEvalValue);
-			}
-			
-			return eval;
-		}
-		catch (NullPointerException e) {
-			return null;
-		}
-		
-	}
-	
-	/**
 	 * Calculate Evalution Value with Root Mean Squared Error (RMSE) Method
 	 * 
 	 * @param datasetIDs set of the real ratings
@@ -113,7 +120,7 @@ public class EvaluationBuilder {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	public double calculateRMSE (INode testNode, Map<Long, IAttribute> predictedRatings){
+	public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
@@ -124,6 +131,7 @@ public class EvaluationBuilder {
 			double pRating = 0;
 			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
+				System.out.println("predictedRating: " + pRatingAtt.toString());
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
 			
@@ -152,7 +160,7 @@ public class EvaluationBuilder {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	private double calculateAME(INode testNode,Map<Long, IAttribute> predictedRatings) {
+	private double calculateAME(INode testNode,Map<Integer, IAttribute> predictedRatings) {
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;

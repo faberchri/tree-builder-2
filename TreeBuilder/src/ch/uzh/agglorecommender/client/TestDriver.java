@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -11,7 +12,6 @@ import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
-import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -19,7 +19,6 @@ import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySear
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
-import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -81,32 +80,30 @@ public class TestDriver {
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
 		System.out.println("TestUsers size: " + testNodes.size());
-//		double eval = 0;
-//		for(INode testNode : testNodes.keySet()){
-//			eval = eb.evaluate(testNode,testNodes.get(testNode), rb);
-//			break;
-//		}
-		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		Map<String, Double> eval = new HashMap<String,Double>();
+		for(INode testNode : testNodes.keySet()){
+			eval = eb.evaluate(testNode,rb);
+			break;
+		}
+//		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		
 		if(eval != null){
 			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
 		}
-		else {
-			System.out.println("Errors during calculation");
-		}
 		
-		// Recommendation Type 2 -> No rmse calculation possible
-		INode inputNode = eb.createRandomUser();
-		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-		if(recommendedMovies != null){
-			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
-		}
-		else {
-			System.out.println("Errors during calculation");
-		}
-		
-		// Insert Nodes
-		NodeInserter nodeInserter = new NodeInserter(trainingOutput,cla.userTreeComponentFactory);
-		nodeInserter.insert(inputNode);
+//		// Recommendation Type 2 -> No rmse calculation possible
+//		INode inputNode = eb.createRandomUser();
+//		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
+//		if(recommendedMovies != null){
+//			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+//		}
+//		else {
+//			System.out.println("Errors during calculation");
+//		}
+//		
+//		// Insert Nodes
+//		NodeInserter nodeInserter = new NodeInserter(trainingOutput,cla.userTreeComponentFactory);
+//		nodeInserter.insert(inputNode);
 	}
 	
 	/**
