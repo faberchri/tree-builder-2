@@ -102,24 +102,13 @@ public class TestDriver {
 		System.out.println("Starting Recommendation Type 2");
 		System.out.println("-------------------------------");
 		
-		INode inputNode1 = eb.createRandomUser(1); // Just Ratings
-		INode inputNode2 = eb.createRandomUser(2); // Just Demographics
-		INode inputNode3 = eb.createRandomUser(3); // Just Ratings & Demographics
+		Map<INode, IAttribute> testRatings = eb.rateRandomContent(3,trainingOutput); // To evaluate by the user
+		Map<String,String> testDemographics = eb.defineDemographics(); 
+		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with ratings & demographics
+		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(testUser);
 		
-		Map<INode,IAttribute> recommendedMovies1 = rb.runRecommendation(inputNode1);
-		Map<INode,IAttribute> recommendedMovies2 = rb.runRecommendation(inputNode2);
-		Map<INode,IAttribute> recommendedMovies3 = rb.runRecommendation(inputNode3);
-		
-		if(recommendedMovies1 != null){
-			System.out.println("=> Recommended Movies 1: " + recommendedMovies1.keySet().toString());
-		}
-		
-		if(recommendedMovies2 != null){
-			System.out.println("=> Recommended Movies 2: " + recommendedMovies2.keySet().toString());
-		}
-		
-		if(recommendedMovies3 != null){
-			System.out.println("=> Recommended Movies 3: " + recommendedMovies3.keySet().toString());
+		if(recommendedMovies != null){
+			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
 		}
 	}
 	

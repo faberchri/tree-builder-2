@@ -29,40 +29,23 @@ public class PositionFinder {
 		
 		if(inputNode != null) {
 			
-			// Prepare nodes array
+			// Prepare nodes array for utility calculation
 			List<INode> nodesToCalculate = new LinkedList<INode>();
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(position);
 			
-			// Error TESTS
-			// Beide Sets haben die Werte, mann kann aber nicht mit dem attKey von input den value holen?!
-//			// Tests because of error -> keys sind nicht vergleichbar!!!!!!!!!!!!
-			for(INode attKey : inputNode.getAttributeKeys()){
-				for(INode attKey2 : position.getAttributeKeys()){
-					if(attKey == attKey2){
-						System.out.println("Found same key");
-					}
-				}
-			}
-			
-			
-//			if(1==1){ // FIX Need type of clustering that was used	
-				ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher();
-//			}
-//			else if(1==0){
-//				CobwebMaxCategoryUtilitySearcher helper = new CobwebMaxCategoryUtilitySearcher();
-//			}
+			// FIXME verschiedene UtilitySearcher -> muss implementiert werden 
+			ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher();
 			
 			// Establish cut off value when 0, ie. when position is on root
 			if(cutoff == 0) {
 				if(position != null){
-//					System.out.println("Compare: " + inputNode.toString() + "(" + inputNode.getAttributeKeys().toString() + ")/" + position.toString() + "(" + position.getAttributeKeys().toString());
-					cutoff = helper.calculateCategoryUtility(nodesToCalculate); // FIXME Utility Berechnung liefert 0
+					cutoff = helper.calculateCategoryUtility(nodesToCalculate);
 				}
 				else {
 					System.out.println("Root node is null");
 				}
-				System.out.println("Established cut off: " + cutoff);
+//				System.out.println("Established cut off: " + cutoff);
 			}
 			
 			if(position != null) {
@@ -74,40 +57,42 @@ public class PositionFinder {
 						  
 						INode tempPosition = compareSet.next();
 						nodesToCalculate.set(0, tempPosition);
-						double utility = helper.calculateCategoryUtility(nodesToCalculate); // FIXME Utility Berechnung liefert 0
+						double utility = helper.calculateCategoryUtility(nodesToCalculate);
 						
+						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){
-							//System.out.println("Found higher utility: " + utility + ">" + highestUtility);
+//							System.out.println("Found higher utility: " + utility + ">" + highestUtility);
 							highestUtility = utility;
 							nextPosition = tempPosition;
 						}
 					}
-			
+					
+					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
-						//System.out.println("Continue one level down");
+//						System.out.println("Continue one level down");
 						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
 						if (finalPosition != null){
+//							System.out.println("found final position");
 							return finalPosition;
+						}
+						else {
+//							System.out.println("received null position");
+							return position;
 						}
 					}
 					else {
-						System.out.println("Best position was found " + position.toString() + "; better utility than all children");
+						System.out.println("Best position was found in tree: " + position.toString());
 						return position;
 					}
 				}
 				else {
-					System.out.println("Best position was found " + position.toString() + "; is leaf node");
+					System.out.println("Best position was found in leaf: " + position.toString());
 					return position;
 				}
-				
-				return null;
 			}
-//			else {
-//				System.out.println("Parent Node is null");
-//			}
 		}
 		
-		System.out.println("Position Finder has not received correct values");
+//		System.out.println("Error: inputNode is null");
 		return null;
 	}
 }

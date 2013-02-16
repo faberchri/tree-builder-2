@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.InitialNodesCreator;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -205,41 +205,57 @@ public class EvaluationBuilder {
 	/**
 	 * Creates a random user with random ratings & demographics
 	 * Helper method for recommendations of type 2 (recommend unknown content)
-	 * @param i 
 	 * 
+	 * @param testRatings 
+	 * @param testDemographics 
 	 * @param testset reference on the test set
+	 * 
+	 * @return INode testUser
 	 */
-	public INode createRandomUser(int i) {
+	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String, String> testDemographics) {
 		
-		// Creating the content nodes
-		INode A1n = new Node(ENodeType.Content, null, null,0);
-		INode A2n = new Node(ENodeType.Content, null, null,0);
-		INode A3n = new Node(ENodeType.Content, null, null,0);
-		INode A4n = new Node(ENodeType.Content, null, null,0);
+		INode testUser = new Node(ENodeType.User, 0);
+		testUser.setAttributes(testRatings);
 		
-		A1n.setId(3);
-		A2n.setId(47);
-		A3n.setId(5);
-		A4n.setId(6);
+		return testUser;
+	}
+	
+	/**
+	 * Picks some random content from the tree that the user has to rate
+	 * 
+	 * @param number number of movies that should be rated
+	 * @param trainingOutput the tree that should be used to pick random content
+	 * 
+	 * @ return Map<INode,IAttribute> attribute map
+	 */
+	public Map<INode,IAttribute> rateRandomContent(int number, ClusterResult trainingOutput) {
 		
-		// Creating the attributes
-		IAttribute A1a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
-		IAttribute A2a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
-		IAttribute A3a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
-		IAttribute A4a = ClassitTreeComponentFactory.getInstance().createAttribute(randomGenerator.nextInt(10));
-
-		// ClassitAttribute map
-		Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
-		attMap.put(A1n, A1a);
-		attMap.put(A2n, A2a);
-		attMap.put(A3n, A3a);
-		attMap.put(A4n, A4a);
-
-		// Create the user node
-		INode randomUser = new Node(ENodeType.User, null, null,0);// FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
-		randomUser.setAttributes(attMap);
-		randomUser.setId(1);
+		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
+		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(1);
 		
-		return randomUser;
+		for(INode attKey : randomUser.getAttributeKeys()){
+			contentRatings.put(attKey, randomUser.getAttributeValue(attKey)); // FIXME: Sollte eine Auswahl erscheinen
+		}
+		
+		return contentRatings;
+	}
+	
+	/**
+	 * Creates the demographic data of the user
+	 * 
+	 * @ return Map<INode,IAttribute> attribute map
+	 */
+	public Map<String, String> defineDemographics() {
+		
+		// Define demographic values
+		Map<String, String> demographics = new HashMap<String,String>();
+		demographics.put("Age", "24");
+		demographics.put("Gender", "M");
+		demographics.put("Occupation", "1");
+		
+		// Ask Tester and define
+		// Implement later
+		
+		return demographics;
 	}
 }
