@@ -4,7 +4,6 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,6 +11,7 @@ import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -19,6 +19,7 @@ import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySear
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
+import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -43,7 +44,7 @@ public class TestDriver {
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
 		test(training());
-				
+//		insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
 	}
 	
 	private static ClusterResult training() {
@@ -67,43 +68,71 @@ public class TestDriver {
 		return clusterResult;
 	}	
 	
+	/**
+	 * Allows the Evaluation of the quality of recommendations given by the system
+	 * Recommendation Type 1 delivers quantitative information (RSME/AME)
+	 * Recommendation Type 2 delivers qualitative information (the recommendation)
+	 * 
+	 * @param trainingOutput the trainingCluster for evaluation
+	 */
 	private static void test(ClusterResult trainingOutput) {
 				
 		// Instantiate Evaluations Builder
 		EvaluationBuilder eb = new EvaluationBuilder();
 		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput,0,0);
 		
-		// Run Recommendation Type 1 -> RMSE, AME calculation
+		// Run Recommendation Type 1
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 1");
+		System.out.println("-------------------------------");
+		
 		InitialNodesCreator testSet = new InitialNodesCreator(
 				getTestDataset(),
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
-		System.out.println("TestUsers size: " + testNodes.size());
-		Map<String, Double> eval = new HashMap<String,Double>();
-		for(INode testNode : testNodes.keySet()){
-			eval = eb.evaluate(testNode,rb);
-			break;
-		}
-//		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
 		
 		if(eval != null){
 			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
 		}
 		
-//		// Recommendation Type 2 -> No rmse calculation possible
-//		INode inputNode = eb.createRandomUser();
-//		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(inputNode);
-//		if(recommendedMovies != null){
-//			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
-//		}
-//		else {
-//			System.out.println("Errors during calculation");
-//		}
-//		
-//		// Insert Nodes
-//		NodeInserter nodeInserter = new NodeInserter(trainingOutput,cla.userTreeComponentFactory);
-//		nodeInserter.insert(inputNode);
+		// Recommendation Type 2
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 2");
+		System.out.println("-------------------------------");
+		
+		INode inputNode1 = eb.createRandomUser(1); // Just Ratings
+		INode inputNode2 = eb.createRandomUser(2); // Just Demographics
+		INode inputNode3 = eb.createRandomUser(3); // Just Ratings & Demographics
+		
+		Map<INode,IAttribute> recommendedMovies1 = rb.runRecommendation(inputNode1);
+		Map<INode,IAttribute> recommendedMovies2 = rb.runRecommendation(inputNode2);
+		Map<INode,IAttribute> recommendedMovies3 = rb.runRecommendation(inputNode3);
+		
+		if(recommendedMovies1 != null){
+			System.out.println("=> Recommended Movies 1: " + recommendedMovies1.keySet().toString());
+		}
+		
+		if(recommendedMovies2 != null){
+			System.out.println("=> Recommended Movies 2: " + recommendedMovies2.keySet().toString());
+		}
+		
+		if(recommendedMovies3 != null){
+			System.out.println("=> Recommended Movies 3: " + recommendedMovies3.keySet().toString());
+		}
+	}
+	
+	/**
+	 * Allows insertion of a new node to an existing tree
+	 * 
+	 * @param tree the tree to insert the node
+	 * @param treeComponentFactory the tree component factory that should be used
+	 * @param inputNode the node that should be inserted
+	 */
+	private static void insert(ClusterResult tree, TreeComponentFactory treeComponentFactory, INode inputNode) {
+		NodeInserter nodeInserter = new NodeInserter(tree,treeComponentFactory);
+		nodeInserter.insert(inputNode);
 	}
 	
 	/**

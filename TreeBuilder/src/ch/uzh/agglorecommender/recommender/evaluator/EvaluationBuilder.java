@@ -34,32 +34,29 @@ public class EvaluationBuilder {
 	 */
 	public Map<String,Double> kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
 		
-		System.out.println("Starting kFoldEvaluation");
+		System.out.println("kFoldEvaluation started..");
 			
 		// Establish Maps
 		Map<String,Double> eval = null;
 		Map<String,Double> sumOfEval = new HashMap<String,Double>();
+		sumOfEval.put("RMSE", 0.0);
+		sumOfEval.put("AME", 0.0);
 			
 		// Calculate evaluation for all test nodes
 		for(INode testNode : testNodes.keySet()) {
-				
-			System.out.println("Running evaluation for " + testNode.toString());
-				
+			
 			eval = evaluate(testNode,rb);
-			System.out.println(eval.toString());
 				
 			// Add up results
-			Double sumOfEValue = 0.0;
-			for(String eKey : eval.keySet()){
-				if(eval.get(eKey) != null){
-					sumOfEValue = sumOfEval.get(eKey);
-					sumOfEValue += eval.get(eKey);
-					sumOfEval.put(eKey, sumOfEValue);
+			for(String evMethod : sumOfEval.keySet()){
+//				System.out.println("evMethod: " + evMethod);
+				if(eval.get(evMethod) != null){
+					Double sumOfEValue = sumOfEval.get(evMethod);
+					sumOfEValue += eval.get(evMethod);
+					sumOfEval.put(evMethod, sumOfEValue);
 				}
 			}
 		}
-		
-		System.out.println("sumOfEval: " + sumOfEval);
 			
 		// Take Mean of every value
 		for(String eKey : sumOfEval.keySet()){
@@ -87,12 +84,10 @@ public class EvaluationBuilder {
 				
 				Map<String,Double> eval = new HashMap<String,Double>();
 				
-				//----------- WORK ----------------------------------------------------------------
 				// Pick the real ratings for the predicted ratings from the recommendation
-				System.out.println("Starting Calculation...");
+//				System.out.println("Starting Calculation...");
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
-				//----------- WORK ----------------------------------------------------------------
 				
 				if(eval == null){
 					System.out.println("Errors during calculation");
@@ -129,9 +124,8 @@ public class EvaluationBuilder {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
+			IAttribute pRatingAtt = predictedRatings.get((int)ratingKey.getDatasetId());
 			if(pRatingAtt != null){
-				System.out.println("predictedRating: " + pRatingAtt.toString());
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
 			
@@ -168,7 +162,7 @@ public class EvaluationBuilder {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
+			IAttribute pRatingAtt = predictedRatings.get((int)ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
@@ -209,12 +203,13 @@ public class EvaluationBuilder {
 	}
 	
 	/**
-	 * Creates a random user with random ratings 
+	 * Creates a random user with random ratings & demographics
 	 * Helper method for recommendations of type 2 (recommend unknown content)
+	 * @param i 
 	 * 
 	 * @param testset reference on the test set
 	 */
-	public INode createRandomUser() {
+	public INode createRandomUser(int i) {
 		
 		// Creating the content nodes
 		INode A1n = new Node(ENodeType.Content, null, null,0);

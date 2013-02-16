@@ -56,19 +56,15 @@ public final class RecommendationBuilder {
 	 */
 	public Map<Integer, IAttribute> runTestRecommendation(INode testNode){
 		
-		System.out.println("-------------------------------");
-		System.out.println("Starting Recommendation Type 1");
-		System.out.println("-------------------------------");
-		
 		// Find position of the similar node in the tree
 		INode position = leavesMapU.get((int)testNode.getDatasetId());
 		
 		if(position == null) {
-			System.out.println("No Node with the Dataset ID " + testNode.getDatasetId() + " was found in the user tree -> wrong training set?");
+//			System.out.println("No Node with the Dataset ID " + testNode.getDatasetId() + " was found in the user tree -> wrong training set?");
 			return null;
 		}	
 		else {
-			System.out.println("Found position of the node with Dataset ID " + testNode.getDatasetId() + " in the user Tree: " + position.toString());
+//			System.out.println("Found position of the node with Dataset ID " + testNode.getDatasetId() + " in the user Tree: " + position.toString());
 			
 			// Collect ratings of all content given by the input node
 			Map<Integer, IAttribute> contentRatings = collectRatings(position,testNode,null);
@@ -94,7 +90,7 @@ public final class RecommendationBuilder {
 				contentRatings.put((int)testContentKey.getDatasetId(),null);
 			}
 			
-			System.out.println("Ratings for these movies need to be found: " + contentRatings.keySet().toString());
+//			System.out.println("Ratings for these movies need to be found: " + contentRatings.keySet().toString());
 		}
 		
 		// Look for content nodes on the list and add it to collected ratings map		
@@ -142,7 +138,7 @@ public final class RecommendationBuilder {
 		
 		// Check if all movies were found
 		if(contentRatings.containsValue(null) != true){
-			System.out.println("Found all movie ratings: " + contentRatings);
+//			System.out.println("Found all movie ratings: " + contentRatings);
 			return contentRatings;
 		}
 		else {
@@ -155,7 +151,7 @@ public final class RecommendationBuilder {
 				}
 			}
 			else {
-				System.out.println("Error: Did not find all movie ratings " + contentRatings);
+//				System.out.println("Error: Did not find all movie ratings " + contentRatings);
 				return contentRatings;
 			}
 		}
@@ -169,10 +165,6 @@ public final class RecommendationBuilder {
 	 * This recommendation type does not allow a statistical check on the quality of the recommendation
 	 */
 	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
-		
-		System.out.println("-------------------------------");
-		System.out.println("Starting Recommendation Type 2");
-		System.out.println("-------------------------------");
 		
 		// Find the most similar node in the tree
 		PositionFinder finder = new PositionFinder();
