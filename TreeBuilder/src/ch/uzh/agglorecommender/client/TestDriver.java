@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -59,7 +60,7 @@ public class TestDriver {
 		} else {
 			tb = createNewTreeBuilder();
 			InitialNodesCreator in = new InitialNodesCreator(
-					getTrainingDataset(),
+					getTrainingDataset(),getContentMetaDataset(),getUserMetaDataset(),
 					cla.contentTreeComponentFactory,
 					cla.userTreeComponentFactory);
 			log.info("Starting new run ...");
@@ -87,7 +88,7 @@ public class TestDriver {
 		System.out.println("-------------------------------");
 		
 		InitialNodesCreator testSet = new InitialNodesCreator(
-				getTestDataset(),
+				getTestDataset(),getContentMetaDataset(),getUserMetaDataset(),
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
@@ -103,12 +104,15 @@ public class TestDriver {
 		System.out.println("-------------------------------");
 		
 		Map<INode, IAttribute> testRatings = eb.rateRandomContent(3,trainingOutput); // To evaluate by the user
-		Map<String,String> testDemographics = eb.defineDemographics(); 
+		List<String> testDemographics = eb.defineDemographics(); 
 		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with ratings & demographics
 		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(testUser);
 		
 		if(recommendedMovies != null){
-			System.out.println("=> Recommended Movies: " + recommendedMovies.keySet().toString());
+			System.out.println("=> Recommended Movies: ");
+			for(INode recommended : recommendedMovies.keySet()){
+				System.out.println(recommended.getMeta());
+			}
 		}
 	}
 	
@@ -151,6 +155,16 @@ public class TestDriver {
 		return getDataset(cla.trainingFile, DataSetSplit.TRAINING);
 	}
 	
+	private static IDataset<?> getContentMetaDataset() {
+//		System.out.println("getting content meta dataset");
+		return getDataset(cla.metaFile,DataSetSplit.CONTENTMETA);
+	}
+	
+	private static IDataset<?> getUserMetaDataset() {
+//		System.out.println("getting user meta dataset");
+		return getDataset(cla.metaFile,DataSetSplit.USERMETA);
+	}
+	
 	/**
 	 * Instantiates the data set object to process. Data are loaded from the specified
 	 * file or the default file.
@@ -158,21 +172,36 @@ public class TestDriver {
 	 * @return the IDataset to process
 	 */
 	private static IDataset<?> getDataset(File inputFile, DataSetSplit split) {
+		
 		// Load specified data set (with default input file)	
 		IDataset<?> dataset = null;
 		try {
-			Constructor<?>[] constructors = cla.datasetType.getConstructors();
+			Constructor<?>[] constructors = null;
+			if(split == DataSetSplit.TEST || split == DataSetSplit.TRAINING){
+				constructors = cla.datasetType.getConstructors();
+			}
+			else {
+				constructors = cla.metasetType.getConstructors();
+//				System.out.println("Trying metaset opening: " + constructors.toString());
+			}
+			
 			for (Constructor<?> constructor : constructors) {
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
+				
+				// If Constructor has no parameters
 				if (parameterTypes.length == 0) {
 					dataset = (IDataset<?>) constructor.newInstance();
 					break;
 				}
+				
+				// ?
 //				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
 //					// training and test data set is the same
 //					dataset = (IDataset<?>) constructor.newInstance(inputFile);
 //					break;
 //				}
+				
+				// If Constructor has dataset and split parameter
 				if (parameterTypes.length == 2 && parameterTypes[0] == File.class && parameterTypes[1] == DataSetSplit.class) {
 					dataset = (IDataset<?>) constructor.newInstance(inputFile, split);
 					break;

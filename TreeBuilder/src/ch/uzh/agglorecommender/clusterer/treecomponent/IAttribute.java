@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 
@@ -72,4 +73,10 @@ public interface IAttribute {
 	 *
 	 */
 	public String getClusteringMethod();
+	
+	/**
+	 * Get the meta information of this attribute
+	 *
+	 */
+	public List<String> getMeta();
 }

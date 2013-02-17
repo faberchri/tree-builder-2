@@ -28,6 +28,6 @@ public interface IDataset <T extends Number> {
 	public INormalizer<T> getNormalizer();
 	
 	public enum DataSetSplit{
-		TRAINING, TEST
+		TRAINING, TEST, CONTENTMETA, USERMETA
 	}
 }

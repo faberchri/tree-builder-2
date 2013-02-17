@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 
@@ -33,6 +34,8 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	private final double sumOfRatings;
 	
 	private final double sumOfSquaredRatings;
+	
+	private final List<String> meta;
 				
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
@@ -45,11 +48,12 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	 * @param support the support of this attribute object.
 	 */
 	public ClassitAttribute(int support, double sumOfRatings,
-			double sumOfSquaredRatings) {
+			double sumOfSquaredRatings, List<String> meta) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
+		this.meta = meta;
 	}
 	
 	public int getSupport() {
@@ -87,6 +91,11 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	@Override
 	public String getClusteringMethod() {
 		return "Classit";
+	}
+
+	@Override
+	public List<String> getMeta() {
+		return meta;
 	}
 
 //	@Override

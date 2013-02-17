@@ -197,6 +197,8 @@ public interface INode {
 	 */
 	public List<Integer> getDataSetIds();
 	
+	public List<String> getMeta();
+	
 	/**
 	 * Sets the id of the node. Used for evaluations.
 	 * 

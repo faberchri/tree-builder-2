@@ -38,8 +38,10 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
 	public GrouplensDataset(File datasetFile, DataSetSplit split) {
-		//data set has rating min value = 1 and max value = 5
+		
+		// Data set has rating min value = 1 and max value = 5
 		super(new IntegerNormalizer(1, 5), datasetFile, split);
+		
 	}
 	
 	/**
@@ -48,15 +50,16 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	 * These values are used to create a new {@code IDatasetItem} object,
 	 * which are stored in {@code datasetItems}.
 	 * 
-	 * @param entry A string containing a single user-content-rating information.
+	 * @param line A string containing a single user-content-rating information.
 	 */
 	@Override
-	void parseLine(String entry) {
-		String[] fields = entry.split("\t");
+	void parseLine(String line) {
+		
+		String[] fields = line.split("\t");
 		Integer[] intFields = new Integer[fields.length];
 		for (int i = 0; i < fields.length; i++) {
 			if (i != fields.length - 1 ) {
-				intFields[i] = Integer.parseInt(fields[i]);		
+				intFields[i] = Integer.parseInt(fields[i]);
 			}
 		}
 		addToDatasetItems(new SimpleDatasetItem<Integer>(intFields[2], intFields[0], intFields[1]));
@@ -65,16 +68,15 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	@Override
 	protected String getPathToDefaultInputFile(DataSetSplit split) {
 		switch (split) {
-		case TEST:
-			return pathToDefaultTestInputFile;
-		case TRAINING:
-			return pathToDefaultTrainingInputFile;
-		default:
-			Logger log = TBLogger.getLogger(getClass().getName());
-			log.severe("Unknown data set split requested.");
-			System.exit(-1);
-			return null;
+			case TEST:
+				return pathToDefaultTestInputFile;
+			case TRAINING:
+				return pathToDefaultTrainingInputFile;
+			default:
+				Logger log = TBLogger.getLogger(getClass().getName());
+				log.severe("Unknown data set split requested.");
+				System.exit(-1);
+				return null;
 		}
 	}
-
 }

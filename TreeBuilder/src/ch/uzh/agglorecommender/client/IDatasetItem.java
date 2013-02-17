@@ -2,13 +2,11 @@ package ch.uzh.agglorecommender.client;
 
 /**
  * 
- * @author fabian
- * 
  * A data item is a single rating for one content item of one user.
  *
  * @param <T> the data type of the rating
  */
-public interface IDatasetItem<T extends Number> {
+public interface IDatasetItem<T> {
 	
 	/**
 	 * The id of the user, who submitted the rating.
@@ -30,4 +28,5 @@ public interface IDatasetItem<T extends Number> {
 	 * @return the rating
 	 */
 	public T getValue(); // i.e. rating
+	
 }

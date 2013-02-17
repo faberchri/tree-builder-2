@@ -30,8 +30,8 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * instance in the data set.
 	 * @return a new node instance.
 	 */
-	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId) {
-		return new Node(typeOfNewNode, dataSetId);
+	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, List<String> meta) {
+		return new Node(typeOfNewNode, dataSetId, meta);
 	}
 
 	/**
@@ -46,7 +46,8 @@ public abstract class TreeComponentFactory implements Serializable {
 	 */
 	public final INode createInternalNode(
 			ENodeType typeOfNewNode,
-			List<INode> nodesToMerge, double categoryUtility) {
+			List<INode> nodesToMerge,
+			double categoryUtility) {
 
 
 		if (nodesToMerge.size() < 2) {
@@ -64,9 +65,10 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * Creates a new {@code IAttribute} object based on a single rating.
 	 * 
 	 * @param rating the rating for the new {@code IAttribute} object.
+	 * @param metaData 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createAttribute(double rating); // single node
+	public abstract IAttribute createAttribute(double rating, List<String> metaData); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute

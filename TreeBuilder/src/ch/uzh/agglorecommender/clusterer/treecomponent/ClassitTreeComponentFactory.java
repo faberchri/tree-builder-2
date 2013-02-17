@@ -34,11 +34,11 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to create the (single) attribute object of leaf nodes
 	 */
 	@Override
-	public IAttribute createAttribute(double rating) {
+	public IAttribute createAttribute(double rating, List<String> meta) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
-		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0));
+		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0), meta);
 	}
 
 	/**
@@ -56,7 +56,9 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
 //		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 		
-		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);
+		List<String> meta = attributeKey.getMeta();
+		
+		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
 	}
 
 	

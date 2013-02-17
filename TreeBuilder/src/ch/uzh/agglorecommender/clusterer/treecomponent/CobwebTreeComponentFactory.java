@@ -33,9 +33,9 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 	
 	@Override
-	public IAttribute createAttribute(double rating) {
+	public IAttribute createAttribute(double rating, List<String> meta) {
 		Map<Double, Double> attMap = ImmutableMap.of(rating, 1.0);
-		return new CobwebAttribute(attMap);
+		return new CobwebAttribute(attMap, meta);
 	}
 
 	@Override
@@ -50,6 +50,9 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 							attributeKey, nodesToMerge, totalLeafCount
 					)
 				);
-		return new CobwebAttribute(attMap);
+		
+		List<String> meta = attributeKey.getMeta();
+		
+		return new CobwebAttribute(attMap, meta);
 	}
 }

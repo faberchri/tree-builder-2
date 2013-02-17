@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -41,15 +42,19 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	 * </pre>
 	 */
 	private final Map<Object, Double> attributeProbabilities;
+	 
+	private final List<String> meta;
 	
 	/**
 	 * Instantiates a new {@code CobwebAttribute} with a 
 	 * attribute-value probability map.
 	 * <br>
+	 * @param meta 
 	 * @param attribute-value probability map of this attribute.
 	 */
-	public CobwebAttribute(Map<?, Double> probabilityMap) {
+	public CobwebAttribute(Map<?, Double> probabilityMap, List<String> meta) {
 		this.attributeProbabilities = (Map<Object, Double>) probabilityMap;
+		this.meta = meta;
 	}
 	
 	@Override
@@ -94,6 +99,11 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	@Override
 	public String getClusteringMethod() {
 		return "Cobweb";
+	}
+
+	@Override
+	public List<String> getMeta() {
+		return meta;
 	}
 
 //	@Override

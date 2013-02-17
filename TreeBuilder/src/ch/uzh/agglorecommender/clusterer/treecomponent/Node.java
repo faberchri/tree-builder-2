@@ -47,6 +47,11 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * to an IAttribute object.
 	 */
 	private Map<INode, IAttribute> attributes;
+	
+	/**
+	 * The meta info of the node.
+	 */
+	private List<String> meta;
 
 	/**
 	 * The children of this node.
@@ -75,10 +80,11 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
 
-	public Node(ENodeType nodeType, int dataSetId) {
+	public Node(ENodeType nodeType, int dataSetId, List<String> meta) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
+		this.meta = meta;
 	}
 	
 	/**
@@ -115,6 +121,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		} else {
 			return s.substring(0, s.length()-1);
 		}
+	}
+
+	public List<String> getMeta() {
+		return meta;
 	}
 
 	@Override
@@ -277,7 +287,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		Collections.sort(atKeyLi);
 		if (attributes.values().iterator().next() instanceof ClassitAttribute) {
 			// Header
-			description += "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
+			description += "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td><td>meta</td></tr>";
 
 			// Data
 			for(INode attributeKey : atKeyLi) {
@@ -288,7 +298,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 						"<td>" + attributeKey.getNodeType().toString() + "</td>"+
         				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
         				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
-        				"<td>" + attributeValue.getSupport()+ "</td></tr>";
+        				"<td>" + attributeValue.getSupport()+ "</td>" +
+        				"<td>" + attributeKey.getMeta() + "</td>" +
+        				"</tr>";
 			}
 		}
 		if (attributes.values().iterator().next() instanceof CobwebAttribute) {

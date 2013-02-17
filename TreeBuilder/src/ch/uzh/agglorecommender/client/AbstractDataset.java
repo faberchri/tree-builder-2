@@ -30,6 +30,8 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 */
 	private List<IDatasetItem<T>> datasetItems = new ArrayList<IDatasetItem<T>>();
 	
+	private List<IMetasetItem> metasetItems = new ArrayList<IMetasetItem>();
+	
 	/**
 	 * The normalizer of this data set.
 	 */
@@ -47,7 +49,9 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
 	public AbstractDataset(INormalizer<T> normalizer, File datasetFile, DataSetSplit split) {
+		
 		this.normalizer = normalizer;
+		
 		try {
 			if (datasetFile == null) {
 				this.input = DatasetLocator.getDataset(getPathToDefaultInputFile(split));
@@ -91,6 +95,7 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * If this assumption is wrong you need to <b>overwrite</b> this method.
 	 * 
 	 * @param input the stream of the input source.
+	 * @param type 
 	 */
 	void parseDataset(InputStream input) {
 		try {
