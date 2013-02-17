@@ -6,13 +6,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.Counter;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
@@ -20,42 +18,12 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
+
 
 public class ClassitMaxCategoryUtilitySearcherTest {
 
-	/*
-	 * Arguments: 
-	 * 1: Creates 2 nodes with 2 attributes each, calculates utility and merges the nodes. 
-	 * 2: Creates 6 nodes with 3 shared attributes. Merges nodes to create full tree. 
-	 * 3: Creates 3 nodes, each node having one common attribute with each other node ->> Needs to be checked (throws exception)
-	 */
-	public static void main(String[] args) {
-
-		System.out.println("Starting Classit tests..");
-		ClassitMaxCategoryUtilitySearcherTest tester = new ClassitMaxCategoryUtilitySearcherTest();
-
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i];
-			switch (arg) {
-			case "1":
-				tester.testGetMaxCategoryUtilityMergeSetOfINode();
-				break;
-			case "2":
-				tester.testSimpleClassitTree();
-				break;
-			case "3":
-				tester.testMergeOfThreeNodes();
-				break;
-			case "4":
-				tester.testSimpleStDevCalculation();
-				break;
-			default:
-				System.out.println("Invalid argument: " + arg);
-				break;
-			}
-		}
-
-	}
 
 	@Test
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
@@ -72,28 +40,26 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		// Creating the attributes
 
 		IAttribute A1 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(4);
+				.createAttribute(4.0, null);
 		IAttribute A2 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(3);
+				.createAttribute(3.3, null);
 		IAttribute A3 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(5);
+				.createAttribute(5.0, null);
 		IAttribute A4 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(5);
-
-		// We want to calc the category utility of node 1 merged with node 2
+				.createAttribute(5.0, null);
 
 		// ClassitAttribute map of node 1
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, 0, null);
 
 		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(new Node(ENodeType.Content, null, null), A1);
+		attMap1.put(new Node(ENodeType.Content, 0, null), A1);
 		attMap1.put(sharedAttribute, A2);
 
 		// create node 1
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, 0, null);
 		node1.setAttributes(attMap1);
 
 		// attribute map of node 2
@@ -101,23 +67,18 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// add the corresponding attributes to the attribute map of node 2
 		attMap2.put(sharedAttribute, A3);
-		attMap2.put(new Node(ENodeType.Content, null, null), A4);
+		attMap2.put(new Node(ENodeType.Content, 0, null), A4);
 
 		// create node 2
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, 0, null);
 		node2.setAttributes(attMap2);
 
-		// create the utility calcultaor
-		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
+		
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
 		openNodes.add(node1);
 		openNodes.add(node2);
-
-		// get the utility of the node resulting of a merge of node 1 and node 2
-		double calcCatUt = utilityCalc.getMaxCategoryUtilityMerge(openNodes)
-				.getCategoryUtility();
 
 		// Print standard deviations
 		System.out.println("Node 1: " + node1.getAttributesString());
@@ -127,34 +88,41 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		nodesToUpdate.add(node1);
 		nodesToUpdate.add(node2);
 
-		TreeBuilder tr = new TreeBuilder(
+		/*TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(), 
 				ClassitTreeComponentFactory.getInstance(),
 				ClassitTreeComponentFactory.getInstance(),
 				null);
-		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
+		*/
+		//private IMergeResult searchBestMergeResult(IClusterSet<INode> nodes, IMaxCategoryUtilitySearcher mcus)
 
+		// Merge
+		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
 		
-		INode newNode = new Node(ENodeType.User, 0);
-
-			try {
-            Class[] parameterTypes = {List.class, Set.class, Counter.class};
-            Method method = TreeBuilder.class.getDeclaredMethod("mergeNodes", parameterTypes);
+		IMergeResult merge = null;
+		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
+		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
+		
+		try {
+            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
+            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
             method.setAccessible(true);
-            newNode = (INode) method.invoke(tr, nodesToUpdate, openNodes, Counter.getInstance());
+          
+            //This causes an IllegalArgumentException (object is not an instance of declaring class).. Why?
+            merge = (IMergeResult) method.invoke(leafNodes,utilityCalc);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
         
 				
-		System.out.println("New Node: " + newNode.getAttributesString());
+		Double utility = merge.getCategoryUtility();
 
 		// evaluate the category utility result
-		assertEquals("category utility", 1.0 / 3.0, calcCatUt, 0.000001);
+		assertEquals("category utility", 1.0 / 3.0, utility, 0.000001);
 
 	}
-
+/*
 	@Test
 	public void testSimpleClassitTree() {
 
@@ -166,7 +134,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		/*
 		 * Based on example in J.H.Gennari et al.
 		 * "Models of incremental concept formation", page 35, Figure 10
-		 */
+		 
 
 		// Creating the attributes
 
@@ -394,8 +362,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		 *  Node N3
 		 *  ClassitAttribute 2 (A2): 3
 		 *  ClassitAttribute 3 (A3): 5  
-		 */
-
+		 
 		// Creating the attributes
 		IAttribute N1A1 = ClassitTreeComponentFactory.getInstance()
 				.createAttribute(1); // ClassitAttribute 1 of node 1
@@ -476,7 +443,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		 * new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(), null);
 				INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
-		 */
+		 
 				
 	}
 
@@ -554,4 +521,5 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		
 		assertEquals("Standard dev of new node",2,newStDev,0.000001);
 	}
+	*/
 }
