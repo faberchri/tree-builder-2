@@ -93,18 +93,18 @@ public class TestDriver {
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
-		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
-		
-		if(eval != null){
-			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
-		}
+//		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+//		
+//		if(eval != null){
+//			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+//		}
 		
 		// Recommendation Type 2
 		System.out.println("-------------------------------");
 		System.out.println("Starting Recommendation Type 2");
 		System.out.println("-------------------------------");
 		
-		Map<INode, IAttribute> testRatings = eb.rateRandomContent(3,trainingOutput); // Ratings
+		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
 		List<String> testDemographics = eb.defineDemographics(); // Demographics
 		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
 		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation

@@ -102,30 +102,30 @@ public class InitialNodesCreator {
 			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i, metaData));
 		}
 		// attach to each node its attributes map
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> user : usersMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {
+			for (IDatasetItem<?> contentDI : user.getValue()) {
 				
-				// Add to every attribute its corresponding metadata
-				List<String> metaData = findMetaData(di.getUserId(),userMetaset);
+				// Add to every content attribute its corresponding metadata
+				List<String> metaData = findMetaData(contentDI.getContentId(),contentMetaset);
 				
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getValue());
-				attributes.put(contentsNodeMap.get(di.getContentId()), contentTreeComponentFactory.createAttribute(normalizedRating,metaData)); // WORK
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) contentDI.getValue());
+				attributes.put(contentsNodeMap.get(contentDI.getContentId()), contentTreeComponentFactory.createAttribute(normalizedRating,metaData));
 			}
-			usersNodeMap.get(entry.getKey()).setAttributes(attributes);
+			usersNodeMap.get(user.getKey()).setAttributes(attributes);
 //			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> content : contentsMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {			
+			for (IDatasetItem<?> userDI : content.getValue()) {			
 				
-				// Add to every attribute its corresponding metadata
-				List<String> metaData = findMetaData(di.getContentId(),contentMetaset);
+				// Add to every user attribute its corresponding metadata
+				List<String> metaData = findMetaData(userDI.getUserId(),userMetaset);
 				
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getValue());
-				attributes.put(usersNodeMap.get(di.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating,metaData));
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) userDI.getValue());
+				attributes.put(usersNodeMap.get(userDI.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating,metaData));
 			}
-			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);
+			contentsNodeMap.get(content.getKey()).setAttributes(attributes);
 //			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);

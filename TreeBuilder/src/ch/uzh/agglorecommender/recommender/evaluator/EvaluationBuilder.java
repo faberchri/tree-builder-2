@@ -220,7 +220,12 @@ public class EvaluationBuilder {
 		testUser.setAttributes(testRatings);
 		
 		System.out.println("Test User Demographics: " + testUser.getMeta());
-		System.out.println("Test User Ratings: " + testUser.getAttributesString());
+		
+		System.out.println("Test User Ratings: ");
+		for(INode content : testUser.getAttributeKeys()){
+			IAttribute attribute = testUser.getAttributeValue(content);
+			System.out.println(attribute.getMeta().get(1) + " -> Rating: " + testUser.getAttributeValue(content).getMeanOfRatings());
+		}
 		
 		return testUser;
 	}
@@ -228,19 +233,24 @@ public class EvaluationBuilder {
 	/**
 	 * Picks some random content from the tree that the user has to rate
 	 * 
-	 * @param number number of movies that should be rated
+	 * @param limit number of movies that should be rated
 	 * @param trainingOutput the tree that should be used to pick random content
 	 * 
 	 * @ return Map<INode,IAttribute> attribute map
 	 */
-	public Map<INode,IAttribute> rateRandomContent(int number, ClusterResult trainingOutput) {
+	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
 		
 		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
 		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
-		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
+		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID); // FIXME falsche metawerte an den Content Nodes
 		
-		for(INode attKey : randomUser.getAttributeKeys()){
-			contentRatings.put(attKey, randomUser.getAttributeValue(attKey));
+		int i = 0;
+		for(INode contentKey : randomUser.getAttributeKeys()){
+			
+			if(i < limit){
+				contentRatings.put(contentKey, randomUser.getAttributeValue(contentKey));
+			}
+			i++;
 		}
 		
 		return contentRatings;

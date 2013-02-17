@@ -195,20 +195,26 @@ public final class RecommendationBuilder {
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
 		// Find relevant Users
-		INode relUserNode = collectNode(position,radiusU);
-		System.out.println("********************");
-		System.out.println("starting recommendation from user node: " + relUserNode.toString());
-		System.out.println(relUserNode.getMeta());
-		System.out.println("********************");
+		INode relUser = collectNode(position,radiusU);
+//		System.out.println("********************");
+		System.out.println("starting recommendation from user node: " + relUser.toString());
+//		for(INode content : relUser.getAttributeKeys()){
+//			IAttribute attribute = relUser.getAttributeValue(content);
+//			if(attribute != null){
+//				System.out.println(" -> Rating: " + 
+//				relUser.getAttributeValue(content).getMeanOfRatings()); // relUser.getAttributeValue(content).getMeta().get(1) + 
+//			}
+//		}
+//		System.out.println("********************");
 		
 		// Find relevant Content for every relevant User
-		Set<INode> userAttributes = relUserNode.getAttributeKeys();
+		Set<INode> userAttributes = relUser.getAttributeKeys();
 		for(INode content : userAttributes){
 			
 			// Find appropriate level for given radius
 			INode relContentNode = collectNode(content,radiusC);
 			
-			recommendation.put(relContentNode, relUserNode.getAttributeValue(relContentNode));
+			recommendation.put(relContentNode, relUser.getAttributeValue(relContentNode));
 			
 			//System.out.println("relevant Content Node: " + relContentNode.toString());
 			
