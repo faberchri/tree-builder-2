@@ -1,26 +1,12 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-
-import com.rapidminer.example.Attribute;
-import com.rapidminer.example.ExampleSet;
-import com.rapidminer.example.table.AttributeFactory;
-import com.rapidminer.example.table.DoubleArrayDataRow;
-import com.rapidminer.example.table.MemoryExampleTable;
-import com.rapidminer.tools.Ontology;
 
 /*
  * Creates an ExampleSet for each set from the passed List. 
  * The ExampleSet is needed to apply RapidMiner operators on the data.  
  * 
  * Labels in the data are all set to 1
- */
+ 
 
 //Instructions here: http://rapid-i.com/wiki/index.php?title=Integrating_RapidMiner_into_your_application#Transform_data_for_RapidMiner
 public class RapidMinerDataTransformator {
@@ -28,7 +14,7 @@ public class RapidMinerDataTransformator {
 	Set<ExampleSet> setsOfRMdata;
 	/*NOT FINISHED YET
 	 * Returns the clusterSet as an ExampleSet, so it can be handled by RapidMiner
-	 */
+	 
 	public Set<ExampleSet> transform(Set<List<INode>> NodeSet){
 	
 	//create attribute list
@@ -84,4 +70,4 @@ public class RapidMinerDataTransformator {
  
     return setsOfRMdata;
 }
-}
+}*/
