@@ -219,7 +219,8 @@ public class EvaluationBuilder {
 		INode testUser = new Node(ENodeType.User, 0, meta);
 		testUser.setAttributes(testRatings);
 		
-		System.out.println("Created Test User:" + testUser.getMeta());
+		System.out.println("Test User Demographics: " + testUser.getMeta());
+		System.out.println("Test User Ratings: " + testUser.getAttributesString());
 		
 		return testUser;
 	}
@@ -235,10 +236,11 @@ public class EvaluationBuilder {
 	public Map<INode,IAttribute> rateRandomContent(int number, ClusterResult trainingOutput) {
 		
 		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(1);
+		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
+		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
 		
 		for(INode attKey : randomUser.getAttributeKeys()){
-			contentRatings.put(attKey, randomUser.getAttributeValue(attKey)); // FIXME: Sollte eine Auswahl erscheinen
+			contentRatings.put(attKey, randomUser.getAttributeValue(attKey));
 		}
 		
 		return contentRatings;

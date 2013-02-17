@@ -106,6 +106,12 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 		return meta;
 	}
 
+	@Override
+	public double getMeanOfRatings() {
+		//?
+		return 0;
+	}
+
 //	@Override
 //	public double getStd() throws UnsupportedOperationException {
 //		throw new UnsupportedOperationException(

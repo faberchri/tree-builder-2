@@ -68,6 +68,8 @@ public class InitialNodesCreator {
 				usersMap.put(datasetItem.getUserId(), li);
 			}
 			
+			// FIXME Man koennte hier die Meta Infos als attribute zur attribute Map zufuegen
+			
 			// Add every datasetItem to the content node it belongs to
 			if (contentsMap.containsKey(datasetItem.getContentId())) {
 				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
@@ -77,45 +79,35 @@ public class InitialNodesCreator {
 				contentsMap.put(datasetItem.getContentId(), li);
 			}
 			
+			// FIXME Man koennte hier die Meta Infos als attribute zur attribute Map zufuegen
+			
 		}
 		
 		// create for each user and content id one node
 		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
 		for (Integer datasetID : usersMap.keySet()) {
 			
-			// ----- work -----------------
 			// Add to every node its corresponding metadata
-//			System.out.println("getting user info");
-			List<String> metaData = findMetaData(datasetID,userMetaset); // FIXME MŸsste bei den Attributen sein 
-//			if(metaData != null){
-//				System.out.println(metaData.toString());
-//			}
-			// ----- work -----------------
-			
+			List<String> metaData = findMetaData(datasetID,userMetaset); // FIXME Muesste nur bei den Attributen sein 
+
 			usersNodeMap.put(datasetID, userTreeComponentFactory.createLeafNode(ENodeType.User, datasetID, metaData));
 		}		
 		
 		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : contentsMap.keySet()) {
 			
-			// ----- work -----------------
 			// Add to every node its corresponding metadata
-//			System.out.println("getting content info");
-			List<String> metaData = findMetaData(i,contentMetaset); // FIXME MŸsste bei den Attributen sein 
-//			if(metaData != null){
-//				System.out.println(metaData.toString());
-//			}
-			// ----- work -----------------
+			List<String> metaData = findMetaData(i,contentMetaset); // FIXME MŸsste nur bei den Attributen sein 
 			
 			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i, metaData));
 		}
-		// ----- work -----------------
 		// attach to each node its attributes map
 		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<?> di : entry.getValue()) {
 				
-				List<String> metaData = findMetaData(di.getUserId(),userMetaset); // WORK
+				// Add to every attribute its corresponding metadata
+				List<String> metaData = findMetaData(di.getUserId(),userMetaset);
 				
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getValue());
 				attributes.put(contentsNodeMap.get(di.getContentId()), contentTreeComponentFactory.createAttribute(normalizedRating,metaData)); // WORK
@@ -127,15 +119,15 @@ public class InitialNodesCreator {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<?> di : entry.getValue()) {			
 				
-				List<String> metaData = findMetaData(di.getContentId(),contentMetaset); // WORK
+				// Add to every attribute its corresponding metadata
+				List<String> metaData = findMetaData(di.getContentId(),contentMetaset);
 				
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getValue());
-				attributes.put(usersNodeMap.get(di.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating,metaData)); // WORK
+				attributes.put(usersNodeMap.get(di.getUserId()), userTreeComponentFactory.createAttribute(normalizedRating,metaData));
 			}
 			contentsNodeMap.get(entry.getKey()).setAttributes(attributes);
 //			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
-		// ----- work -----------------
 		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);
 		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap);
 	}
@@ -146,8 +138,6 @@ public class InitialNodesCreator {
 			MetaDatasetItem metadata = (MetaDatasetItem) it.next();
 
 			if(metadata.getContentId() == i){ // FIXME Typ Unterscheidung fehlt
-//				System.out.println("Found match");
-//				System.out.println(metadata.getValue().toString());
 				return (List<String>) metadata.getValue();
 			}
 		}

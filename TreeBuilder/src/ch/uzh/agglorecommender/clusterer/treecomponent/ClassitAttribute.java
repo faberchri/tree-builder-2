@@ -98,6 +98,11 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		return meta;
 	}
 
+	@Override
+	public double getMeanOfRatings() {
+		return sumOfRatings / support;
+	}
+
 //	@Override
 //	public double getStd() throws UnsupportedOperationException {
 //		

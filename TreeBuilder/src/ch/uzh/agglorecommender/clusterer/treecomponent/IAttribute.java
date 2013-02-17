@@ -75,6 +75,12 @@ public interface IAttribute {
 	public String getClusteringMethod();
 	
 	/**
+	 * Get the mean of the rating
+	 *
+	 */
+	public double getMeanOfRatings();
+	
+	/**
 	 * Get the meta information of this attribute
 	 *
 	 */

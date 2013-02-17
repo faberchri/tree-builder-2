@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.client;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -103,15 +104,18 @@ public class TestDriver {
 		System.out.println("Starting Recommendation Type 2");
 		System.out.println("-------------------------------");
 		
-		Map<INode, IAttribute> testRatings = eb.rateRandomContent(3,trainingOutput); // To evaluate by the user
-		List<String> testDemographics = eb.defineDemographics(); 
-		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with ratings & demographics
-		Map<INode,IAttribute> recommendedMovies = rb.runRecommendation(testUser);
+		Map<INode, IAttribute> testRatings = eb.rateRandomContent(3,trainingOutput); // Ratings
+		List<String> testDemographics = eb.defineDemographics(); // Demographics
+		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
+		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation
+		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation, 100); // Pick Top Movies for User
 		
-		if(recommendedMovies != null){
+		if(sortedRecommendation != null){
 			System.out.println("=> Recommended Movies: ");
-			for(INode recommended : recommendedMovies.keySet()){
-				System.out.println(recommended.getMeta());
+			for(IAttribute recommendation: sortedRecommendation){
+				if(recommendation.getMeta() != null){
+					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + recommendation.getMeanOfRatings());
+				}
 			}
 		}
 	}

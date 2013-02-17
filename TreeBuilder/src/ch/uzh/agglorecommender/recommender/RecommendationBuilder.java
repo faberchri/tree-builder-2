@@ -1,7 +1,7 @@
 package ch.uzh.agglorecommender.recommender;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -196,7 +196,10 @@ public final class RecommendationBuilder {
 		
 		// Find relevant Users
 		INode relUserNode = collectNode(position,radiusU);
+		System.out.println("********************");
 		System.out.println("starting recommendation from user node: " + relUserNode.toString());
+		System.out.println(relUserNode.getMeta());
+		System.out.println("********************");
 		
 		// Find relevant Content for every relevant User
 		Set<INode> userAttributes = relUserNode.getAttributeKeys();
@@ -205,26 +208,30 @@ public final class RecommendationBuilder {
 			// Find appropriate level for given radius
 			INode relContentNode = collectNode(content,radiusC);
 			
+			recommendation.put(relContentNode, relUserNode.getAttributeValue(relContentNode));
+			
 			//System.out.println("relevant Content Node: " + relContentNode.toString());
 			
 			// Find leave nodes related to the relevantContent
-			if(relContentNode != null) {
-				
-				Set<INode> contentLeaves = collectLeaves(relContentNode,null);
-				
-				if(contentLeaves != null){
-				
-					// Add recommendation into Map
-					for(INode contentLeaf : contentLeaves){
-						recommendation.put(contentLeaf, contentLeaf.getAttributeValue(contentLeaf));
-					}
-					
-				}
-				else {
-					System.out.println("contentLeaves == null");
-				}
-			}
+//			if(relContentNode != null) {
+//				
+//				Map<INode,IAttribute> contentLeaves = collectLeaves(relContentNode,null); // FIXME ist diese ueberlegung richtig? muss ja die wertung haben auf der position
+//				
+//				if(contentLeaves != null){
+//				
+//					// Add recommendation into Map
+//					for(INode contentLeaf : contentLeaves.keySet()){
+//						recommendation.put(contentLeaf, contentLeaf.getAttributeValue(contentLeaf)); // FIXME attribute werden nicht Ÿbergeben
+//					}
+//					
+//				}
+//				else {
+//					System.out.println("contentLeaves == null");
+//				}
+//			}
 		}
+		
+//		System.out.println("Recommendation Test: " + recommendation.toString());
 
 	    return recommendation;
 	}
@@ -258,47 +265,87 @@ public final class RecommendationBuilder {
 		return relevantNode;
 	}
 
-	/**
-	 * Gives back the leaf nodes related to a given node
-	 * 
-	 * @param position this node is the starting point to find leaves 
-	 * @param leaves collection of all leaves
-	 */
-	public Set<INode> collectLeaves(INode position, Set<INode> leaves){
+//	/**
+//	 * Gives back the leaf nodes related to a given node
+//	 * 
+//	 * @param position this node is the starting point to find leaves 
+//	 * @param leaves collection of all leaves
+//	 */
+//	public Map<INode, IAttribute> collectLeaves(INode position, Map<INode,IAttribute> leaves){
+//		
+//		// Create leaves set if not exists
+//		if(leaves == null){
+//			leaves = new HashMap<INode,IAttribute>();
+//		}
+//		
+//		//System.out.println("position: " + position);
+//		
+//		// If position is leaf
+//		if(position.isLeaf()){
+//			System.out.println(position.getAttributesString());
+//			leaves.put(position,position.getAttributeValue(position)); // FIXME could fail
+//			return leaves;
+//		}
+//	
+//		// If position is no leaf
+//		Iterator<INode> children = position.getChildren();
+//		
+//		while(children.hasNext()){
+//			
+//			INode child = children.next();
+//			Map<INode, IAttribute> tempLeaves = (collectLeaves(child,leaves));
+//			for(INode tempLeaf : tempLeaves.keySet()){
+//				if(!leaves.keySet().contains(tempLeaf)){
+//					leaves.put(tempLeaf,tempLeaf.getAttributeValue(tempLeaf));
+//				}
+//			}
+//		}
+//		
+//		return leaves;
+//	}
+
+	public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation, int limit){
 		
-		// Create leaves set if not exists
-		if(leaves == null){
-			leaves = new HashSet<INode>();
-			//System.out.println("leave set erstellt");
+//		System.out.println(unsortedRecommendation.toString());
+		  
+		// Create Array from Map
+		IAttribute[] sortedRecommendation = new IAttribute[unsortedRecommendation.size()];
+		int x = 0;
+		for(INode recommendation : unsortedRecommendation.keySet()) {
+			IAttribute attribute = unsortedRecommendation.get(recommendation);
+			sortedRecommendation[x] = attribute;
+			x++;
 		}
 		
-		//System.out.println("position: " + position);
-		
-		// If position is leaf
-		if(position.isLeaf()){
-			leaves.add(position);
-			return leaves;
-		}
-	
-		// If position is no leaf
-		Iterator<INode> children = position.getChildren();
-		
-		while(children.hasNext()){
+		// Insertion Sort
+		int i;
+		IAttribute temp;
+
+		for (int f = 1; f < sortedRecommendation.length; f++) {
 			
-			INode child = children.next();
-			Set<INode> tempLeaves = (collectLeaves(child,leaves));
-			for(INode tempLeaf : tempLeaves){
-				if(!leaves.contains(tempLeaf)){
-					leaves.add(tempLeaf);
-				}
+			IAttribute newRating = sortedRecommendation[f];
+			IAttribute insertedRating = sortedRecommendation[f-1];
+			
+			if (newRating.getMeanOfRatings() > insertedRating.getMeanOfRatings()) continue;
+			temp = sortedRecommendation[f];
+			i    = f-1;
+			
+			while ((i >= 0)&&(sortedRecommendation[i].getMeanOfRatings() > temp.getMeanOfRatings())) {
+				sortedRecommendation[i+1] = sortedRecommendation[i];
+				i--;
+			}
+			sortedRecommendation[i+1]=temp;
+		}
+		
+		// Limit
+		ArrayList<IAttribute> finalRecommendation = new ArrayList<IAttribute>();
+		for(int j = 0; j < limit; j++){
+			if(j < sortedRecommendation.length){
+				finalRecommendation.add(sortedRecommendation[sortedRecommendation.length-1-j]);
+//				System.out.println(sortedRecommendation[j].getMeanOfRatings());
 			}
 		}
 		
-		return leaves;
-	}
-
-	public Map<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation){
-		// Implement
-		return unsortedRecommendation;
+		return finalRecommendation;
 	}
 }
