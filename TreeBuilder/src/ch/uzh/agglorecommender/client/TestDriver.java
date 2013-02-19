@@ -108,7 +108,7 @@ public class TestDriver {
 		List<String> testDemographics = eb.defineDemographics(); // Demographics
 		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
 		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation
-		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation, 100); // Pick Top Movies for User
+		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
 		
 		if(sortedRecommendation != null){
 			System.out.println("=> Recommended Movies: ");

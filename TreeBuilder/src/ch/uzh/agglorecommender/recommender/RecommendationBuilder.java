@@ -60,12 +60,10 @@ public final class RecommendationBuilder {
 		INode position = leavesMapU.get((int)testNode.getDatasetId());
 		
 		if(position == null) {
-//			System.out.println("No Node with the Dataset ID " + testNode.getDatasetId() + " was found in the user tree -> wrong training set?");
 			return null;
 		}	
 		else {
-//			System.out.println("Found position of the node with Dataset ID " + testNode.getDatasetId() + " in the user Tree: " + position.toString());
-			
+
 			// Collect ratings of all content given by the input node
 			Map<Integer, IAttribute> contentRatings = collectRatings(position,testNode,null);
 			return contentRatings;
@@ -86,11 +84,9 @@ public final class RecommendationBuilder {
 			contentRatings = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
 			Set<INode> testContentKeys = testNode.getAttributeKeys();
 			for(INode testContentKey : testContentKeys) {
-//				System.out.println("Adding DataSetID to Set:" + testContentKey.getDatasetId());
 				contentRatings.put((int)testContentKey.getDatasetId(),null);
 			}
 			
-//			System.out.println("Ratings for these movies need to be found: " + contentRatings.keySet().toString());
 		}
 		
 		// Look for content nodes on the list and add it to collected ratings map		
@@ -104,32 +100,26 @@ public final class RecommendationBuilder {
 				  Map.Entry<Integer,INode> e = (Map.Entry<Integer,INode>) iter.next();
 				  if (posContentKey.getId() == e.getValue().getId()){
 					  contentDatasetID = e.getKey();
-//					  System.out.print(contentDatasetID + ",");
 				  }
 			}
 			
-			//System.out.println("Content Node Dataset ID: " + contentDatasetID);
 			posContentMap.put(contentDatasetID, position.getAttributeValue(posContentKey));
 		}
-//		System.out.println("posContentMap size: " + posContentMap.toString());
 		
 		for (Entry<Integer, IAttribute> contentRating : contentRatings.entrySet()) {
 			
 			int datasetID = contentRating.getKey();
 		    IAttribute rating = contentRating.getValue();
 		    
-//		    System.out.println("Searching for " + datasetID);
-		    
 		    // Check if value still needs to be found
 		    if(rating == null){
 		    	
 		    	try {
 		    		IAttribute contentAttributes = posContentMap.get(datasetID);
-//		    		System.out.print(contentAttributes.toString());
 		    		contentRatings.put(datasetID, posContentMap.get(datasetID));
 		    	}
 		    	catch (Exception e){
-//		    		System.out.println(e);
+		    		System.out.println(e);
 		    	}
 		    	
 		    }
@@ -138,7 +128,6 @@ public final class RecommendationBuilder {
 		
 		// Check if all movies were found
 		if(contentRatings.containsValue(null) != true){
-//			System.out.println("Found all movie ratings: " + contentRatings);
 			return contentRatings;
 		}
 		else {
@@ -151,7 +140,6 @@ public final class RecommendationBuilder {
 				}
 			}
 			else {
-//				System.out.println("Error: Did not find all movie ratings " + contentRatings);
 				return contentRatings;
 			}
 		}
@@ -190,22 +178,11 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
 		
-		//System.out.println("running recommendation from position " + position.toString());
-		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
 		// Find relevant Users
 		INode relUser = collectNode(position,radiusU);
-//		System.out.println("********************");
 		System.out.println("starting recommendation from user node: " + relUser.toString());
-//		for(INode content : relUser.getAttributeKeys()){
-//			IAttribute attribute = relUser.getAttributeValue(content);
-//			if(attribute != null){
-//				System.out.println(" -> Rating: " + 
-//				relUser.getAttributeValue(content).getMeanOfRatings()); // relUser.getAttributeValue(content).getMeta().get(1) + 
-//			}
-//		}
-//		System.out.println("********************");
 		
 		// Find relevant Content for every relevant User
 		Set<INode> userAttributes = relUser.getAttributeKeys();
@@ -216,29 +193,8 @@ public final class RecommendationBuilder {
 			
 			recommendation.put(relContentNode, relUser.getAttributeValue(relContentNode));
 			
-			//System.out.println("relevant Content Node: " + relContentNode.toString());
-			
-			// Find leave nodes related to the relevantContent
-//			if(relContentNode != null) {
-//				
-//				Map<INode,IAttribute> contentLeaves = collectLeaves(relContentNode,null); // FIXME ist diese ueberlegung richtig? muss ja die wertung haben auf der position
-//				
-//				if(contentLeaves != null){
-//				
-//					// Add recommendation into Map
-//					for(INode contentLeaf : contentLeaves.keySet()){
-//						recommendation.put(contentLeaf, contentLeaf.getAttributeValue(contentLeaf)); // FIXME attribute werden nicht Ÿbergeben
-//					}
-//					
-//				}
-//				else {
-//					System.out.println("contentLeaves == null");
-//				}
-//			}
 		}
 		
-//		System.out.println("Recommendation Test: " + recommendation.toString());
-
 	    return recommendation;
 	}
 
@@ -250,8 +206,6 @@ public final class RecommendationBuilder {
 	 */
 	public INode collectNode(INode position,int radius){
 		
-//		System.out.println("User tree: " + position.toString());
-
 		INode relevantNode = null;
 
 		// Going one level up if radius parameter stills allows it
@@ -310,10 +264,17 @@ public final class RecommendationBuilder {
 //		return leaves;
 //	}
 
-	public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation, int limit){
+	/**
+	 * Sorts the recommendation with an insertion sort and returns the movies which the
+	 * user would most likely rate the best respectively the worst depending on the sorting
+	 * parameter. the number of returned recommendations depends on the limit parameter.
+	 * 
+	 * @param unsortedRecommendation the unsorted recommendation
+	 * @param direction defines if best or worst recommendations are returned (1=best,0=worst)
+	 * @param limit defines the number of returned recommendations
+	 */
+	public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 		
-//		System.out.println(unsortedRecommendation.toString());
-		  
 		// Create Array from Map
 		IAttribute[] sortedRecommendation = new IAttribute[unsortedRecommendation.size()];
 		int x = 0;
@@ -347,8 +308,15 @@ public final class RecommendationBuilder {
 		ArrayList<IAttribute> finalRecommendation = new ArrayList<IAttribute>();
 		for(int j = 0; j < limit; j++){
 			if(j < sortedRecommendation.length){
-				finalRecommendation.add(sortedRecommendation[sortedRecommendation.length-1-j]);
-//				System.out.println(sortedRecommendation[j].getMeanOfRatings());
+				
+				// Returns the best
+				if(direction == 1){
+					finalRecommendation.add(sortedRecommendation[sortedRecommendation.length-1-j]);
+				}
+				// Returns the worst
+				else if(direction == 0){
+					finalRecommendation.add(sortedRecommendation[j]);
+				}
 			}
 		}
 		

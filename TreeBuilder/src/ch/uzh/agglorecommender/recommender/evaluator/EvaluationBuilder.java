@@ -51,7 +51,6 @@ public class EvaluationBuilder {
 				
 			// Add up results
 			for(String evMethod : sumOfEval.keySet()){
-//				System.out.println("evMethod: " + evMethod);
 				if(eval.get(evMethod) != null){
 					Double sumOfEValue = sumOfEval.get(evMethod);
 					sumOfEValue += eval.get(evMethod);
@@ -87,7 +86,7 @@ public class EvaluationBuilder {
 				Map<String,Double> eval = new HashMap<String,Double>();
 				
 				// Pick the real ratings for the predicted ratings from the recommendation
-//				System.out.println("Starting Calculation...");
+				System.out.println("Starting Calculation...");
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
 				
@@ -242,7 +241,7 @@ public class EvaluationBuilder {
 		
 		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
 		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
-		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID); // FIXME falsche metawerte an den Content Nodes
+		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
 		
 		int i = 0;
 		for(INode contentKey : randomUser.getAttributeKeys()){
