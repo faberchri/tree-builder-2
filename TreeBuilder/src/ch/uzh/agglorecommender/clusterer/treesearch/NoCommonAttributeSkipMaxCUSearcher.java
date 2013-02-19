@@ -1,9 +1,9 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -24,7 +24,7 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	Set<List<INode>> combinationsWithSharedAttributes = new HashSet<List<INode>>();
+	Set<Collection<INode>> combinationsWithSharedAttributes = new HashSet<Collection<INode>>();
 	
 	public NoCommonAttributeSkipMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
@@ -32,17 +32,21 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 
 	@Override
 	public Set<IMergeResult> getMaxCategoryUtilityMerges(
-			Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
+			Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time = System.nanoTime();
 		int removedLists = 0;
 		int initCombinationsSize = combinationsToCheck.size();
-		Iterator<List<INode>> i = combinationsToCheck.iterator();
+		Iterator<Collection<INode>> i = combinationsToCheck.iterator();
 		while (i.hasNext()) {
-			List<INode> l =  i.next();
+			Collection<INode> l =  i.next();
 			if (combinationsWithSharedAttributes.contains(l)) continue;
 			if (l.size() != 2) continue;
-			Set<INode> intersection = Sets.intersection(l.get(0).getAttributeKeys(), l.get(1).getAttributeKeys());
+			
+			Iterator<INode> it = l.iterator();
+			INode first = it.next();
+			INode second = it.next();
+			Set<INode> intersection = Sets.intersection(first.getAttributeKeys(), second.getAttributeKeys());
 			if (intersection.size() == 0) {
 				removedLists++;
 				i.remove();

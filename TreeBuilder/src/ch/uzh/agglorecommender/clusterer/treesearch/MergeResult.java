@@ -3,7 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
@@ -26,7 +26,7 @@ public class MergeResult implements IMergeResult, Serializable {
 	
 	private final double utility;
 	private final INode[] mergeNodesArr;
-	private final List<INode> mergeNodesLi;
+	private final Collection<INode> mergeNodesLi;
 	
 	public MergeResult(double utility, INode[] nodesOfThisMerge) {
 		if (nodesOfThisMerge == null) throw new InvalidParameterException("passed merge array is null");
@@ -35,7 +35,7 @@ public class MergeResult implements IMergeResult, Serializable {
 		this.utility = utility;
 	}
 	
-	public MergeResult(double utility, List<INode> nodesOfThisMerge) {
+	public MergeResult(double utility, Collection<INode> nodesOfThisMerge) {
 		if (nodesOfThisMerge == null) throw new InvalidParameterException("passed merge list is null");
 		this.mergeNodesLi = nodesOfThisMerge;
 		this.mergeNodesArr = null;
@@ -47,7 +47,7 @@ public class MergeResult implements IMergeResult, Serializable {
 	}
 	
 	@Override
-	public List<INode> getNodes() {
+	public Collection<INode> getNodes() {
 		if (mergeNodesLi != null) return mergeNodesLi;
 		return Arrays.asList(mergeNodesArr);
 	}

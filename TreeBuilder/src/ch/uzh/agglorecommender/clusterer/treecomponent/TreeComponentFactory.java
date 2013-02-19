@@ -1,8 +1,8 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -46,8 +46,12 @@ public abstract class TreeComponentFactory implements Serializable {
 	 */
 	public final INode createInternalNode(
 			ENodeType typeOfNewNode,
+<<<<<<< HEAD
 			List<INode> nodesToMerge,
 			double categoryUtility) {
+=======
+			Collection<INode> nodesToMerge, double categoryUtility) {
+>>>>>>> strategies for memory consumption reduction
 
 
 		if (nodesToMerge.size() < 2) {
@@ -81,10 +85,10 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge); // group node
+	public abstract IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge); // group node
 
 	
-	private  Map<INode,IAttribute> createAttMap(List<INode> nodesToMerge) {
+	private  Map<INode,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
 		Map<INode, IAttribute> map = new HashMap<INode, IAttribute>();
 		for (INode node : nodesToMerge) {
 			for (INode attNodes : node.getAttributeKeys()) {

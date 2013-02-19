@@ -1,6 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treeupdate;
 
-import java.util.Set;
+import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
@@ -17,5 +17,5 @@ public interface INodeUpdater {
 	 * @param newNode with this node the nodesToUpdate is complemented.
 	 * @param nodesToUpdate the set of nodes to update.
 	 */
-	public void updateNodes(INode newNode, Set<INode> nodesToUpdate); // newNode is the node which resulted from last merge
+	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate); // newNode is the node which resulted from last merge
 }

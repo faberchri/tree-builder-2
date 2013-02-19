@@ -1,4 +1,16 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
+<<<<<<< HEAD
+=======
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+
+import com.rapidminer.example.ExampleSet;
+>>>>>>> strategies for memory consumption reduction
 
 /*
 //This class is going to use RapidMiner to cluster the data. 
@@ -17,7 +29,7 @@ public class RapidMinerClusterMaxCUSearcher extends MaxCategoryUtilitySearcherDe
 	    }
 
 		@Override
-		public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
+		public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 			//Transform combinationsToCheck into a RapidMiner-readable form
 			RapidMinerDataTransformator transformer = new RapidMinerDataTransformator();
 			Set<ExampleSet> oldExmapleSet = transformer.transform(combinationsToCheck);

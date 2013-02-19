@@ -1,8 +1,8 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,7 +34,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
 	 **/
-	public double calculateCategoryUtility(List<INode> possibleMerge) {
+	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
 		
 		Set<INode> allAttributes = new HashSet<INode>();
 
@@ -70,7 +70,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @param possibleMerge the merge candidate
 	 * @return true if {@code attribute} appears in all nodes of {@code possibleMerge}, else false.
 	 */
-	private boolean isAttributeKnownToAllMergeNodes(INode attribute, List<INode> possibleMerge) {
+	private boolean isAttributeKnownToAllMergeNodes(INode attribute, Collection<INode> possibleMerge) {
 		for (INode iNode : possibleMerge) {
 			if (iNode.getAttributeValue(attribute) == null) {
 				return false;
@@ -85,7 +85,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @param possibleMerge The nodes for which to calculate the support if merged
 	 * @return support of attribute
 	 **/
-	public static int calcSupportOfAttribute(INode attribute, List<INode> possibleMerge) {
+	public static int calcSupportOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		int res = 0;
 		for (INode node : possibleMerge) {
 			IAttribute att = node.getAttributeValue(attribute);
@@ -105,7 +105,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @param possibleMerge The nodes who's attribute ratings are calculated
 	 * @return The sum of the ratings for attribute in the nodes
 	 */
-	public static double calcSumOfRatingsOfAttribute(INode attribute, List<INode> possibleMerge) {
+	public static double calcSumOfRatingsOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		double res = 0.0;
 		for (INode node : possibleMerge) {
 			IAttribute att = node.getAttributeValue(attribute);
@@ -125,7 +125,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * ratings. 
 	 * @return the sum of squared ratings of attribute
 	 */
-	public static double calcSumOfSquaredRatingsOfAttribute(INode attribute, List<INode> possibleMerge) {
+	public static double calcSumOfSquaredRatingsOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		double res = 0;
 		for (INode node : possibleMerge) {
 			IAttribute att = node.getAttributeValue(attribute);
@@ -144,7 +144,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @return The standard deviation of attribute in the nodes. Returns acuity if no node in 
 	 * possibleMerge contains the attribute.
 	 */
-	public static double calcStdDevOfAttribute(INode attribute, List<INode> possibleMerge) {
+	public static double calcStdDevOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		int support = calcSupportOfAttribute(attribute, possibleMerge);
 		double sumOfRatings = calcSumOfRatingsOfAttribute(attribute, possibleMerge);
 		double sumOfSquaredRatings = calcSumOfSquaredRatingsOfAttribute(attribute, possibleMerge);

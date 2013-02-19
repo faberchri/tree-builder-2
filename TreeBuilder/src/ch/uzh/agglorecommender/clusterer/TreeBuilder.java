@@ -1,6 +1,6 @@
 package ch.uzh.agglorecommender.clusterer;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -12,7 +12,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
+import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSetNoCaching;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
@@ -182,8 +182,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param leafNodes the initial leaf nodes 
 	 */
 	private void initNodeSets(InitialNodesCreator leafNodes) {
-		contentNodes = new ClusterSet<INode>(leafNodes.getContentLeaves().values());
-		userNodes = new ClusterSet<INode>(leafNodes.getUserLeaves().values());
+		contentNodes = new ClusterSetNoCaching<INode>(leafNodes.getContentLeaves().values());
+		userNodes = new ClusterSetNoCaching<INode>(leafNodes.getUserLeaves().values());
 //		for (INode n : leafNodes.getContentLeaves().values()) {
 //			contentNodes.add(n);
 //		}	
@@ -206,7 +206,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private ClusterResult cluster(String pathToWriteSerializedObject) {
 				
 		// Initialize Visualizer
-		treeVisualizer.initVisualization(userNodes.getUnmodifiableSetView(), contentNodes.getUnmodifiableSetView());
+		treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView());
 		
 		// Initialize Monitor
 		monitor.initMonitoring(userNodes.size(), contentNodes.size());
@@ -269,7 +269,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null) {
-				nodeUpdater.updateNodes(newUserNode, contentNodes.getUnmodifiableSetView()); 
+				nodeUpdater.updateNodes(newUserNode, contentNodes.getUnmodifiableView()); 
 			}
 		}
 		
@@ -279,7 +279,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newContentNode != null) {
-				nodeUpdater.updateNodes(newContentNode, userNodes.getUnmodifiableSetView()); 
+				nodeUpdater.updateNodes(newContentNode, userNodes.getUnmodifiableView()); 
 			}
 		}
 	}
@@ -338,12 +338,12 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @return a new node which has the {@code nodesToMerge} as children. 
 	 */
 	private INode merge(IMergeResult mergeResult, IClusterSet<INode> openSet) {
-		List<INode> nodesToMerge = mergeResult.getNodes();
+		Collection<INode> nodesToMerge = mergeResult.getNodes();
 		if (nodesToMerge.size() > 1) {
 			
 			// Create a new node (product of nodesToMerge)
 			INode newNode;
-			switch (nodesToMerge.get(0).getNodeType()) {
+			switch (nodesToMerge.iterator().next().getNodeType()) {
 			case User:
 				newNode = userTreeComponentFactory.createInternalNode(
 						ENodeType.User,

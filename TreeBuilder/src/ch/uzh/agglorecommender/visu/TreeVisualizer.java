@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -33,7 +34,7 @@ public class TreeVisualizer {
 	/**
 	 * References to open node sets.
 	 */
-	private Set<INode> userNodes, contentNodes;
+	private Collection<INode> userNodes, contentNodes;
 	
 	/**
 	 * Set up the facilities for the tree structure representation.
@@ -41,8 +42,8 @@ public class TreeVisualizer {
 	 * @param counter
 	 */
 	public void initVisualization(
-			Set<INode> userNodes,
-			Set<INode> contentNodes) {
+			Collection<INode> userNodes,
+			Collection<INode> contentNodes) {
 		this.contentNodes = contentNodes;
 		this.userNodes = userNodes;
 

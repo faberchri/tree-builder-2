@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -93,7 +94,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * @param children List of children
 	 * @param attributes Map of INode and IAttributes
 	 */
-	public Node(ENodeType nodeType, List<INode> children, Map<INode, IAttribute> attributes, double categoryUtility) {
+	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
 			for (INode child : children) {

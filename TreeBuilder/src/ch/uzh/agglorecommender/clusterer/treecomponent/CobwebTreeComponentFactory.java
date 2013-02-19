@@ -1,7 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
@@ -39,7 +39,7 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 
 	@Override
-	public IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge) {
+	public IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		int totalLeafCount = 0;
 		for (INode node : nodesToMerge) {
 			totalLeafCount += node.getNumberOfLeafNodes();

@@ -1,7 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -45,7 +45,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to calculate new nodes in the merging process
 	 */
 	@Override
-	public IAttribute createAttribute(INode attributeKey, List<INode> nodesToMerge) {
+	public IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
 		if (support < 1) {
 			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );

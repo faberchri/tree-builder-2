@@ -1,9 +1,8 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-
 
 /**
  * 
@@ -25,5 +24,5 @@ public interface IMergeResult extends Comparable<IMergeResult>{
 	 * 
 	 * @return array with all nodes of the merge.
 	 */
-	public List<INode> getNodes();
+	public Collection<INode> getNodes();
 }

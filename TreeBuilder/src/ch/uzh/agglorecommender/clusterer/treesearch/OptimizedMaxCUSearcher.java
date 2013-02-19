@@ -1,7 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -22,7 +22,7 @@ public class OptimizedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator 
 	}
 
 	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinations, IClusterSet<INode> clusterSet) {
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinations, IClusterSet<INode> clusterSet) {
 		// TODO implement optimization strategy, i.e. removing entries in combinations set.
 		return decoratedSearcher.getMaxCategoryUtilityMerges(combinations, clusterSet);
 	}

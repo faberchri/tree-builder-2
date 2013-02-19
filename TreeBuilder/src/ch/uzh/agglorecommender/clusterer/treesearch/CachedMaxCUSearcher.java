@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +31,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static Map<List<INode>, IMergeResult> cache = new HashMap<List<INode>,IMergeResult>();
+	private static Map<Collection<INode>, IMergeResult> cache = new HashMap<Collection<INode>,IMergeResult>();
 	
 	public CachedMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
@@ -48,7 +49,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	 * @param clusterSet the set of the nodes to cluster
 	 * @return a set with IMergeResults obtained from the cache 
 	 */
-	private Set<IMergeResult> revalidateAndFetchCache(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
+	private Set<IMergeResult> revalidateAndFetchCache(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		long time = System.nanoTime();
 		Logger log = TBLogger.getLogger(getClass().getName());
 		int invalidLists = cache.keySet().size();
@@ -66,7 +67,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 		}
 //		System.err.println("remove from cahce and dirty set: " + ((double) (System.nanoTime() - step) / 1000000000.0 + " s"));
 		step = System.nanoTime();
-		for (List<INode> l : combinationsToCheck) {
+		for (Collection<INode> l : combinationsToCheck) {
 			result.add(cache.get(l));
 		}
 		result.remove(null);
@@ -80,7 +81,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	}
 
 	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time1 = System.nanoTime();
 		int initialNumberOfCombinationsToCheck = combinationsToCheck.size();
@@ -154,11 +155,11 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 		Logger log = TBLogger.getLogger(getClass().getName());
 
 		final Set<INode> dirtyNodes = Collections.synchronizedSet(new HashSet<INode>()) ;
-		final Set<List<INode>> invalidLists = Collections.synchronizedSet(new HashSet<List<INode>>());
+		final Set<Collection<INode>> invalidLists = Collections.synchronizedSet(new HashSet<Collection<INode>>());
 		
 		ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		List<Future<?>> futures = new ArrayList<Future<?>>();
-		for (final List<INode> l : cache.keySet()) {
+		for (final Collection<INode> l : cache.keySet()) {
 			futures.add(es.submit(new Runnable() {
 				
 				@Override

@@ -1,6 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 public interface IClusterSet<E> {
@@ -42,13 +42,13 @@ public interface IClusterSet<E> {
 	public abstract boolean clusteringDone();
 
 	/**
-	 * Gets a read only view of the set to cluster.
-	 * The set reflects changes to the underlying set but
-	 * the underlying set can not be changed
-	 * through the returned set.
-	 * @return a read only view of the set to cluster
+	 * Gets a read only view of the collection to cluster.
+	 * The collection reflects changes to the underlying collection but
+	 * the underlying collection can not be changed
+	 * through the returned collection.
+	 * @return a read only view of the collection to cluster
 	 */
-	public abstract Set<E> getUnmodifiableSetView();
+	public abstract Collection<E> getUnmodifiableView();
 
 	/**
 	 * Gets the root of a cluster set if clustering is completed.
@@ -70,14 +70,14 @@ public interface IClusterSet<E> {
 	 * Gets the Set of all possible cluster combinations with a size <= {@code MAX_SUBSET_SIZE}.
 	 * @return the possible combinations.
 	 */
-	public abstract Set<List<E>> getCombinations();
+	public abstract Set<Collection<E>> getCombinations();
 
 	/**
 	 * Gets the set of all possible cluster combinations with a size <= {@code MAX_SUBSET_SIZE}
 	 * and the passed element as cluster component.
 	 * @param element the element for which cluster combinations are queried
-	 * @return all possiible combinations containing the passed element
+	 * @return all possible combinations containing the passed element
 	 */
-	public abstract Set<List<E>> getCombinations(E element);
+	public abstract Set<Collection<E>> getCombinations(E element);
 
 }

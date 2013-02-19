@@ -17,7 +17,7 @@ import com.beust.jcommander.Parameter;
 public class CommandLineArgs {
 	
 	@Parameter(names = { "-d", "-dataset" },
-			description = "Name of data set type to process. Supported Values: Grouplens, Floarea, Random. Default: Grouplens",
+			description = "Name of data set type to process. Supported Values: Grouplens, GrouplensBig, Floarea, Random. Default: Grouplens",
 			validateWith = DatasetValidatorConverter.class,
 			converter = DatasetValidatorConverter.class,
 			arity = 1)

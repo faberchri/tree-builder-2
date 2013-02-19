@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 
 
 	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<List<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
+	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time = System.nanoTime();
 		
@@ -64,7 +65,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 * @param combinations list of merge combinations
 	 * @return the list of all IMergeResults (length of return list == combinationIndicesList.size())
 	 */
-	private Set<IMergeResult> obtainMergeResultsMultithreadedMaxCUCheck(Set<List<INode>> combinations) {
+	private Set<IMergeResult> obtainMergeResultsMultithreadedMaxCUCheck(Set<Collection<INode>> combinations) {
 
 		final Logger log = TBLogger.getLogger(getClass().getName());
 		
@@ -104,7 +105,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	    };
 
 	    List<Future<IMergeResult>> futures = new ArrayList<Future<IMergeResult>>(combinations.size());
-	    for (final List<INode> possibleMerge : combinations) {
+	    for (final Collection<INode> possibleMerge : combinations) {
 	        Callable<IMergeResult> callable = new Callable<IMergeResult>() {
 	        	
 	            public IMergeResult call() {
@@ -158,7 +159,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 * @param possibleMerge the nodes to merge
 	 * @return the category utility of a node resulting from the merge.
 	 */
-	protected abstract double calculateCategoryUtility(List<INode> possibleMerge);
+	protected abstract double calculateCategoryUtility(Collection<INode> possibleMerge);
 	
 	/**
 	 * Gets the theoretical maximal possible Category Utility of a merge

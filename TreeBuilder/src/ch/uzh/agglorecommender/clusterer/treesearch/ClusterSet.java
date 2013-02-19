@@ -13,13 +13,14 @@ import java.util.logging.Logger;
 
 import org.apache.commons.math3.util.ArithmeticUtils;
 
+import scala.collection.immutable.$colon$colon;
+import scala.collection.immutable.List$;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-
 
 /**
  * 
@@ -80,16 +81,16 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * A list of all currently valid comparisons indices. Used to
 	 * generate a the set of valid node comparisons.
 	 */
-	private Set<scala.collection.immutable.List<Integer>> combinationIndices;
+	private Set<scala.collection.immutable.List<Short>> combinationIndices;
 	
 	/**
 	 * Maps to each currently valid comparison index all possible comparisons (multimap).
 	 * Used for keeping the combinationIndices set in sync with the cluster set.
 	 */
-	private HashMultimap<Integer, scala.collection.immutable.List<Integer>> combinationsMap;
+	private HashMultimap<Short, scala.collection.immutable.List<Short>> combinationsMap;
 	
-	private Map<scala.collection.immutable.List<Integer>, List<E>> cachedNodeLists
-			= new HashMap<scala.collection.immutable.List<Integer>, List<E>>();
+	private Map<scala.collection.immutable.List<Short>, List<E>> cachedNodeLists
+			= new HashMap<scala.collection.immutable.List<Short>, List<E>>();
 	
 	/**
 	 * Instantiates a new cluster set.
@@ -97,9 +98,10 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 */
 	public ClusterSet(ImmutableCollection<E> leafNodes) {
 		
-		this.openNodes.addAll(leafNodes);		
-		this.combinationIndices = new HashSet<scala.collection.immutable.List<Integer>>(calcNumberOfInitialCombinations());
-		initializeCombinationIndices();
+		this.openNodes.addAll(leafNodes);
+		int numOfInitCombs = calcNumberOfInitialCombinations();
+		this.combinationIndices = new HashSet<scala.collection.immutable.List<Short>>(numOfInitCombs);
+		initializeCombinationIndices(numOfInitCombs);
 		this.combinationsMap = HashMultimap.create() ;
 		initializeCombinationsMap();
 	}
@@ -123,10 +125,10 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * Adds a mapping of each index to all the combinations that involves this index. 
 	 */
 	private void initializeCombinationsMap() {
-		for (scala.collection.immutable.List<Integer> l : combinationIndices) {
-			scala.collection.Iterator<Integer> i = l.iterator();
+		for (scala.collection.immutable.List<Short> l : combinationIndices) {
+			scala.collection.Iterator<Short> i = l.iterator();
 			while(i.hasNext()) {
-				Integer n = i.next();
+				Short n = i.next();
 				combinationsMap.put(n, l);
 			}			
 		}
@@ -138,18 +140,63 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * of the indices of the openNodes set (IndexAwareSet).
 	 * The resulting index lists are stored in combinationIndices.
 	 */
-	private void initializeCombinationIndices() {
-		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
-			if (openNodes.size() < sublistLength) break;
-			scala.collection.Iterator<scala.collection.immutable.List<Object>> it
-						= SubsetsGenerator.subsets(openNodes.size(), sublistLength);
-			while (it.hasNext()) {
-				scala.collection.immutable.List<Integer> sublist =
-						(scala.collection.immutable.List<Integer>) (scala.collection.immutable.List<?>) it.next();
-				combinationIndices.add(sublist);
-			}
+	private void initializeCombinationIndices(int initialNumberOfCombinations) {
+		Logger log = TBLogger.getLogger(this.getClass().getName());
+		if (MAX_SUBSET_SIZE == 2) {
+			initializeDualCombinationIndices(initialNumberOfCombinations);
+		} else {
+			for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
+				if (openNodes.size() < sublistLength) break;
+				scala.collection.Iterator<scala.collection.immutable.List<Object>> it
+							= SubsetsGenerator.subsets(openNodes.size(), sublistLength);
+				int c = 0;
+				while (it.hasNext()) {
+					scala.collection.immutable.List<Short> sublist =
+							(scala.collection.immutable.List<Short>) (scala.collection.immutable.List<?>) it.next();
+					combinationIndices.add(sublist);
+					if (c % 100000 == 0){
+						log.info(c + " of " + initialNumberOfCombinations + " combination indice lists fetched. most recent list: " + sublist);
+					}
+					c++;
+				}
+			}			
 		}
 	}
+	
+	private void initializeDualCombinationIndices(int initialNumberOfCombinations) {
+		Logger log = TBLogger.getLogger(this.getClass().getName());
+		int c = 0;
+		scala.collection.immutable.List sublist = null;
+		for (short i = 0; i < openNodes.size(); i++) {
+			for (short j = (short) (i + 1); j < openNodes.size(); j++) {
+				sublist = newScalaList(i, j);
+				combinationIndices.add(sublist);
+				c++;
+				if (c % 100000 == 0){
+					log.info(c + " of " + initialNumberOfCombinations + " combination indice lists created. most recent list: " + sublist);
+				}
+			}
+		}
+		log.info(c + " initial combination indices list created. Expected: " + initialNumberOfCombinations + ", most recent list: " + sublist);
+	}
+	
+    private static <T> scala.collection.immutable.List<T> newScalaList(T ... ts) {
+    	scala.collection.immutable.List<T> result = List$.MODULE$.empty();
+        for(int i = ts.length; i > 0; i--) {
+            result = new $colon$colon(ts[i - 1], result);
+        }
+        return result;
+    }
+    
+    private static scala.collection.immutable.List<Short> newScalaList(scala.collection.immutable.List<Integer> li) {
+    	scala.collection.immutable.List<Short> result = List$.MODULE$.empty();
+    	scala.collection.Iterator<Integer> it = li.reverseIterator();
+    	while (it.hasNext()) {
+			short s = it.next().shortValue();
+			result = new $colon$colon(s, result);
+		}
+        return result;
+    }
 	
 	/**
 	 * Is called upon addition of a node to the openSet and updates 
@@ -157,7 +204,7 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * indices lists (limited to sublist length <= MAX_SUBSET_SIZE).
 	 *
 	 */
-	private void updateCombinationIndices(int newIndex) {
+	private void updateCombinationIndices(short newIndex) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 
 		for (int sublistLength = 2; sublistLength <= MAX_SUBSET_SIZE; sublistLength++) {
@@ -171,7 +218,7 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 				boolean isValidList = true;
 				scala.collection.Iterator<Integer> i = sublist.iterator();
 				while(i.hasNext()) {
-					Integer n = i.next();
+					short n = i.next().shortValue();
 					if (! combinationsMap.containsKey(n) && n != newIndex) {
 						isValidList = false;
 					}
@@ -181,9 +228,9 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 				// update combinationIndicesMap if sublist is valid
 				i = sublist.iterator();
 				while(i.hasNext()) {
-					int n = i.next();
+					short n = i.next().shortValue();
 					if (combinationsMap.containsKey(n) || n == newIndex) {
-						combinationsMap.put(n, sublist);	
+						combinationsMap.put(n, newScalaList(sublist));	
 					}
 				}
 				
@@ -208,8 +255,8 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 
 		if (! openNodes.contains(o)) return false;
 
-		int elementIndex = openNodes.indexOf(o);
-		Collection<scala.collection.immutable.List<Integer>> c = combinationsMap.removeAll(elementIndex);
+		short elementIndex = (short)openNodes.indexOf(o);
+		Collection<scala.collection.immutable.List<Short>> c = combinationsMap.removeAll(elementIndex);
 		combinationIndices.removeAll(c);
 		return openNodes.remove(o);
 	}
@@ -221,7 +268,7 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	public boolean add(E e) {
 		if (openNodes.contains(e)) return false;
 		boolean b = openNodes.add(e);
-		updateCombinationIndices(openNodes.getLastIndex());
+		updateCombinationIndices((short)openNodes.getLastIndex());
 		return b;
 
 	}
@@ -247,7 +294,7 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getUnmodifiableSetView()
 	 */
 	@Override
-	public Set<E> getUnmodifiableSetView() {
+	public Collection<E> getUnmodifiableView() {
 		return Collections.unmodifiableSet(openNodes);
 	}
 	
@@ -277,20 +324,20 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getCombinations()
 	 */
 	@Override
-	public Set<List<E>> getCombinations() {
-		Set<List<E>> combinations = new HashSet<List<E>>(combinationIndices.size());
-		for (scala.collection.immutable.List<Integer> l : combinationIndices) {
+	public Set<Collection<E>> getCombinations() {
+		Set<Collection<E>> combinations = new HashSet<Collection<E>>(combinationIndices.size());
+		for (scala.collection.immutable.List<Short> l : combinationIndices) {
 			combinations.add(convertIndexListToElementList(l));
 		}
 		return combinations;
 	}
 	
-	private List<E> convertIndexListToElementList(scala.collection.immutable.List<Integer> l) {
+	private List<E> convertIndexListToElementList(scala.collection.immutable.List<Short> l) {
 		if (cachedNodeLists.containsKey(l)) {
 			return cachedNodeLists.get(l);
 		} else {
 			List<E> eL = new ArrayList<E>(l.size());
-			scala.collection.Iterator<Integer> i = l.iterator();
+			scala.collection.Iterator<Short> i = l.iterator();
 			while(i.hasNext()) {
 				E e = openNodes.getByIndex(i.next());
 				if (e == null) {
@@ -309,13 +356,13 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 	 * @see ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet#getCombinations(E)
 	 */
 	@Override
-	public Set<List<E>> getCombinations(E element) {
-		int elIndex = openNodes.indexOf(element);
+	public Set<Collection<E>> getCombinations(E element) {
+		short elIndex = (short)openNodes.indexOf(element);
 		if (elIndex == -1) return null;
-		Set<scala.collection.immutable.List<Integer>> intersection = Sets.intersection(combinationsMap.get(elIndex), combinationIndices);
+		Set<scala.collection.immutable.List<Short>> intersection = Sets.intersection(combinationsMap.get(elIndex), combinationIndices);
 		
-		Set<List<E>> combinations = new HashSet<List<E>>(intersection.size());
-		for (scala.collection.immutable.List<Integer> l : intersection) {
+		Set<Collection<E>> combinations = new HashSet<Collection<E>>(intersection.size());
+		for (scala.collection.immutable.List<Short> l : intersection) {
 			combinations.add(convertIndexListToElementList(l));
 		}
 		return combinations;

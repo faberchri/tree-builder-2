@@ -80,9 +80,9 @@ public class VisualizationBuilder extends JPanel {
 
 	private TreeCollapser collapser;
 	
-	private Set<INode> nodes;
+	private Collection<INode> nodes;
 
-	public VisualizationBuilder(Set<INode> nodes) {
+	public VisualizationBuilder(Collection<INode> nodes) {
 		this.nodes = nodes;
 		this.setLayout(new BorderLayout());
 
@@ -253,7 +253,7 @@ public class VisualizationBuilder extends JPanel {
 		return scrollP;
 	}
 
-	public void updateGraph(Set<INode> nodes) {
+	public void updateGraph(Collection<INode> nodes) {
 		this.nodes = nodes;
 		layout.reset();
 		graph = new DelegateForest<INode,Integer>();

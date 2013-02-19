@@ -1,7 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treeupdate;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
@@ -17,7 +17,7 @@ public class NullUpdater implements INodeUpdater, Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void updateNodes(INode newNode, Set<INode> nodesToUpdate) {
+	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate) {
 		// Nothing to do
 
 	}
