@@ -1,22 +1,5 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-<<<<<<< HEAD
-=======
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-
-import com.rapidminer.example.Attribute;
-import com.rapidminer.example.ExampleSet;
-import com.rapidminer.example.table.AttributeFactory;
-import com.rapidminer.example.table.DoubleArrayDataRow;
-import com.rapidminer.example.table.MemoryExampleTable;
-import com.rapidminer.tools.Ontology;
->>>>>>> strategies for memory consumption reduction
 
 /*
  * Creates an ExampleSet for each set from the passed List. 
@@ -35,9 +18,8 @@ public class RapidMinerDataTransformator {
 	 
 	public Set<ExampleSet> transform(Set<List<INode>> NodeSet){
 =======
-	 */
+
 	public Set<ExampleSet> transform(Set<Collection<INode>> NodeSet){
->>>>>>> strategies for memory consumption reduction
 	
 	//create attribute list
 	List<Attribute> attributes = new LinkedList<Attribute>();

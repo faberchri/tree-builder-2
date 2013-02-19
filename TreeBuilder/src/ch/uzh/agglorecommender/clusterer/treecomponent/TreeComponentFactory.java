@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -46,12 +47,9 @@ public abstract class TreeComponentFactory implements Serializable {
 	 */
 	public final INode createInternalNode(
 			ENodeType typeOfNewNode,
-<<<<<<< HEAD
-			List<INode> nodesToMerge,
+			Collection<INode> nodesToMerge,
 			double categoryUtility) {
-=======
-			Collection<INode> nodesToMerge, double categoryUtility) {
->>>>>>> strategies for memory consumption reduction
+
 
 
 		if (nodesToMerge.size() < 2) {

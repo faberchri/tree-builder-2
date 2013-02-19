@@ -1,16 +1,4 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
-<<<<<<< HEAD
-=======
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-
-import com.rapidminer.example.ExampleSet;
->>>>>>> strategies for memory consumption reduction
 
 /*
 //This class is going to use RapidMiner to cluster the data. 
