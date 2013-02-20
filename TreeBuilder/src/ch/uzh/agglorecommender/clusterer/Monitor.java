@@ -86,9 +86,9 @@ public class Monitor implements Serializable {
 		display.update(this);
 	}
 	
-	private void addCycle() {
-		this.cycles++;
+	private void addCycle() {	
 		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
+		this.cycles++;
 	}
 	
 	public long getCycleCount() {

@@ -8,6 +8,7 @@ import gnu.trove.map.hash.TShortObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +29,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
-public class ClusterSetIndexed<E> implements IClusterSetIndexed<E> {
+public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable {
 
 	private static final int SUBSET_SIZE = 2;
 	
@@ -68,9 +69,12 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E> {
 
 	@Override
 	public Collection<E> getCombination(int combinationId) {
+		
 		short x = Cantor.computeX(combinationId);
 		short y = Cantor.computeY(combinationId);
 		
+//		System.out.println("combinationId: " + combinationId + ", x: " + x + ", y: " + y);
+				
 		return Arrays.asList(new Object[] {openIndexElementMap.get(x), openIndexElementMap.get(y)});
 	}
 
@@ -178,7 +182,6 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E> {
 		}
 		return res;
 	}
-	
 	
 	
 	public static class Cantor {

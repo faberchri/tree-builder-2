@@ -11,23 +11,27 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 class SplitWorker extends Thread {
-	
+
 	private final TIntList split;
-	
+
 	private TIntDoubleMap calcRes;
-	
+
 	private final BasicMaxCategoryUtilitySearcher searcher;
-	
+
 	private final IClusterSetIndexed<INode> clusterSet;
-	
+
 	private final double maxPossibleCU;
-	
-	private static boolean maxCUFound = false; // all threads read and write to this variable, 
-											// however no synchronization needed, since write 
-											// sets variable always only to true. Additional cycles due to delayed 
-											// update of the variable in memory do not harm.
-	
-	public SplitWorker(TIntList split, BasicMaxCategoryUtilitySearcher searcher, IClusterSetIndexed<INode> clusterSet) {
+
+	protected static boolean maxCUFound = false; // all threads read and write
+													// to this variable,
+
+	// however no synchronization needed, since write
+	// sets variable always only to true. Additional cycles due to delayed
+	// update of the variable in memory do not harm.
+
+	public SplitWorker(TIntList split,
+			BasicMaxCategoryUtilitySearcher searcher,
+			IClusterSetIndexed<INode> clusterSet) {
 		this.split = split;
 		this.calcRes = new TIntDoubleHashMap(split.size());
 		this.searcher = searcher;
@@ -39,29 +43,35 @@ class SplitWorker extends Thread {
 	public void run() {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		TIntIterator iterator = split.iterator();
-		for ( int i = split.size(); i-- > 0; ) { 			// faster iteration by avoiding hasNext()
-			if (maxCUFound) return;
+		for (int i = split.size(); i-- > 0;) { // faster iteration by avoiding
+												// hasNext()
+			if (maxCUFound){
+				log.fine("Thread Id " + this.getId() + ": Terminating searcher thread due to found max cu in different thread.");
+				return;
+			}
+	
 			int combinationId = iterator.next();
-        	double cu = searcher.calculateCategoryUtility(clusterSet.getCombination(combinationId));
+			double cu = searcher.calculateCategoryUtility(clusterSet.getCombination(combinationId));
 			if (cu >= maxPossibleCU) {
 				if (cu > maxPossibleCU) {
 					// error. shouldn't be possible
-					log.severe("calculated category utility is greater than teoretical maximum.");
-					log.severe("Exiting application!");
+					log.severe("Thread Id " + this.getId() + ": calculated category utility is greater than teoretical maximum.");
+					log.severe("Thread Id " + this.getId() + ": Exiting application!");
 					System.exit(-1);
 				}
-				log.fine("Merge result with max theoretical category utility was found." +
-						" Terminating category utilitie calculation for remaining merges.");
+				log.fine("Thread Id " + this.getId() + ": Merge result with max theoretical category utility was found."
+						+ " Terminating category utilitie calculation for remaining merges. Found CU: " + cu);
+				calcRes.put(combinationId, cu);
 				maxCUFound = true;
 				return;
 			}
-        	calcRes.put(combinationId, cu);
+			calcRes.put(combinationId, cu);
 		}
-		
+
 	}
-	
+
 	protected TIntDoubleMap getCalcRes() {
 		return calcRes;
 	}
-	
+
 }

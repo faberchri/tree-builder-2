@@ -79,7 +79,8 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 		TIntDoubleIterator iterator = numberCache.iterator();
 		for ( int i = numberCache.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
 			iterator.advance();
-			if (iterator.value() > maxCachedCU) {
+//			System.out.println("valid cached comIds: " + iterator.key());
+			if (iterator.value() > maxCachedCU && combinationIds.contains(iterator.key())) {
 				maxCachedCU = iterator.value();
 				bestCobinationId = iterator.key();
 			}

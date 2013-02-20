@@ -15,7 +15,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
+import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
@@ -145,8 +145,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		this.nodeUpdater = nodeUpdater;
 		this.userMCUSearcher = new CachedMaxCUSearcher(searcherUsers);
 		this.contentMCUSearcher = new CachedMaxCUSearcher(searcherContent);
-		//this.userMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherUsers));
-		//this.contentMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherContent));
+//		this.userMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherUsers));
+//		this.contentMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherContent));
 		this.contentTreeComponentFactory = contentTreeComponentFactory;
 		this.userTreeComponentFactory = userTreeComponentFactory;
 		this.treeVisualizer = new TreeVisualizer();	
@@ -187,8 +187,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param leafNodes the initial leaf nodes 
 	 */
 	private void initNodeSets(InitialNodesCreator leafNodes) {
-		contentNodes = new ClusterSet<INode>(leafNodes.getContentLeaves().values());
-		userNodes = new ClusterSet<INode>(leafNodes.getUserLeaves().values());
+		contentNodes = new ClusterSetIndexed<INode>(leafNodes.getContentLeaves().values());
+		userNodes = new ClusterSetIndexed<INode>(leafNodes.getUserLeaves().values());
 //		for (INode n : leafNodes.getContentLeaves().values()) {
 //			contentNodes.add(n);
 //		}	
@@ -221,12 +221,14 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 
 		// Process Nodes
 		while (! userNodes.clusteringDone() || ! contentNodes.clusteringDone()) {
-
+			long time = System.nanoTime();
+			log.info("------------------------------- start cycle ---------------------------------");
+			
 			// check if clustering is interrupted
 			interrupt();
 			
 			performClusterCycle(balancer.getNextClusterSet());
-			
+
 			// Create/Update Visualization
 			treeVisualizer.visualize();
 			
@@ -239,6 +241,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			// The frequency of serialization can be set with
 			// ToFileSerializer.serializationTimeInterval
 			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
+			log.info("---------------------- cycle completed (" + ( (double)(System.nanoTime() - time) / 1000000000.0) + " s) -------------------------");
 		} 
 				
 		log.info("Clustering terminated! Serializing TreeBuilder...");
@@ -270,7 +273,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		
 		if (openSet == userNodes) {
 			log.info("Get closest user nodes & merge them");
-			INode newUserNode = merge(searchBestMergeResult(userNodes, userMCUSearcher), userNodes);
+			INode newUserNode = merge(searchBestMergeResultIndexed((IClusterSetIndexed<INode>)userNodes, userMCUSearcher), userNodes);
 
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newUserNode != null) {
@@ -280,7 +283,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		
 		if (openSet == contentNodes) {
 			log.info("Get closest content nodes & merge them");
-			INode newContentNode = merge(searchBestMergeResult(contentNodes, contentMCUSearcher), contentNodes);		
+			INode newContentNode = merge(searchBestMergeResultIndexed((IClusterSetIndexed<INode>)contentNodes, contentMCUSearcher), contentNodes);		
 			
 			// Update Trees with info from other tree on current level - only if nodes merged
 			if(newContentNode != null) {
@@ -362,7 +365,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		IMergeResult best = new MergeResult(max, nodes.getCombination(bestCobinationId));
 
 		log.info("Best node merge has category utility of "
-				+best.getCategoryUtility() +" and includes: " + best.getNodes());
+				+best.getCategoryUtility() +" and includes: " + best.getNodes() + ", combination id: " + bestCobinationId);
 
 		Monitor counter = Monitor.getInstance();
 

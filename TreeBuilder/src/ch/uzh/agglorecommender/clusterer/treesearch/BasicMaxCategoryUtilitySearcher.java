@@ -72,6 +72,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 			}
 			res.putAll(t.getCalcRes());
 		}
+		SplitWorker.maxCUFound = false;
 				
 		time = System.nanoTime() - time;
 		log.finer("Time to calculate new category utility values: " + ( (double) (time) ) / 1000000000.0 + " seconds. On "
