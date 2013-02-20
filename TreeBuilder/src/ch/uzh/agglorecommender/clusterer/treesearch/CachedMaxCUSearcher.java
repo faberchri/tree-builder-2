@@ -1,5 +1,11 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.set.TIntSet;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,10 +39,67 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	
 	private static Map<Collection<INode>, IMergeResult> cache = new HashMap<Collection<INode>,IMergeResult>();
 	
+	private TIntDoubleMap numberCache = new TIntDoubleHashMap();
+	
 	public CachedMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
 	}
 	
+	@Override
+	public TIntDoubleMap getMaxCategoryUtilityMerges(
+			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {
+		Logger log = TBLogger.getLogger(getClass().getName());
+		long time1 = System.nanoTime();
+		
+		TIntIterator it = combinationIds.iterator();
+		Set<INode> dirtyNodes = Node.getAllDirtyNodes();
+		while (it.hasNext()) {
+			int i = it.next();
+			if (! numberCache.containsKey(i)) continue;
+			Collection<INode> t = clusterSet.getCombination(i);
+			Iterator<INode> tI = t.iterator();
+			boolean invalid = false;
+			while (tI.hasNext()) {
+				INode n = tI.next();
+				if (dirtyNodes.contains(n)) {
+					invalid = true;
+					break;
+				}
+			}
+			if (invalid) {
+				numberCache.remove(i);
+			} else {
+				it.remove(); // cache entry is valid
+			}
+		}
+		
+		// fetch best cache entry
+		double maxCachedCU = -Double.MAX_VALUE;
+		int bestCobinationId = -1;
+		TIntDoubleIterator iterator = numberCache.iterator();
+		for ( int i = numberCache.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
+			iterator.advance();
+			if (iterator.value() > maxCachedCU) {
+				maxCachedCU = iterator.value();
+				bestCobinationId = iterator.key();
+			}
+		}
+		
+		time1 = System.nanoTime() - time1;
+		
+		TIntDoubleMap newMerges = decoratedSearcher.getMaxCategoryUtilityMerges(combinationIds, clusterSet);
+		
+		long time2 = System.nanoTime();
+		
+		numberCache.putAll(newMerges);
+		if (bestCobinationId > -1) {
+			newMerges.put(bestCobinationId, maxCachedCU);
+		}
+		dirtyNodes.clear();
+		time2 = System.nanoTime() - time2;
+		log.info("Time in cache decorator: " + (double)(time1 + time2) / 1000000000.0 + " s");
+		return newMerges;
+	}
 	
 	/**
 	 * Removes combinations list that contain dirty nodes
@@ -79,6 +142,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 				+", time for cache update: "+(double)time / 1000000000.0 + " s");
 		return result;
 	}
+	
 
 	@Override
 	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
@@ -197,6 +261,5 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 				+ ", number of dirty nodes: " + dirtyNodes.size()
 				+", time for cache update: "+(double)time / 1000000000.0 + " s");
 	}
-	
 
 }

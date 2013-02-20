@@ -1,4 +1,7 @@
 package ch.uzh.agglorecommender.clusterer;
+import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.map.TIntDoubleMap;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
@@ -12,10 +15,12 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSetNoCaching;
+import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
+import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
+import ch.uzh.agglorecommender.clusterer.treesearch.MergeResult;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -182,8 +187,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param leafNodes the initial leaf nodes 
 	 */
 	private void initNodeSets(InitialNodesCreator leafNodes) {
-		contentNodes = new ClusterSetNoCaching<INode>(leafNodes.getContentLeaves().values());
-		userNodes = new ClusterSetNoCaching<INode>(leafNodes.getUserLeaves().values());
+		contentNodes = new ClusterSet<INode>(leafNodes.getContentLeaves().values());
+		userNodes = new ClusterSet<INode>(leafNodes.getUserLeaves().values());
 //		for (INode n : leafNodes.getContentLeaves().values()) {
 //			contentNodes.add(n);
 //		}	
@@ -299,6 +304,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		// from the obtained IMergeResults
 		IMergeResult best = null;
 		Set<IMergeResult> shortList = mcus.getMaxCategoryUtilityMerges(nodes.getCombinations(), nodes);
+		System.gc();
 		double max = -Double.MAX_VALUE; // initialized with the smallest possible double value
 		for (IMergeResult r : shortList) {
 			double cUt = r.getCategoryUtility();
@@ -323,6 +329,48 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		return best;
 	}
 	
+	
+	/**
+	 * Gets the best merge from the passed set and returns the resulting new node.
+	 * 
+	 * @param nodes the indexed set of nodes in which the best merge is searched.
+	 * @param mcus the max category searcher to use
+	 * @return the merge result or null if no possible merge was found.
+	 */
+	private IMergeResult searchBestMergeResultIndexed(IClusterSetIndexed<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
+
+		if(nodes.size() < 2) return null;
+
+		// get the IMergeResult with the highest utility value
+		// from the obtained IMergeResults
+		int bestCobinationId = -1;
+		TIntDoubleMap shortList = mcus.getMaxCategoryUtilityMerges(nodes.getCombinationsIds(), nodes);
+		double max = -Double.MAX_VALUE; // initialized with the smallest possible double value
+		TIntDoubleIterator iterator = shortList.iterator();
+		for ( int i = shortList.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
+			iterator.advance();
+			if (iterator.value() > max) {
+				max = iterator.value();
+				bestCobinationId = iterator.key();
+			}
+		}
+		if (bestCobinationId == -1) {
+			log.severe("Err: Best merge is == null; in: " + getClass().getSimpleName() );
+			System.exit(-1);
+		}
+		
+		IMergeResult best = new MergeResult(max, nodes.getCombination(bestCobinationId));
+
+		log.info("Best node merge has category utility of "
+				+best.getCategoryUtility() +" and includes: " + best.getNodes());
+
+		Monitor counter = Monitor.getInstance();
+
+		log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
+				nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
+		//			treeVisualizer.printAllOpenUserNodes();
+		return best;
+	}
 	
 	/**
 	 * Creates a new node and initializes the nodes attributes based on a list of close nodes.

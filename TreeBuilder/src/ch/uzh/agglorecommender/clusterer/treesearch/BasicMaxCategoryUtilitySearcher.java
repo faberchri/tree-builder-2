@@ -1,5 +1,13 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import gnu.trove.TCollections;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.set.TIntSet;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +48,102 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 
 
 	@Override
+	public TIntDoubleMap getMaxCategoryUtilityMerges(TIntSet combinationIds,
+			IClusterSetIndexed<INode> clusterSet) {
+		Logger log = TBLogger.getLogger(getClass().getName());
+		long time = System.nanoTime();
+		
+		List<SplitWorker> workers = new ArrayList<SplitWorker>();
+		List<TIntList> splits = splitCombinationIdsSet(combinationIds);
+		for (TIntList split : splits) {
+			SplitWorker w = new SplitWorker(split, this, clusterSet);
+			workers.add(w);
+			w.start();
+		}
+		TIntDoubleMap res = new TIntDoubleHashMap(combinationIds.size());
+		for (SplitWorker t : workers) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				log.severe(e.getStackTrace().toString());
+				log.severe(e.getMessage());
+				log.severe("InterruptedException while waiting at join().");
+				System.exit(-1);
+			}
+			res.putAll(t.getCalcRes());
+		}
+				
+		time = System.nanoTime() - time;
+		log.finer("Time to calculate new category utility values: " + ( (double) (time) ) / 1000000000.0 + " seconds. On "
+					+ combinationIds.size() + " combinations. Calculated combinations: " + res.keySet().size());
+		return res;
+	}
+	
+	private List<TIntList> splitCombinationIdsSet(TIntSet combinationIds) {
+		double numOfSplits = Runtime.getRuntime().availableProcessors();
+		int splitSize = (int) Math.ceil((double)combinationIds.size() / numOfSplits);
+		
+		List<TIntList> res = new ArrayList<TIntList>();
+		int splitCount = 0;
+		TIntList split = new TIntArrayList(splitSize + 1);
+		TIntIterator iterator = combinationIds.iterator();
+		for ( int i = combinationIds.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
+			if (splitCount > splitSize) {
+				res.add(split);
+				split = new TIntArrayList(splitSize + 1);
+				splitCount = 0;
+			}
+			split.add(iterator.next());
+			splitCount++;
+		}
+		res.add(split);
+		return res;
+	}
+	
+
+	
+	private TIntDoubleMap obtainMergeResultsMultithreadedMaxCUCheckIndexed(TIntSet combinationIds, final IClusterSetIndexed<INode> clusterSet) {
+
+		final Logger log = TBLogger.getLogger(getClass().getName());
+		
+		final TIntDoubleMap pRes = TCollections.synchronizedMap(new TIntDoubleHashMap(combinationIds.size()));
+
+	    ExecutorService service = new IndexedThreadPoolExecutor();
+
+	    List<Future<Double>> futures = new ArrayList<Future<Double>>(combinationIds.size());
+		final TIntIterator iterator = combinationIds.iterator();
+		for ( int i = combinationIds.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
+			final int combinationId = iterator.next();
+	        Callable<Double> callable = new Callable<Double>() {
+	        	
+	            public Double call() {
+	            	double catUtil = calculateCategoryUtility(clusterSet.getCombination(combinationId));
+	            	pRes.put(combinationId, catUtil);
+	    			return catUtil;
+	            }
+	        };
+	        try {
+	        	futures.add(service.submit(callable));
+			} catch (RejectedExecutionException e) {
+				break; 
+			}
+	        
+	    }
+
+	    service.shutdown();
+	    try {
+			service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			log.severe(e.getStackTrace().toString());
+			log.severe(e.getMessage());
+			log.severe("InterruptedException while awaitTermination for infinite time.");
+			System.exit(-1);
+		}
+
+	    return pRes;
+	}
+	
+	@Override
 	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time = System.nanoTime();
@@ -68,41 +172,8 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	private Set<IMergeResult> obtainMergeResultsMultithreadedMaxCUCheck(Set<Collection<INode>> combinations) {
 
 		final Logger log = TBLogger.getLogger(getClass().getName());
-		
-	    int threads = Runtime.getRuntime().availableProcessors();
-//	    ExecutorService service = Executors.newFixedThreadPool(threads);
 
-	    ExecutorService service = new ThreadPoolExecutor(threads, threads,
-	    		0L, TimeUnit.MILLISECONDS,
-	    		new LinkedBlockingQueue<Runnable>()) {
-	    	@Override
-	    	protected void afterExecute(Runnable r, Throwable t) {
-	    		super.afterExecute(r, t);
-	    		FutureTask<IMergeResult> ft = (FutureTask<IMergeResult>) r;
-	    		try {
-	    			IMergeResult mr = ft.get();
-	    			if (mr == null) return;
-	    			double cu = mr.getCategoryUtility();
-	    			double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
-	    			if (cu >= theoreticalMaxCu) {
-	    				if (cu > theoreticalMaxCu) {
-	    					// error. shouldn't be possible
-	    					log.severe("calculated category utility is greater than teoretical maximum.");
-	    					log.severe("Exiting application!");
-	    					System.exit(-1);
-	    				}
-	    				log.fine("Merge result with max theoretical category utility was found." +
-	    						" Terminating category utilitie calculation for remaining merges.");
-
-	    				shutdownNow();
-	    				awaitTermination(2, TimeUnit.SECONDS);
-	    			}
-	    		} catch (InterruptedException | ExecutionException e) {
-	    			log.info("InterruptedException or ExecutionException in attempt " +
-	    					"to fetch calculation result in afterExecute call.");  				
-	    		}
-	    	}
-	    };
+	    ExecutorService service = new MergeResultThreadPoolExecutor();
 
 	    List<Future<IMergeResult>> futures = new ArrayList<Future<IMergeResult>>(combinations.size());
 	    for (final Collection<INode> possibleMerge : combinations) {
@@ -151,7 +222,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	    }
 	    return mergeResults;
 	}
-	
+		
 	/**
 	 * Calculates the category utility according to the implementing subclass (i.e. Cobweb or Classit)
 	 * of a single node resulting from a merge of all nodes in the passed nodes array.
@@ -168,4 +239,86 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 * @return the max possible category utility value
 	 */
 	protected abstract double getMaxTheoreticalPossibleCategoryUtility();
+	
+	
+	private class IndexedThreadPoolExecutor extends ThreadPoolExecutor{
+		
+		Logger log = TBLogger.getLogger(getClass().getName());
+		
+		public IndexedThreadPoolExecutor() {			
+			super(Runtime.getRuntime().availableProcessors(),
+					Runtime.getRuntime().availableProcessors(),
+		    		0L, TimeUnit.MILLISECONDS,
+		    		new LinkedBlockingQueue<Runnable>());
+		}
+		
+		@Override
+    	protected void afterExecute(Runnable r, Throwable t) {
+    		super.afterExecute(r, t);
+    		FutureTask<Double> ft = (FutureTask<Double>) r;
+    		try {
+    			Double cu = ft.get();
+    			if (cu == null) return;
+    			double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
+    			if (cu >= theoreticalMaxCu) {
+    				if (cu > theoreticalMaxCu) {
+    					// error. shouldn't be possible
+    					log.severe("calculated category utility is greater than teoretical maximum.");
+    					log.severe("Exiting application!");
+    					System.exit(-1);
+    				}
+    				log.fine("Merge result with max theoretical category utility was found." +
+    						" Terminating category utilitie calculation for remaining merges.");
+
+    				shutdownNow();
+    				awaitTermination(2, TimeUnit.SECONDS);
+    			}
+    		} catch (InterruptedException | ExecutionException e) {
+    			log.info("InterruptedException or ExecutionException in attempt " +
+    					"to fetch calculation result in afterExecute call.");  				
+    		}
+    	}		
+	}
+	
+	
+	private class MergeResultThreadPoolExecutor extends ThreadPoolExecutor{
+		
+		Logger log = TBLogger.getLogger(getClass().getName());
+		
+		public MergeResultThreadPoolExecutor() {			
+			super(Runtime.getRuntime().availableProcessors(),
+					Runtime.getRuntime().availableProcessors(),
+		    		0L, TimeUnit.MILLISECONDS,
+		    		new LinkedBlockingQueue<Runnable>());
+		}
+		
+		@Override
+    	protected void afterExecute(Runnable r, Throwable t) {
+    		super.afterExecute(r, t);
+    		FutureTask<IMergeResult> ft = (FutureTask<IMergeResult>) r;
+    		try {
+    			IMergeResult mr = ft.get();
+    			if (mr == null) return;
+    			double cu = mr.getCategoryUtility();
+    			double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
+    			if (cu >= theoreticalMaxCu) {
+    				if (cu > theoreticalMaxCu) {
+    					// error. shouldn't be possible
+    					log.severe("calculated category utility is greater than teoretical maximum.");
+    					log.severe("Exiting application!");
+    					System.exit(-1);
+    				}
+    				log.fine("Merge result with max theoretical category utility was found." +
+    						" Terminating category utilitie calculation for remaining merges.");
+
+    				shutdownNow();
+    				awaitTermination(2, TimeUnit.SECONDS);
+    			}
+    		} catch (InterruptedException | ExecutionException e) {
+    			log.info("InterruptedException or ExecutionException in attempt " +
+    					"to fetch calculation result in afterExecute call.");  				
+    		}
+    	}
+		
+	}
 }

@@ -1,5 +1,9 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.set.TIntSet;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,8 +16,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.Sets;
 
-public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements
-		IMaxCategoryUtilitySearcher, Serializable {
+public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -61,4 +64,34 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 		return decoratedSearcher.getMaxCategoryUtilityMerges(combinationsToCheck, clusterSet);
 	}
 
+	@Override
+	public TIntDoubleMap getMaxCategoryUtilityMerges(
+			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {
+		Logger log = TBLogger.getLogger(getClass().getName());
+		long time = System.nanoTime();
+		int removedLists = 0;
+		int initCombinationsSize = combinationIds.size();
+		TIntIterator i = combinationIds.iterator();
+		while (i.hasNext()) {
+			Collection<INode> l =  clusterSet.getCombination(i.next());
+			if (combinationsWithSharedAttributes.contains(l)) continue;
+			if (l.size() != 2) continue;
+			
+			Iterator<INode> it = l.iterator();
+			INode first = it.next();
+			INode second = it.next();
+			Set<INode> intersection = Sets.intersection(first.getAttributeKeys(), second.getAttributeKeys());
+			if (intersection.size() == 0) {
+				removedLists++;
+				i.remove();
+			} else {
+				combinationsWithSharedAttributes.add(l);
+			}		
+		}
+		log.info("Time in NoCommonAttributeSkipDecorator: "
+				+ (double)(System.nanoTime() - time) / 1000000000.0 + " seconds, "
+				+ "Number of removed comparisons: " + removedLists + " of " + initCombinationsSize);
+		return decoratedSearcher.getMaxCategoryUtilityMerges(combinationIds, clusterSet);
+	}
+	
 }

@@ -63,7 +63,7 @@ public class ClusterSetReducedMemory<E> implements IClusterSet<E>, Serializable 
 	private void initCombinations() {
 		for (int i = 0; i < openNodes.size(); i++) {
 			for (int j = i + 1; j < openNodes.size(); j++) {
-				Set<E> combination = new HashSet<E>();
+				Set<E> combination = new HashSet<E>(2);
 				combination.add(openNodes.get(i));
 				combination.add(openNodes.get(j));
 				combinations.add(combination);
@@ -75,7 +75,7 @@ public class ClusterSetReducedMemory<E> implements IClusterSet<E>, Serializable 
 		Set<Collection<E>> res = new HashSet<Collection<E>>();
 		for (E i : openNodes) {
 			if (! i.equals(e)) {
-				Set<E> combination = new HashSet<E>();
+				Set<E> combination = new HashSet<E>(2);
 				combination.add(e);
 				combination.add(i);
 			}

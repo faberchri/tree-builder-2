@@ -1,5 +1,8 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.set.TIntSet;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -24,5 +27,7 @@ public interface IMaxCategoryUtilitySearcher {
 	 */
 	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet);
 
+	
+	public TIntDoubleMap getMaxCategoryUtilityMerges(TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet);
 	
 }
