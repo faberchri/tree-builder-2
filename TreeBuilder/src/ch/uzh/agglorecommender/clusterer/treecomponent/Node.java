@@ -94,7 +94,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * @param children List of children
 	 * @param attributes Map of INode and IAttributes
 	 */
-	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility) {
+	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility, List<String> meta) {
 		this.nodeType = nodeType;
 		if (children != null) {
 			for (INode child : children) {
@@ -105,6 +105,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		this.attributes = attributes;
 		this.dataSetId = null;
 		this.categoryUtility = categoryUtility;
+		this.meta = meta;
 	}
 
 	@Override
@@ -406,4 +407,5 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public long getDatasetId() {
 		return dataSetId;
 	}
+	
 }

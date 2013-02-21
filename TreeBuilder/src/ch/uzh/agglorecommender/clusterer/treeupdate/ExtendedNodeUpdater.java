@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treeupdate;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -32,11 +33,11 @@ public class ExtendedNodeUpdater implements INodeUpdater, Serializable {
 				
 				attNode.addAttribute(newNode, newNode.getAttributeValue(attNode));
 				
-				// Determine nodes that are included in newNode.getAttributeValue(attNode)
-				// Implement 
-				INode includedNode = null;
-				
-				attNode.removeAttribute(includedNode);
+				// Remove children of new node from nodes of the other tree
+				Iterator<INode> mergedNodes = newNode.getChildren();
+				while(mergedNodes.hasNext()){
+					attNode.removeAttribute(mergedNodes.next());
+				}
 				
 				log.finest(attNode.toString() + " updated with " + newNode);
 			}

@@ -6,13 +6,11 @@ import java.util.List;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
-
-import com.google.common.collect.ImmutableMap;
+import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 
 public class PositionFinder {
 	
 	private double highestUtility = 0;
-	ImmutableMap<Integer,INode> leavesMapU;
 	
 	/**
 	 * Finds the best position (most similar node) in the tree for a given node
@@ -34,18 +32,30 @@ public class PositionFinder {
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(position);
 			
-			// FIXME verschiedene UtilitySearcher -> muss implementiert werden 
-			ClassitMaxCategoryUtilitySearcher helper = new ClassitMaxCategoryUtilitySearcher();
+			// Define utility searcher -> FIXME sollte uebergeben werden!!!
+			ClassitMaxCategoryUtilitySearcher classitUS = null;
+			CobwebMaxCategoryUtilitySearcher cobwebUS = null;
+			if(1==1){
+				classitUS = new ClassitMaxCategoryUtilitySearcher();
+			}
+			else{
+				cobwebUS = new CobwebMaxCategoryUtilitySearcher();
+			}
+			
 			
 			// Establish cut off value when 0, ie. when position is on root
 			if(cutoff == 0) {
 				if(position != null){
-					cutoff = helper.calculateCategoryUtility(nodesToCalculate);
+					if(classitUS != null){
+						cutoff = classitUS.calculateCategoryUtility(nodesToCalculate);
+					}
+					else if(cobwebUS != null){
+						cutoff = cobwebUS.calculateCategoryUtility(nodesToCalculate);	
+					}
 				}
 				else {
 					System.out.println("Root node is null");
 				}
-//				System.out.println("Established cut off: " + cutoff);
 			}
 			
 			if(position != null) {
@@ -57,7 +67,13 @@ public class PositionFinder {
 						  
 						INode tempPosition = compareSet.next();
 						nodesToCalculate.set(0, tempPosition);
-						double utility = helper.calculateCategoryUtility(nodesToCalculate);
+						double utility = 0.0;
+						if(classitUS != null){
+							utility = classitUS.calculateCategoryUtility(nodesToCalculate);
+						}
+						else if(cobwebUS != null){
+							utility = cobwebUS.calculateCategoryUtility(nodesToCalculate);	
+						}
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){

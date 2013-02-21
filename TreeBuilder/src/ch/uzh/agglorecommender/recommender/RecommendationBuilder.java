@@ -189,19 +189,19 @@ public final class RecommendationBuilder {
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
-		// Find relevant Users
+		// Find relevant User
 		INode relUser = collectNode(position,radiusU);
 		System.out.println("starting recommendation from user node: " + relUser.toString());
 		
-		// Find relevant Content for every relevant User
+		// collect leaf content nodes from relUser content items
 		Set<INode> userAttributes = relUser.getAttributeKeys();
 		for(INode content : userAttributes){
 			
-			// Find appropriate level for given radius
-			INode relContentNode = collectNode(content,radiusC);
-			
-			recommendation.put(relContentNode, relUser.getAttributeValue(relContentNode));
-			
+			Map<INode, IAttribute> contentLeafNodes = collectLeaves(content,null);
+			for(INode leafNode : contentLeafNodes.keySet()){
+				recommendation.put(leafNode, contentLeafNodes.get(leafNode));
+			}
+
 		}
 		
 	    return recommendation;
@@ -234,44 +234,42 @@ public final class RecommendationBuilder {
 		return relevantNode;
 	}
 
-//	/**
-//	 * Gives back the leaf nodes related to a given node
-//	 * 
-//	 * @param position this node is the starting point to find leaves 
-//	 * @param leaves collection of all leaves
-//	 */
-//	public Map<INode, IAttribute> collectLeaves(INode position, Map<INode,IAttribute> leaves){
-//		
-//		// Create leaves set if not exists
-//		if(leaves == null){
-//			leaves = new HashMap<INode,IAttribute>();
-//		}
-//		
-//		//System.out.println("position: " + position);
-//		
-//		// If position is leaf
-//		if(position.isLeaf()){
-//			System.out.println(position.getAttributesString());
-//			leaves.put(position,position.getAttributeValue(position)); // FIXME could fail
-//			return leaves;
-//		}
-//	
-//		// If position is no leaf
-//		Iterator<INode> children = position.getChildren();
-//		
-//		while(children.hasNext()){
-//			
-//			INode child = children.next();
-//			Map<INode, IAttribute> tempLeaves = (collectLeaves(child,leaves));
-//			for(INode tempLeaf : tempLeaves.keySet()){
-//				if(!leaves.keySet().contains(tempLeaf)){
-//					leaves.put(tempLeaf,tempLeaf.getAttributeValue(tempLeaf));
-//				}
-//			}
-//		}
-//		
-//		return leaves;
-//	}
+	/**
+	 * Gives back the leaf nodes related to a given node
+	 * 
+	 * @param position this node is the starting point to find leaves 
+	 * @param leaves collection of all leaves
+	 */
+	public Map<INode, IAttribute> collectLeaves(INode position, Map<INode,IAttribute> leaves){
+		
+		// Create leaves set if not exists
+		if(leaves == null){
+			leaves = new HashMap<INode,IAttribute>();
+		}
+		
+		// If position is leaf
+		if(position.isLeaf()){
+			System.out.println(position.getAttributesString());
+			leaves.put(position,position.getAttributeValue(position));
+			return leaves;
+		}
+	
+		// If position is no leaf
+		Iterator<INode> children = position.getChildren();
+		
+		while(children.hasNext()){
+			
+			INode child = children.next();
+			Map<INode, IAttribute> tempLeaves = (collectLeaves(child,leaves));
+			for(INode tempLeaf : tempLeaves.keySet()){
+				if(!leaves.keySet().contains(tempLeaf)){
+					leaves.put(tempLeaf,tempLeaf.getAttributeValue(tempLeaf));
+				}
+			}
+		}
+		
+		return leaves;
+	}
 
 	/**
 	 * Sorts the recommendation with an insertion sort and returns the movies which the

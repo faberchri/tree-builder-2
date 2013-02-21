@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,17 +51,23 @@ public abstract class TreeComponentFactory implements Serializable {
 			Collection<INode> nodesToMerge,
 			double categoryUtility) {
 
-
-
 		if (nodesToMerge.size() < 2) {
 			TBLogger.getLogger(getClass().getName()).severe("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
 			System.exit(-1);
 		}
 
+		// Create Attribute Map
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
-		INode newN = new Node(typeOfNewNode, nodesToMerge, attMap, categoryUtility);
+		
+		// Create collected Meta Information
+		List<String> meta = new LinkedList<String>();
+		for(INode nodeToMerge: nodesToMerge){
+			meta.addAll(nodeToMerge.getMeta());
+		}
+		
+		INode newNode = new Node(typeOfNewNode, nodesToMerge, attMap, categoryUtility, meta);
 
-		return newN;
+		return newNode;
 	}
 	
 	/**
