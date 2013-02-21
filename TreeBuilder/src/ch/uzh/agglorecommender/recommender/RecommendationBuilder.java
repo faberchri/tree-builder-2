@@ -165,6 +165,15 @@ public final class RecommendationBuilder {
 			recommendedContent = recommend(position,radiusU,radiusC);
 		}
 		
+		// Remove content nodes that the user has already rated
+//		for(INode recommended : recommendedContent.keySet()){
+//			for(INode seen : inputNode.getAttributeKeys()){
+//				if(seen.getMeta().get(2) == recommended.getMeta().get(2)){
+//					recommendedContent.remove(recommended);
+//				}
+//			}
+//		}
+		
 		return recommendedContent;
 		
 	}

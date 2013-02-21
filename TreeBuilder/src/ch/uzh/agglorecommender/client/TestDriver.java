@@ -93,11 +93,11 @@ public class TestDriver {
 				cla.contentTreeComponentFactory,
 				cla.userTreeComponentFactory);
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
-//		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
-//		
-//		if(eval != null){
-//			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
-//		}
+		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		
+		if(eval != null){
+			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		}
 		
 		// Recommendation Type 2
 		System.out.println("-------------------------------");

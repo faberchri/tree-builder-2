@@ -86,7 +86,6 @@ public class EvaluationBuilder {
 				Map<String,Double> eval = new HashMap<String,Double>();
 				
 				// Pick the real ratings for the predicted ratings from the recommendation
-				System.out.println("Starting Calculation...");
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
 				
