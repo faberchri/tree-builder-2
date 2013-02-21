@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,6 +49,7 @@ import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.subLayout.TreeCollapser;
@@ -151,7 +151,7 @@ public class VisualizationBuilder extends JPanel {
 			}
 		});
 
-		JButton collapse = new JButton("Collapse");
+		final JButton collapse = new JButton("Collapse");
 		collapse.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -174,10 +174,13 @@ public class VisualizationBuilder extends JPanel {
 			
 			private List<INode> getCollapseRoots(Set<INode> picked) {
 				List<INode> roots = new ArrayList<INode>();
-				for (INode n : picked) {
-					if (n.isLeaf()) continue;
-					if (isCollapseRoot(n, picked)) {
-						roots.add(n);
+				for (Object o : picked) {
+					if (o instanceof INode) {
+						INode n = (INode) o;
+						if (n.isLeaf()) continue;
+						if (isCollapseRoot(n, picked)) {
+							roots.add(n);
+						}
 					}
 				}
 				return roots;
@@ -229,7 +232,29 @@ public class VisualizationBuilder extends JPanel {
 				
 			}
 		});
+		
+		JButton collapseAll = new JButton("Collapse All");
+		collapseAll.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Collection<INode> nodes = graph.getVertices();
+				Set<INode> isCollapsed = new HashSet<>();
+				MultiPickedState m = new MultiPickedState<>();
+				m.pick(null, true);
+				vv.setPickedVertexState(m);
+				collapse.getActionListeners()[0].actionPerformed(null);
+								
+			}
+			
+			private boolean canBeCollapsed() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+		});
+		
+		
 		JPanel controls = new JPanel();
 		JPanel zoomControls = new JPanel(new FlowLayout());
 		zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
@@ -375,7 +400,7 @@ public class VisualizationBuilder extends JPanel {
 		private void init() {
 			this.setBackground(Color.white);
 			this.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line());
-			this.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+//			this.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 			this.setVertexToolTipTransformer(new ToStringLabeller());
 			this.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
 	        this.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
@@ -386,10 +411,14 @@ public class VisualizationBuilder extends JPanel {
 
 					String s = input.toString();
 					if (input instanceof Graph) {
-						Graph<INode, Integer> g = (Graph<INode, Integer>) input;
-						List<Long> li = getCollapsedNodeIds(g);
-						Collections.sort(li);
-						s = "Ids: " + li.toString();
+						// JUK doesn't want us to show all the ids of the nodes contained
+						// in the subtree hence we comment out the corresponding lines.
+//						Graph<INode, Integer> g = (Graph<INode, Integer>) input;
+//						List<Long> li = getCollapsedNodeIds(g);
+//						Collections.sort(li);
+//						s = "Ids: " + li.toString();
+						
+						s = "collapsed subtree";
 					} else {
 						s = s.replace("User Node", "Id: ");
 						s = s.replace("Content Node", "Id: ");
