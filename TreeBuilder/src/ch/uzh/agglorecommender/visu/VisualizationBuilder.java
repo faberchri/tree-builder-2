@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -151,7 +152,7 @@ public class VisualizationBuilder extends JPanel {
 			}
 		});
 
-		final JButton collapse = new JButton("Collapse");
+		final JButton collapse = new JButton("Picked");
 		collapse.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -194,7 +195,7 @@ public class VisualizationBuilder extends JPanel {
 			}
 		});
 
-		JButton expand = new JButton("Expand");
+		final JButton expand = new JButton("Picked");
 		expand.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -232,47 +233,145 @@ public class VisualizationBuilder extends JPanel {
 				
 			}
 		});
+				
+		final JButton expandAll = new JButton("All");
+		expandAll.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MultiPickedState<Object> m = (MultiPickedState<Object>)(MultiPickedState<?>) vv.getPickedVertexState();
+				m.clear();
+				ActionListener expandListener = expand.getActionListeners()[0];
+				
+				while (! allExpanded()) {
+					Collection<Object> c = new ArrayList<Object>(graph.getVertices());
+					for (Object o : c) {
+						if (! (o instanceof INode)) {
+							m.pick(o, true);				
+							expandListener.actionPerformed(null);
+							m.clear();
+						}
+					}
+				}				
+			}
+			
+			private boolean allExpanded() {
+				Collection c = graph.getVertices();
+				for (Object o : c) {
+					if (! (o instanceof INode)) return false;
+				}
+				return true;
+			}
+			
+		});
+
+		final JButton expandLevel = new JButton("Level");
+		expandLevel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MultiPickedState<Object> m = (MultiPickedState<Object>)(MultiPickedState<?>) vv.getPickedVertexState();
+				m.clear();
+				ActionListener expandListener = expand.getActionListeners()[0];
+
+				Collection<Object> c = new ArrayList<Object>(graph.getVertices());
+				for (Object o : c) {
+					if (! (o instanceof INode)) {
+						m.pick(o, true);				
+						expandListener.actionPerformed(null);
+						m.clear();
+					}
+				}
+			}
+		});
+
 		
-		JButton collapseAll = new JButton("Collapse All");
+		JButton collapseAll = new JButton("All");
 		collapseAll.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Collection<INode> nodes = graph.getVertices();
-				Set<INode> isCollapsed = new HashSet<>();
-				MultiPickedState m = new MultiPickedState<>();
-				m.pick(null, true);
-				vv.setPickedVertexState(m);
-				collapse.getActionListeners()[0].actionPerformed(null);
-								
+				
+				expandAll.getActionListeners()[0].actionPerformed(null);
+				
+				Collection<INode> nodez = fetchAllNodesInForest();
+				Set<Object> isCollapsed = new HashSet<>();
+				
+				// remove all leaves
+				Iterator<INode> it = nodez.iterator();
+				while (it.hasNext()) {
+					INode n = it.next();
+					if (n.isLeaf() && ! n.isRoot()) {
+						isCollapsed.add(n);
+						it.remove();
+					}
+				}
+				
+				MultiPickedState<INode> m = (MultiPickedState<INode>) vv.getPickedVertexState();
+				m.clear();
+				ActionListener collapseListener = collapse.getActionListeners()[0];
+				while (! allCollapsed(nodez)) {
+					Iterator<INode> it2 = nodez.iterator();
+					while (it2.hasNext()) {
+						INode n = it2.next();
+						if (canBeCollapsed(n, isCollapsed)) {
+							m.pick(n, true);				
+							collapseListener.actionPerformed(null);
+							isCollapsed.add(n);
+							it2.remove();
+							m.clear();
+						}
+					}
+				}								
 			}
 			
-			private boolean canBeCollapsed() {
-				// TODO Auto-generated method stub
-				return false;
+			private boolean allCollapsed(Collection<INode> nodes) {
+				for (INode n : nodes) {
+					if (! n.isRoot()) return false;
+				}
+				return true;
 			}
-			
+
+			private boolean canBeCollapsed(INode node, Set<Object> isCollapsed) {
+				if (node.isRoot()) return false;
+				Iterator<INode> it = node.getChildren();
+				while (it.hasNext()) {
+					INode child = it.next();
+					if (! isCollapsed.contains(child)) return false;				
+				}
+				return true;
+			}		
 		});
 		
-		
 		JPanel controls = new JPanel();
-		JPanel zoomControls = new JPanel(new FlowLayout());
+		controls.setLayout(new FlowLayout());
+		controls.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+		
+		JPanel genControls = new JPanel(new GridLayout(2, 1));
+		genControls.add(modeBox);
+		genControls.add(reset);
+		genControls.setBorder(BorderFactory.createEmptyBorder(13, 0, 0, 0));
+		controls.add(genControls);
+		
+		JPanel zoomControls = new JPanel(new GridLayout(2, 1));
 		zoomControls.setBorder(BorderFactory.createTitledBorder("Zoom"));
 		zoomControls.add(plus);
 		zoomControls.add(minus);
 		controls.add(zoomControls);
-		JPanel collapseControls = new JPanel(new FlowLayout());
-		collapseControls.setBorder(BorderFactory.createTitledBorder("Picked"));
+		
+		JPanel collapseControls = new JPanel(new GridLayout(2, 1));
+		collapseControls.setBorder(BorderFactory.createTitledBorder("Collapse"));
+		collapseControls.add(collapseAll);
 		collapseControls.add(collapse);
-		collapseControls.add(expand);
 		controls.add(collapseControls);
-		JPanel genControls = new JPanel(new FlowLayout());
-		genControls.add(reset);
-		genControls.add(modeBox);
-		genControls.setBorder(BorderFactory.createEmptyBorder(13, 0, 0, 0));
-		controls.add(genControls);
-		controls.setLayout(new FlowLayout());
-		controls.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+		
+		JPanel expandControls = new JPanel(new GridLayout(2, 2));
+		expandControls.setBorder(BorderFactory.createTitledBorder("Expand"));
+		expandControls.add(expandAll);
+		expandControls.add(expandLevel);
+		expandControls.add(expand);
+		controls.add(expandControls);
+		
 		JScrollPane scrollP = new JScrollPane(controls);
 		scrollP.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		return scrollP;
@@ -285,6 +384,24 @@ public class VisualizationBuilder extends JPanel {
 		createTree();
 		layout.setGraph(graph);
 		vv.repaint();
+	}
+	
+	private Collection<INode> fetchAllNodesInForest() {
+		Set<INode> c = new HashSet<>();
+		for (INode n : nodes) {
+			fetchAllNodesInSubtree(n, c);
+		}
+		return c;
+	}
+	
+	private Collection<INode> fetchAllNodesInSubtree(INode n, Collection<INode> c) {
+		c.add(n);
+		Iterator<INode> it = n.getChildren();
+		while (it.hasNext()) {
+			INode child = it.next();
+			fetchAllNodesInSubtree(child, c);
+		}
+		return c;
 	}
 
 	/**
