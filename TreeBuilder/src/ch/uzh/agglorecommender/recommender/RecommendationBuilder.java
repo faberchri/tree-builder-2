@@ -96,7 +96,7 @@ public final class RecommendationBuilder {
 			
 			// Find Dataset ID of Content Node -> FIXME: very inefficient
 			int contentDatasetID = 0;
-			for (Iterator iter = leavesMapC.entrySet().iterator(); iter.hasNext();) {
+			for (Iterator<Entry<Integer, INode>> iter = leavesMapC.entrySet().iterator(); iter.hasNext();) {
 				  Map.Entry<Integer,INode> e = (Map.Entry<Integer,INode>) iter.next();
 				  if (posContentKey.getId() == e.getValue().getId()){
 					  contentDatasetID = e.getKey();

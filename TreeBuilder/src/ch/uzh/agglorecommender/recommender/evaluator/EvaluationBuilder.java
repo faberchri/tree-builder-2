@@ -89,10 +89,6 @@ public class EvaluationBuilder {
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
 				
-				if(eval == null){
-					System.out.println("Errors during calculation");
-				}
-				
 				return eval;
 				
 			}

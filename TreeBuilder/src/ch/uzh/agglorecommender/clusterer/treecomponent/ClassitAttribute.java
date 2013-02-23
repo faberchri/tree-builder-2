@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -36,6 +37,8 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	private final double sumOfSquaredRatings;
 	
 	private final List<String> meta;
+	
+	private final Map<String,Integer> valueMap;
 				
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
@@ -54,6 +57,17 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
 		this.meta = meta;
+		this.valueMap = null;
+	}
+	
+	// Nominal Constructor
+	public ClassitAttribute(int support, Map<String,Integer> valueMap, List<String> meta) {
+
+		this.support = support;
+		this.sumOfRatings = 0.0;
+		this.sumOfSquaredRatings = 0.0;
+		this.meta = meta;
+		this.valueMap = valueMap;
 	}
 	
 	public int getSupport() {
@@ -89,11 +103,6 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	}
 
 	@Override
-	public String getClusteringMethod() {
-		return "Classit";
-	}
-
-	@Override
 	public List<String> getMeta() {
 		return meta;
 	}
@@ -101,6 +110,12 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	@Override
 	public double getMeanOfRatings() {
 		return sumOfRatings / support;
+	}
+
+	@Override
+	public Map<String,Integer> getValueMap() throws UnsupportedOperationException {
+		// important
+		return valueMap;
 	}
 
 //	@Override

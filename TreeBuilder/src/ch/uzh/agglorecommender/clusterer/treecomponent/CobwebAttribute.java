@@ -97,11 +97,6 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	}
 
 	@Override
-	public String getClusteringMethod() {
-		return "Cobweb";
-	}
-
-	@Override
 	public List<String> getMeta() {
 		return meta;
 	}
@@ -110,6 +105,12 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	public double getMeanOfRatings() {
 		//?
 		return 0;
+	}
+
+	@Override
+	public Map<String, Integer> getValueMap() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 //	@Override

@@ -199,20 +199,20 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return attributes.get(node);
 	}
 	
-	@Override
-	public String getAttributesType() {
-		// hack
-		String type = "";
-		Set<INode> attributeKeys = attributes.keySet();
-		for(INode attributeKey : attributeKeys) {
-			type = attributes.get(attributeKey).getClusteringMethod();
-		}
-		return type;
-	}
+//	@Override
+//	public String getAttributesType() {
+//		// hack
+//		String type = "";
+//		Set<INode> attributeKeys = attributes.keySet();
+//		for(INode attributeKey : attributeKeys) {
+//			type = attributes.get(attributeKey).get;
+//		}
+//		return type;
+//	}
 
 	@Override
 	public String toString() {
-		return getNodeType().toString().concat(" Node").concat(" ").concat(String.valueOf(id));
+		return getClass().getSimpleName().concat(" Node").concat(" ").concat(String.valueOf(id));
 	}
 
 	@Override
@@ -297,7 +297,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				IAttribute attributeValue = getAttributeValue(attributeKey);
 				description += "<tr><td>" + attributeKey.getId() + "</td>" +
 						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-						"<td>" + attributeKey.getNodeType().toString() + "</td>"+
+						"<td>" + attributeValue.getClass().getSimpleName() + "</td>"+
         				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
         				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
         				"<td>" + attributeValue.getSupport()+ "</td>" +

@@ -41,12 +41,12 @@ public interface INode {
 	 */
 	public Set<INode> getAttributeKeys();
 	
-	/**
-	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
-	 * 
-	 * @return description of type
-	 */
-	public String getAttributesType();
+//	/**
+//	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
+//	 * 
+//	 * @return description of type
+//	 */
+//	public String getAttributesType();
 		
 	/**
 	 * Adds a child to the nodes children container.

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -37,21 +38,30 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
 		
 		Set<INode> allAttributes = new HashSet<INode>();
-
+		
 		for (INode node : possibleMerge) {
 			allAttributes.addAll(node.getAttributeKeys());
 		}
 		
 		double utility = 0.0;
 		
-		for (INode node : allAttributes) {
-			if (isAttributeKnownToAllMergeNodes(node, possibleMerge)) {
-				utility += 1.0 / calcStdDevOfAttribute(node, possibleMerge);
-			} else {
-				// TODO If we want to support merges candidates with length > 2
-				// we need to handle the case of an attribute that appears not
-				// in all nodes of the merge candidate as an attribute but
-				// only in some. Currently merge candidates have always length == 2.
+		for (INode attNode : allAttributes) {
+			
+			// Add utility: nominal and scalar are handled different
+			if(attNode.getNodeType() == ENodeType.Nominal){
+//				************************************
+//					utility += 1.0 / calcStdDevOfAttribute(attNode, possibleMerge) ;
+//				************************************
+			}
+			else {
+				if (isAttributeKnownToAllMergeNodes(attNode, possibleMerge)) {
+					utility += 1.0 / calcStdDevOfAttribute(attNode, possibleMerge);
+				} else {
+					// TODO If we want to support merges candidates with length > 2
+					// we need to handle the case of an attribute that appears not
+					// in all nodes of the merge candidate as an attribute but
+					// only in some. Currently merge candidates have always length == 2.
+				}
 			}
 			
 		}

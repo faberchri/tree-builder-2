@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -67,12 +68,6 @@ public interface IAttribute {
 	 * @return an iterator over all probability map entries.
 	 */
 	public Iterator<Entry<Object, Double>> getProbabilities() throws UnsupportedOperationException;
-
-	/**
-	 * Get the clustering method used in this attribute (classit/cobweb/..)
-	 *
-	 */
-	public String getClusteringMethod();
 	
 	/**
 	 * Get the mean of the rating
@@ -85,4 +80,6 @@ public interface IAttribute {
 	 *
 	 */
 	public List<String> getMeta();
+	
+	public Map<String,Integer> getValueMap();
 }

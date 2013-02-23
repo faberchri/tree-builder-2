@@ -57,12 +57,15 @@ public abstract class TreeComponentFactory implements Serializable {
 		}
 
 		// Create Attribute Map
+		System.out.println("Internal Node");
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
 		
 		// Create collected Meta Information
 		List<String> meta = new LinkedList<String>();
 		for(INode nodeToMerge: nodesToMerge){
-			meta.addAll(nodeToMerge.getMeta());
+			if(nodeToMerge.getMeta() != null){
+				meta.addAll(nodeToMerge.getMeta());
+			}
 		}
 		
 		INode newNode = new Node(typeOfNewNode, nodesToMerge, attMap, categoryUtility, meta);
@@ -77,7 +80,17 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param metaData 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createAttribute(double rating, List<String> metaData); // single node
+	public abstract IAttribute createNumericAttribute(double rating, List<String> metaData); // single node
+	
+	/**
+	 * Creates a new {@code IAttribute} object based on meta data.
+	 * 
+	 * @param support support of the attribute
+	 * @param valueMap of the different values
+	 * @param meta meta information
+	 * @return a new instance of an {@code IAttribute} object.
+	 */
+	public abstract IAttribute createSymbolicAttribute(int support, Map<String,Integer> valueMap, List<String> meta); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute
@@ -90,26 +103,30 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge); // group node
+	public abstract IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge); // group node
 
 	
 	private  Map<INode,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
-		Map<INode, IAttribute> map = new HashMap<INode, IAttribute>();
+		
+		// Collect the combined attributes of all nodes that should be merged
+		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
 		for (INode node : nodesToMerge) {
 			for (INode attNodes : node.getAttributeKeys()) {
-				map.put(attNodes, null);
+				allAttributes.put(attNodes, null);
 			}			
 		}
-		for (Map.Entry<INode, IAttribute> entry : map.entrySet()) {
-			IAttribute newAtt = createAttribute(entry.getKey(), nodesToMerge);
+		
+		// Create merged attributes of all attributes with multiple instances
+		for (Map.Entry<INode, IAttribute> entry : allAttributes .entrySet()) {
+			IAttribute newAtt = createMergedAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
-		if (map.containsValue(null)) {
+		if (allAttributes.containsValue(null)) {
 			TBLogger.getLogger(getClass().getName()).severe("ClassitAttribute map of node resulting of merge contains null" +
 					" as value; in : "+getClass().getSimpleName());
 			System.exit(-1);
 		}
-		return map;		
+		return allAttributes;		
 	}
 
 }

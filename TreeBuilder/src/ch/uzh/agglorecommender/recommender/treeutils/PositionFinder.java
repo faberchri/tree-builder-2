@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
@@ -32,13 +34,13 @@ public class PositionFinder {
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(position);
 			
-			// Define utility searcher -> FIXME sollte uebergeben werden!!!
+			// Define utility searcher
 			ClassitMaxCategoryUtilitySearcher classitUS = null;
 			CobwebMaxCategoryUtilitySearcher cobwebUS = null;
-			if(1==1){
+			if(inputNode.getAttributeKeys().iterator().next().getClass().equals(ClassitAttribute.class)){
 				classitUS = new ClassitMaxCategoryUtilitySearcher();
 			}
-			else{
+			else if(inputNode.getAttributeKeys().iterator().next().getClass().equals(CobwebAttribute.class)){
 				cobwebUS = new CobwebMaxCategoryUtilitySearcher();
 			}
 			
@@ -77,7 +79,6 @@ public class PositionFinder {
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){
-//							System.out.println("Found higher utility: " + utility + ">" + highestUtility);
 							highestUtility = utility;
 							nextPosition = tempPosition;
 						}
@@ -85,14 +86,11 @@ public class PositionFinder {
 					
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
-//						System.out.println("Continue one level down");
 						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
 						if (finalPosition != null){
-//							System.out.println("found final position");
 							return finalPosition;
 						}
 						else {
-//							System.out.println("received null position");
 							return position;
 						}
 					}
@@ -107,8 +105,6 @@ public class PositionFinder {
 				}
 			}
 		}
-		
-//		System.out.println("Error: inputNode is null");
 		return null;
 	}
 }
