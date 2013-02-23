@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
@@ -34,7 +33,7 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 	
 	@Override
-	public IAttribute createNumericAttribute(double rating, List<String> meta) {
+	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
 		Map<Double, Double> attMap = ImmutableMap.of(rating, 1.0);
 		return new CobwebAttribute(attMap, meta);
 	}
@@ -52,14 +51,14 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 					)
 				);
 		
-		List<String> meta = attributeKey.getMeta();
+		Map<String,String> meta = attributeKey.getMeta();
 		
 		return new CobwebAttribute(attMap, meta);
 	}
 
 	@Override
 	public IAttribute createSymbolicAttribute(int support,
-			Map<String, Integer> valueMap, List<String> meta) {
+			Map<String, Integer> valueMap, Map<String,String> meta) {
 		// TODO Auto-generated method stub
 		return null;
 	}

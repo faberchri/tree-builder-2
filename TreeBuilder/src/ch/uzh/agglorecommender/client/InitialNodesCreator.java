@@ -3,7 +3,6 @@ package ch.uzh.agglorecommender.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class InitialNodesCreator {
 		for (Integer datasetId : usersMap.keySet()) {
 			
 			// Find corresponding metadata to user node
-			List<String> metaData = findMetaData(datasetId,userMetaset);
+			Map<String,String> metaData = findMetaData(datasetId,userMetaset);
 			
 			// Create User node
 			usersNodeMap.put(datasetId, userTreeComponentFactory.createLeafNode(ENodeType.User, datasetId, metaData));
@@ -99,7 +98,7 @@ public class InitialNodesCreator {
 		for (Integer i : contentsMap.keySet()) {
 			
 			// Add to every node its corresponding metadata
-			List<String> metaData = findMetaData(i,contentMetaset);
+			Map<String,String> metaData = findMetaData(i,contentMetaset);
 			
 			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i, metaData));
 		}
@@ -112,7 +111,7 @@ public class InitialNodesCreator {
 			for (IDatasetItem<?> contentDi : user.getValue()) {
 				
 				// Add to every content attribute its corresponding metadata
-				List<String> metaData = findMetaData(contentDi.getContentId(),contentMetaset);
+				Map<String,String> metaData = findMetaData(contentDi.getContentId(),contentMetaset);
 				
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) contentDi.getValue());
 				attributes.put(contentsNodeMap.get(contentDi.getContentId()), contentTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
@@ -120,13 +119,13 @@ public class InitialNodesCreator {
 			
 			// **************************************************************
 			// Add corresponding nominal data to user node attributes
-			List<String> metaData = usersNodeMap.get(user.getKey()).getMeta();
+			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta();
 			int i = 0;
-			for(String meta : metaData){
-					List<String> info = new LinkedList<String>();
-					info.add(meta);
+			for(String metaKey : metaData.keySet()){
+					Map<String,String> info = new HashMap<String,String>();
+					info.put(metaKey,metaData.get(metaKey));
 					Map<String,Integer> nominalValueMap = new HashMap<String,Integer>();
-					nominalValueMap.put(meta,1);
+					nominalValueMap.put(metaKey,1);
 					attributes.put(new Node(ENodeType.Nominal, i, info), contentTreeComponentFactory.createSymbolicAttribute(1, nominalValueMap, info));
 					i++;
 			}
@@ -144,7 +143,7 @@ public class InitialNodesCreator {
 			for (IDatasetItem<?> userDi : content.getValue()) {			
 				
 				// Add to every user attribute its corresponding metadata
-				List<String> metaData = findMetaData(userDi.getUserId(),userMetaset);
+				Map<String,String> metaData = findMetaData(userDi.getUserId(),userMetaset);
 				
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) userDi.getValue());
 				attributes.put(usersNodeMap.get(userDi.getUserId()), userTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
@@ -152,17 +151,15 @@ public class InitialNodesCreator {
 			
 			// **************************************************************
 			// Add corresponding nominal data to content node attributes
-			List<String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
+			Map<String,String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
 			int i = 0;
-			for(String meta : metaData){
-				if(i == 2){
-					List<String> info = new LinkedList<String>();
-					info.add("Year"); // Would be better if age, etc. were written here
+			for(String metaKey : metaData.keySet()){
+					Map<String,String> info = new HashMap<String,String>();
+					info.put(metaKey,metaData.get(metaKey));
 					Map<String,Integer> nominalValueMap = new HashMap<String,Integer>();
-					nominalValueMap.put(meta,1);
+					nominalValueMap.put(metaKey,1);
 					attributes.put(new Node(ENodeType.Nominal, i, info), contentTreeComponentFactory.createSymbolicAttribute(1, nominalValueMap, info));
 					i++;
-				}
 			}
 			// **************************************************************
 			
@@ -173,13 +170,25 @@ public class InitialNodesCreator {
 		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap);
 	}
 	
-	private List<String> findMetaData(Integer i, IDataset<?> metaset) {
+	/**
+	 * Finds the corresponding metadata of a content or user node
+	 * 
+	 * @ id is the id of the node element
+	 * @ metaset is the dataset where the metadata is searched for
+	 * 
+	 * @return map of meta information with value and description
+	 */
+	private Map<String,String> findMetaData(Integer id, IDataset<?> metaset) {
 		Iterator<?> it = metaset.iterateOverDatasetItems();
 		while(it.hasNext()){
 			MetaDatasetItem metadata = (MetaDatasetItem) it.next();
-
-			if(metadata.getContentId() == i){
-				return (List<String>) metadata.getValue();
+			if(metadata.getContentId() == id){
+				Map<String,String> metaMap = new HashMap<String,String>();
+				List<String> metaItems = metadata.getValue();
+				for(String metaItem : metaItems){
+					metaMap.put(metaItem, "Gender"); // Need information over fields, gender is just test
+				}
+				return metaMap;
 			}
 		}
 		return null;

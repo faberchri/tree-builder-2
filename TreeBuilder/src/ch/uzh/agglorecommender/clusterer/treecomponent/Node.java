@@ -52,7 +52,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	/**
 	 * The meta info of the node.
 	 */
-	private List<String> meta;
+	private Map<String, String> meta;
 
 	/**
 	 * The children of this node.
@@ -81,7 +81,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
 
-	public Node(ENodeType nodeType, int dataSetId, List<String> meta) {
+	public Node(ENodeType nodeType, int dataSetId, Map<String,String> meta) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
@@ -94,7 +94,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * @param children List of children
 	 * @param attributes Map of INode and IAttributes
 	 */
-	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility, List<String> meta) {
+	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility, Map<String, String> meta) {
 		this.nodeType = nodeType;
 		if (children != null) {
 			for (INode child : children) {
@@ -125,7 +125,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 	}
 
-	public List<String> getMeta() {
+	public Map<String, String> getMeta() {
 		return meta;
 	}
 

@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -105,7 +104,7 @@ public class TestDriver {
 		System.out.println("-------------------------------");
 		
 		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
-		List<String> testDemographics = eb.defineDemographics(); // Demographics
+		Map<String,String> testDemographics = eb.defineDemographics(); // Demographics
 		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
 		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation
 		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User

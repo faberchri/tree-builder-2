@@ -3,7 +3,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -37,7 +36,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to create the (single) attribute object of leaf nodes
 	 */
 	@Override
-	public IAttribute createNumericAttribute(double rating, List<String> meta) {
+	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
@@ -45,7 +44,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	}
 	
 	@Override
-	public IAttribute createSymbolicAttribute(int support, Map<String, Integer> valueMap, List<String> meta) {
+	public IAttribute createSymbolicAttribute(int support, Map<String, Integer> valueMap, Map<String,String> meta) {
 		return new ClassitAttribute(support, valueMap, meta);
 	}
 
@@ -66,7 +65,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 			double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
 	//		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 			
-			List<String> meta = attributeKey.getMeta();
+			Map<String,String> meta = attributeKey.getMeta();
 			
 			return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
 		}

@@ -1,8 +1,6 @@
 package ch.uzh.agglorecommender.recommender.evaluator;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -203,14 +201,14 @@ public class EvaluationBuilder {
 	 * Helper method for recommendations of type 2 (recommend unknown content)
 	 * 
 	 * @param testRatings 
-	 * @param meta 
+	 * @param testDemographics 
 	 * @param testset reference on the test set
 	 * 
 	 * @return INode testUser
 	 */
-	public INode createTestUser(Map<INode, IAttribute> testRatings, List<String> meta) {
+	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String,String> testDemographics) {
 		
-		INode testUser = new Node(ENodeType.User, 0, meta);
+		INode testUser = new Node(ENodeType.User, 0, testDemographics);
 		testUser.setAttributes(testRatings);
 		
 		System.out.println("Test User Demographics: " + testUser.getMeta());
@@ -255,13 +253,13 @@ public class EvaluationBuilder {
 	 * 
 	 * @ return Map<INode,IAttribute> attribute map
 	 */
-	public List<String> defineDemographics() {
+	public Map<String,String> defineDemographics() {
 		
 		// Define demographic values
-		List<String> demographics = new LinkedList<String>();
-		demographics.add("24");
-		demographics.add("M");
-		demographics.add("1");
+		Map<String,String> demographics = new HashMap<String,String>();
+		demographics.put("24","Age");
+		demographics.put("M","Gender");
+		demographics.put("1","Work");
 		
 		// Ask Tester and define
 		// Implement later

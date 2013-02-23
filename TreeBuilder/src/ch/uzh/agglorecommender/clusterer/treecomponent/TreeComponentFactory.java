@@ -3,8 +3,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -32,7 +30,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * instance in the data set.
 	 * @return a new node instance.
 	 */
-	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, List<String> meta) {
+	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, Map<String,String> meta) {
 		return new Node(typeOfNewNode, dataSetId, meta);
 	}
 
@@ -61,10 +59,10 @@ public abstract class TreeComponentFactory implements Serializable {
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
 		
 		// Create collected Meta Information
-		List<String> meta = new LinkedList<String>();
+		Map<String,String> meta = new HashMap<String,String>();
 		for(INode nodeToMerge: nodesToMerge){
 			if(nodeToMerge.getMeta() != null){
-				meta.addAll(nodeToMerge.getMeta());
+				meta.putAll(nodeToMerge.getMeta());
 			}
 		}
 		
@@ -80,7 +78,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param metaData 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createNumericAttribute(double rating, List<String> metaData); // single node
+	public abstract IAttribute createNumericAttribute(double rating, Map<String,String> metaData); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object based on meta data.
@@ -90,7 +88,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param meta meta information
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createSymbolicAttribute(int support, Map<String,Integer> valueMap, List<String> meta); // single node
+	public abstract IAttribute createSymbolicAttribute(int support, Map<String,Integer> valueMap, Map<String,String> meta); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute
