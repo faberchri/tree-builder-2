@@ -34,13 +34,13 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 	
 	@Override
-	public IAttribute createAttribute(double rating, List<String> meta) {
+	public IAttribute createNumericAttribute(double rating, List<String> meta) {
 		Map<Double, Double> attMap = ImmutableMap.of(rating, 1.0);
 		return new CobwebAttribute(attMap, meta);
 	}
 
 	@Override
-	public IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		int totalLeafCount = 0;
 		for (INode node : nodesToMerge) {
 			totalLeafCount += node.getNumberOfLeafNodes();
@@ -55,5 +55,12 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 		List<String> meta = attributeKey.getMeta();
 		
 		return new CobwebAttribute(attMap, meta);
+	}
+
+	@Override
+	public IAttribute createSymbolicAttribute(int support,
+			Map<String, Integer> valueMap, List<String> meta) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

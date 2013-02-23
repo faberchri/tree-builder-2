@@ -40,13 +40,13 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		// Creating the attributes
 
 		IAttribute A1 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(4.0, null);
+				.createNumericAttribute(4.0, null);
 		IAttribute A2 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(3.3, null);
+				.createNumericAttribute(3.3, null);
 		IAttribute A3 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(5.0, null);
+				.createNumericAttribute(5.0, null);
 		IAttribute A4 = ClassitTreeComponentFactory.getInstance()
-				.createAttribute(5.0, null);
+				.createNumericAttribute(5.0, null);
 
 		// ClassitAttribute map of node 1
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();

@@ -2,7 +2,9 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -35,32 +37,84 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to create the (single) attribute object of leaf nodes
 	 */
 	@Override
-	public IAttribute createAttribute(double rating, List<String> meta) {
+	public IAttribute createNumericAttribute(double rating, List<String> meta) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
 		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0), meta);
+	}
+	
+	@Override
+	public IAttribute createSymbolicAttribute(int support, Map<String, Integer> valueMap, List<String> meta) {
+		return new ClassitAttribute(support, valueMap, meta);
 	}
 
 	/**
 	 * Used to calculate new nodes in the merging process
 	 */
 	@Override
-	public IAttribute createAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
-		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
-		if (support < 1) {
-			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
-			System.exit(-1);
+	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+		
+		if(attributeKey.getNodeType() != ENodeType.Nominal){
+			int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
+			if (support < 1) {
+				TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
+				System.exit(-1);
+			}
+			double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, nodesToMerge);
+	//		double average = sumOfRatings / (double) support;
+			double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
+	//		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
+			
+			List<String> meta = attributeKey.getMeta();
+			
+			return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
 		}
-		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, nodesToMerge);
-//		double average = sumOfRatings / (double) support;
-		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
-//		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
-		
-		List<String> meta = attributeKey.getMeta();
-		
-		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
+		else {
+			System.out.println("Merge symbolic attribute");
+			Map<String,Integer> valueMap = buildNominalValueMap(attributeKey,nodesToMerge);
+			return new ClassitAttribute(attributeKey.getChildrenCount()+1, valueMap, attributeKey.getMeta());
+		}
 	}
+	
+	// **************************************************************
+		private Map<String, Integer> buildNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
+			
+			Map<String,Integer> nominalValues = new HashMap<String,Integer>();
+			
+			for(INode node : nodesToMerge){
+				for(INode nodeAtt : node.getAttributeKeys()){
+					
+					// Identify same nominal attributes
+					if(nodeAtt.getId() == attribute.getId()){
+						
+						Map<String,Integer> nodeAttValueMap = node.getAttributeValue(nodeAtt).getValueMap();
+						
+						// Process the different attribute values of the nominal attribute
+						for(String nodeAttValue : nodeAttValueMap.keySet()){
+						
+							if(nominalValues.containsKey(nodeAttValue)){
+								
+								// Update support of existing entry
+								int support = (int) nominalValues.get(nodeAttValue);
+								support += nodeAttValueMap.get(nodeAttValue);
+								nominalValues.put(nodeAttValue,support);
+								
+							}
+							else {
+								
+								// Add new entry
+								nominalValues.put(nodeAttValue, 1);
+							}
+							
+						}
+					}
+				}
+			}
+			System.out.println(nominalValues);
+			return nominalValues;
+		}
+		// **************************************************************
 
 	
 // ----------------------------------  For deletion ---------------------------------------------------
