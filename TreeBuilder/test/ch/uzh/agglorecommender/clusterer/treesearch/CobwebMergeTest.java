@@ -71,27 +71,27 @@ public class CobwebMergeTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 0.2);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		IAttribute attribute_1 = new CobwebAttribute(attMap, null);
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.8);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		IAttribute attribute_2 = new CobwebAttribute(attMap, null);
 		
 		// attribute maps
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, 0, null);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, 0, null);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, 0, null);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -114,7 +114,7 @@ public class CobwebMergeTest {
 			System.out.println(node.getAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User,0);
+		INode newNode = new Node(ENodeType.User,0, null);
 
 		TreeBuilder tr = new TreeBuilder(
 				new CobwebMaxCategoryUtilitySearcher(),
