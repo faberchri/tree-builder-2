@@ -1,9 +1,10 @@
 package ch.uzh.agglorecommender.client;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -12,7 +13,6 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treeupdate.NullUpdater;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.UnmodifiableIterator;
 
 public class TestClassFullTreeClassit {
 	static String fileLocation = "test/ch/uzh/agglorecommender/client/testNodes.base";
@@ -50,34 +50,21 @@ public class TestClassFullTreeClassit {
 			System.out.println("------------Retrieving values...------------");
 			
 			INode rootNode = trainingOutput.getUserTreeRoot();
-			ImmutableMap<Integer, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
-			int numberOfLeafes = leafNodes.size();
-			
-			System.out.println("Number of leafes: "+numberOfLeafes);
-			
+	
 			//Get values from tree
 			INode tempNode;
 			
 			rootNode.getChildrenCount();
 			
+			//Checkk the leafes
+			ImmutableMap<Integer, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
+			int numberOfLeafes = leafNodes.size();
+			assertEquals("Number of leafes", 10, numberOfLeafes, 0.1);
 			
-			//Temporary solution
-			UnmodifiableIterator<Entry<Integer, INode>> entries = leafNodes.entrySet().iterator();
-			while (entries.hasNext()) {
-			  Entry thisEntry = (Entry) entries.next();
-			  Object key = thisEntry.getKey();
-			  System.out.println("Entry "+key+":");
-			  Object value = thisEntry.getValue();
-			  System.out.println("Is node: "+((INode) value).getAttributesString());
-			}
+			//Check root node
+			//INode rootNode = trainingOutput.getUserTreeRoot();
+			//assertEquals("Root node utility",0.02125,rootNode.getCategoryUtility(),0.0000000001);
 			
-			//Temporary solution: Print 1st level merges
-			//System.out.println("Node: "+leafNodes.get(1).getAttributesString());
-			//for(int i=0; i < numberOfLeafes;i++){
-				//System.out.println("Node: "+leafNodes.get("1"));
-			//}
-			
-			//Give user time to see visualization before it's closed
 			try {
 				Thread.sleep(50000);
 			} catch (InterruptedException e) {

@@ -62,30 +62,8 @@ public class TestClassFullTreeCobweb {
 		assertEquals("Root node utility",0.02125,rootNode.getCategoryUtility(),0.0000000001);
 		
 		//Get values from tree
-		INode tempNode1;
-		INode tempNode2;
-
-		//Get values utilities of 1st merge level
-		/*UnmodifiableIterator<Entry<Integer, INode>> entries = leafNodes.entrySet().iterator();
-		while (entries.hasNext()) {
-		  Entry thisEntry = (Entry) entries.next();
-		  int key = (int) thisEntry.getKey();
-		  thisEntry.getValue();
-		  System.out.println("\nNode "+key+" has the following "+key+" nodes:");
-		  INode value = (INode)thisEntry.getValue();
-		  System.out.println("Is node: "+value.getAttributesString());
-		  //Temporary: Check attributes of node 10:
-		  /*if(key==10){
-			  System.out.println("Number of attributes for node"+key);
-			  System.out.println(value.getAttributeKeys().size());
-		  }*/
-		//}
-		
-		//Temporary solution: Print 1st level merges
-		//System.out.println("Node: "+leafNodes.get(1).getAttributesString());
-		//for(int i=0; i < numberOfLeafes;i++){
-			//System.out.println("Node: "+leafNodes.get("1"));
-		//}
+		//INode tempNode1;
+		//INode tempNode2;
 		
 		System.out.println("\n Test done.. sleeping");
 		try {
