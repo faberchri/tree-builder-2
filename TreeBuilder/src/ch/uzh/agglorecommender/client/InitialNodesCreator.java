@@ -186,7 +186,7 @@ public class InitialNodesCreator {
 				Map<String,String> metaMap = new HashMap<String,String>();
 				List<String> metaItems = metadata.getValue();
 				for(String metaItem : metaItems){
-					metaMap.put(metaItem, "Gender"); // Need information over fields, gender is just test
+					metaMap.put(metaItem, "Gender"); // Need information about fields, gender is just test
 				}
 				return metaMap;
 			}

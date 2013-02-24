@@ -47,21 +47,19 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		
 		for (INode attNode : allAttributes) {
 			
-			// Add utility: nominal and scalar are handled different
-			if(attNode.getNodeType() == ENodeType.Nominal){
-//				************************************
-//					utility += 1.0 / calcStdDevOfAttribute(attNode, possibleMerge) ;
-//				************************************
-			}
-			else {
-				if (isAttributeKnownToAllMergeNodes(attNode, possibleMerge)) {
-					utility += 1.0 / calcStdDevOfAttribute(attNode, possibleMerge);
-				} else {
-					// TODO If we want to support merges candidates with length > 2
-					// we need to handle the case of an attribute that appears not
-					// in all nodes of the merge candidate as an attribute but
-					// only in some. Currently merge candidates have always length == 2.
+			// If attribute is known to all merge nodes -> calculate utility for numeric or symbolic data
+			if (isAttributeKnownToAllMergeNodes(attNode, possibleMerge)) {
+				if(attNode.getNodeType() == ENodeType.Nominal){
+					utility += 1.0 / calcStdDevOfSymbolicAttribute(attNode,possibleMerge);
 				}
+				else {
+					utility += 1.0 / calcStdDevOfNumericAttribute(attNode, possibleMerge);
+				}
+			} else {
+				// TODO If we want to support merges candidates with length > 2
+				// we need to handle the case of an attribute that appears not
+				// in all nodes of the merge candidate as an attribute but
+				// only in some. Currently merge candidates have always length == 2.
 			}
 			
 		}
@@ -154,7 +152,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @return The standard deviation of attribute in the nodes. Returns acuity if no node in 
 	 * possibleMerge contains the attribute.
 	 */
-	public static double calcStdDevOfAttribute(INode attribute, Collection<INode> possibleMerge) {
+	public static double calcStdDevOfNumericAttribute(INode attribute, Collection<INode> possibleMerge) {
 		int support = calcSupportOfAttribute(attribute, possibleMerge);
 		double sumOfRatings = calcSumOfRatingsOfAttribute(attribute, possibleMerge);
 		double sumOfSquaredRatings = calcSumOfSquaredRatingsOfAttribute(attribute, possibleMerge);
@@ -182,6 +180,13 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		}
 		
 		return stdDev;
+	}
+	
+	public static double calcStdDevOfSymbolicAttribute(INode attribute, Collection<INode> possibleMerge) {
+		
+		// FIXME How to implement? -> Muss Map<String,Integer> (Wert,Support) durchgehen
+		
+		return 1.0;
 	}
 	
 	public static double getAcuity() {

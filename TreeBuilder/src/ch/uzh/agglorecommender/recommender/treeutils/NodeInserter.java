@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.recommender.treeutils;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,20 @@ public class NodeInserter {
 	}
 	
 	/**
+	 * Read Insertion File, create Nodes and insert
+	 * 
+	 * @param file this file is going to be read
+	 * 
+	 */
+	public void processList(File file) {
+		// FIXME Implement
+		
+		for (INode node : nodes){
+			insert(node);
+		}
+	}
+	
+	/**
 	 * Decides which insertion method to use and runs specific method
 	 * 
 	 * @param node this node is going to be inserted
@@ -29,6 +44,8 @@ public class NodeInserter {
 	public void insert(INode node) {
 		
 		// Find fitting method of insertion
+		// FIXME Implement
+		
 		newNode(node);
 		
 	}
