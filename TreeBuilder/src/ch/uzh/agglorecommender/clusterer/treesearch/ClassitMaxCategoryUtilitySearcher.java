@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -41,6 +42,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		
 		Set<INode> allAttributes = new HashSet<INode>();
 		
+		// Add all Attributes
 		for (INode node : possibleMerge) {
 			allAttributes.addAll(node.getAttributeKeys());
 		}
@@ -52,7 +54,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 			// If attribute is known to all merge nodes -> calculate utility for numeric or symbolic data
 			if (isAttributeKnownToAllMergeNodes(attNode, possibleMerge)) {
 				if(attNode.getNodeType() == ENodeType.Nominal){
-					utility += 1.0 / calcStdDevOfSymbolicAttribute(attNode,possibleMerge);
+					utility += calcProbabilityOfSymbolicAttribute(attNode,possibleMerge);
 				}
 				else {
 					utility += 1.0 / calcStdDevOfNumericAttribute(attNode, possibleMerge);
@@ -184,15 +186,28 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		return stdDev;
 	}
 	
-	public static double calcStdDevOfSymbolicAttribute(INode attribute, Collection<INode> possibleMerge) {
+	public static double calcProbabilityOfSymbolicAttribute(INode attribute, Collection<INode> possibleMerge) {
 		
 		// Get a map of all values with support
 		Map<String, Integer> valueMap = buildNominalValueMap(attribute, possibleMerge);
 		
-		// How to calculate StdDev from here on?
-		// FIXME implement me please
+		// Calculate sum of support -> FIXME could be written nicer
+		int totalSupport = 0;
+		Collection<Integer> supportCollection = valueMap.values();
+		Iterator<Integer> it = supportCollection.iterator();
+		while(it.hasNext()){
+			totalSupport += it.next();
+		}
 		
-		return 1.0;
+		// Calculate Probability of every value that is present in all mergenodes
+		double totalProbability = 0;
+		for(String value : valueMap.keySet()){
+			if(valueMap.get(value) > 1){ // FIXME this could be higher 1 from one node because of child nodes
+				double supportOfValue = valueMap.get(value);
+				totalProbability += supportOfValue /  totalSupport;
+			}
+		}
+		return totalProbability;
 	}
 	
 	public static double getAcuity() {
