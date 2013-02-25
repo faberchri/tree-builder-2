@@ -14,10 +14,12 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFacto
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treecomponent.SharedTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
 import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
@@ -233,6 +235,9 @@ public class TestDriver {
 		}
 		if (factory instanceof CobwebTreeComponentFactory) {
 			return new CobwebMaxCategoryUtilitySearcher();
+		}
+		if (factory instanceof SharedTreeComponentFactory) {
+			return new SharedMaxCategoryUtilitySearcher();
 		}
 		TBLogger.getLogger(TestDriver.class.getName()).severe("No IMaxCategoryUtilitySearcher" +
 				" corresponds to TreeComponentFactory "

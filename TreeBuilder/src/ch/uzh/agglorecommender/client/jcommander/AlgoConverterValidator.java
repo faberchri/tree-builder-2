@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.client.jcommander;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.SharedTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 
 import com.beust.jcommander.IParameterValidator;
@@ -21,13 +22,16 @@ public class AlgoConverterValidator implements IStringConverter<TreeComponentFac
 		if (algo.equalsIgnoreCase("cobweb")) {
 			return CobwebTreeComponentFactory.getInstance();
 		}
+		if (algo.equalsIgnoreCase("shared")) {
+			return SharedTreeComponentFactory.getInstance();
+		}
 		return null;
 	}
 
 	@Override
 	public void validate(String name, String value)
 			throws ParameterException {
-		if (! value.equalsIgnoreCase("classit") && ! value.equalsIgnoreCase("cobweb")) {
+		if (! value.equalsIgnoreCase("classit") && ! value.equalsIgnoreCase("cobweb") && ! value.equalsIgnoreCase("shared")) {
 			throw new ParameterException("Parameter " + name + " should be \"cobweb\" or \"classit\" (found " + value +")");
 		}
 	}
