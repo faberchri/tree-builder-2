@@ -47,6 +47,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 */
 	@Override
 	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+		
 		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
 		if (support < 1) {
 			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
@@ -65,8 +66,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	@Override
 	public IAttribute createSymbolicAttribute(int support, String key,
 			String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return  new ClassitAttribute(support, 0,0, null);
 	}
 
 

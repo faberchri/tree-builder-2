@@ -64,22 +64,20 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 			mergeNom.add(mergeCandidate);			
 		}
 		
-		System.out.println(mergeNum.iterator().next().getAttributeKeys().toString());
-		System.out.println(possibleMerge.iterator().next().getAttributeKeys().toString());
-		
 		// FIXME could have a nicer structure -> getInstance()
 		ClassitMaxCategoryUtilitySearcher classit = new ClassitMaxCategoryUtilitySearcher();
 		CobwebMaxCategoryUtilitySearcher cobweb = new CobwebMaxCategoryUtilitySearcher();
 		
-		// Define weighted utility
-		double percentageNumeric = 1.0;
-		double percentageNominal = 0.0;
+		// Define weighted utility 
+		double percentageNumeric = 0.9;
+		double percentageNominal = 0.1;
 		
 		double utility = 0.0;
 		utility += classit.calculateCategoryUtility(mergeNum) * percentageNumeric;
-// 		utility += cobweb.calculateCategoryUtility(mergeNom) * percentageNominal;
+ 		utility += cobweb.calculateCategoryUtility(mergeNom) * percentageNominal;
 		
 		log.finest("Shared category utility is " + utility);
+		
 		return utility;
 	}
 

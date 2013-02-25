@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class SharedTreeComponentFactory extends TreeComponentFactory implements Serializable {
 
@@ -75,10 +76,17 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		
 		if(attributeKey.getNodeType() != ENodeType.Nominal){
-			return ClassitTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			return new SharedAttribute(generated.getSupport(), generated.getSumOfRatings(), generated.getSumOfSquaredRatings(), null, generated.getMeta());
 		}
 		else {
-			return CobwebTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			Map<Object,Double> valueMap = new HashMap<Object,Double>();
+			while(generated.getProbabilities().hasNext()){
+				Entry<Object, Double> entry = generated.getProbabilities().next();
+				valueMap.put(entry.getKey(), entry.getValue());
+			}
+			return new SharedAttribute(2, 0, 0, valueMap , generated.getMeta()); // FIXME support
 		}
 	}		
 }

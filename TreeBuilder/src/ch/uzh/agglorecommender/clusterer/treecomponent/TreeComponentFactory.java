@@ -55,7 +55,6 @@ public abstract class TreeComponentFactory implements Serializable {
 		}
 
 		// Create Attribute Map
-		System.out.println("Internal Node");
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
 		
 		// Create collected Meta Information

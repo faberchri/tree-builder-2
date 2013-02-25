@@ -55,12 +55,12 @@ class SplitWorker extends Thread {
 			if (cu >= maxPossibleCU) {
 				if (cu > maxPossibleCU) {
 					// error. shouldn't be possible
-					log.severe("Thread Id " + this.getId() + ": calculated category utility is greater than teoretical maximum.");
+					log.severe("Thread Id " + this.getId() + ": calculated category utility is greater than theoretical maximum.");
 					log.severe("Thread Id " + this.getId() + ": Exiting application!");
 					System.exit(-1);
 				}
 				log.fine("Thread Id " + this.getId() + ": Merge result with max theoretical category utility was found."
-						+ " Terminating category utilitie calculation for remaining merges. Found CU: " + cu);
+						+ " Terminating category utility calculation for remaining merges. Found CU: " + cu);
 				calcRes.put(combinationId, cu);
 				maxCUFound = true;
 				return;
