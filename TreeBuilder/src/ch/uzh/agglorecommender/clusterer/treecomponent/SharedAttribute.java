@@ -37,7 +37,23 @@ public final class SharedAttribute implements IAttribute, Serializable {
 	
 	private final Map<String,String> meta;
 	
-	private final Map<String,Integer> valueMap;
+	/**
+	 * Attribute value - probability pairs.
+	 * <br>
+	 * e.g.:
+	 * <br>
+	 * <pre>
+	 *   Rating Values  |    Probability
+	 * -----------------------------------
+	 *       5          |       0.5
+	 *       1          |       0.25
+	 *       
+	 * Probabilities do not necessarily add
+	 * up to 1, due to the sparse nature of
+	 * the user-content-rating matrix.
+	 * </pre>
+	 */
+	private final Map<Object, Double> attributeProbabilities;
 				
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
@@ -50,23 +66,13 @@ public final class SharedAttribute implements IAttribute, Serializable {
 	 * @param support the support of this attribute object.
 	 */
 	public SharedAttribute(int support, double sumOfRatings,
-			double sumOfSquaredRatings, Map<String,String> meta) {
+			double sumOfSquaredRatings, Map<?, Double> probabilityMap, Map<String,String> meta) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
+		this.attributeProbabilities = (Map<Object, Double>) probabilityMap;
 		this.meta = meta;
-		this.valueMap = null;
-	}
-	
-	// Nominal Constructor
-	public SharedAttribute(int support, Map<String,Integer> valueMap, Map<String,String> meta) {
-
-		this.support = support;
-		this.sumOfRatings = 0.0;
-		this.sumOfSquaredRatings = 0.0;
-		this.meta = meta;
-		this.valueMap = valueMap;
 	}
 	
 	public int getSupport() {
@@ -85,8 +91,7 @@ public final class SharedAttribute implements IAttribute, Serializable {
 
 	@Override
 	public Iterator<Entry<Object, Double>> getProbabilities() {
-		throw new UnsupportedOperationException(
-				"Method of CobwebAttribute object called on ClassitAttribute object");
+		return attributeProbabilities.entrySet().iterator();
 	}
 	
 	@Override
@@ -110,28 +115,4 @@ public final class SharedAttribute implements IAttribute, Serializable {
 	public double getMeanOfRatings() {
 		return sumOfRatings / support;
 	}
-
-	@Override
-	public Map<String,Integer> getValueMap() throws UnsupportedOperationException {
-		// important
-		return valueMap;
-	}
-
-//	@Override
-//	public double getStd() throws UnsupportedOperationException {
-//		
-//		// Die einzelnen Values fehlen
-//		
-//		// Mean
-//		double mean = 0;
-//		
-//		// Sum of Differences (value - mean)^2
-//		double sumOfDifferences = Math.pow(0,2);
-//		
-//		// Divide through number of variants, take root
-//		double std = Math.sqrt(0);
-//		
-//		return std;
-//	}
-	
 }
