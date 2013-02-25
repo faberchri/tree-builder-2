@@ -57,9 +57,10 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 
 	@Override
-	public IAttribute createSymbolicAttribute(int support,
-			Map<String, Integer> valueMap, Map<String,String> meta) {
+	public IAttribute createSymbolicAttribute(int support, String key,
+			String value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 }

@@ -2,7 +2,9 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -184,7 +186,11 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	
 	public static double calcStdDevOfSymbolicAttribute(INode attribute, Collection<INode> possibleMerge) {
 		
-		// FIXME How to implement? -> Muss Map<String,Integer> (Wert,Support) durchgehen
+		// Get a map of all values with support
+		Map<String, Integer> valueMap = buildNominalValueMap(attribute, possibleMerge);
+		
+		// How to calculate StdDev from here on?
+		// FIXME implement me please
 		
 		return 1.0;
 	}
@@ -197,4 +203,48 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	protected double getMaxTheoreticalPossibleCategoryUtility() {
 		return maxThoereticalPossibleCategoryUtility;
 	}
+	
+	//**************** SHOULD NOT BE HERE **********************//	
+	/**
+	 * Used to build a merged nominal value map
+	 * 
+	 * @param attribute the attribute that should be merged 
+	 * @param nodesToMerge Collection of nodes were values of the attribute are searched for
+	 * 
+	 * @return Map<String,String> Map of values of the attribute and their support
+	 */
+	private static Map<String, Integer> buildNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
+			
+		Map<String,Integer> nominalValues = new HashMap<String,Integer>();
+		for(INode node : nodesToMerge){
+			for(INode nodeAtt : node.getAttributeKeys()){
+								
+				if(attribute == nodeAtt){
+						
+					// Get the valueMap of the attribute of the current node
+					Map<String,Integer> nodeAttValueMap = node.getAttributeValue(nodeAtt).getValueMap();
+					
+					// Process the different attribute values of the nominal attribute
+					for(String nodeAttValue : nodeAttValueMap.keySet()){
+						
+						// Same value is already in map -> update support
+						if(nominalValues.containsKey(nodeAttValue)){
+							
+							// Update support of existing entry
+							int support = (int) nominalValues.get(nodeAttValue);
+							support += nodeAttValueMap.get(nodeAttValue);
+							nominalValues.put(nodeAttValue,support);
+						}
+						else {
+							// Add new value to map -> support is 1
+							nominalValues.put(nodeAttValue, 1);
+						}
+					}
+				}
+			}
+		}
+		
+		return nominalValues;
+	}
+	//**************** SHOULD NOT BE HERE **********************//
 }
