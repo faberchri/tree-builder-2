@@ -106,12 +106,6 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 		return 0;
 	}
 
-	@Override
-	public Map<String, Integer> getValueMap() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 //	@Override
 //	public double getStd() throws UnsupportedOperationException {
 //		throw new UnsupportedOperationException(

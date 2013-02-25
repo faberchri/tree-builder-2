@@ -55,37 +55,11 @@ public class InitialNodesCreator {
 			IDataset<?> userMetaset, 
 			TreeComponentFactory contentTreeComponentFactory,
 			TreeComponentFactory userTreeComponentFactory) {
-		
-		// ---------- CREATE NOMINAL NODES FOR USER-------------- //
-		List<INode> userNominalNodes = new LinkedList<INode>();
-		
-		Iterator<?> userIt = userMetaset.iterateOverDatasetItems();
-		MetaDatasetItem userItem = (MetaDatasetItem) userIt.next();
-		Map<String,String> userInfos = userItem.getValue();
-		
-		for(String infoKey : userInfos.keySet()){
-			Map<String,String> attributeInfo = new HashMap<String,String>();
-			attributeInfo.put(userInfos.get(infoKey),null);
-			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
-			userNominalNodes.add(info);	
-		}
-		// ---------- CREATE NOMINAL NODES FOR USER-------------- //
-		
-		// ---------- CREATE NOMINAL NODES FOR CONTENT-------------- //
-		List<INode> contentNominalNodes = new LinkedList<INode>();
-		
-		Iterator<?> contentIt = userMetaset.iterateOverDatasetItems();
-		MetaDatasetItem contentItem = (MetaDatasetItem) contentIt.next();
-		Map<String,String> contentInfos = contentItem.getValue();
-		
-		for(String infoKey : contentInfos.keySet()){
-			Map<String,String> attributeInfo = new HashMap<String,String>();
-			attributeInfo.put(contentInfos.get(infoKey),null);
-			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
-			contentNominalNodes.add(info);	
-		}
-		// ---------- CREATE NOMINAL NODES FOR CONTENT-------------- //
-		
+
+		// Create nominal nodes for users & content
+		List<INode> userNominalNodes = createNominalNodes(userMetaset);
+		List<INode> contentNominalNodes = createNominalNodes(contentMetaset);
+	
 		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		
@@ -209,6 +183,21 @@ public class InitialNodesCreator {
 			}
 		}
 		return null;
+	}
+	
+	private List<INode>  createNominalNodes(IDataset<?> metaset) {
+		List<INode> nominalNodes = new LinkedList<INode>();
+		Iterator<?> userIt = metaset.iterateOverDatasetItems();
+		MetaDatasetItem userItem = (MetaDatasetItem) userIt.next();
+		Map<String,String> userInfos = userItem.getValue();
+		
+		for(String infoKey : userInfos.keySet()){
+			Map<String,String> attributeInfo = new HashMap<String,String>();
+			attributeInfo.put(userInfos.get(infoKey),null);
+			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
+			nominalNodes.add(info);	
+		}
+		return nominalNodes;
 	}
 
 	/**

@@ -98,12 +98,6 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		return sumOfRatings / support;
 	}
 
-	@Override
-	public Map<String, Integer> getValueMap() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 //	@Override
 //	public double getStd() throws UnsupportedOperationException {
 //		

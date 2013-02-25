@@ -79,6 +79,4 @@ public interface IAttribute {
 	 *
 	 */
 	public Map<String,String> getMeta();
-	
-	public Map<String,Integer> getValueMap();
 }
