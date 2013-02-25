@@ -14,8 +14,8 @@ import java.util.Map.Entry;
  * Is immutable.
  *
  */
-public final class ClassitAttribute implements IAttribute, Serializable {
-
+public final class SharedAttribute implements IAttribute, Serializable {
+	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
 	 * <br>
@@ -24,19 +24,21 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	 * of this class is not compatible with old versions.
 	 */
 	private static final long serialVersionUID = 1L;
-
+		
 	/**
 	 * Support of this attribute.
 	 * 
 	 */
 	private final int support;
-
+		
 	private final double sumOfRatings;
-
+	
 	private final double sumOfSquaredRatings;
-
+	
 	private final Map<String,String> meta;
-
+	
+	private final Map<String,Integer> valueMap;
+				
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
 	 * with stdDev, average, support, sum of ratings, and sum of squared ratings.
@@ -47,24 +49,35 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	 * @param sumOfSquaredRatings the sum of all squared ratings
 	 * @param support the support of this attribute object.
 	 */
-	public ClassitAttribute(int support, double sumOfRatings,
+	public SharedAttribute(int support, double sumOfRatings,
 			double sumOfSquaredRatings, Map<String,String> meta) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
 		this.meta = meta;
+		this.valueMap = null;
 	}
+	
+	// Nominal Constructor
+	public SharedAttribute(int support, Map<String,Integer> valueMap, Map<String,String> meta) {
 
+		this.support = support;
+		this.sumOfRatings = 0.0;
+		this.sumOfSquaredRatings = 0.0;
+		this.meta = meta;
+		this.valueMap = valueMap;
+	}
+	
 	public int getSupport() {
 		return support;
 	}
-
+		
 	@Override
 	public double getSumOfRatings() {
 		return sumOfRatings;
 	}
-
+	
 	@Override
 	public double getSumOfSquaredRatings() {
 		return sumOfSquaredRatings;
@@ -75,7 +88,7 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		throw new UnsupportedOperationException(
 				"Method of CobwebAttribute object called on ClassitAttribute object");
 	}
-
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -89,7 +102,7 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	}
 
 	@Override
-	public Map<String, String> getMeta() {
+	public Map<String,String> getMeta() {
 		return meta;
 	}
 
@@ -99,9 +112,9 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	}
 
 	@Override
-	public Map<String, Integer> getValueMap() {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String,Integer> getValueMap() throws UnsupportedOperationException {
+		// important
+		return valueMap;
 	}
 
 //	@Override
@@ -120,5 +133,5 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 //		
 //		return std;
 //	}
-
+	
 }
