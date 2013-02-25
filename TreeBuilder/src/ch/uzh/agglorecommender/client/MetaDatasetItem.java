@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.client;
 
-import java.util.List;
+import java.util.Map;
+
 
 
 
@@ -10,7 +11,7 @@ import java.util.List;
  *
  * @param <T> the data type of a raw rating.
  */
-public class MetaDatasetItem<T extends List<String>> implements IDatasetItem<T>{
+public class MetaDatasetItem<T extends Map<String,String>> implements IDatasetItem<T>{
 
 	/**
 	 * The rating.

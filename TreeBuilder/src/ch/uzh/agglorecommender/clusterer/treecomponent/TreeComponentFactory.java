@@ -88,7 +88,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param meta meta information
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createSymbolicAttribute(int support, Map<String,Integer> valueMap, Map<String,String> meta); // single node
+	public abstract IAttribute createSymbolicAttribute(int support, String key, String value); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute

@@ -297,7 +297,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				IAttribute attributeValue = getAttributeValue(attributeKey);
 				description += "<tr><td>" + attributeKey.getId() + "</td>" +
 						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-						"<td>" + attributeValue.getClass().getSimpleName() + "</td>"+
+						"<td>" + attributeKey.getNodeType() + "</td>"+
         				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
         				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfNumericAttribute(attributeKey, merge)) + "</td>" +
         				"<td>" + attributeValue.getSupport()+ "</td>" +

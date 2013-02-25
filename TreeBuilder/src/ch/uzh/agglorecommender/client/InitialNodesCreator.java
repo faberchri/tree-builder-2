@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,36 @@ public class InitialNodesCreator {
 			IDataset<?> userMetaset, 
 			TreeComponentFactory contentTreeComponentFactory,
 			TreeComponentFactory userTreeComponentFactory) {
+		
+		// ---------- CREATE NOMINAL NODES FOR USER-------------- //
+		List<INode> userNominalNodes = new LinkedList<INode>();
+		
+		Iterator<?> userIt = userMetaset.iterateOverDatasetItems();
+		MetaDatasetItem userItem = (MetaDatasetItem) userIt.next();
+		Map<String,String> userInfos = userItem.getValue();
+		
+		for(String infoKey : userInfos.keySet()){
+			Map<String,String> attributeInfo = new HashMap<String,String>();
+			attributeInfo.put(userInfos.get(infoKey),null);
+			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
+			userNominalNodes.add(info);	
+		}
+		// ---------- CREATE NOMINAL NODES FOR USER-------------- //
+		
+		// ---------- CREATE NOMINAL NODES FOR CONTENT-------------- //
+		List<INode> contentNominalNodes = new LinkedList<INode>();
+		
+		Iterator<?> contentIt = userMetaset.iterateOverDatasetItems();
+		MetaDatasetItem contentItem = (MetaDatasetItem) contentIt.next();
+		Map<String,String> contentInfos = contentItem.getValue();
+		
+		for(String infoKey : contentInfos.keySet()){
+			Map<String,String> attributeInfo = new HashMap<String,String>();
+			attributeInfo.put(contentInfos.get(infoKey),null);
+			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
+			contentNominalNodes.add(info);	
+		}
+		// ---------- CREATE NOMINAL NODES FOR CONTENT-------------- //
 		
 		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
@@ -117,19 +148,14 @@ public class InitialNodesCreator {
 				attributes.put(contentsNodeMap.get(contentDi.getContentId()), contentTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
 			}
 			
-			// **************************************************************
 			// Add corresponding nominal data to user node attributes
-			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta();
+			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta(); // Meta Info from User Node
 			int i = 0;
 			for(String metaKey : metaData.keySet()){
-					Map<String,String> info = new HashMap<String,String>();
-					info.put(metaKey,metaData.get(metaKey));
-					Map<String,Integer> nominalValueMap = new HashMap<String,Integer>();
-					nominalValueMap.put(metaKey,1);
-					attributes.put(new Node(ENodeType.Nominal, i, info), contentTreeComponentFactory.createSymbolicAttribute(1, nominalValueMap, info));
-					i++;
+				attributes.put(userNominalNodes.get(i), 
+						contentTreeComponentFactory.createSymbolicAttribute(1, metaKey, metaData.get(metaKey)));
+				i++;
 			}
-			// **************************************************************
 			
 			// Add all attributes to user node
 			usersNodeMap.get(user.getKey()).setAttributes(attributes);
@@ -149,19 +175,14 @@ public class InitialNodesCreator {
 				attributes.put(usersNodeMap.get(userDi.getUserId()), userTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
 			}
 			
-			// **************************************************************
 			// Add corresponding nominal data to content node attributes
 			Map<String,String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
 			int i = 0;
 			for(String metaKey : metaData.keySet()){
-					Map<String,String> info = new HashMap<String,String>();
-					info.put(metaKey,metaData.get(metaKey));
-					Map<String,Integer> nominalValueMap = new HashMap<String,Integer>();
-					nominalValueMap.put(metaKey,1);
-					attributes.put(new Node(ENodeType.Nominal, i, info), contentTreeComponentFactory.createSymbolicAttribute(1, nominalValueMap, info));
-					i++;
+				attributes.put(contentNominalNodes.get(i), 
+						contentTreeComponentFactory.createSymbolicAttribute(1, metaKey, metaData.get(metaKey)));	
+				i++;
 			}
-			// **************************************************************
 			
 			// Add all attributes to content node
 			contentsNodeMap.get(content.getKey()).setAttributes(attributes);
@@ -183,11 +204,7 @@ public class InitialNodesCreator {
 		while(it.hasNext()){
 			MetaDatasetItem metadata = (MetaDatasetItem) it.next();
 			if(metadata.getContentId() == id){
-				Map<String,String> metaMap = new HashMap<String,String>();
-				List<String> metaItems = metadata.getValue();
-				for(String metaItem : metaItems){
-					metaMap.put(metaItem, "Gender"); // Need information about fields, gender is just test
-				}
+				Map<String,String> metaMap = metadata.getValue();
 				return metaMap;
 			}
 		}

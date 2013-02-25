@@ -33,7 +33,12 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	}
 	
 	/**
-	 * Used to create the (single) attribute object of leaf nodes
+	 * Used to create the (single) numeric attribute object of leaf nodes
+	 * 
+	 *@param rating
+	 *@param meta meta info about the attribute
+	 * 
+	 *@return IAttribute numeric attribute object
 	 */
 	@Override
 	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
@@ -43,13 +48,31 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0), meta);
 	}
 	
+	/**
+	 * Used to create the nominal attributes object of leaf nodes
+	 * 
+	 * @param support 
+	 * @param valueMap map of all values and their support for attribute
+	 * @param meta meta info about the attribute
+	 * 
+	 * @return IAttribute symbolic attribute object
+	 */
 	@Override
-	public IAttribute createSymbolicAttribute(int support, Map<String, Integer> valueMap, Map<String,String> meta) {
+	public IAttribute createSymbolicAttribute(int support, String key, String value) {
+		
+		Map<String,Integer> valueMap = new HashMap<String,Integer>();
+		Map<String,String> meta = new HashMap<String,String>();
+		
+		valueMap.put(key,1);
+		meta.put(key,value);
+		
 		return new ClassitAttribute(support, valueMap, meta);
 	}
 
 	/**
-	 * Used to calculate new nodes in the merging process
+	 * Used to calculate new nodes in the merging process (numeric, nominal)
+	 * 
+	 * @return IAttribute new IAttribute object
 	 */
 	@Override
 	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
@@ -70,50 +93,52 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 			return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
 		}
 		else {
-			System.out.println("Merge symbolic attribute");
 			Map<String,Integer> valueMap = buildNominalValueMap(attributeKey,nodesToMerge);
-			return new ClassitAttribute(attributeKey.getChildrenCount()+1, valueMap, attributeKey.getMeta());
+			return new ClassitAttribute(valueMap.values().size(), valueMap, attributeKey.getMeta()); // FIXME wrong support calculation
 		}
 	}
-	
-	// **************************************************************
-		private Map<String, Integer> buildNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
+		
+	/**
+	 * Used to build a merged nominal value map
+	 * 
+	 * @param attribute the attribute that should be merged 
+	 * @param nodesToMerge Collection of nodes were values of the attribute are searched for
+	 * 
+	 * @return Map<String,String> Map of values of the attribute and their support
+	 */
+	private Map<String, Integer> buildNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
 			
-			Map<String,Integer> nominalValues = new HashMap<String,Integer>();
-			
-			for(INode node : nodesToMerge){
-				for(INode nodeAtt : node.getAttributeKeys()){
+		Map<String,Integer> nominalValues = new HashMap<String,Integer>();
+		for(INode node : nodesToMerge){
+			for(INode nodeAtt : node.getAttributeKeys()){
+								
+				if(attribute == nodeAtt){
+						
+					// Get the valueMap of the attribute of the current node
+					Map<String,Integer> nodeAttValueMap = node.getAttributeValue(nodeAtt).getValueMap();
 					
-					// Identify same nominal attributes
-					if(nodeAtt.getId() == attribute.getId()){
+					// Process the different attribute values of the nominal attribute
+					for(String nodeAttValue : nodeAttValueMap.keySet()){
 						
-						Map<String,Integer> nodeAttValueMap = node.getAttributeValue(nodeAtt).getValueMap();
-						
-						// Process the different attribute values of the nominal attribute
-						for(String nodeAttValue : nodeAttValueMap.keySet()){
-						
-							if(nominalValues.containsKey(nodeAttValue)){
-								
-								// Update support of existing entry
-								int support = (int) nominalValues.get(nodeAttValue);
-								support += nodeAttValueMap.get(nodeAttValue);
-								nominalValues.put(nodeAttValue,support);
-								
-							}
-							else {
-								
-								// Add new entry
-								nominalValues.put(nodeAttValue, 1);
-							}
+						// Same value is already in map -> update support
+						if(nominalValues.containsKey(nodeAttValue)){
 							
+							// Update support of existing entry
+							int support = (int) nominalValues.get(nodeAttValue);
+							support += nodeAttValueMap.get(nodeAttValue);
+							nominalValues.put(nodeAttValue,support);
+						}
+						else {
+							// Add new value to map -> support is 1
+							nominalValues.put(nodeAttValue, 1);
 						}
 					}
 				}
 			}
-			System.out.println(nominalValues);
-			return nominalValues;
 		}
-		// **************************************************************
+		
+		return nominalValues;
+	}
 
 	
 // ----------------------------------  For deletion ---------------------------------------------------
