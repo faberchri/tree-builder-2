@@ -189,25 +189,28 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	public static double calcProbabilityOfSymbolicAttribute(INode attribute, Collection<INode> possibleMerge) {
 		
 		// Get a map of all values with support
-		Map<String, Integer> valueMap = buildNominalValueMap(attribute, possibleMerge);
+		Map<String, Integer> valueMap = buildMatchingNominalValueMap(attribute, possibleMerge);
 		
-		// Calculate sum of support -> FIXME could be written nicer
-		int totalSupport = 0;
-		Collection<Integer> supportCollection = valueMap.values();
-		Iterator<Integer> it = supportCollection.iterator();
-		while(it.hasNext()){
-			totalSupport += it.next();
-		}
+		if(valueMap != null){
 		
-		// Calculate Probability of every value that is present in all mergenodes
-		double totalProbability = 0;
-		for(String value : valueMap.keySet()){
-			if(valueMap.get(value) > 1){ // FIXME this could be higher 1 from one node because of child nodes
+			// Calculate sum of support -> FIXME should be written faster
+			int totalSupport = 0;
+			Collection<Integer> supportCollection = valueMap.values();
+			Iterator<Integer> it = supportCollection.iterator();
+			while(it.hasNext()){
+				totalSupport += it.next();
+			}
+			
+			// Calculate Probability of every value that is present in all mergenodes
+			double totalProbability = 0;
+			for(String value : valueMap.keySet()){
 				double supportOfValue = valueMap.get(value);
 				totalProbability += supportOfValue /  totalSupport;
 			}
+//			System.out.println("Probabilities: " + totalProbability);
+			return totalProbability;
 		}
-		return totalProbability;
+		return 0;
 	}
 	
 	public static double getAcuity() {
@@ -219,7 +222,6 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		return maxThoereticalPossibleCategoryUtility;
 	}
 	
-	//**************** SHOULD NOT BE HERE **********************//	
 	/**
 	 * Used to build a merged nominal value map
 	 * 
@@ -228,9 +230,11 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * 
 	 * @return Map<String,String> Map of values of the attribute and their support
 	 */
-	private static Map<String, Integer> buildNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
+	private static Map<String, Integer> buildMatchingNominalValueMap(INode attribute, Collection<INode> nodesToMerge) {
 			
 		Map<String,Integer> nominalValues = new HashMap<String,Integer>();
+		Map<String,Integer> matchingNominalValues = new HashMap<String,Integer>();
+		
 		for(INode node : nodesToMerge){
 			for(INode nodeAtt : node.getAttributeKeys()){
 								
@@ -248,7 +252,8 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 							// Update support of existing entry
 							int support = (int) nominalValues.get(nodeAttValue);
 							support += nodeAttValueMap.get(nodeAttValue);
-							nominalValues.put(nodeAttValue,support);
+							nominalValues.put(nodeAttValue,support);							
+							matchingNominalValues.put(nodeAttValue,support);
 						}
 						else {
 							// Add new value to map -> support is 1
@@ -258,8 +263,6 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 				}
 			}
 		}
-		
-		return nominalValues;
+		return matchingNominalValues;
 	}
-	//**************** SHOULD NOT BE HERE **********************//
 }
