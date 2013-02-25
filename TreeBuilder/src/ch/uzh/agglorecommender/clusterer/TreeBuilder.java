@@ -21,6 +21,7 @@ import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
 import ch.uzh.agglorecommender.clusterer.treesearch.MergeResult;
+import ch.uzh.agglorecommender.clusterer.treesearch.NoCommonAttributeSkipMaxCUSearcher;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -143,10 +144,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
 		this.nodeUpdater = nodeUpdater;
-		this.userMCUSearcher = new CachedMaxCUSearcher(searcherUsers);
-		this.contentMCUSearcher = new CachedMaxCUSearcher(searcherContent);
-//		this.userMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherUsers));
-//		this.contentMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherContent));
+//		this.userMCUSearcher = new CachedMaxCUSearcher(searcherUsers);
+//		this.contentMCUSearcher = new CachedMaxCUSearcher(searcherContent);
+		this.userMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherUsers));
+		this.contentMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherContent));
 		this.contentTreeComponentFactory = contentTreeComponentFactory;
 		this.userTreeComponentFactory = userTreeComponentFactory;
 		this.treeVisualizer = new TreeVisualizer();	

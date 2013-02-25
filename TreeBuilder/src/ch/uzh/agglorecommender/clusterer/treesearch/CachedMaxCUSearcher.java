@@ -1,6 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
@@ -37,10 +37,15 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private static final double NO_CACHE_ENTRY_VALUE = -1;
+	
 	private static Map<Collection<INode>, IMergeResult> cache = new HashMap<Collection<INode>,IMergeResult>();
 	
-	private TIntDoubleMap numberCache = new TIntDoubleHashMap();
-	
+	/**
+	 * Maps combination ids to its category utility calculated in a previous cycle.
+	 */
+	private TIntDoubleMap numberCache = new TIntDoubleHashMap(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1, NO_CACHE_ENTRY_VALUE);
+		
 	public CachedMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
 	}
@@ -50,53 +55,76 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time1 = System.nanoTime();
-		
-		TIntIterator it = combinationIds.iterator();
+			
+		// iterate over all invalid node combinations
 		Set<INode> dirtyNodes = Node.getAllDirtyNodes();
-		while (it.hasNext()) {
+		log.info("Number of dirty nodes: " + dirtyNodes.size());
+		Iterator<INode> dirtyNodesIterator = dirtyNodes.iterator();		
+		for ( int i = dirtyNodes.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
+			TIntSet dirtyCombs = clusterSet.getCombinationsIds(dirtyNodesIterator.next());
+			TIntIterator dirtyCombsIterator = dirtyCombs.iterator();
+			for ( int j = dirtyCombs.size(); j-- > 0; ) {
+				// add invalid combinations to cache with default category utility value
+				numberCache.put(dirtyCombsIterator.next(), NO_CACHE_ENTRY_VALUE);
+			}
+			// set the dirty node to clean (which means removing it from the dirty set)
+			dirtyNodesIterator.remove();
+		}
+		
+		// initialize some performance indicators
+		int initialNumberOfComparisons = combinationIds.size();
+		int numberOfInvalidCacheEntries = 0;
+		int numberOfUsedCacheEntries = 0;
+		
+		// initialize variables to store best cache entry of the sought combinations
+		double maxCachedCU = -1.0;
+		int bestCombinationId = -1;
+		
+		// reduce the combinations to calculate by fetching (now valid) cache entries
+		// at the same time we lookup the entry with the highest utility in the cache of the sought combinations.
+		TIntIterator it = combinationIds.iterator();
+		for ( int j = combinationIds.size(); j-- > 0; ) {
 			int i = it.next();
+			
+			// no need to continue if combination id is unknown
 			if (! numberCache.containsKey(i)) continue;
-			Collection<INode> t = clusterSet.getCombination(i);
-			Iterator<INode> tI = t.iterator();
-			boolean invalid = false;
-			while (tI.hasNext()) {
-				INode n = tI.next();
-				if (dirtyNodes.contains(n)) {
-					invalid = true;
-					break;
+			
+			double cacheValue = numberCache.get(i);
+			if(cacheValue == NO_CACHE_ENTRY_VALUE) {
+				numberOfInvalidCacheEntries++;
+			} else {
+				// cache entry is valid, 
+				// thus we remove the combination from the set of combinations
+				// for which category utility will be calculated
+				it.remove(); 
+				numberOfUsedCacheEntries++;
+				
+				// store the cached entry if it is a new best category utility
+				if (cacheValue > maxCachedCU) {
+					maxCachedCU = cacheValue;
+					bestCombinationId = i;
 				}
 			}
-			if (invalid) {
-				numberCache.remove(i);
-			} else {
-				it.remove(); // cache entry is valid
-			}
 		}
 		
-		// fetch best cache entry
-		double maxCachedCU = -Double.MAX_VALUE;
-		int bestCobinationId = -1;
-		TIntDoubleIterator iterator = numberCache.iterator();
-		for ( int i = numberCache.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
-			iterator.advance();
-//			System.out.println("valid cached comIds: " + iterator.key());
-			if (iterator.value() > maxCachedCU && combinationIds.contains(iterator.key())) {
-				maxCachedCU = iterator.value();
-				bestCobinationId = iterator.key();
-			}
-		}
-		
+		log.info("Initial number of comparisons: "+ initialNumberOfComparisons + ". Number of invalidated cache entries: "
+						+ numberOfInvalidCacheEntries + ". Number of used cache entries: "+ numberOfUsedCacheEntries
+						+ ". Number of remaining category utility calculations: " + combinationIds.size());				
 		time1 = System.nanoTime() - time1;
 		
 		TIntDoubleMap newMerges = decoratedSearcher.getMaxCategoryUtilityMerges(combinationIds, clusterSet);
 		
 		long time2 = System.nanoTime();
+		log.info("Number of new merge results to add to the cache: " + newMerges.size());
 		
+		// add the calculated combinations to the cache
 		numberCache.putAll(newMerges);
-		if (bestCobinationId > -1) {
-			newMerges.put(bestCobinationId, maxCachedCU);
+		
+		// add the best cached category utility for the sought combinations to the result map if one was found.
+		if (bestCombinationId > -1) {
+			newMerges.put(bestCombinationId, maxCachedCU);
 		}
-		dirtyNodes.clear();
+
 		time2 = System.nanoTime() - time2;
 		log.info("Time in cache decorator: " + (double)(time1 + time2) / 1000000000.0 + " s");
 		return newMerges;

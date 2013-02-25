@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -28,6 +29,8 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 	private static final long serialVersionUID = 1L;
 	
 	Set<Collection<INode>> combinationsWithSharedAttributes = new HashSet<Collection<INode>>();
+	
+	TIntSet combinationsIndicesWithSharedAttributes = new TIntHashSet();
 	
 	public NoCommonAttributeSkipMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
@@ -71,21 +74,26 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 		long time = System.nanoTime();
 		int removedLists = 0;
 		int initCombinationsSize = combinationIds.size();
-		TIntIterator i = combinationIds.iterator();
-		while (i.hasNext()) {
-			Collection<INode> l =  clusterSet.getCombination(i.next());
-			if (combinationsWithSharedAttributes.contains(l)) continue;
-			if (l.size() != 2) continue;
-			
+		TIntIterator iterator = combinationIds.iterator();
+		for ( int i = combinationIds.size(); i-- > 0; ) {  // faster iteration by avoiding hasNext()
+			int combination = iterator.next();
+			if (combinationsIndicesWithSharedAttributes.contains(combination)) continue;
+			Collection<INode> l =  clusterSet.getCombination(combination);
 			Iterator<INode> it = l.iterator();
-			INode first = it.next();
-			INode second = it.next();
-			Set<INode> intersection = Sets.intersection(first.getAttributeKeys(), second.getAttributeKeys());
-			if (intersection.size() == 0) {
+			Set<INode> attFirst = it.next().getAttributeKeys();
+			Set<INode> attSecond = it.next().getAttributeKeys();
+			boolean remove = true;
+			for (INode aF : attFirst) {
+				if (attSecond.contains(aF)) {
+					remove = false;
+					break;
+				}			
+			}
+			if (remove) {
 				removedLists++;
-				i.remove();
+				iterator.remove();
 			} else {
-				combinationsWithSharedAttributes.add(l);
+				combinationsIndicesWithSharedAttributes.add(combination);
 			}		
 		}
 		log.info("Time in NoCommonAttributeSkipDecorator: "
