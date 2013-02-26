@@ -30,6 +30,13 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 	
 	Set<Collection<INode>> combinationsWithSharedAttributes = new HashSet<Collection<INode>>();
 	
+	/**
+	 *  Keeps track of combinations which have been identified as combinations with shared nodes.
+	 *  These combinations won't be tested on shared attributes in a subsequent clustering cycle again.
+	 *  This means that combination id's contained in this set will never be removed from the 
+	 *  set of combinations passed to @code{getMaxCategoryUtilityMerges} to calculate its
+	 *  category utility by this decorator. 
+	 */
 	TIntSet combinationsIndicesWithSharedAttributes = new TIntHashSet();
 	
 	public NoCommonAttributeSkipMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
@@ -72,27 +79,40 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		long time = System.nanoTime();
+		
+		// initialize performance indicators
 		int removedLists = 0;
 		int initCombinationsSize = combinationIds.size();
+		
+		// iterate over the collection of possible combinations
 		TIntIterator iterator = combinationIds.iterator();
 		for ( int i = combinationIds.size(); i-- > 0; ) {  // faster iteration by avoiding hasNext()
 			int combination = iterator.next();
+			
+			// skip this combination if nodes are known to have shared attributes
 			if (combinationsIndicesWithSharedAttributes.contains(combination)) continue;
-			Collection<INode> l =  clusterSet.getCombination(combination);
-			Iterator<INode> it = l.iterator();
+			
+			// get the attributes of both nodes of the combination
+			Iterator<INode> it = clusterSet.getCombination(combination).iterator();
 			Set<INode> attFirst = it.next().getAttributeKeys();
 			Set<INode> attSecond = it.next().getAttributeKeys();
+			
+			// check the nodes of the combinations share an attribute
 			boolean remove = true;
 			for (INode aF : attFirst) {
 				if (attSecond.contains(aF)) {
+					// don't remove combination if nodes share an attribute
 					remove = false;
 					break;
 				}			
 			}
+			 
 			if (remove) {
+				// remove combinations without shared attributes from the collection of possible merges
 				removedLists++;
 				iterator.remove();
 			} else {
+				// store the combination with a shared attribute for future speed up of this filter
 				combinationsIndicesWithSharedAttributes.add(combination);
 			}		
 		}

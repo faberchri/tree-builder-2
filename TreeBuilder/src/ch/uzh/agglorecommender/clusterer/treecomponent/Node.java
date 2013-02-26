@@ -212,7 +212,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName().concat(" Node").concat(" ").concat(String.valueOf(id));
+		return getNodeType().toString().concat(" Node").concat(" ").concat(String.valueOf(id));
 	}
 
 	@Override

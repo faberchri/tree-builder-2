@@ -37,15 +37,18 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Default value in cache map.
+	 */
 	private static final double NO_CACHE_ENTRY_VALUE = -1;
-	
-	private static Map<Collection<INode>, IMergeResult> cache = new HashMap<Collection<INode>,IMergeResult>();
-	
+		
 	/**
 	 * Maps combination ids to its category utility calculated in a previous cycle.
 	 */
 	private TIntDoubleMap numberCache = new TIntDoubleHashMap(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1, NO_CACHE_ENTRY_VALUE);
-		
+	
+	private static Map<Collection<INode>, IMergeResult> cache = new HashMap<Collection<INode>,IMergeResult>();
+	
 	public CachedMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
 	}
