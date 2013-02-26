@@ -14,13 +14,12 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
 
-public class CalculateRMSEtest {
-	
+public class CalculateAMEtest {
 	@Test
-	public void testRMEI() throws InstantiationException, IllegalAccessException{
+	public void testAMEI() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting RME test I");
+		System.out.println("Starting AME test I");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
@@ -55,7 +54,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(1, predictedA2);
 	
 	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
-	double expectedResult = 5.09901951359;
+	double expectedResult = 3;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	
@@ -63,10 +62,10 @@ public class CalculateRMSEtest {
 }
 	
 	@Test
-	public void testRMEII() throws InstantiationException, IllegalAccessException{
+	public void testAMEII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting RME test II");
+		System.out.println("Starting AME test II");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
@@ -109,10 +108,10 @@ public class CalculateRMSEtest {
 }
 	
 	@Test
-	public void testRMEIII() throws InstantiationException, IllegalAccessException{
+	public void testAMEIII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting RME test III");
+		System.out.println("Starting AME test III");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
@@ -147,7 +146,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(1, predictedA2);
 	
 	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
-	double expectedResult = 7.07106781187;
+	double expectedResult = 5;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	
@@ -155,10 +154,10 @@ public class CalculateRMSEtest {
 }
 	
 	@Test
-	public void testRMEIV() throws InstantiationException, IllegalAccessException{
+	public void testAMEIV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting RME test IV");
+		System.out.println("Starting AME test IV");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
@@ -201,10 +200,10 @@ public class CalculateRMSEtest {
 }
 	
 	@Test
-	public void testRMEV() throws InstantiationException, IllegalAccessException{
+	public void testAMEV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting RME test V");
+		System.out.println("Starting AME test V");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
