@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -58,14 +57,14 @@ public abstract class TreeComponentFactory implements Serializable {
 		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
 		
 		// Create collected Meta Information
-		Map<String,String> meta = new HashMap<String,String>();
-		for(INode nodeToMerge: nodesToMerge){
-			if(nodeToMerge.getMeta() != null){
-				meta.putAll(nodeToMerge.getMeta());
-			}
-		}
+//		Map<String,String> meta = new HashMap<String,String>();
+//		for(INode nodeToMerge: nodesToMerge){
+//			if(nodeToMerge.getMeta() != null){
+//				meta.putAll(nodeToMerge.getMeta());
+//			}
+//		}
 		
-		INode newNode = new Node(typeOfNewNode, nodesToMerge, attMap, categoryUtility, meta);
+		INode newNode = new Node(typeOfNewNode, nodesToMerge, numericalMap, nominalMap, categoryUtility);
 
 		return newNode;
 	}

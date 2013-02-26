@@ -122,14 +122,14 @@ public class InitialNodesCreator {
 				attributes.put(contentsNodeMap.get(contentDi.getContentId()), contentTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
 			}
 			
-			// Add corresponding nominal data to user node attributes
-			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta(); // Meta Info from User Node
-			int i = 0;
-			for(String metaKey : metaData.keySet()){
-				attributes.put(userNominalNodes.get(i), 
-						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));
-				i++;
-			}
+//			// Add corresponding nominal data to user node attributes
+//			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta(); // Meta Info from User Node
+//			int i = 0;
+//			for(String metaKey : metaData.keySet()){
+//				attributes.put(userNominalNodes.get(i), 
+//						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));
+//				i++;
+//			}
 			
 			// Add all attributes to user node
 			usersNodeMap.get(user.getKey()).setAttributes(attributes);
@@ -149,14 +149,14 @@ public class InitialNodesCreator {
 				attributes.put(usersNodeMap.get(userDi.getUserId()), userTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
 			}
 			
-			// Add corresponding nominal data to content node attributes
-			Map<String,String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
-			int i = 0;
-			for(String metaKey : metaData.keySet()){
-				attributes.put(contentNominalNodes.get(i), 
-						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));	
-				i++;
-			}
+//			// Add corresponding nominal data to content node attributes
+//			Map<String,String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
+//			int i = 0;
+//			for(String metaKey : metaData.keySet()){
+//				attributes.put(contentNominalNodes.get(i), 
+//						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));	
+//				i++;
+//			}
 			
 			// Add all attributes to content node
 			contentsNodeMap.get(content.getKey()).setAttributes(attributes);

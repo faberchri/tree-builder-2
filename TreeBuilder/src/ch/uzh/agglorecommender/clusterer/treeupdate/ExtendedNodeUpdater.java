@@ -26,22 +26,32 @@ public class ExtendedNodeUpdater implements INodeUpdater, Serializable {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		
 		
-		for (INode attNode : newNode.getAttributeKeys()) {
-			
+		for (INode attNode : newNode.getNumericalAttributeKeys()) {			
 			// Update Node if it is in collection of nodes that should be updated
 			if (nodesToUpdate.contains(attNode)) {
-				
-				attNode.addAttribute(newNode, newNode.getAttributeValue(attNode));
+				attNode.addNumericalAttribute(newNode, newNode.getAttributeValue(attNode));
 				
 				// Remove children of new node from nodes of the other tree
 				Iterator<INode> mergedNodes = newNode.getChildren();
 				while(mergedNodes.hasNext()){
 					attNode.removeAttribute(mergedNodes.next());
 				}
-				
 				log.finest(attNode.toString() + " updated with " + newNode);
 			}
-			
+		}
+		
+		for (INode attNode : newNode.getNominalAttributeKeys()) {			
+			// Update Node if it is in collection of nodes that should be updated
+			if (nodesToUpdate.contains(attNode)) {
+				attNode.addNominalAttribute(newNode, newNode.getAttributeValue(attNode));
+				
+				// Remove children of new node from nodes of the other tree
+				Iterator<INode> mergedNodes = newNode.getChildren();
+				while(mergedNodes.hasNext()){
+					attNode.removeAttribute(mergedNodes.next());
+				}
+				log.finest(attNode.toString() + " updated with " + newNode);
+			}
 		}
 		
 		
