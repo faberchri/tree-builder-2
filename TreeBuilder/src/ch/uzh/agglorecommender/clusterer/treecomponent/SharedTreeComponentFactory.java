@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.uzh.agglorecommender.util.TBLogger;
+
 public class SharedTreeComponentFactory extends TreeComponentFactory implements Serializable {
 
 	/**
@@ -28,6 +30,30 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	
 	public static  TreeComponentFactory getInstance() {
 		return factory;
+	}
+	@Override
+	public INode createInternalNode(ENodeType typeOfNewNode,
+			Collection<INode> nodesToMerge, double categoryUtility) {
+		// TODO Auto-generated method stub
+		Map<Object,IAttribute> numericMap = createAttMap(nodesToMerge, ClassitTreeComponentFactory.getInstance());
+	}
+	
+	private  Map<Object,IAttribute> createAttMap(Collection<INode> nodesToMerge, TreeComponentFactory factory) {
+		
+		// Collect the combined attributes of all nodes that should be merged
+		Map<Object, IAttribute> allAttributes = factory.collectAttributes(nodesToMerge);
+		
+		// Create merged attributes of all attributes with multiple instances
+		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
+			IAttribute newAtt = factory.createMergedAttribute(entry.getKey(), nodesToMerge);
+			entry.setValue(newAtt);
+		}
+		if (allAttributes.containsValue(null)) {
+			TBLogger.getLogger(getClass().getName()).severe("ClassitAttribute map of node resulting of merge contains null" +
+					" as value; in : "+getClass().getSimpleName());
+			System.exit(-1);
+		}
+		return allAttributes;		
 	}
 	
 	/**

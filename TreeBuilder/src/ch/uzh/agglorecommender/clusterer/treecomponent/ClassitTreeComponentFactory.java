@@ -71,10 +71,10 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	}
 
 	@Override
-	protected Map<INode, IAttribute> collectAttributes(
+	protected Map<Object, IAttribute> collectAttributes(
 			Collection<INode> nodesToMerge) {
 		
-		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
+		Map<Object, IAttribute> allAttributes = new HashMap<Object, IAttribute>();
 		for (INode node : nodesToMerge) {
 			for (INode attNodes : node.getNumericalAttributeKeys()) {
 				allAttributes.put(attNodes, null);

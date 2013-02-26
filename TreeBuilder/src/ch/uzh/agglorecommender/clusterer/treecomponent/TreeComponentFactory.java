@@ -30,7 +30,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @return a new node instance.
 	 */
 	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, Map<String,String> meta) {
-		return new Node(typeOfNewNode, dataSetId, meta);
+		return new Node(typeOfNewNode, dataSetId);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param nodesToMerge the nodes to combine for the new node.
 	 * @return a new node instance.
 	 */
-	public final INode createInternalNode(
+	public INode createInternalNode(
 			ENodeType typeOfNewNode,
 			Collection<INode> nodesToMerge,
 			double categoryUtility) {
@@ -54,7 +54,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		}
 
 		// Create Attribute Map
-		Map<INode, IAttribute> attMap = createAttMap(nodesToMerge);
+		Map<Object, IAttribute> attMap = createAttMap(nodesToMerge);
 		
 		// Create collected Meta Information
 //		Map<String,String> meta = new HashMap<String,String>();
@@ -63,6 +63,15 @@ public abstract class TreeComponentFactory implements Serializable {
 //				meta.putAll(nodeToMerge.getMeta());
 //			}
 //		}
+		Map<Object, IAttribute> numericalMap = null;
+		Map<Object, IAttribute> nominalMap = null;
+		
+		if(typeOfNewNode == ENodeType.Nominal){
+			nominalMap = attMap;
+		}
+		else{
+			numericalMap = attMap;
+		}
 		
 		INode newNode = new Node(typeOfNewNode, nodesToMerge, numericalMap, nominalMap, categoryUtility);
 
@@ -95,20 +104,20 @@ public abstract class TreeComponentFactory implements Serializable {
 	 *
 	 * 
 	 * @param nodesToMerge list of {@code INode} objects that are merged.
-	 * @param attributeKey the attribute key of the new attribute object.
+	 * @param object the attribute key of the new attribute object.
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge); // group node
+	public abstract IAttribute createMergedAttribute(Object object, Collection<INode> nodesToMerge); // group node
 
 	
-	private  Map<INode,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
+	private  Map<Object,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
 		
 		// Collect the combined attributes of all nodes that should be merged
-		Map<INode, IAttribute> allAttributes = collectAttributes(nodesToMerge);
+		Map<Object, IAttribute> allAttributes = collectAttributes(nodesToMerge);
 		
 		// Create merged attributes of all attributes with multiple instances
-		for (Map.Entry<INode, IAttribute> entry : allAttributes .entrySet()) {
+		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
 			IAttribute newAtt = createMergedAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
@@ -120,6 +129,6 @@ public abstract class TreeComponentFactory implements Serializable {
 		return allAttributes;		
 	}
 	
-	protected abstract Map<INode, IAttribute> collectAttributes(Collection<INode> nodesToMerge);
+	protected abstract Map<Object, IAttribute> collectAttributes(Collection<INode> nodesToMerge);
 
 }
