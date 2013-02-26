@@ -32,16 +32,16 @@ public class CalculateRMSEtest {
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 0, null);
+	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
+	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 0, null);
-	testNode.setAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, 3);
+	testNode.setNumericalAttributes(attMap);
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -78,16 +78,16 @@ public class CalculateRMSEtest {
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 0, null);
+	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
+	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 0, null);
-	testNode.setAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, 3);
+	testNode.setNumericalAttributes(attMap);
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -124,16 +124,16 @@ public class CalculateRMSEtest {
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 0, null);
+	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
+	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 0, null);
-	testNode.setAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, 3);
+	testNode.setNumericalAttributes(attMap);
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -170,16 +170,16 @@ public class CalculateRMSEtest {
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 0, null);
+	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
+	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 0, null);
-	testNode.setAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, 3);
+	testNode.setNumericalAttributes(attMap);
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -216,16 +216,16 @@ public class CalculateRMSEtest {
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 0, null);
+	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
+	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 0, null);
-	testNode.setAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, 3);
+	testNode.setNumericalAttributes(attMap);
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
