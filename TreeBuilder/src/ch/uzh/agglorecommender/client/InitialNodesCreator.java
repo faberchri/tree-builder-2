@@ -127,7 +127,7 @@ public class InitialNodesCreator {
 			int i = 0;
 			for(String metaKey : metaData.keySet()){
 				attributes.put(userNominalNodes.get(i), 
-						contentTreeComponentFactory.createSymbolicAttribute(1, metaKey, metaData.get(metaKey)));
+						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));
 				i++;
 			}
 			
@@ -154,7 +154,7 @@ public class InitialNodesCreator {
 			int i = 0;
 			for(String metaKey : metaData.keySet()){
 				attributes.put(contentNominalNodes.get(i), 
-						contentTreeComponentFactory.createSymbolicAttribute(1, metaKey, metaData.get(metaKey)));	
+						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));	
 				i++;
 			}
 			

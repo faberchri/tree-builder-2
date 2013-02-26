@@ -56,7 +56,7 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	 * @return IAttribute symbolic attribute object
 	 */
 	@Override
-	public IAttribute createSymbolicAttribute(int support, String key, String value) {
+	public IAttribute createNominalAttribute(int support, String key, String value) {
 		
 		Map<String,Double> valueMap = new HashMap<String,Double>();
 		Map<String,String> meta = new HashMap<String,String>();
