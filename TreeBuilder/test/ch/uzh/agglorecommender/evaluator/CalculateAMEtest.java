@@ -2,6 +2,8 @@ package ch.uzh.agglorecommender.evaluator;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +16,21 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
 
+/*
+ * Testing EvaluationBuilder.calculateAME(INode testNode, Map<Integer, IAttribute> predictedRatings)
+ */
 public class CalculateAMEtest {
+	
+	/*
+	 * Node to predict: A1 = 4.0, A2 = 3.0
+	 * Prediction: A1 = 5.0, A2 = 8.0
+	 * Expected AME = 3
+	 */
 	@Test
 	public void testAMEI() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
-		System.out.println("Starting AME test I");
+		System.out.println("Starting AME test I..");
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
@@ -42,6 +53,8 @@ public class CalculateAMEtest {
 	INode testNode = new Node(ENodeType.User, 0, null);
 	testNode.setAttributes(attMap);
 
+	System.out.println("Test node: "+testNode.getAttributesString());
+	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
 			.createNumericAttribute(5.0, null);
@@ -53,14 +66,31 @@ public class CalculateAMEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	System.out.println("Prediction: "+predictionMap.toString());
+	
+	double calcResult = 20;
+	try {
+        Class[] parameterTypes = {INode.class, Map.class};
+        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        method.setAccessible(true);
+      
+        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        e.printStackTrace();
+    }
+
 	double expectedResult = 3;
 	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	assertEquals("Calculated AME",expectedResult,calcResult,0.00001);
 	
-	
+	System.out.println("Done.");
 }
-	
+
+	/*
+	 * Node to predict: A1 = 0.0, A2 = 0.0
+	 * Prediction: A1 = 0.0, A2 = 0.0
+	 * Expected AME = 0
+	 */
 	@Test
 	public void testAMEII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
@@ -87,6 +117,8 @@ public class CalculateAMEtest {
 	// create node 1
 	INode testNode = new Node(ENodeType.User, 0, null);
 	testNode.setAttributes(attMap);
+	
+	System.out.println("Test node: "+testNode.getAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -99,14 +131,30 @@ public class CalculateAMEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	System.out.println("Prediction: "+predictionMap.toString());
+	
+	double calcResult = 20;
+	try {
+        Class[] parameterTypes = {INode.class, Map.class};
+        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        method.setAccessible(true);
+      
+        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        e.printStackTrace();
+    }
+	
 	double expectedResult = 0;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	
-	
+	System.out.println("Done.");
 }
-	
+	/*
+	 * Node to predict: A1 = 10.0, A2 = 10.0
+	 * Prediction: A1 = 10.0, A2 = 0.0
+	 * Expected AME = 5
+	 */
 	@Test
 	public void testAMEIII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
@@ -134,6 +182,8 @@ public class CalculateAMEtest {
 	INode testNode = new Node(ENodeType.User, 0, null);
 	testNode.setAttributes(attMap);
 
+	System.out.println("Test node: "+testNode.getAttributesString());
+	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
 			.createNumericAttribute(10.0, null);
@@ -145,14 +195,30 @@ public class CalculateAMEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	System.out.println("Prediction: "+predictionMap.toString());
+	
+	double calcResult = 20;
+	try {
+        Class[] parameterTypes = {INode.class, Map.class};
+        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        method.setAccessible(true);
+      
+        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        e.printStackTrace();
+    }
+	
 	double expectedResult = 5;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	
-	
+	System.out.println("Done.");
 }
-	
+	/*
+	 * Node to predict: A1 = 10.0, A2 = 0.0
+	 * Prediction: A1 = 0.0, A2 = 10.0
+	 * Expected AME = 10
+	 */
 	@Test
 	public void testAMEIV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
@@ -179,6 +245,8 @@ public class CalculateAMEtest {
 	// create node 1
 	INode testNode = new Node(ENodeType.User, 0, null);
 	testNode.setAttributes(attMap);
+	
+	System.out.println("Test node: "+testNode.getAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -191,14 +259,30 @@ public class CalculateAMEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	System.out.println("Prediction: "+predictionMap.toString());
+	
+	double calcResult = 20;
+	try {
+        Class[] parameterTypes = {INode.class, Map.class};
+        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        method.setAccessible(true);
+      
+        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        e.printStackTrace();
+    }
+	
 	double expectedResult = 10;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
+	System.out.println("Done.");
 	
 }
-	
+	/*
+	 * Node to predict: A1 = 10.0, A2 = 0.0
+	 * Prediction: A1 = 10.0, A2 = 0.0
+	 * Expected AME = 0
+	 */
 	@Test
 	public void testAMEV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
@@ -225,6 +309,8 @@ public class CalculateAMEtest {
 	// create node 1
 	INode testNode = new Node(ENodeType.User, 0, null);
 	testNode.setAttributes(attMap);
+	
+	System.out.println("Test node: "+testNode.getAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
@@ -237,11 +323,23 @@ public class CalculateAMEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	System.out.println("Prediction: "+predictionMap.toString());
+	
+	double calcResult = 20;
+	try {
+        Class[] parameterTypes = {INode.class, Map.class};
+        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        method.setAccessible(true);
+      
+        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        e.printStackTrace();
+    }
+	
 	double expectedResult = 0;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
+	System.out.println("Done.");
 	
 }
 }
