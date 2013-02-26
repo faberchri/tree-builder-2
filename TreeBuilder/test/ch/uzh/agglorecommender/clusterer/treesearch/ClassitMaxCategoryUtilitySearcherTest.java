@@ -52,26 +52,26 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute = new Node(ENodeType.Content, 0, null);
+		INode sharedAttribute = new Node(ENodeType.Content, 0);
 
 		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(new Node(ENodeType.Content, 0, null), N1A1);
+		attMap1.put(new Node(ENodeType.Content, 0), N1A1);
 		attMap1.put(sharedAttribute, N1A2);
 
 		// create node 1
-		INode node1 = new Node(ENodeType.User, 0, null);
-		node1.setAttributes(attMap1);
+		INode node1 = new Node(ENodeType.User, 0);
+		node1.setNominalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 
 		// add the corresponding attributes to the attribute map of node 2
 		attMap2.put(sharedAttribute, N2A2);
-		attMap2.put(new Node(ENodeType.Content, 0, null), N2A3);
+		attMap2.put(new Node(ENodeType.Content, 0), N2A3);
 
 		// create node 2
-		INode node2 = new Node(ENodeType.User, 0, null);
-		node2.setAttributes(attMap2);
+		INode node2 = new Node(ENodeType.User, 0);
+		node2.setNominalAttributes(attMap2);
 
 		
 
@@ -81,8 +81,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		openNodes.add(node2);
 
 		// Print standard deviations
-		System.out.println("Node 1: " + node1.getAttributesString());
-		System.out.println("Node 2: " + node2.getAttributesString());
+		System.out.println("Node 1: " + node1.getNumericalAttributesString());
+		System.out.println("Node 2: " + node2.getNumericalAttributesString());
 
 		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
 		nodesToUpdate.add(node1);
@@ -148,16 +148,16 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute1 = new Node(ENodeType.Content, 0, null);
-		INode sharedAttribute2 = new Node(ENodeType.Content, 0, null);
+		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
+		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
 		
 		// add the corresponding attributes to the attribute map of node 1
 		attMap1.put(sharedAttribute1, N1A1);
 		attMap1.put(sharedAttribute2, N1A2);
 
 		// create node 1
-		INode node1 = new Node(ENodeType.User, 0, null);
-		node1.setAttributes(attMap1);
+		INode node1 = new Node(ENodeType.User, 0);
+		node1.setNominalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
@@ -167,8 +167,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		attMap2.put(sharedAttribute2, N2A2);
 
 		// create node 2
-		INode node2 = new Node(ENodeType.User, 0, null);
-		node2.setAttributes(attMap2);
+		INode node2 = new Node(ENodeType.User, 0);
+		node2.setNominalAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -176,8 +176,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		openNodes.add(node2);
 
 		// Print standard deviations
-		System.out.println("Node 1: " + node1.getAttributesString());
-		System.out.println("Node 2: " + node2.getAttributesString());
+		System.out.println("Node 1: " + node1.getNumericalAttributesString());
+		System.out.println("Node 2: " + node2.getNumericalAttributesString());
 
 		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
 		nodesToUpdate.add(node1);
@@ -249,9 +249,9 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute1 = new Node(ENodeType.Content, 0, null);
-		INode sharedAttribute2 = new Node(ENodeType.Content, 0, null);
-		INode sharedAttribute3 = new Node(ENodeType.Content, 0, null);
+		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
+		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
+		INode sharedAttribute3 = new Node(ENodeType.Content, 0);
 		
 		// add the corresponding attributes to the attribute map of node 1
 		attMap1.put(sharedAttribute1, N1A1);
@@ -259,8 +259,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		attMap1.put(sharedAttribute3, N1A3);
 
 		// create node 1
-		INode node1 = new Node(ENodeType.User, 0, null);
-		node1.setAttributes(attMap1);
+		INode node1 = new Node(ENodeType.User, 0);
+		node1.setNominalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
@@ -271,8 +271,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		attMap2.put(sharedAttribute2, N2A3);
 
 		// create node 2
-		INode node2 = new Node(ENodeType.User, 0, null);
-		node2.setAttributes(attMap2);
+		INode node2 = new Node(ENodeType.User, 0);
+		node2.setNominalAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -280,8 +280,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		openNodes.add(node2);
 
 		// Print standard deviations
-		System.out.println("Node 1: " + node1.getAttributesString());
-		System.out.println("Node 2: " + node2.getAttributesString());
+		System.out.println("Node 1: " + node1.getNumericalAttributesString());
+		System.out.println("Node 2: " + node2.getNumericalAttributesString());
 
 		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
 		nodesToUpdate.add(node1);
