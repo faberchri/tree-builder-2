@@ -30,7 +30,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Node id counter.
 	 */
 	private static long idCounter = 0;
-	
+		
 	/**
 	 * The unique id of this node.
 	 */
@@ -42,12 +42,20 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	private final ENodeType nodeType;
 
 	/**
-	 * The attributes of the node.
+	 * The background attributes of the node (e.g. gender, age, genre).
 	 * Stores for each node that is an
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<INode, IAttribute> attributes;
+	private Map<INode, IAttribute> nominalAttributes;
+	
+	/**
+	 * The rating attributes of the node 
+	 * Stores for each node that is an
+	 * attribute of this node a mapping
+	 * to an IAttribute object.
+	 */
+	private Map<INode, IAttribute> numericalAttributes;
 	
 	/**
 	 * The meta info of the node.
@@ -81,11 +89,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
 
-	public Node(ENodeType nodeType, int dataSetId, Map<String,String> meta) {
+	public Node(ENodeType nodeType, int dataSetId) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
-		this.meta = meta;
 	}
 	
 	/**
@@ -94,7 +101,11 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * @param children List of children
 	 * @param attributes Map of INode and IAttributes
 	 */
-	public Node(ENodeType nodeType, Collection<INode> children, Map<INode, IAttribute> attributes, double categoryUtility, Map<String, String> meta) {
+	public Node(ENodeType nodeType,
+			Collection<INode> children,
+			Map<INode, IAttribute> numericalAttributes, 
+			Map<INode, IAttribute> nominalAttributes,
+			double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
 			for (INode child : children) {
@@ -102,20 +113,20 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				child.setParent(this);
 			}	
 		}
-		this.attributes = attributes;
+		this.numericalAttributes = numericalAttributes;
+		this.nominalAttributes = nominalAttributes;
 		this.dataSetId = null;
 		this.categoryUtility = categoryUtility;
-		this.meta = meta;
 	}
 
 	@Override
-	public String getAttributesString() {
+	public String getNumericalAttributesString() {
 
-		List<INode> keyList = new ArrayList<INode>(attributes.keySet());
+		List<INode> keyList = new ArrayList<INode>(numericalAttributes.keySet());
 		Collections.sort(keyList, new NodeIdComparator());
 		String s = "";
 		for (INode node : keyList) {
-			s = s.concat(node.toString()).concat(": ").concat(attributes.get(node).toString()).concat(";\t");
+			s = s.concat(node.toString()).concat(": ").concat(numericalAttributes.get(node).toString()).concat(";\t");
 		}
 
 		if (s.length() == 0) {
@@ -184,32 +195,36 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public void setAttributes(Map<INode, IAttribute> movies) {
+	public void setNumericalAttributes(Map<INode, IAttribute> attributes) {
 		dirtySet.add(this);
-		this.attributes = movies;
+		this.numericalAttributes = attributes;
+	}
+	
+	@Override
+	public void setNominalAttributes(Map<INode, IAttribute> attributes) {
+		dirtySet.add(this);
+		this.nominalAttributes = attributes;
 	}
 
 	@Override
-	public Set<INode> getAttributeKeys() {
-		return Collections.unmodifiableSet(attributes.keySet());
+	public Set<INode> getNumericalAttributeKeys() {
+		return Collections.unmodifiableSet(numericalAttributes.keySet());
+	}
+	
+	@Override
+	public Set<INode> getNominalAttributeKeys() {
+		return Collections.unmodifiableSet(nominalAttributes.keySet());
 	}
 
 	@Override
 	public IAttribute getAttributeValue(INode node) {
-		return attributes.get(node);
+		IAttribute a = numericalAttributes.get(node);
+		if (a == null) {
+			a = nominalAttributes.get(node);
+		}
+		return a;
 	}
 	
-//	@Override
-//	public String getAttributesType() {
-//		// hack
-//		String type = "";
-//		Set<INode> attributeKeys = attributes.keySet();
-//		for(INode attributeKey : attributeKeys) {
-//			type = attributes.get(attributeKey).get;
-//		}
-//		return type;
-//	}
-
 	@Override
 	public String toString() {
 		return getNodeType().toString().concat(" Node").concat(" ").concat(String.valueOf(id));
@@ -221,9 +236,15 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public void addAttribute(INode node, IAttribute attribute) {
+	public void addNominalAttribute(INode node, IAttribute attribute) {
 		dirtySet.add(this);
-		attributes.put(node, attribute);		
+		nominalAttributes.put(node, attribute);		
+	}
+	
+	@Override
+	public void addNumericalAttribute(INode node, IAttribute attribute) {
+		dirtySet.add(this);
+		numericalAttributes.put(node, attribute);		
 	}
 
 	@Override
@@ -233,14 +254,21 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public boolean hasAttribute(INode attribute) {
-		return attributes.containsKey(attribute);
+		boolean b = numericalAttributes.containsKey(attribute);
+		if (b == false) {
+			b = nominalAttributes.containsKey(attribute);
+		}
+		return b;
 	}
 
 	@Override
 	public IAttribute removeAttribute(INode attribute) {
 		dirtySet.add(this);
-		return attributes.remove(attribute);
-
+		IAttribute a = numericalAttributes.remove(attribute);
+		if (a == null) {
+			a = nominalAttributes.remove(attribute);
+		}
+		return a;
 	}	
 
 	@Override
@@ -283,52 +311,65 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		List<INode> merge = new ArrayList<INode>();
 		merge.add(this);
 
-
-//		Set<INode> attributeKeys = getAttributeKeys();
-		List<Node> atKeyLi = new ArrayList(attributes.keySet());
-		Collections.sort(atKeyLi);
-		if (attributes.values().iterator().next() instanceof ClassitAttribute) {
-			// Header
-			description += "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td><td>meta</td></tr>";
-
-			// Data
-			for(INode attributeKey : atKeyLi) {
-				 
-				IAttribute attributeValue = getAttributeValue(attributeKey);
-				description += "<tr><td>" + attributeKey.getId() + "</td>" +
-						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-						"<td>" + attributeKey.getNodeType() + "</td>"+
-        				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
-        				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
-        				"<td>" + attributeValue.getSupport()+ "</td>" +
-        				"<td>" + attributeKey.getMeta() + "</td>" +
-        				"</tr>";
-			}
+		if (numericalAttributes.size() > 0) {
+			List<Node> atKeyLi = new ArrayList(numericalAttributes.keySet());
+			Collections.sort(atKeyLi);	
+			description += createNumericalAttributesHTMLTable(atKeyLi, formater);
 		}
-		if (attributes.values().iterator().next() instanceof CobwebAttribute) {
-			// Header
-			description += "<td>attr</td><td>data set id</td><td>type</td><td width='150'>value -> probability</td></tr>";
-
-			// Data
-			for(INode attributeKey : atKeyLi) {
-				
-				IAttribute attributeValue = getAttributeValue(attributeKey);
-				description += "<tr><td>" + attributeKey.getId() + "</td>" +
-							"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-							"<td>" + attributeKey.getNodeType().toString() + "</td>";
-				Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
-				description += "<td>";
-				while ( values.hasNext() ){
-					Entry<Object,Double> tempEntry = values.next();
-					description += tempEntry.getKey().toString() + " -> " +
-							formater.format(tempEntry.getValue().doubleValue()) + "<br>";
-
-				}
-
-				description += "</td></tr>";
-			}
+		
+		if (nominalAttributes.size() > 0) {
+			List<Node> atKeyLi = new ArrayList(nominalAttributes.keySet());
+			Collections.sort(atKeyLi);	
+			description += createNominalAttributesHTMLTable(atKeyLi, formater);
 		}
 		return description += "</table></body></html>";
+	}
+	
+	private String createNominalAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
+		// Header
+		String description = "<td>attr</td><td>data set id</td><td>type</td><td width='150'>value -> probability</td></tr>";
+
+		// Data
+		for(INode attributeKey : attributes) {
+			
+			IAttribute attributeValue = getAttributeValue(attributeKey);
+			description += "<tr><td>" + attributeKey.getId() + "</td>" +
+						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
+						"<td>" + attributeKey.getNodeType().toString() + "</td>";
+			Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
+			description += "<td>";
+			while ( values.hasNext() ){
+				Entry<Object,Double> tempEntry = values.next();
+				description += tempEntry.getKey().toString() + " -> " +
+						formater.format(tempEntry.getValue().doubleValue()) + "<br>";
+
+			}
+
+			description += "</td></tr>";
+		}
+		return description;
+	}
+	
+	private String createNumericalAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
+		// Header
+		String description = "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td><td>meta</td></tr>";
+		List<INode> merge = new ArrayList<INode>();
+		merge.add(this);
+		// Data
+		for(INode attributeKey : attributes) {
+			 
+			IAttribute attributeValue = getAttributeValue(attributeKey);
+			description += "<tr><td>" + attributeKey.getId() + "</td>" +
+					"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
+					"<td>" + attributeKey.getNodeType() + "</td>"+
+    				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
+    				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
+    				"<td>" + attributeValue.getSupport()+ "</td>" +
+    				"<td>" + attributeKey.getMeta() + "</td>" +
+    				"</tr>";
+		}
+		return description;
+
 	}
 	
 	private String getSimpleDataSetIdString(INode node) {

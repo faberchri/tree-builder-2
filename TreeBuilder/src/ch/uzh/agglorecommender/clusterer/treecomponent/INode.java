@@ -8,21 +8,38 @@ import java.util.Set;
 public interface INode {
 		
 	/**
-	 * Sets the attribute map of this node to {@code attributes}.
+	 * Sets the nominal attribute map of this node to {@code attributes}.
 	 * 
-	 * @param attributes the new attribute map for this node.
+	 * @param attributes the new nominal attribute map for this node.
 	 */
-	public void setAttributes(Map<INode, IAttribute> attributes);
+	public void setNominalAttributes(Map<INode, IAttribute> attributes);
+	
+	/**
+	 * Sets the numerical attribute map of this node to {@code attributes}.
+	 * 
+	 * @param attributes the new numerical attribute map for this node.
+	 */
+	public void setNumericalAttributes(Map<INode, IAttribute> attributes);
 	
 	/**
 	 * Adds a new entry (INode-IAttribute-key-value-pair)
-	 * to the attribute map of this node. A previously
+	 * to the numerical attribute map of this node. A previously
 	 * existing mapping for the key (INode) is replaced.
 	 * 
-	 * @param key the key for the node attribute mapping
+	 * @param key the key for the numerical node attribute mapping
 	 * @param value the value for the node attribute mapping.
 	 */
-	public void addAttribute(INode key, IAttribute value);
+	public void addNumericalAttribute(INode key, IAttribute value);
+	
+	/**
+	 * Adds a new entry (INode-IAttribute-key-value-pair)
+	 * to the nominal attribute map of this node. A previously
+	 * existing mapping for the key (INode) is replaced.
+	 * 
+	 * @param key the key for the nominal node attribute mapping
+	 * @param value the value for the node attribute mapping.
+	 */
+	public void addNominalAttribute(INode key, IAttribute value);
 	
 	/**
 	 * Gets the attribute value for the passed {@code node}.
@@ -34,12 +51,20 @@ public interface INode {
 	public IAttribute getAttributeValue(INode node);
 	
 	/**
-	 * Gets all nodes from the attribute map of this node.
+	 * Gets all nodes from the numerical attribute map of this node.
 	 * 
 	 * @return an unmodifiable set with all nodes (keys)
-	 * contained in this nodes attribute map.
+	 * contained in this nodes numerical attribute map.
 	 */
-	public Set<INode> getAttributeKeys();
+	public Set<INode> getNumericalAttributeKeys();
+	
+	/**
+	 * Gets all nodes from the nominal attribute map of this node.
+	 * 
+	 * @return an unmodifiable set with all nodes (keys)
+	 * contained in this nodes nominal attribute map.
+	 */
+	public Set<INode> getNominalAttributeKeys();
 	
 //	/**
 //	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
@@ -165,11 +190,11 @@ public interface INode {
 	public int getNumberOfLeafNodes();
 	
 	/**
-	 * Gets a string representation of the nodes attribute map.
+	 * Gets a string representation of the nodes numerical attribute map.
 	 * 
-	 * @return string representation of the nodes attribute map.
+	 * @return string representation of the nodes numerical attribute map.
 	 */
-	public String getAttributesString();
+	public String getNumericalAttributesString();
 	
 	/**
 	 * Gets the id of the node.
