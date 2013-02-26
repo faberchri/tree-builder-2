@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -64,72 +65,23 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	}
 
 	@Override
-	public IAttribute createSymbolicAttribute(int support, String key,
+	public IAttribute createNominalAttribute(int support, String key,
 			String value) {
 		return  new ClassitAttribute(support, 0,0, null);
 	}
 
-
-// ----------------------------------  For deletion ---------------------------------------------------
-
-//	/**
-//	 * Here attributes are finally combined, calculation of average, stddev, support, .. is done here
-//	 */
-//	private IAttribute calcAttributeValues(List<IAttribute> attributesToCombine) {
-//		
-//		// No Attributes
-//		if (attributesToCombine.size() == 0) {
-//			System.err.println("attempt to combine 0 attributes, "+getClass().getSimpleName());
-//			System.exit(-1);
-//		}
-//		
-//		// Only one occurrence of ClassitAttribute
-//		if (attributesToCombine.size() == 1) {
-//			IAttribute a = attributesToCombine.get(0);
-//			return new ClassitAttribute(a.getAverage(), a.getStdDev(), a.getSupport(), a.getConsideredRatings());
-//		}
-//		
-//		// ??? #####################################################
-////		int sizeOfNewLeafList = 0;
-////		for (IAttribute attribute : attributesToCombine) {
-////			sizeOfNewLeafList += attribute.getConsideredRatings().size();
-////		}		
-////		Double[] tmpAr = new Double[sizeOfNewLeafList];
-////		int prevAttLength = 0;
-////		for (IAttribute attribute : attributesToCombine) {
-////			System.arraycopy(attribute.getConsideredRatings(), 0, tmpAr, prevAttLength, attribute.getConsideredRatings().size());
-////		}
-//		// ??? #####################################################
-//		
-//		// Determine Considered Ratings
-//		ArrayList<Double> tmpAr = new ArrayList<Double>();
-//		for (IAttribute attribute : attributesToCombine) {
-//			tmpAr.addAll(attribute.getConsideredRatings());
-//		}
-//		
-//		// Average
-//		double tmpAvg = 0.0;
-//		for (Double avgLi : tmpAr) {
-//			tmpAvg += avgLi;
-//		}
-//		tmpAvg = tmpAvg / tmpAr.size();
-//		
-//		// Support
-//		int tmpSup = 0;
-//		for (IAttribute attribute : attributesToCombine) {
-//			 tmpSup += attribute.getSupport();
-//		}
-//		
-//		// Standard Deviation
-//		double tmpStD = 0.0;
-//		for (Double avgLi : tmpAr) {
-//			tmpStD += Math.pow((avgLi - tmpAvg),2.0);
-//		}
-//		tmpStD = Math.sqrt(tmpStD/(tmpAr.size() - 1.0));
-////		
-//		//Double[] doubleArray = ArrayUtils.toObject(tmpAr);
-//		
-//		return new ClassitAttribute(tmpAvg, tmpStD, tmpSup, tmpAr);
-//	}
+	@Override
+	protected Map<INode, IAttribute> collectAttributes(
+			Collection<INode> nodesToMerge) {
+		
+		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
+		for (INode node : nodesToMerge) {
+			for (INode attNodes : node.getNumericalAttributeKeys()) {
+				allAttributes.put(attNodes, null);
+			}			
+		}		
+		
+		return allAttributes;
+	}
 
 }

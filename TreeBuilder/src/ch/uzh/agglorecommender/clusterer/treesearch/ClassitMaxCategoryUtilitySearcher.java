@@ -39,7 +39,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 		Set<INode> allAttributes = new HashSet<INode>();
 
 		for (INode node : possibleMerge) {
-			allAttributes.addAll(node.getAttributeKeys());
+			allAttributes.addAll(node.getNumericalAttributeKeys());
 		}
 
 		double utility = 0.0;

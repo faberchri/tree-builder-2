@@ -87,7 +87,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param meta meta information
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createSymbolicAttribute(int support, String key, String value); // single node
+	public abstract IAttribute createNominalAttribute(int support, String key, String value); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute
@@ -106,12 +106,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	private  Map<INode,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
 		
 		// Collect the combined attributes of all nodes that should be merged
-		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
-		for (INode node : nodesToMerge) {
-			for (INode attNodes : node.getAttributeKeys()) {
-				allAttributes.put(attNodes, null);
-			}			
-		}
+		Map<INode, IAttribute> allAttributes = collectAttributes(nodesToMerge);
 		
 		// Create merged attributes of all attributes with multiple instances
 		for (Map.Entry<INode, IAttribute> entry : allAttributes .entrySet()) {
@@ -125,5 +120,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		}
 		return allAttributes;		
 	}
+	
+	protected abstract Map<INode, IAttribute> collectAttributes(Collection<INode> nodesToMerge);
 
 }

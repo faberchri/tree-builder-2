@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
@@ -57,10 +58,23 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 
 	@Override
-	public IAttribute createSymbolicAttribute(int support, String key,
+	public IAttribute createNominalAttribute(int support, String key,
 			String value) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected Map<INode, IAttribute> collectAttributes(
+			Collection<INode> nodesToMerge) {
+		
+		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
+		for (INode node : nodesToMerge) {
+			for (INode attNodes : node.getNominalAttributeKeys()) {
+				allAttributes.put(attNodes, null);
+			}			
+		}		
+		
+		return allAttributes;
 	}
 
 }
