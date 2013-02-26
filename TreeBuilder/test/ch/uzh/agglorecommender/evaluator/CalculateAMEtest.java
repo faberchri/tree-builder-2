@@ -68,7 +68,7 @@ public class CalculateAMEtest {
 	
 	System.out.println("Prediction: "+predictionMap.toString());
 	
-	double calcResult = 20;
+	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
         Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
@@ -133,7 +133,7 @@ public class CalculateAMEtest {
 	
 	System.out.println("Prediction: "+predictionMap.toString());
 	
-	double calcResult = 20;
+	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
         Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
@@ -197,7 +197,7 @@ public class CalculateAMEtest {
 	
 	System.out.println("Prediction: "+predictionMap.toString());
 	
-	double calcResult = 20;
+	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
         Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
@@ -261,7 +261,7 @@ public class CalculateAMEtest {
 	
 	System.out.println("Prediction: "+predictionMap.toString());
 	
-	double calcResult = 20;
+	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
         Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
@@ -325,7 +325,7 @@ public class CalculateAMEtest {
 	
 	System.out.println("Prediction: "+predictionMap.toString());
 	
-	double calcResult = 20;
+	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
         Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
