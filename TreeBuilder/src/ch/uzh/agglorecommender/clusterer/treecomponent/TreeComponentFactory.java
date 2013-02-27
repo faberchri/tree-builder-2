@@ -84,7 +84,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		
 		// Create merged attributes of all attributes with multiple instances
 		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
-			IAttribute newAtt = createMergedNominalAttribute(entry.getKey(), nodesToMerge);
+			IAttribute newAtt = createMergedAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
 		if (allAttributes.containsValue(null)) {
@@ -105,7 +105,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		
 		// Create merged attributes of all attributes with multiple instances
 		for (Map.Entry<INode, IAttribute> entry : allAttributes .entrySet()) {
-			IAttribute newAtt = createMergedNominalAttribute(entry.getKey(), nodesToMerge);
+			IAttribute newAtt = createMergedAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
 		if (allAttributes.containsValue(null)) {
@@ -145,20 +145,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createMergedNumericalAttribute(INode node, Collection<INode> nodesToMerge);
-	
-	/**
-	 * Creates a new {@code IAttribute} object for the specified attribute
-	 * (e.g. User_A) based on the list of nodes to merge
-	 * (e.g. Movie_1, Movie_2, Movie_3).
-	 *
-	 * 
-	 * @param nodesToMerge list of {@code INode} objects that are merged.
-	 * @param object the attribute key of the new attribute object.
-	 * 
-	 * @return a new instance of an {@code IAttribute} object.
-	 */
-	public abstract IAttribute createMergedNominalAttribute(Object object, Collection<INode> nodesToMerge);
+	public abstract IAttribute createMergedAttribute(Object object, Collection<INode> nodesToMerge);
 
 	
 //	private  Map<Object,IAttribute> createAttMap(Collection<INode> nodesToMerge, Method method, Method numericMergeMethod) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {

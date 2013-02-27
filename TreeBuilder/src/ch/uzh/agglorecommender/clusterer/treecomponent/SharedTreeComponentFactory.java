@@ -5,6 +5,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.util.TBLogger;
+
+import com.google.common.collect.ImmutableMap;
+
 public class SharedTreeComponentFactory extends TreeComponentFactory implements Serializable {
 
 	/**
@@ -72,40 +78,35 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 		return new SharedAttribute(support, 0,0, valueMap);
 	}
 
-//	/**
-//	 * Used to calculate new nodes in the merging process (numeric, nominal)
-//	 * 
-//	 * @return IAttribute new IAttribute object
-//	 */
-//	@Override
-//	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
-//		
-//		if(attributeKey.getNodeType() != ENodeType.Nominal){
-//			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedNumericalAttribute(attributeKey, nodesToMerge);
-//			return new SharedAttribute(generated.getSupport(), generated.getSumOfRatings(), generated.getSumOfSquaredRatings(), null, generated.getMeta());
-//		}
-//		else {
-//			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedNumericalAttribute(attributeKey, nodesToMerge);
-//			Map<Object,Double> valueMap = new HashMap<Object,Double>();
-//			while(generated.getProbabilities().hasNext()){
-//				Entry<Object, Double> entry = generated.getProbabilities().next();
-//				valueMap.put(entry.getKey(), entry.getValue());
-//			}
-//			return new SharedAttribute(2, 0, 0, valueMap); // FIXME support
-//		}
-//	}
-
 	@Override
-	public IAttribute createMergedNumericalAttribute(INode node,
+	public IAttribute createMergedAttribute(Object object,
 			Collection<INode> nodesToMerge) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IAttribute createMergedNominalAttribute(Object object,
-			Collection<INode> nodesToMerge) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		INode attributeKey = (INode) object;
+		
+		// Merge Numeric
+		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
+		if (support < 1) {
+			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
+			System.exit(-1);
+		}
+		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, nodesToMerge);
+//		double average = sumOfRatings / (double) support;
+		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
+//		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
+		
+		// Merge Nominal
+		int totalLeafCount = 0;
+		for (INode node : nodesToMerge) {
+			totalLeafCount += node.getNumberOfLeafNodes();
+		}
+		Map<Object, Double> attMap = ImmutableMap.copyOf(
+				CobwebMaxCategoryUtilitySearcher
+					.calculateAttributeProbabilities(
+							(INode)object, nodesToMerge, totalLeafCount
+					)
+				);
+		
+		return new SharedAttribute(support, sumOfRatings, sumOfSquaredRatings, attMap);
 	}		
 }

@@ -45,7 +45,7 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 
 	@Override
-	public IAttribute createMergedNominalAttribute(Object object, Collection<INode> nodesToMerge) {
+	public IAttribute createMergedAttribute(Object object, Collection<INode> nodesToMerge) {
 		int totalLeafCount = 0;
 		for (INode node : nodesToMerge) {
 			totalLeafCount += node.getNumberOfLeafNodes();
@@ -58,12 +58,5 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 				);
 		
 		return new CobwebAttribute(attMap);
-	}
-
-	@Override
-	public IAttribute createMergedNumericalAttribute(INode node,
-			Collection<INode> nodesToMerge) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

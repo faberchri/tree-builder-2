@@ -51,7 +51,9 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to calculate new nodes in the merging process
 	 */
 	@Override
-	public IAttribute createMergedNumericalAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+	public IAttribute createMergedAttribute(Object object, Collection<INode> nodesToMerge) {
+		
+		INode attributeKey = (INode) object;
 		
 		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
 		if (support < 1) {
@@ -63,16 +65,7 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
 //		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 
-//		Map<String,String> meta = attributeKey.getMeta();
-
 		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);
-	}
-
-	@Override
-	public IAttribute createMergedNominalAttribute(Object object,
-			Collection<INode> nodesToMerge) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
