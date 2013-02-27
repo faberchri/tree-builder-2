@@ -282,14 +282,14 @@ public final class RecommendationBuilder {
 	 * @param direction defines if best or worst recommendations are returned (1=best,0=worst)
 	 * @param limit defines the number of returned recommendations
 	 */
-	public SortedMap<IAttribute,INode> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
+	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 		
 		// FIXME sollte hier Comparator verwenden http://www.roseindia.net/java/example/java/util/sortedmap.shtml
 		
-		SortedMap<IAttribute,INode> finalRecommendation = new TreeMap<IAttribute,INode>(ratingComparator);
+		SortedMap<INode,IAttribute> finalRecommendation = new TreeMap<INode,IAttribute>(ratingComparator);
 		
 		for(INode node : unsortedRecommendation.keySet()){
-			finalRecommendation.put(unsortedRecommendation.get(node),node);
+			finalRecommendation.put(node, unsortedRecommendation.get(node));
 		}
 		
 	    System.out.println(finalRecommendation); 
