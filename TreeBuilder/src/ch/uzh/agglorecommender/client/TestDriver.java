@@ -3,9 +3,9 @@ package ch.uzh.agglorecommender.client;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
@@ -109,13 +109,13 @@ public class TestDriver {
 		Map<String,String> testDemographics = eb.defineDemographics(); // Demographics
 		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
 		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation
-		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		SortedMap<INode,IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
 		
 		if(sortedRecommendation != null){
 			System.out.println("=> Recommended Movies: ");
-			for(IAttribute recommendation: sortedRecommendation){
+			for(INode recommendation: sortedRecommendation.keySet()){
 				if(recommendation.getMeta() != null){
-					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + recommendation.getMeanOfRatings());
+					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + sortedRecommendation.get(recommendation).getMeanOfRatings());
 				}
 			}
 		}

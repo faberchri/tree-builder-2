@@ -1,11 +1,13 @@
 package ch.uzh.agglorecommender.recommender;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -280,53 +282,73 @@ public final class RecommendationBuilder {
 	 * @param direction defines if best or worst recommendations are returned (1=best,0=worst)
 	 * @param limit defines the number of returned recommendations
 	 */
-	public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
+	public SortedMap<IAttribute,INode> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 		
-		// Create Array from Map
-		IAttribute[] sortedRecommendation = new IAttribute[unsortedRecommendation.size()];
-		int x = 0;
-		for(INode recommendation : unsortedRecommendation.keySet()) {
-			IAttribute attribute = unsortedRecommendation.get(recommendation);
-			sortedRecommendation[x] = attribute;
-			x++;
+		// FIXME sollte hier Comparator verwenden http://www.roseindia.net/java/example/java/util/sortedmap.shtml
+		
+		SortedMap<IAttribute,INode> finalRecommendation = new TreeMap<IAttribute,INode>(ratingComparator);
+		
+		for(INode node : unsortedRecommendation.keySet()){
+			finalRecommendation.put(unsortedRecommendation.get(node),node);
 		}
 		
-		// Insertion Sort
-		int i;
-		IAttribute temp;
-
-		for (int f = 1; f < sortedRecommendation.length; f++) {
-			
-			IAttribute newRating = sortedRecommendation[f];
-			IAttribute insertedRating = sortedRecommendation[f-1];
-			
-			if (newRating.getMeanOfRatings() > insertedRating.getMeanOfRatings()) continue;
-			temp = sortedRecommendation[f];
-			i    = f-1;
-			
-			while ((i >= 0)&&(sortedRecommendation[i].getMeanOfRatings() > temp.getMeanOfRatings())) {
-				sortedRecommendation[i+1] = sortedRecommendation[i];
-				i--;
-			}
-			sortedRecommendation[i+1]=temp;
-		}
+	    System.out.println(finalRecommendation); 
+	    
+	    return finalRecommendation;
 		
-		// Limit
-		ArrayList<IAttribute> finalRecommendation = new ArrayList<IAttribute>();
-		for(int j = 0; j < limit; j++){
-			if(j < sortedRecommendation.length){
-				
-				// Returns the best
-				if(direction == 1){
-					finalRecommendation.add(sortedRecommendation[sortedRecommendation.length-1-j]);
-				}
-				// Returns the worst
-				else if(direction == 0){
-					finalRecommendation.add(sortedRecommendation[j]);
-				}
-			}
-		}
-		
-		return finalRecommendation;
+//		// Create Array from Map
+//		IAttribute[] sortedRecommendation = new IAttribute[unsortedRecommendation.size()];
+//		int x = 0;
+//		for(INode recommendation : unsortedRecommendation.keySet()) {
+//			IAttribute attribute = unsortedRecommendation.get(recommendation);
+//			sortedRecommendation[x] = attribute;
+//			x++;
+//		}
+//		
+//		// Insertion Sort
+//		int i;
+//		IAttribute temp;
+//
+//		for (int f = 1; f < sortedRecommendation.length; f++) {
+//			
+//			IAttribute newRating = sortedRecommendation[f];
+//			IAttribute insertedRating = sortedRecommendation[f-1];
+//			
+//			if (newRating.getMeanOfRatings() > insertedRating.getMeanOfRatings()) continue;
+//			temp = sortedRecommendation[f];
+//			i    = f-1;
+//			
+//			while ((i >= 0)&&(sortedRecommendation[i].getMeanOfRatings() > temp.getMeanOfRatings())) {
+//				sortedRecommendation[i+1] = sortedRecommendation[i];
+//				i--;
+//			}
+//			sortedRecommendation[i+1]=temp;
+//		}
+//		
+//		// Limit
+//		SortedMap<INode,IAttribute> finalRecommendation = new ArrayList<IAttribute>();
+//		for(int j = 0; j < limit; j++){
+//			if(j < sortedRecommendation.length){
+//				
+//				// Returns the best
+//				if(direction == 1){
+//					finalRecommendation.add(sortedRecommendation[sortedRecommendation.length-1-j]);
+//				}
+//				// Returns the worst
+//				else if(direction == 0){
+//					finalRecommendation.add(sortedRecommendation[j]);
+//				}
+//			}
+//		}
+//		
+//		return finalRecommendation;
 	}
+	
+	Comparator<IAttribute> ratingComparator = new Comparator<IAttribute>() {
+        @Override public int compare(IAttribute a1, IAttribute a2) {
+            if (a1.getMeanOfRatings() < a2.getMeanOfRatings()) return -1;
+            if (a1.getMeanOfRatings() > a2.getMeanOfRatings()) return 1;
+            return 0;
+        }           
+    };
 }

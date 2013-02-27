@@ -57,7 +57,15 @@ public class MetaDatasetItem<T extends Map<String,String>> implements IDatasetIt
 		return contentId;
 	}
 
-	protected Map<Object, Object> getMetaMap() {
+	@Override
+	public Map<Object, Object> getUserMetaMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<Object, Object> getContentMetaMap() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	

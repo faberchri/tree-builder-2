@@ -71,8 +71,8 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * @return true if {@code attribute} appears in all nodes of {@code possibleMerge}, else false.
 	 */
 	private boolean isAttributeKnownToAllMergeNodes(INode attribute, Collection<INode> possibleMerge) {
-		for (INode iNode : possibleMerge) {
-			if (iNode.getAttributeValue(attribute) == null) {
+		for (INode node : possibleMerge) {
+			if (node.getAttributeValue(attribute) == null) {
 				return false;
 			}
 		}

@@ -53,11 +53,17 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	public int getContentId() {
 		return contentId;
 	}
-	
-	@Override
-	public Map<Object, Object> getMetaMap() {
-		// TODO Auto-generated method stub
 
+	@Override
+	public Map<Object, Object> getUserMetaMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<Object, Object> getContentMetaMap() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

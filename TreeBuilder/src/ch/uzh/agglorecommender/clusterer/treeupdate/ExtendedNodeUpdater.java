@@ -29,26 +29,26 @@ public class ExtendedNodeUpdater implements INodeUpdater, Serializable {
 		for (INode attNode : newNode.getNumericalAttributeKeys()) {			
 			// Update Node if it is in collection of nodes that should be updated
 			if (nodesToUpdate.contains(attNode)) {
-				attNode.addNumericalAttribute(newNode, newNode.getAttributeValue(attNode));
+				attNode.addNumericalAttribute(newNode, newNode.getNumericalAttributeValue(attNode));
 				
 				// Remove children of new node from nodes of the other tree
 				Iterator<INode> mergedNodes = newNode.getChildren();
 				while(mergedNodes.hasNext()){
-					attNode.removeAttribute(mergedNodes.next());
+					attNode.removeNumericalAttribute(mergedNodes.next());
 				}
 				log.finest(attNode.toString() + " updated with " + newNode);
 			}
 		}
 		
-		for (INode attNode : newNode.getNominalAttributeKeys()) {			
+		for (Object attNode : newNode.getNominalAttributeKeys()) {			
 			// Update Node if it is in collection of nodes that should be updated
 			if (nodesToUpdate.contains(attNode)) {
-				attNode.addNominalAttribute(newNode, newNode.getAttributeValue(attNode));
+				((INode) attNode).addNominalAttribute(newNode, newNode.getNominalAttributeValue(attNode));
 				
 				// Remove children of new node from nodes of the other tree
 				Iterator<INode> mergedNodes = newNode.getChildren();
 				while(mergedNodes.hasNext()){
-					attNode.removeAttribute(mergedNodes.next());
+					((INode) attNode).removeNominalAttribute(mergedNodes.next());
 				}
 				log.finest(attNode.toString() + " updated with " + newNode);
 			}
