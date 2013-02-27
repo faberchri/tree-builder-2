@@ -35,7 +35,7 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 **/
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
 				
-		Set<INode> allAttributes = new HashSet<INode>();
+		Set<Object> allAttributes = new HashSet<Object>();
 		int totalLeafCount = 0;
 		for (INode node : possibleMerge) {
 			allAttributes.addAll(node.getNominalAttributeKeys());
@@ -43,8 +43,8 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		}
 		
 		List<Double> probabilities = new ArrayList<Double>();		
-		for (INode node : allAttributes) {
-			probabilities.addAll(calculateAttributeProbabilities(node, possibleMerge, totalLeafCount).values());
+		for (Object node : allAttributes) {
+			probabilities.addAll(calculateAttributeProbabilities((INode) node, possibleMerge, totalLeafCount).values());
 		}
 		if (probabilities.size() == 0) {
 			return -Double.MAX_VALUE;
