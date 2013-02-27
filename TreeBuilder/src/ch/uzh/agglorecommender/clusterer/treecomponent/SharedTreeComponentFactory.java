@@ -45,7 +45,7 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 		
 		// Create merged attributes of all attributes with multiple instances
 		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
-			IAttribute newAtt = factory.createMergedAttribute(entry.getKey(), nodesToMerge);
+			IAttribute newAtt = factory.createMergedNumericAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
 		if (allAttributes.containsValue(null)) {
@@ -102,11 +102,11 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		
 		if(attributeKey.getNodeType() != ENodeType.Nominal){
-			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedNumericAttribute(attributeKey, nodesToMerge);
 			return new SharedAttribute(generated.getSupport(), generated.getSumOfRatings(), generated.getSumOfSquaredRatings(), null, generated.getMeta());
 		}
 		else {
-			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedAttribute(attributeKey, nodesToMerge);
+			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedNumericAttribute(attributeKey, nodesToMerge);
 			Map<Object,Double> valueMap = new HashMap<Object,Double>();
 			while(generated.getProbabilities().hasNext()){
 				Entry<Object, Double> entry = generated.getProbabilities().next();

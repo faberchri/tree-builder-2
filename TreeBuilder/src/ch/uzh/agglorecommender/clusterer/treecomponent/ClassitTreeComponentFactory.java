@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
@@ -70,18 +69,18 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 		return  new ClassitAttribute(support, 0,0, null);
 	}
 
-	@Override
-	protected Map<Object, IAttribute> collectAttributes(
-			Collection<INode> nodesToMerge) {
-		
-		Map<Object, IAttribute> allAttributes = new HashMap<Object, IAttribute>();
-		for (INode node : nodesToMerge) {
-			for (INode attNodes : node.getNumericalAttributeKeys()) {
-				allAttributes.put(attNodes, null);
-			}			
-		}		
-		
-		return allAttributes;
-	}
+//	@Override
+//	protected Map<Object, IAttribute> collectAttributes(
+//			Collection<INode> nodesToMerge) {
+//		
+//		Map<Object, IAttribute> allAttributes = new HashMap<Object, IAttribute>();
+//		for (INode node : nodesToMerge) {
+//			for (INode attNodes : node.getNumericalAttributeKeys()) {
+//				allAttributes.put(attNodes, null);
+//			}			
+//		}		
+//		
+//		return allAttributes;
+//	}
 
 }
