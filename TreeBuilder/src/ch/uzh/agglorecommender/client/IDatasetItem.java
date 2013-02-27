@@ -1,5 +1,7 @@
 package ch.uzh.agglorecommender.client;
 
+import java.util.Map;
+
 /**
  * 
  * A data item is a single rating for one content item of one user.
@@ -28,5 +30,9 @@ public interface IDatasetItem<T> {
 	 * @return the rating
 	 */
 	public T getValue(); // i.e. rating
+
+	public Map<Object, Object> getUserMetaMap();
+	
+	public Map<Object, Object> getContentMetaMap();
 	
 }

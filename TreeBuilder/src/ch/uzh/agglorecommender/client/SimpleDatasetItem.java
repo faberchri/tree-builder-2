@@ -1,5 +1,7 @@
 package ch.uzh.agglorecommender.client;
 
+import java.util.Map;
+
 /**
  * Basic implementation of the {@code IDatasetItem} interface.
  * Stores user id - content id - rating combinations
@@ -50,6 +52,12 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	@Override
 	public int getContentId() {
 		return contentId;
+	}
+	
+	@Override
+	public Map<Object, Object> getMetaMap() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

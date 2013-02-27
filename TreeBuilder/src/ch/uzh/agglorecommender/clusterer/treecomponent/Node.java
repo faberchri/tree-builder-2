@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<INode, IAttribute> nominalAttributes;
+	private Map<Object, IAttribute> nominalAttributes;
 	
 	/**
 	 * The rating attributes of the node 
@@ -57,11 +58,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private Map<INode, IAttribute> numericalAttributes;
 	
-	/**
-	 * The meta info of the node.
-	 */
-	private Map<String, String> meta;
-
 	/**
 	 * The children of this node.
 	 */
@@ -104,7 +100,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public Node(ENodeType nodeType,
 			Collection<INode> children,
 			Map<INode, IAttribute> numericalAttributes, 
-			Map<INode, IAttribute> nominalAttributes,
+			Map<Object, IAttribute> nominalAttributes,
 			double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
@@ -134,10 +130,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		} else {
 			return s.substring(0, s.length()-1);
 		}
-	}
-
-	public Map<String, String> getMeta() {
-		return meta;
 	}
 
 	@Override
@@ -201,7 +193,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 	
 	@Override
-	public void setNominalAttributes(Map<INode, IAttribute> attributes) {
+	public void setNominalAttributes(Map<Object, IAttribute> attributes) {
 		dirtySet.add(this);
 		this.nominalAttributes = attributes;
 	}
@@ -212,19 +204,20 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 	
 	@Override
-	public Set<INode> getNominalAttributeKeys() {
+	public Set<Object> getNominalAttributeKeys() {
 		return Collections.unmodifiableSet(nominalAttributes.keySet());
 	}
 
 	@Override
-	public IAttribute getAttributeValue(INode node) {
-		IAttribute a = numericalAttributes.get(node);
-		if (a == null) {
-			a = nominalAttributes.get(node);
-		}
-		return a;
+	public IAttribute getNumericalAttributeValue(INode node) {
+		return numericalAttributes.get(node);
 	}
-	
+
+	@Override
+	public IAttribute getNominalAttributeValue(Object attribute) {
+		return nominalAttributes.get(attribute);
+	}
+
 	@Override
 	public String toString() {
 		return getNodeType().toString().concat(" Node").concat(" ").concat(String.valueOf(id));
@@ -236,9 +229,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public void addNominalAttribute(INode node, IAttribute attribute) {
+	public void addNominalAttribute(Object key, IAttribute value) {
 		dirtySet.add(this);
-		nominalAttributes.put(node, attribute);		
+		nominalAttributes.put(key, value);		
 	}
 	
 	@Override
@@ -262,13 +255,15 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public IAttribute removeAttribute(INode attribute) {
+	public IAttribute removeNumericalAttribute(INode attribute) {
 		dirtySet.add(this);
-		IAttribute a = numericalAttributes.remove(attribute);
-		if (a == null) {
-			a = nominalAttributes.remove(attribute);
-		}
-		return a;
+		return numericalAttributes.remove(attribute);
+	}
+	
+	@Override
+	public IAttribute removeNominalAttribute(Object attribute) {
+		dirtySet.add(this);
+		return nominalAttributes.remove(attribute);
 	}	
 
 	@Override
@@ -318,24 +313,35 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		
 		if (nominalAttributes.size() > 0) {
-			List<Node> atKeyLi = new ArrayList(nominalAttributes.keySet());
-			Collections.sort(atKeyLi);	
+			List<Object> atKeyLi = new ArrayList(nominalAttributes.keySet());
+			Collections.sort(atKeyLi, new Comparator<Object>() {
+				@Override
+				public int compare(Object o1, Object o2) {			
+					if (o1 instanceof Comparable && o2 instanceof Comparable) {
+						if (o1.getClass().equals(o2.getClass())) {
+							Comparable c1 = (Comparable) o1;
+							Comparable c2 = (Comparable) o2;
+							return c1.compareTo(c2);
+						}
+					}
+					return 0;
+				};
+			});	
 			description += createNominalAttributesHTMLTable(atKeyLi, formater);
 		}
 		return description += "</table></body></html>";
 	}
 	
-	private String createNominalAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
+	private String createNominalAttributesHTMLTable(List<Object> attributes, DecimalFormat formater) {
 		// Header
 		String description = "<td>attr</td><td>data set id</td><td>type</td><td width='150'>value -> probability</td></tr>";
 
 		// Data
-		for(INode attributeKey : attributes) {
+		for(Object attributeKey : attributes) {
 			
-			IAttribute attributeValue = getAttributeValue(attributeKey);
-			description += "<tr><td>" + attributeKey.getId() + "</td>" +
-						"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-						"<td>" + attributeKey.getNodeType().toString() + "</td>";
+			IAttribute attributeValue = getNominalAttributeValue(attributeKey);
+			description += "<tr><td>" + attributeKey.toString() + "</td>";
+
 			Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
 			description += "<td>";
 			while ( values.hasNext() ){
@@ -358,14 +364,13 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		// Data
 		for(INode attributeKey : attributes) {
 			 
-			IAttribute attributeValue = getAttributeValue(attributeKey);
+			IAttribute attributeValue = getNumericalAttributeValue(attributeKey);
 			description += "<tr><td>" + attributeKey.getId() + "</td>" +
 					"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
 					"<td>" + attributeKey.getNodeType() + "</td>"+
     				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
     				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
     				"<td>" + attributeValue.getSupport()+ "</td>" +
-    				"<td>" + attributeKey.getMeta() + "</td>" +
     				"</tr>";
 		}
 		return description;
@@ -383,20 +388,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return dataSetIdsString;
 	}
-
-//	private void writeObject(ObjectOutputStream oos) throws IOException {
-//		oos.defaultWriteObject();
-//
-//		oos.writeLong(idCounter);
-//	}
-//
-//	private void readObject(ObjectInputStream ois) throws IOException,
-//			ClassNotFoundException {
-//		ois.defaultReadObject();
-//
-//		idCounter = ois.readLong();
-//
-//	}
 	
 	@Override
 	public void setId(long id) {

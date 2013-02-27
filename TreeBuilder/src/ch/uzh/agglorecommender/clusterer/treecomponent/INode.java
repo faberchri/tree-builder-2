@@ -12,7 +12,7 @@ public interface INode {
 	 * 
 	 * @param attributes the new nominal attribute map for this node.
 	 */
-	public void setNominalAttributes(Map<INode, IAttribute> attributes);
+	public void setNominalAttributes(Map<Object, IAttribute> attributes);
 	
 	/**
 	 * Sets the numerical attribute map of this node to {@code attributes}.
@@ -39,16 +39,25 @@ public interface INode {
 	 * @param key the key for the nominal node attribute mapping
 	 * @param value the value for the node attribute mapping.
 	 */
-	public void addNominalAttribute(INode key, IAttribute value);
+	public void addNominalAttribute(Object key, IAttribute value);
 	
 	/**
 	 * Gets the attribute value for the passed {@code node}.
 	 *
-	 * @param node the key to fetch the attribute object.
+	 * @param node the key to fetch the attribute value.
 	 * @return the {@code IAttribute} object mapped to the
 	 * passed node or null if no mapping is present.
 	 */
-	public IAttribute getAttributeValue(INode node);
+	public IAttribute getNumericalAttributeValue(INode node);
+	
+	/**
+	 * Gets the attribute value for the passed {@code attribute}.
+	 *
+	 * @param attribute the key to fetch the attribute value.
+	 * @return the {@code IAttribute} object mapped to the
+	 * passed node or null if no mapping is present.
+	 */
+	public IAttribute getNominalAttributeValue(Object attribute);
 	
 	/**
 	 * Gets all nodes from the numerical attribute map of this node.
@@ -64,7 +73,7 @@ public interface INode {
 	 * @return an unmodifiable set with all nodes (keys)
 	 * contained in this nodes nominal attribute map.
 	 */
-	public Set<INode> getNominalAttributeKeys();
+	public Set<Object> getNominalAttributeKeys();
 	
 //	/**
 //	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
@@ -157,14 +166,25 @@ public interface INode {
 	
 	/**
 	 * Removes the mapping for {@code attribute }
-	 * from this node's attribute map.
+	 * from this node's numerical attribute map.
 	 * 
 	 * @param attribute The INode for
 	 * which the mapping is removed.
 	 * @return the value previously mapped to the {@code attribute}
 	 * or null if no mapping was present.
 	 */
-	public IAttribute removeAttribute(INode attribute);
+	public IAttribute removeNumericalAttribute(INode attribute);
+	
+	/**
+	 * Removes the mapping for {@code attribute }
+	 * from this node's nominal attribute map.
+	 * 
+	 * @param attribute The object for
+	 * which the mapping is removed.
+	 * @return the value previously mapped to the {@code attribute}
+	 * or null if no mapping was present.
+	 */
+	public IAttribute removeNominalAttribute(Object attribute);
 		
 	/**
 	 * Gets the total count of children
@@ -222,7 +242,6 @@ public interface INode {
 	 */
 	public List<Integer> getDataSetIds();
 	
-	public Map<String, String> getMeta();
 	
 	/**
 	 * Sets the id of the node. Used for evaluations.

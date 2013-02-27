@@ -56,5 +56,9 @@ public class MetaDatasetItem<T extends Map<String,String>> implements IDatasetIt
 	public int getContentId() {
 		return contentId;
 	}
+
+	protected Map<Object, Object> getMetaMap() {
+		return null;
+	}
 	
 }
