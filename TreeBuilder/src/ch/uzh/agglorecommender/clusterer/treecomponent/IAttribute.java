@@ -1,7 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -72,11 +71,5 @@ public interface IAttribute {
 	 * Get the mean of the rating
 	 *
 	 */
-	public double getMeanOfRatings();
-	
-	/**
-	 * Get the meta information of this attribute
-	 *
-	 */
-	public Map<String,String> getMeta();
+	public double getMeanOfRatings();	
 }

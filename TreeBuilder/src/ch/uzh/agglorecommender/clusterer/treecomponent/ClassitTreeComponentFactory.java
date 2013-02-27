@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -35,18 +34,24 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 	 * Used to create the (single) attribute object of leaf nodes
 	 */
 	@Override
-	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
+	public IAttribute createNumericAttribute(double rating) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
-		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0), meta);
+		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0));
+	}
+
+	@Override
+	public IAttribute createNominalAttribute(int support, Object key,Object object) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
 	 * Used to calculate new nodes in the merging process
 	 */
 	@Override
-	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+	public IAttribute createMergedNumericalAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
 		
 		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
 		if (support < 1) {
@@ -58,29 +63,16 @@ public class ClassitTreeComponentFactory extends TreeComponentFactory implements
 		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
 //		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 
-		Map<String,String> meta = attributeKey.getMeta();
+//		Map<String,String> meta = attributeKey.getMeta();
 
-		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings, meta);
+		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);
 	}
 
 	@Override
-	public IAttribute createNominalAttribute(int support, String key,
-			String value) {
-		return  new ClassitAttribute(support, 0,0, null);
+	public IAttribute createMergedNominalAttribute(Object object,
+			Collection<INode> nodesToMerge) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-
-//	@Override
-//	protected Map<Object, IAttribute> collectAttributes(
-//			Collection<INode> nodesToMerge) {
-//		
-//		Map<Object, IAttribute> allAttributes = new HashMap<Object, IAttribute>();
-//		for (INode node : nodesToMerge) {
-//			for (INode attNodes : node.getNumericalAttributeKeys()) {
-//				allAttributes.put(attNodes, null);
-//			}			
-//		}		
-//		
-//		return allAttributes;
-//	}
 
 }

@@ -41,8 +41,6 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	 * </pre>
 	 */
 	private final Map<Object, Double> attributeProbabilities;
-	 
-	private final Map<String,String> meta;
 	
 	/**
 	 * Instantiates a new {@code CobwebAttribute} with a 
@@ -51,9 +49,8 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	 * @param meta 
 	 * @param attribute-value probability map of this attribute.
 	 */
-	public CobwebAttribute(Map<?, Double> probabilityMap, Map<String, String> meta) {
+	public CobwebAttribute(Map<?, Double> probabilityMap) {
 		this.attributeProbabilities = (Map<Object, Double>) probabilityMap;
-		this.meta = meta;
 	}
 	
 	@Override
@@ -93,11 +90,6 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 			sb.append("]");
 		}
 		return sb.toString();
-	}
-
-	@Override
-	public Map<String,String> getMeta() {
-		return meta;
 	}
 
 	@Override

@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import ch.uzh.agglorecommender.util.TBLogger;
 
 public class SharedTreeComponentFactory extends TreeComponentFactory implements Serializable {
 
@@ -34,26 +31,11 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	@Override
 	public INode createInternalNode(ENodeType typeOfNewNode,
 			Collection<INode> nodesToMerge, double categoryUtility) {
-		// TODO Auto-generated method stub
-		Map<Object,IAttribute> numericMap = createAttMap(nodesToMerge, ClassitTreeComponentFactory.getInstance());
-	}
-	
-	private  Map<Object,IAttribute> createAttMap(Collection<INode> nodesToMerge, TreeComponentFactory factory) {
+
+		Map<INode,IAttribute> numericMap = createNumericalAttMap(nodesToMerge);
+		Map<Object,IAttribute> nominalMap = createNominalAttMap(nodesToMerge);
 		
-		// Collect the combined attributes of all nodes that should be merged
-		Map<Object, IAttribute> allAttributes = factory.collectAttributes(nodesToMerge);
-		
-		// Create merged attributes of all attributes with multiple instances
-		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
-			IAttribute newAtt = factory.createMergedNumericAttribute(entry.getKey(), nodesToMerge);
-			entry.setValue(newAtt);
-		}
-		if (allAttributes.containsValue(null)) {
-			TBLogger.getLogger(getClass().getName()).severe("ClassitAttribute map of node resulting of merge contains null" +
-					" as value; in : "+getClass().getSimpleName());
-			System.exit(-1);
-		}
-		return allAttributes;		
+		return new Node(typeOfNewNode, nodesToMerge, numericMap, nominalMap, categoryUtility);
 	}
 	
 	/**
@@ -65,11 +47,11 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	 *@return IAttribute numeric attribute object
 	 */
 	@Override
-	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
+	public IAttribute createNumericAttribute(double rating) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
 		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
 		// sum of squared ratings  = ratings^2
-		return new SharedAttribute(1, rating, Math.pow(rating, 2.0), null, meta);
+		return new SharedAttribute(1, rating, Math.pow(rating, 2.0), null);
 	}
 	
 	/**
@@ -82,37 +64,48 @@ public class SharedTreeComponentFactory extends TreeComponentFactory implements 
 	 * @return IAttribute symbolic attribute object
 	 */
 	@Override
-	public IAttribute createNominalAttribute(int support, String key, String value) {
+	public IAttribute createNominalAttribute(int support, Object key, Object object) {
 		
 		Map<String,Double> valueMap = new HashMap<String,Double>();
-		Map<String,String> meta = new HashMap<String,String>();
+		valueMap.put((String) key,1.0);
 		
-		valueMap.put(key,1.0);
-		meta.put(key,value);
-		
-		return new SharedAttribute(support, 0,0, valueMap, meta);
+		return new SharedAttribute(support, 0,0, valueMap);
 	}
 
-	/**
-	 * Used to calculate new nodes in the merging process (numeric, nominal)
-	 * 
-	 * @return IAttribute new IAttribute object
-	 */
+//	/**
+//	 * Used to calculate new nodes in the merging process (numeric, nominal)
+//	 * 
+//	 * @return IAttribute new IAttribute object
+//	 */
+//	@Override
+//	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+//		
+//		if(attributeKey.getNodeType() != ENodeType.Nominal){
+//			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedNumericalAttribute(attributeKey, nodesToMerge);
+//			return new SharedAttribute(generated.getSupport(), generated.getSumOfRatings(), generated.getSumOfSquaredRatings(), null, generated.getMeta());
+//		}
+//		else {
+//			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedNumericalAttribute(attributeKey, nodesToMerge);
+//			Map<Object,Double> valueMap = new HashMap<Object,Double>();
+//			while(generated.getProbabilities().hasNext()){
+//				Entry<Object, Double> entry = generated.getProbabilities().next();
+//				valueMap.put(entry.getKey(), entry.getValue());
+//			}
+//			return new SharedAttribute(2, 0, 0, valueMap); // FIXME support
+//		}
+//	}
+
 	@Override
-	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
-		
-		if(attributeKey.getNodeType() != ENodeType.Nominal){
-			IAttribute generated = ClassitTreeComponentFactory.getInstance().createMergedNumericAttribute(attributeKey, nodesToMerge);
-			return new SharedAttribute(generated.getSupport(), generated.getSumOfRatings(), generated.getSumOfSquaredRatings(), null, generated.getMeta());
-		}
-		else {
-			IAttribute generated = CobwebTreeComponentFactory.getInstance().createMergedNumericAttribute(attributeKey, nodesToMerge);
-			Map<Object,Double> valueMap = new HashMap<Object,Double>();
-			while(generated.getProbabilities().hasNext()){
-				Entry<Object, Double> entry = generated.getProbabilities().next();
-				valueMap.put(entry.getKey(), entry.getValue());
-			}
-			return new SharedAttribute(2, 0, 0, valueMap , generated.getMeta()); // FIXME support
-		}
+	public IAttribute createMergedNumericalAttribute(INode node,
+			Collection<INode> nodesToMerge) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IAttribute createMergedNominalAttribute(Object object,
+			Collection<INode> nodesToMerge) {
+		// TODO Auto-generated method stub
+		return null;
 	}		
 }

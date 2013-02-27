@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -35,8 +34,6 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 
 	private final double sumOfSquaredRatings;
 
-	private final Map<String,String> meta;
-
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
 	 * with stdDev, average, support, sum of ratings, and sum of squared ratings.
@@ -48,12 +45,11 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	 * @param support the support of this attribute object.
 	 */
 	public ClassitAttribute(int support, double sumOfRatings,
-			double sumOfSquaredRatings, Map<String,String> meta) {
+			double sumOfSquaredRatings) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
-		this.meta = meta;
 	}
 
 	public int getSupport() {
@@ -86,11 +82,6 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		sb.append(", sum of squared ratings.: ");
 		sb.append(String.valueOf(getSumOfSquaredRatings()));
 		return sb.toString();
-	}
-
-	@Override
-	public Map<String, String> getMeta() {
-		return meta;
 	}
 
 	@Override

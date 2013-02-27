@@ -185,7 +185,7 @@ public class InitialNodesCreator {
 	 * @return the immutable map of the user id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	private ImmutableMap<Integer, INode> getUserLeaves() {
+	public ImmutableMap<Integer, INode> getUserLeaves() {
 		return userLeavesMap;
 	}
 
@@ -195,7 +195,7 @@ public class InitialNodesCreator {
 	 * @return the immutable map of the content id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	private ImmutableMap<Integer, INode> getContentLeaves() {
+	public ImmutableMap<Integer, INode> getContentLeaves() {
 		return contentLeavesMap;
 	}
 }

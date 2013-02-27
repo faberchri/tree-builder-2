@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
@@ -34,13 +33,19 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 	}
 	
 	@Override
-	public IAttribute createNumericAttribute(double rating, Map<String,String> meta) {
+	public IAttribute createNumericAttribute(double rating) {
 		Map<Double, Double> attMap = ImmutableMap.of(rating, 1.0);
-		return new CobwebAttribute(attMap, meta);
+		return new CobwebAttribute(attMap);
 	}
 
 	@Override
-	public IAttribute createMergedAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+	public IAttribute createNominalAttribute(int support, Object key, Object object) {
+		Map<?, Double> attMap = ImmutableMap.of(key, 1.0);
+		return new CobwebAttribute(attMap);
+	}
+
+	@Override
+	public IAttribute createMergedNominalAttribute(Object object, Collection<INode> nodesToMerge) {
 		int totalLeafCount = 0;
 		for (INode node : nodesToMerge) {
 			totalLeafCount += node.getNumberOfLeafNodes();
@@ -48,33 +53,17 @@ public class CobwebTreeComponentFactory extends TreeComponentFactory implements 
 		Map<Object, Double> attMap = ImmutableMap.copyOf(
 				CobwebMaxCategoryUtilitySearcher
 					.calculateAttributeProbabilities(
-							attributeKey, nodesToMerge, totalLeafCount
+							(INode)object, nodesToMerge, totalLeafCount
 					)
 				);
 		
-		Map<String,String> meta = attributeKey.getMeta();
-		
-		return new CobwebAttribute(attMap, meta);
+		return new CobwebAttribute(attMap);
 	}
 
 	@Override
-	public IAttribute createNominalAttribute(int support, String key,
-			String value) {
+	public IAttribute createMergedNumericalAttribute(INode node,
+			Collection<INode> nodesToMerge) {
+		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	protected Map<INode, IAttribute> collectAttributes(
-			Collection<INode> nodesToMerge) {
-		
-		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
-		for (INode node : nodesToMerge) {
-			for (INode attNodes : node.getNominalAttributeKeys()) {
-				allAttributes.put(attNodes, null);
-			}			
-		}		
-		
-		return allAttributes;
-	}
-
 }

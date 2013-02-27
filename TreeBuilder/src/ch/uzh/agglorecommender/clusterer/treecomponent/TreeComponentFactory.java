@@ -74,7 +74,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		return newNode;
 	}
 	
-	private Map<Object, IAttribute> createNominalAttMap(Collection<INode> nodesToMerge) {
+	protected Map<Object, IAttribute> createNominalAttMap(Collection<INode> nodesToMerge) {
 		Map<Object, IAttribute> allAttributes = new HashMap<Object, IAttribute>();
 		for (INode node : nodesToMerge) {
 			for (Object attNodes : node.getNominalAttributeKeys()) {
@@ -95,7 +95,7 @@ public abstract class TreeComponentFactory implements Serializable {
 		return allAttributes;	
 	}
 
-	private Map<INode, IAttribute> createNumericalAttMap(Collection<INode> nodesToMerge) {
+	protected Map<INode, IAttribute> createNumericalAttMap(Collection<INode> nodesToMerge) {
 		Map<INode, IAttribute> allAttributes = new HashMap<INode, IAttribute>();
 		for (INode node : nodesToMerge) {
 			for (INode attNodes : node.getNumericalAttributeKeys()) {
@@ -132,7 +132,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param meta meta information
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createNominalAttribute(int support, Object metaKey, Object object); // single node
+	public abstract IAttribute createNominalAttribute(int support, Object key, Object object); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute
@@ -145,7 +145,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createMergedNumericAttribute(Object object, Collection<INode> nodesToMerge);
+	public abstract IAttribute createMergedNumericalAttribute(INode node, Collection<INode> nodesToMerge);
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute

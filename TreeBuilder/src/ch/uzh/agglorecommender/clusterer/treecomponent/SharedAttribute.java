@@ -35,8 +35,6 @@ public final class SharedAttribute implements IAttribute, Serializable {
 	
 	private final double sumOfSquaredRatings;
 	
-	private final Map<String,String> meta;
-	
 	/**
 	 * Attribute value - probability pairs.
 	 * <br>
@@ -66,13 +64,12 @@ public final class SharedAttribute implements IAttribute, Serializable {
 	 * @param support the support of this attribute object.
 	 */
 	public SharedAttribute(int support, double sumOfRatings,
-			double sumOfSquaredRatings, Map<?, Double> probabilityMap, Map<String,String> meta) {
+			double sumOfSquaredRatings, Map<?, Double> probabilityMap) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
 		this.attributeProbabilities = (Map<Object, Double>) probabilityMap;
-		this.meta = meta;
 	}
 	
 	public int getSupport() {
@@ -104,11 +101,6 @@ public final class SharedAttribute implements IAttribute, Serializable {
 		sb.append(", sum of squared ratings.: ");
 		sb.append(String.valueOf(getSumOfSquaredRatings()));
 		return sb.toString();
-	}
-
-	@Override
-	public Map<String,String> getMeta() {
-		return meta;
 	}
 
 	@Override
