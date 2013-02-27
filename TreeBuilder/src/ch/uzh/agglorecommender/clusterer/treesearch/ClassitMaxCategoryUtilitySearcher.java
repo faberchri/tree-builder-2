@@ -72,7 +72,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 */
 	private boolean isAttributeKnownToAllMergeNodes(INode attribute, Collection<INode> possibleMerge) {
 		for (INode node : possibleMerge) {
-			if (node.getAttributeValue(attribute) == null) {
+			if (node.getNumericalAttributeValue(attribute) == null) {
 				return false;
 			}
 		}
@@ -88,7 +88,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	public static int calcSupportOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		int res = 0;
 		for (INode node : possibleMerge) {
-			IAttribute att = node.getAttributeValue(attribute);
+			IAttribute att = node.getNumericalAttributeValue(attribute);
 			if (att != null) {
 				res += att.getSupport();
 			}
@@ -108,7 +108,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	public static double calcSumOfRatingsOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		double res = 0.0;
 		for (INode node : possibleMerge) {
-			IAttribute att = node.getAttributeValue(attribute);
+			IAttribute att = node.getNumericalAttributeValue(attribute);
 			if (att != null) {
 				res += att.getSumOfRatings();
 			}
@@ -128,7 +128,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	public static double calcSumOfSquaredRatingsOfAttribute(INode attribute, Collection<INode> possibleMerge) {
 		double res = 0;
 		for (INode node : possibleMerge) {
-			IAttribute att = node.getAttributeValue(attribute);
+			IAttribute att = node.getNumericalAttributeValue(attribute);
 			if (att != null) {
 				res += att.getSumOfSquaredRatings();
 			}

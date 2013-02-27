@@ -111,7 +111,7 @@ public class TreeVisualizer {
 		INode[] setArr = set.toArray(new INode[set.size()]);
 		Arrays.sort(setArr);
 		for (INode node : setArr) {
-			log.info(node.toString()+"|\t"+node.getAttributesString());
+			log.info(node.toString()+"|\t"+node.getNumericalAttributesString()+"|\t"+node.getNominalAttributesString());
 		}
 		log.info("-----------------------");
 	}

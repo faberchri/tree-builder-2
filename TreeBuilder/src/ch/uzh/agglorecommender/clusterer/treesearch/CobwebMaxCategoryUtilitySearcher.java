@@ -75,7 +75,7 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 			if (node.hasAttribute(attribute)) {
 				int currLeafCount = node.getNumberOfLeafNodes();
 				
-				IAttribute aV = node.getAttributeValue(attribute);
+				IAttribute aV = node.getNominalAttributeValue(attribute);
 				Iterator<Map.Entry<Object, Double>> it = aV.getProbabilities();
 				while (it.hasNext()) {
 					Map.Entry<Object, Double> entry = it.next();

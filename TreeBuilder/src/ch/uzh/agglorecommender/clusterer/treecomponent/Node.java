@@ -144,6 +144,22 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
+	public String getNominalAttributesString() {
+		List<Object> keyList = new ArrayList<Object>(nominalAttributes.keySet());
+//		Collections.sort(keyList, new NodeIdComparator());
+		String s = "";
+		for (Object node : keyList) {
+			s = s.concat(node.toString()).concat(": ").concat(numericalAttributes.get(node).toString()).concat(";\t");
+		}
+
+		if (s.length() == 0) {
+			return "no_attributes";
+		} else {
+			return s.substring(0, s.length()-1);
+		}
+	}
+
+	@Override
 	public int compareTo(Node o) {
 		return ((Long)this.getId()).compareTo((Long)o.getId());
 	}

@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -14,9 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DelegateTree;
@@ -181,38 +178,38 @@ public class Dendrogram {
 	}
 	int edgeCounter = 0;
 
-    /**
-     * a driver for this demo
-     * @param args should hold the filename for the persistence demo
-     */
-    public static void main(String[] args) {
-        String filename;
-        if (args.length >= 1)
-            filename = args[0];
-        else
-            filename = "/Users/faber/TreeBuilder_logs/PersistentLayoutDemo.out";
-        Dendrogram plot = new Dendrogram(filename);
-        Set<INode> set = new HashSet<INode>();
-        set.add(new Node(ENodeType.User,0));
-        set.add(new Node(ENodeType.User,0));
-        set.add(new Node(ENodeType.User,0));
-        set.add(new Node(ENodeType.User,0));
-        INode n1 = new Node(ENodeType.User,0);
-        INode n2 = new Node(ENodeType.User,0);
-        set.add(n1);
-        set.add(n2);
-        plot.notify(set);
-        
-        INode n3 = new Node(ENodeType.User,0);
-        n3.addChild(n1);
-        n3.addChild(n2);
-        n1.setParent(n3);
-        n2.setParent(n3);
-        set.remove(n1);
-        set.remove(n2);
-        set.add(n3);
-        plot.notify(set, n3);
-        
-        System.out.println("done");
-    }
+//    /**
+//     * a driver for this demo
+//     * @param args should hold the filename for the persistence demo
+//     */
+//    public static void main(String[] args) {
+//        String filename;
+//        if (args.length >= 1)
+//            filename = args[0];
+//        else
+//            filename = "/Users/faber/TreeBuilder_logs/PersistentLayoutDemo.out";
+//        Dendrogram plot = new Dendrogram(filename);
+//        Set<INode> set = new HashSet<INode>();
+//        set.add(new Node(ENodeType.User,0));
+//        set.add(new Node(ENodeType.User,0));
+//        set.add(new Node(ENodeType.User,0));
+//        set.add(new Node(ENodeType.User,0));
+//        INode n1 = new Node(ENodeType.User,0);
+//        INode n2 = new Node(ENodeType.User,0);
+//        set.add(n1);
+//        set.add(n2);
+//        plot.notify(set);
+//        
+//        INode n3 = new Node(ENodeType.User,0);
+//        n3.addChild(n1);
+//        n3.addChild(n2);
+//        n1.setParent(n3);
+//        n2.setParent(n3);
+//        set.remove(n1);
+//        set.remove(n2);
+//        set.add(n3);
+//        plot.notify(set, n3);
+//        
+//        System.out.println("done");
+//    }
 }
