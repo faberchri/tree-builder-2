@@ -166,14 +166,11 @@ public class EvaluationBuilder {
 			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
 			
 			// Absolute Difference Squared
-			sumOfSquaredDifferences += Math.pow(Math.abs(rRating - pRating),2);
+			sumOfSquaredDifferences += Math.abs(rRating - pRating);
 		}
 		
 		// Division through number of Content Items
 		double mse = sumOfSquaredDifferences / testNode.getAttributeKeys().size();
-		
-		// Take root
-		double ame = Math.sqrt(mse);
 	
 		return ame;
 	}

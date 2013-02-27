@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.uzh.agglorecommender.client.IDataset;
+import ch.uzh.agglorecommender.client.MetaDatasetItem;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
 
@@ -84,10 +86,19 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * All nodes with recently changed attributes.
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
-
-	public Node(ENodeType nodeType, int dataSetId) {
+	
+	/**
+	 * The metaset of the node
+	 */
+	private static IDataset<?> metaset;
+	
+	/**
+	 * Constructor of node
+	 */
+	public Node(ENodeType nodeType, int dataSetId, IDataset<?> metaset) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
+		this.metaset = metaset;
 		categoryUtility = 1.0;
 	}
 	
@@ -440,4 +451,24 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return dataSetId;
 	}
 	
+	/**
+	 * Finds the corresponding metadata of a content or user node
+	 * 
+	 * @ id is the id of the node element
+	 * @ metaset is the dataset where the metadata is searched for
+	 * 
+	 * @return map of meta information with value and description
+	 */
+	@Override
+	public Map<Object,Object> getMeta() {
+		Iterator<?> it = metaset.iterateOverDatasetItems();
+		while(it.hasNext()){
+			MetaDatasetItem metadata = (MetaDatasetItem) it.next();
+			if(metadata.getContentId() == id){
+				Map<Object,Object> metaMap = metadata.getValue();
+				return metaMap;
+			}
+		}
+		return null;
+	}
 }

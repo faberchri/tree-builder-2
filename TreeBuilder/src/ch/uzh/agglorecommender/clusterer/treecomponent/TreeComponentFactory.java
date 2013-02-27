@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 
@@ -29,8 +30,8 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * instance in the data set.
 	 * @return a new node instance.
 	 */
-	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, Map<String,String> meta) {
-		return new Node(typeOfNewNode, dataSetId);
+	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, IDataset<?> metaset) {
+		return new Node(typeOfNewNode, dataSetId, metaset);
 	}
 
 	/**
@@ -63,14 +64,14 @@ public abstract class TreeComponentFactory implements Serializable {
 //				meta.putAll(nodeToMerge.getMeta());
 //			}
 //		}
-		Map<Object, IAttribute> numericalMap = null;
+		Map<INode, IAttribute> numericalMap = null;
 		Map<Object, IAttribute> nominalMap = null;
 		
 		if(typeOfNewNode == ENodeType.Nominal){
 			nominalMap = attMap;
 		}
 		else{
-			numericalMap = attMap;
+			numericalMap = (Map<INode,IAttribute>) attMap;
 		}
 		
 		INode newNode = new Node(typeOfNewNode, nodesToMerge, numericalMap, nominalMap, categoryUtility);
@@ -82,10 +83,9 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * Creates a new {@code IAttribute} object based on a single rating.
 	 * 
 	 * @param rating the rating for the new {@code IAttribute} object.
-	 * @param metaData 
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createNumericAttribute(double rating, Map<String,String> metaData); // single node
+	public abstract IAttribute createNumericAttribute(double rating); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object based on meta data.
@@ -95,7 +95,7 @@ public abstract class TreeComponentFactory implements Serializable {
 	 * @param meta meta information
 	 * @return a new instance of an {@code IAttribute} object.
 	 */
-	public abstract IAttribute createNominalAttribute(int support, String key, String value); // single node
+	public abstract IAttribute createNominalAttribute(int support, Object metaKey, Object object); // single node
 	
 	/**
 	 * Creates a new {@code IAttribute} object for the specified attribute

@@ -273,4 +273,9 @@ public interface INode {
 	 * Invalidates the dirty flag (sets the flag to false).
 	 */
 	public void setClean();
+	
+	/**
+	 * Finds the meta data in the metaset
+	 */
+	public Map<Object,Object> getMeta();
 }
