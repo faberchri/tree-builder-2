@@ -120,10 +120,35 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	public String getNumericalAttributesString() {
 
 		List<INode> keyList = new ArrayList<INode>(numericalAttributes.keySet());
-		Collections.sort(keyList, new NodeIdComparator());
+		
+		// sort attributes by node id
+		Collections.sort(keyList, new Comparator<INode>() {
+			@Override
+			public int compare(INode o1, INode o2) {
+				return Long.compare(o1.getId(), o2.getId());
+			}
+		});
+		
 		String s = "";
 		for (INode node : keyList) {
 			s = s.concat(node.toString()).concat(": ").concat(numericalAttributes.get(node).toString()).concat(";\t");
+		}
+
+		if (s.length() == 0) {
+			return "no_attributes";
+		} else {
+			return s.substring(0, s.length()-1);
+		}
+	}
+	
+	@Override
+	public String getNominalAttributesString() {
+
+		List<Object> keyList = new ArrayList<Object>(nominalAttributes.keySet());
+		Collections.sort(keyList, new ObjectComparator());
+		String s = "";
+		for (Object att : keyList) {
+			s = s.concat(att.toString()).concat(": ").concat(nominalAttributes.get(att).toString()).concat(";\t");
 		}
 
 		if (s.length() == 0) {
@@ -315,19 +340,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		
 		if (nominalAttributes.size() > 0) {
 			List<Object> atKeyLi = new ArrayList(nominalAttributes.keySet());
-			Collections.sort(atKeyLi, new Comparator<Object>() {
-				@Override
-				public int compare(Object o1, Object o2) {			
-					if (o1 instanceof Comparable && o2 instanceof Comparable) {
-						if (o1.getClass().equals(o2.getClass())) {
-							Comparable c1 = (Comparable) o1;
-							Comparable c2 = (Comparable) o2;
-							return c1.compareTo(c2);
-						}
-					}
-					return 0;
-				};
-			});	
+			Collections.sort(atKeyLi, new ObjectComparator());
 			description += createNominalAttributesHTMLTable(atKeyLi, formater);
 		}
 		return description += "</table></body></html>";
@@ -439,6 +452,20 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	@Override
 	public long getDatasetId() {
 		return dataSetId;
+	}
+	
+	private class ObjectComparator implements Comparator<Object> {
+		@Override
+		public int compare(Object o1, Object o2) {			
+			if (o1 instanceof Comparable && o2 instanceof Comparable) {
+				if (o1.getClass().equals(o2.getClass())) {
+					Comparable c1 = (Comparable) o1;
+					Comparable c2 = (Comparable) o2;
+					return c1.compareTo(c2);
+				}
+			}
+			return 0;
+		};
 	}
 	
 }

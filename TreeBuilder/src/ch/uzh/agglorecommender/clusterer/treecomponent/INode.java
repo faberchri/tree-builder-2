@@ -217,6 +217,13 @@ public interface INode {
 	public String getNumericalAttributesString();
 	
 	/**
+	 * Gets a string representation of the nodes nominal attribute map.
+	 * 
+	 * @return string representation of the nodes nominal attribute map.
+	 */
+	public String getNominalAttributesString();
+	
+	/**
 	 * Gets the id of the node.
 	 * 
 	 * @return the node id

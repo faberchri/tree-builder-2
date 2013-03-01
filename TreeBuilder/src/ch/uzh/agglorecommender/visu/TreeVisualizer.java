@@ -26,8 +26,8 @@ public class TreeVisualizer {
 	/**
 	 * JPanels which contains the JUNG items for cluster tree visualization.
 	 */
-	private VisualizationBuilder vbC;
-	private VisualizationBuilder vbU;
+	private TreePanel vbC;
+	private TreePanel vbU;
 	
 	private boolean isPaused = false;
 	
@@ -73,10 +73,10 @@ public class TreeVisualizer {
         frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
 
 		
-		// Instantiate VisualizationBuilder
-		vbC = new VisualizationBuilder(contentNodes);
+		// Instantiate TreePanel
+		vbC = new TreePanel(contentNodes);
 		vbC.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Content Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
-		vbU = new VisualizationBuilder(userNodes);
+		vbU = new TreePanel(userNodes);
 		vbU.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "User Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
 	
 		split.setLeftComponent(vbU);
@@ -111,7 +111,8 @@ public class TreeVisualizer {
 		INode[] setArr = set.toArray(new INode[set.size()]);
 		Arrays.sort(setArr);
 		for (INode node : setArr) {
-			log.info(node.toString()+"|\t"+node.getAttributesString());
+			log.info(node.toString() + "|\t" + node.getNumericalAttributesString()
+					+ "|\t" + node.getNominalAttributesString());
 		}
 		log.info("-----------------------");
 	}

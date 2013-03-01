@@ -58,7 +58,7 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import edu.uci.ics.jung.visualization.util.PredicatedParallelEdgeIndexFunction;
 
 
-public class VisualizationBuilder extends JPanel {
+public class TreePanel extends JPanel {
 
 	/**
 	 * Factories for the graph, tree, edges and vertices
@@ -83,7 +83,7 @@ public class VisualizationBuilder extends JPanel {
 	
 	private Collection<INode> nodes;
 
-	public VisualizationBuilder(Collection<INode> nodes) {
+	public TreePanel(Collection<INode> nodes) {
 		this.nodes = nodes;
 		this.setLayout(new BorderLayout());
 
@@ -211,7 +211,7 @@ public class VisualizationBuilder extends JPanel {
 			}
 		});
 
-		final VisualizationBuilder vb = this;
+		final TreePanel vb = this;
 		JButton reset = new JButton("Reset");
 		reset.addActionListener(new ActionListener() {
 
