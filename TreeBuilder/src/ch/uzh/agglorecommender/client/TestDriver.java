@@ -10,16 +10,9 @@ import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
-import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.SharedTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
 import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
@@ -62,9 +55,8 @@ public class TestDriver {
 		} else {
 			tb = createNewTreeBuilder();
 			InitialNodesCreator in = new InitialNodesCreator(
-					getTrainingDataset(),getContentMetaDataset(),getUserMetaDataset(),
-					cla.contentTreeComponentFactory,
-					cla.userTreeComponentFactory);
+					getTrainingDataset(),
+					TreeComponentFactory.getInstance());
 			log.info("Starting new run ...");
 			clusterResult = tb.startClustering(cla.serializeRun, in);
 		}
@@ -90,9 +82,8 @@ public class TestDriver {
 		System.out.println("-------------------------------");
 		
 		InitialNodesCreator testSet = new InitialNodesCreator(
-				getTestDataset(),getContentMetaDataset(),getUserMetaDataset(),
-				cla.contentTreeComponentFactory,
-				cla.userTreeComponentFactory);
+				getTestDataset(),
+				TreeComponentFactory.getInstance());
 		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
 		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
 		
@@ -145,11 +136,9 @@ public class TestDriver {
 		SerializableRMOperatorDescription.setOperatorDescription("groupKey", "key", "iconName");
 		
 		return new TreeBuilder(
-				getSearcher(cla.contentTreeComponentFactory),
-				getSearcher(cla.userTreeComponentFactory),
-				cla.contentTreeComponentFactory,
-				cla.userTreeComponentFactory,
-				cla.nodeUpdater);		
+				cla.nodeUpdater,
+				cla.useUserMetaDataForClustering,
+				cla.useContentMetaDataForClustering);		
 	}
 	
 	private static IDataset<?> getTestDataset() {
@@ -159,17 +148,7 @@ public class TestDriver {
 	private static IDataset<?> getTrainingDataset() {
 		return getDataset(cla.trainingFile, DataSetSplit.TRAINING);
 	}
-	
-	private static IDataset<?> getContentMetaDataset() {
-//		System.out.println("getting content meta dataset");
-		return getDataset(cla.metaFile,DataSetSplit.CONTENTMETA);
-	}
-	
-	private static IDataset<?> getUserMetaDataset() {
-//		System.out.println("getting user meta dataset");
-		return getDataset(cla.metaFile,DataSetSplit.USERMETA);
-	}
-	
+		
 	/**
 	 * Instantiates the data set object to process. Data are loaded from the specified
 	 * file or the default file.
@@ -177,36 +156,21 @@ public class TestDriver {
 	 * @return the IDataset to process
 	 */
 	private static IDataset<?> getDataset(File inputFile, DataSetSplit split) {
-		
 		// Load specified data set (with default input file)	
 		IDataset<?> dataset = null;
 		try {
-			Constructor<?>[] constructors = null;
-			if(split == DataSetSplit.TEST || split == DataSetSplit.TRAINING){
-				constructors = cla.datasetType.getConstructors();
-			}
-			else {
-				constructors = cla.metasetType.getConstructors();
-//				System.out.println("Trying metaset opening: " + constructors.toString());
-			}
-			
+			Constructor<?>[] constructors = cla.datasetType.getConstructors();
 			for (Constructor<?> constructor : constructors) {
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
-				
-				// If Constructor has no parameters
 				if (parameterTypes.length == 0) {
 					dataset = (IDataset<?>) constructor.newInstance();
 					break;
 				}
-				
-				// ?
 //				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
 //					// training and test data set is the same
 //					dataset = (IDataset<?>) constructor.newInstance(inputFile);
 //					break;
 //				}
-				
-				// If Constructor has dataset and split parameter
 				if (parameterTypes.length == 2 && parameterTypes[0] == File.class && parameterTypes[1] == DataSetSplit.class) {
 					dataset = (IDataset<?>) constructor.newInstance(inputFile, split);
 					break;
@@ -224,29 +188,6 @@ public class TestDriver {
 	}
 	
 	
-	/**
-	 * Selects the correct {@link IMaxCategoryUtilitySearcher} for the passed {@link TreeComponentFactory}. 
-	 * @param factory the {@link TreeComponentFactory} for which a searcher should be obtained.
-	 * @return a new {@link IMaxCategoryUtilitySearcher} instance.
-	 */
-	private static IMaxCategoryUtilitySearcher getSearcher(TreeComponentFactory factory) {
-		if ( factory instanceof ClassitTreeComponentFactory) {
-			return new ClassitMaxCategoryUtilitySearcher();
-		}
-		if (factory instanceof CobwebTreeComponentFactory) {
-			return new CobwebMaxCategoryUtilitySearcher();
-		}
-		if (factory instanceof SharedTreeComponentFactory) {
-			return new SharedMaxCategoryUtilitySearcher();
-		}
-		TBLogger.getLogger(TestDriver.class.getName()).severe("No IMaxCategoryUtilitySearcher" +
-				" corresponds to TreeComponentFactory "
-				+ factory.toString() + ".");
-		jc.usage();
-		System.exit(-1);
-		return null;
-	}
-
 	/**
 	 * Must not be instantiated.
 	 */

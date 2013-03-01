@@ -15,13 +15,15 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.IMergeResult;
 import ch.uzh.agglorecommender.clusterer.treesearch.MergeResult;
-import ch.uzh.agglorecommender.clusterer.treesearch.NoCommonAttributeSkipMaxCUSearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.NoCommonRatingAttributeSkipMaxCUSearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.DBHandler;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -72,15 +74,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private ClusterResult result;
 			
 	/**
-	 * The tree component factory of the content tree.
+	 * The tree component factory.
 	 */
-	private TreeComponentFactory contentTreeComponentFactory;
-	
-	/**
-	 * The tree component factory of the user tree.
-	 */
-	private TreeComponentFactory userTreeComponentFactory;
-	
+	private TreeComponentFactory treeComponentFactory;
+		
 	/**
 	 * The updater which performs the introduction 
 	 * of a node as attribute in the nodes of the other type.
@@ -135,21 +132,29 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
 	public TreeBuilder(
-			IMaxCategoryUtilitySearcher searcherContent,
-			IMaxCategoryUtilitySearcher searcherUsers,
-			TreeComponentFactory contentTreeComponentFactory,
-			TreeComponentFactory userTreeComponentFactory,
-			INodeUpdater nodeUpdater) {
+			INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
 		
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
 		this.nodeUpdater = nodeUpdater;
-//		this.userMCUSearcher = new CachedMaxCUSearcher(searcherUsers);
-//		this.contentMCUSearcher = new CachedMaxCUSearcher(searcherContent);
-		this.userMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherUsers));
-		this.contentMCUSearcher = new NoCommonAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(searcherContent));
-		this.contentTreeComponentFactory = contentTreeComponentFactory;
-		this.userTreeComponentFactory = userTreeComponentFactory;
+		
+		if (useUserMetaDataForClustering) {
+			this.userMCUSearcher = new SharedMaxCategoryUtilitySearcher();
+		} else {
+			this.userMCUSearcher = new ClassitMaxCategoryUtilitySearcher();
+		}
+		
+		if (useContentMetaDataForClustering) {
+			this.contentMCUSearcher = new SharedMaxCategoryUtilitySearcher();
+		} else {
+			this.contentMCUSearcher = new ClassitMaxCategoryUtilitySearcher();
+		}
+		
+		// add decorators to searchers for performance improvement
+		this.userMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(this.userMCUSearcher));
+		this.contentMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(this.contentMCUSearcher));
+				
+		this.treeComponentFactory = TreeComponentFactory.getInstance();
 		this.treeVisualizer = new TreeVisualizer();	
 	}
 		
@@ -397,13 +402,13 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			INode newNode;
 			switch (nodesToMerge.iterator().next().getNodeType()) {
 			case User:
-				newNode = userTreeComponentFactory.createInternalNode(
+				newNode = treeComponentFactory.createInternalNode(
 						ENodeType.User,
 						nodesToMerge,
 						mergeResult.getCategoryUtility()); 
 				break;
 			case Content:
-				newNode = contentTreeComponentFactory.createInternalNode(
+				newNode = treeComponentFactory.createInternalNode(
 						ENodeType.Content,
 						nodesToMerge,
 						mergeResult.getCategoryUtility());

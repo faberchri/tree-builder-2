@@ -1,6 +1,6 @@
 package ch.uzh.agglorecommender.client;
 
-import java.util.Map;
+import com.google.common.collect.Multimap;
 
 /**
  * 
@@ -29,10 +29,20 @@ public interface IDatasetItem<T> {
 	 * 
 	 * @return the rating
 	 */
-	public T getValue(); // i.e. rating
+	public T getRating();
 
-	public Map<Object, Object> getUserMetaMap();
+	/**
+	 * The background information of the user.
+	 */
+	public Multimap<Object, Object> getUserMetaMap();
 	
-	public Map<Object, Object> getContentMetaMap();
+	/**
+	 * The background information of the content.
+	 */
+	public Multimap<Object, Object> getContentMetaMap();
+
+	public void addContentMetaData(Object attribute, Object value);
+
+	public void addUserMetaData(Object attribute, Object value);
 	
 }

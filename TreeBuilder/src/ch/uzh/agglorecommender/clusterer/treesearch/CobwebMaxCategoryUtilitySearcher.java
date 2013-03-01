@@ -35,16 +35,18 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 **/
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
 				
-		Set<INode> allAttributes = new HashSet<INode>();
+		Set<Object> allAttributes = new HashSet<Object>();
 		int totalLeafCount = 0;
 		for (INode node : possibleMerge) {
-			allAttributes.addAll(node.getNominalAttributeKeys());
+			Set<Object> nomAttKeys = node.getNominalAttributeKeys();
+			if (nomAttKeys.isEmpty()) return 0.0;
+			allAttributes.addAll(nomAttKeys);
 			totalLeafCount += node.getNumberOfLeafNodes();
 		}
 		
 		List<Double> probabilities = new ArrayList<Double>();		
-		for (INode node : allAttributes) {
-			probabilities.addAll(calculateAttributeProbabilities(node, possibleMerge, totalLeafCount).values());
+		for (Object att : allAttributes) {
+			probabilities.addAll(calculateAttributeProbabilities(att, possibleMerge, totalLeafCount).values());
 		}
 		if (probabilities.size() == 0) {
 			return -Double.MAX_VALUE;
@@ -69,13 +71,13 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 * @param leafCount the number of all leaves of the resulting subtree of the merge.
 	 * @return the map of all non-zero probabilities for the passed attribute (rating-value is key, probability is value).
 	 */
-	public static Map<Object,Double> calculateAttributeProbabilities(INode attribute, Collection<INode> possibleMerge, int leafCount) {
+	public static Map<Object,Double> calculateAttributeProbabilities(Object attribute, Collection<INode> possibleMerge, int leafCount) {
 		Map<Object,Double> probabilities = new HashMap<Object, Double>();
 		for (INode node : possibleMerge) {
 			if (node.hasAttribute(attribute)) {
 				int currLeafCount = node.getNumberOfLeafNodes();
 				
-				IAttribute aV = node.getAttributeValue(attribute);
+				IAttribute aV = node.getNominalAttributeValue(attribute);
 				Iterator<Map.Entry<Object, Double>> it = aV.getProbabilities();
 				while (it.hasNext()) {
 					Map.Entry<Object, Double> entry = it.next();
@@ -93,8 +95,7 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	
 	@Override
 	protected double getMaxTheoreticalPossibleCategoryUtility() {
-		// TODO if needed
-		return Double.MAX_VALUE;
+		return 1.0;
 	}
 	
 	

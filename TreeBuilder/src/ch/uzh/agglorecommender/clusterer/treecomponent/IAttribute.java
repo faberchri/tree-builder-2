@@ -1,7 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -67,16 +66,5 @@ public interface IAttribute {
 	 * @return an iterator over all probability map entries.
 	 */
 	public Iterator<Entry<Object, Double>> getProbabilities() throws UnsupportedOperationException;
-	
-	/**
-	 * Get the mean of the rating
-	 *
-	 */
-	public double getMeanOfRatings();
-	
-	/**
-	 * Get the meta information of this attribute
-	 *
-	 */
-	public Map<String,String> getMeta();
+		
 }

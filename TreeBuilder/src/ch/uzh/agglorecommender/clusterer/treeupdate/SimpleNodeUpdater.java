@@ -26,23 +26,11 @@ public class SimpleNodeUpdater implements INodeUpdater, Serializable {
 		
 		for (INode attNode : newNode.getNumericalAttributeKeys()) {
 			if (nodesToUpdate.contains(attNode)) {
-				attNode.addNumericalAttribute(newNode, newNode.getAttributeValue(attNode));
+				attNode.addNumericalAttribute(newNode, newNode.getNumericalAttributeValue(attNode));
 				log.finest(attNode.toString() + " updated with " + newNode);
 			} else {
 //				log.finest(attNode.toString() + " NOT updated with " + newNode);
 			}
-		}
-		
-		for (INode attNode : newNode.getNominalAttributeKeys()) {
-			if (nodesToUpdate.contains(attNode)) {
-				attNode.addNominalAttribute(newNode, newNode.getAttributeValue(attNode));
-				log.finest(attNode.toString() + " updated with " + newNode);
-			} else {
-//				log.finest(attNode.toString() + " NOT updated with " + newNode);
-			}
-		}
-		
-		
+		}		
 	}
-
 }

@@ -1,134 +1,143 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
-import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
+import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.util.TBLogger;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 
-/**
- * Creates instances of type {@code INode}s.
- */
-public abstract class TreeComponentFactory implements Serializable {
+public class TreeComponentFactory  {
+
+	private static TreeComponentFactory factory = new TreeComponentFactory();
 	
-	/**
-	 * Determines if a de-serialized file is compatible with this class.
-	 * <br>
-	 * <br>
-	 * Maintainers must change this value if and only if the new version
-	 * of this class is not compatible with old versions.
-	 */
-	private static final long serialVersionUID = 1L;
+	private TreeComponentFactory() {
+		// singleton
+	}
+
+	public static TreeComponentFactory getInstance() {
+		return factory;
+	}
 	
-	/**
-	 * Instantiates the leaf nodes of the cluster tree.
-	 * 
-	 * @param typeOfNewNode the type of new node.
-	 * @param dataSetId the id of the corresponding
-	 * instance in the data set.
-	 * @return a new node instance.
-	 */
-	public final INode createLeafNode(ENodeType typeOfNewNode, int dataSetId, Map<String,String> meta) {
-		return new Node(typeOfNewNode, dataSetId);
+	public INode createLeafNode(ENodeType typeOfNewNode, int dataSetId,
+			Multimap<Object, Object> metaMap) {
+		
+		INode newNode = new Node(typeOfNewNode, dataSetId);
+		if (metaMap != null) {
+			for (Map.Entry<Object, Collection<Object>> entry : metaMap.asMap().entrySet()) {
+				newNode.addNominalAttribute(entry.getKey(), createNominalLeafAttribute(entry.getValue()));
+			}	
+		}
+		return newNode;
+	}
+	
+	private IAttribute createNominalLeafAttribute(Collection<Object> attValues) {
+		double initialProb = 1.0 / (double)attValues.size();
+		Map<Object, Double> r = new HashMap<>();
+		for (Object aV : attValues) {
+			r.put(aV, initialProb);
+		}
+		Map<Object, Double> attMap = ImmutableMap.copyOf(r);
+		return new CobwebAttribute(attMap);
 	}
 
 	/**
-	 * 
-	 * Creates a new node and initializes its attribute map.
-	 * The new node is added to the cluster tree as new
-	 * root with all nodes in {@code nodesToMerge} as children.
-	 * 
-	 * @param typeOfNewNode the type of the node to create.
-	 * @param nodesToMerge the nodes to combine for the new node.
-	 * @return a new node instance.
+	 * Used to create the (single) attribute object of leaf nodes
 	 */
-	public INode createInternalNode(
-			ENodeType typeOfNewNode,
-			Collection<INode> nodesToMerge,
-			double categoryUtility) {
+	public IAttribute createNumericalLeafAttribute(double rating) {
+		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
+		// avg = rating, stdev = acuity, support = 1, sum of ratings = rating,
+		// sum of squared ratings  = ratings^2
+		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0));
+	}
+	
+	public INode createInternalNode(ENodeType typeOfNewNode,
+			Collection<INode> nodesToMerge, double categoryUtility) {
 
 		if (nodesToMerge.size() < 2) {
 			TBLogger.getLogger(getClass().getName()).severe("Merge attempt with number of nodes < 2, in: "+getClass().getSimpleName());
 			System.exit(-1);
 		}
 
-		// Create Attribute Map
-		Map<Object, IAttribute> attMap = createAttMap(nodesToMerge);
+		Map<INode, IAttribute> ratMap = createNumericalInternalAttMap(nodesToMerge);
+		Map<Object, IAttribute> metMap = createNominalInternalAttMap(nodesToMerge);
 		
-		// Create collected Meta Information
-//		Map<String,String> meta = new HashMap<String,String>();
-//		for(INode nodeToMerge: nodesToMerge){
-//			if(nodeToMerge.getMeta() != null){
-//				meta.putAll(nodeToMerge.getMeta());
-//			}
-//		}
-		Map<Object, IAttribute> numericalMap = null;
-		Map<Object, IAttribute> nominalMap = null;
-		
-		if(typeOfNewNode == ENodeType.Nominal){
-			nominalMap = attMap;
-		}
-		else{
-			numericalMap = attMap;
-		}
-		
-		INode newNode = new Node(typeOfNewNode, nodesToMerge, numericalMap, nominalMap, categoryUtility);
+		INode newN = new Node(typeOfNewNode, nodesToMerge, ratMap, metMap, categoryUtility);
 
-		return newNode;
+		return newN;
 	}
 	
-	/**
-	 * Creates a new {@code IAttribute} object based on a single rating.
-	 * 
-	 * @param rating the rating for the new {@code IAttribute} object.
-	 * @param metaData 
-	 * @return a new instance of an {@code IAttribute} object.
-	 */
-	public abstract IAttribute createNumericAttribute(double rating, Map<String,String> metaData); // single node
-	
-	/**
-	 * Creates a new {@code IAttribute} object based on meta data.
-	 * 
-	 * @param support support of the attribute
-	 * @param valueMap of the different values
-	 * @param meta meta information
-	 * @return a new instance of an {@code IAttribute} object.
-	 */
-	public abstract IAttribute createNominalAttribute(int support, String key, String value); // single node
-	
-	/**
-	 * Creates a new {@code IAttribute} object for the specified attribute
-	 * (e.g. User_A) based on the list of nodes to merge
-	 * (e.g. Movie_1, Movie_2, Movie_3).
-	 *
-	 * 
-	 * @param nodesToMerge list of {@code INode} objects that are merged.
-	 * @param object the attribute key of the new attribute object.
-	 * 
-	 * @return a new instance of an {@code IAttribute} object.
-	 */
-	public abstract IAttribute createMergedAttribute(Object object, Collection<INode> nodesToMerge); // group node
-
-	
-	private  Map<Object,IAttribute> createAttMap(Collection<INode> nodesToMerge) {
-		
-		// Collect the combined attributes of all nodes that should be merged
-		Map<Object, IAttribute> allAttributes = collectAttributes(nodesToMerge);
-		
-		// Create merged attributes of all attributes with multiple instances
-		for (Map.Entry<Object, IAttribute> entry : allAttributes .entrySet()) {
-			IAttribute newAtt = createMergedAttribute(entry.getKey(), nodesToMerge);
+	private  Map<INode,IAttribute> createNumericalInternalAttMap(Collection<INode> nodesToMerge) {
+		Map<INode, IAttribute> map = new HashMap<INode, IAttribute>();
+		for (INode node : nodesToMerge) {
+			for (INode attNodes : node.getNumericalAttributeKeys()) {
+				map.put(attNodes, null);
+			}			
+		}
+		for (Map.Entry<INode, IAttribute> entry : map.entrySet()) {
+			IAttribute newAtt = createNumericalInternalAttribute(entry.getKey(), nodesToMerge);
 			entry.setValue(newAtt);
 		}
-		if (allAttributes.containsValue(null)) {
-			TBLogger.getLogger(getClass().getName()).severe("ClassitAttribute map of node resulting of merge contains null" +
+		if (map.containsValue(null)) {
+			TBLogger.getLogger(getClass().getName()).severe("Numerical attribute map of node resulting of merge contains null" +
 					" as value; in : "+getClass().getSimpleName());
 			System.exit(-1);
 		}
-		return allAttributes;		
+		return map;		
+	}
+
+	private IAttribute createNumericalInternalAttribute(INode attributeKey, Collection<INode> nodesToMerge) {
+		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(attributeKey, nodesToMerge);
+		if (support < 1) {
+			TBLogger.getLogger(getClass().getName()).severe("Attempt to initialize attribute object with support smaller 1." );
+			System.exit(-1);
+		}
+		double sumOfRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(attributeKey, nodesToMerge);
+//		double average = sumOfRatings / (double) support;
+		double sumOfSquaredRatings = ClassitMaxCategoryUtilitySearcher.calcSumOfSquaredRatingsOfAttribute(attributeKey, nodesToMerge);
+//		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
+		
+		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);
+
 	}
 	
-	protected abstract Map<Object, IAttribute> collectAttributes(Collection<INode> nodesToMerge);
+	private Map<Object, IAttribute> createNominalInternalAttMap(Collection<INode> nodesToMerge) {
+		Map<Object, IAttribute> map = new HashMap<Object, IAttribute>();
+		for (INode node : nodesToMerge) {
+			for (Object atts : node.getNominalAttributeKeys()) {
+				map.put(atts, null);
+			}			
+		}
+		for (Map.Entry<Object, IAttribute> entry : map.entrySet()) {
+			IAttribute newAtt = createNominalInternalAttribute(entry.getKey(), nodesToMerge);
+			entry.setValue(newAtt);
+		}
+		if (map.containsValue(null)) {
+			TBLogger.getLogger(getClass().getName()).severe("Nominal attribute map of node resulting of merge contains null" +
+					" as value; in : "+getClass().getSimpleName());
+			System.exit(-1);
+		}
+		return map;	
+	}
+	
+	private IAttribute createNominalInternalAttribute(Object attributeKey, Collection<INode> nodesToMerge) {
+		int totalLeafCount = 0;
+		for (INode node : nodesToMerge) {
+			totalLeafCount += node.getNumberOfLeafNodes();
+		}
+		Map<Object, Double> attMap = ImmutableMap.copyOf(
+				CobwebMaxCategoryUtilitySearcher
+					.calculateAttributeProbabilities(
+							attributeKey, nodesToMerge, totalLeafCount
+					)
+				);
+		return new CobwebAttribute(attMap);
+	}
+	
 
+	
 }

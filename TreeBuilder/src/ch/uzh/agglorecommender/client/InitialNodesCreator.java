@@ -3,15 +3,12 @@ package ch.uzh.agglorecommender.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -23,8 +20,6 @@ import com.google.common.collect.ImmutableMap;
  *
  */
 public class InitialNodesCreator {
-	
-	TreeComponentFactory metaTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
 
 	/**
 	 * Map of user id as in data set to the corresponding node.
@@ -44,31 +39,20 @@ public class InitialNodesCreator {
 	 * 
 	 * @param dataset the data set which shall be clustered (training) 
 	 * or for which recommendations shall be generated (test).
-	 * @param iDataset 
-	 * @param iDataset 
 	 * 
-	 * @param contentTreeComponentFactory the initially specified factory
+	 * @param treeComponentFactory the initially specified factory
 	 * @param userTreeComponentFactory the initially specified factory
 	 */
 	public InitialNodesCreator(IDataset<?> dataset,
-			IDataset<?> contentMetaset, 
-			IDataset<?> userMetaset, 
-			TreeComponentFactory contentTreeComponentFactory,
-			TreeComponentFactory userTreeComponentFactory) {
-
-		// Create nominal nodes for users & content
-		List<INode> userNominalNodes = createNominalNodes(userMetaset);
-		List<INode> contentNominalNodes = createNominalNodes(contentMetaset);
-	
+			TreeComponentFactory treeComponentFactory) {
+		
 		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
 		
-		// Sort data items according to user id and content id
+		// sort data items according to user id and content id
 		Iterator<?> it = dataset.iterateOverDatasetItems();
 		while(it.hasNext()) {
 			IDatasetItem<?> datasetItem = (IDatasetItem<?>) it.next();
-			
-			// Add every datasetItem to the user map
 			if (usersMap.containsKey(datasetItem.getUserId())) {
 				usersMap.get(datasetItem.getUserId()).add(datasetItem);
 			} else {
@@ -76,8 +60,6 @@ public class InitialNodesCreator {
 				li.add(datasetItem);
 				usersMap.put(datasetItem.getUserId(), li);
 			}
-			
-			// Add every datasetItem to the content map
 			if (contentsMap.containsKey(datasetItem.getContentId())) {
 				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
 			} else {
@@ -85,121 +67,42 @@ public class InitialNodesCreator {
 				li.add(datasetItem);
 				contentsMap.put(datasetItem.getContentId(), li);
 			}
-			
 		}
 		
 		// create for each user and content id one node
 		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
-		for (Integer datasetId : usersMap.keySet()) {
-			
-			// Find corresponding metadata to user node
-			Map<String,String> metaData = findMetaData(datasetId,userMetaset);
-			
-			// Create User node
-			usersNodeMap.put(datasetId, userTreeComponentFactory.createLeafNode(ENodeType.User, datasetId, metaData));
+		for (Integer i : usersMap.keySet()) {
+			usersNodeMap.put(i, treeComponentFactory.createLeafNode(ENodeType.User, i, usersMap.get(i).get(0).getUserMetaMap()));
 		}		
-		
 		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
 		for (Integer i : contentsMap.keySet()) {
-			
-			// Add to every node its corresponding metadata
-			Map<String,String> metaData = findMetaData(i,contentMetaset);
-			
-			contentsNodeMap.put(i, contentTreeComponentFactory.createLeafNode(ENodeType.Content, i, metaData));
+			contentsNodeMap.put(i, treeComponentFactory.createLeafNode(ENodeType.Content, i, contentsMap.get(i).get(0).getContentMetaMap()));
 		}
 		
-		// Add attribute map to user nodes
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> user : usersMap.entrySet()) {
-			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			
-			// Add corresponding content nodes to user node attributes
-			for (IDatasetItem<?> contentDi : user.getValue()) {
-				
-				// Add to every content attribute its corresponding metadata
-				Map<String,String> metaData = findMetaData(contentDi.getContentId(),contentMetaset);
-				
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) contentDi.getValue());
-				attributes.put(contentsNodeMap.get(contentDi.getContentId()), contentTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
+		// attach to each node its attribute maps
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
+			Map<INode, IAttribute> numAttributes = new HashMap<INode, IAttribute>();
+			for (IDatasetItem<?> di : entry.getValue()) {
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
+				numAttributes.put(contentsNodeMap.get(di.getContentId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
 			}
-			
-//			// Add corresponding nominal data to user node attributes
-//			Map<String,String> metaData = usersNodeMap.get(user.getKey()).getMeta(); // Meta Info from User Node
-//			int i = 0;
-//			for(String metaKey : metaData.keySet()){
-//				attributes.put(userNominalNodes.get(i), 
-//						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));
-//				i++;
-//			}
-			
-			// Add all attributes to user node
-			usersNodeMap.get(user.getKey()).setAttributes(attributes);
+			usersNodeMap.get(entry.getKey()).setNumericalAttributes(numAttributes);
+//			userNodes.add(usersNodeMap.get(entry.getKey()));
+		}
+		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
+			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
+			for (IDatasetItem<?> di : entry.getValue()) {			
+				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
+				attributes.put(usersNodeMap.get(di.getUserId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
+			}
+			contentsNodeMap.get(entry.getKey()).setNumericalAttributes(attributes);
+//			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		
-		// Add attribute map to content nodes
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> content : contentsMap.entrySet()) {
-			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			
-			// Add corresponding user nodes to content node attributes
-			for (IDatasetItem<?> userDi : content.getValue()) {			
-				
-				// Add to every user attribute its corresponding metadata
-				Map<String,String> metaData = findMetaData(userDi.getUserId(),userMetaset);
-				
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) userDi.getValue());
-				attributes.put(usersNodeMap.get(userDi.getUserId()), userTreeComponentFactory.createNumericAttribute(normalizedRating,metaData));
-			}
-			
-//			// Add corresponding nominal data to content node attributes
-//			Map<String,String> metaData = contentsNodeMap.get(content.getKey()).getMeta();
-//			int i = 0;
-//			for(String metaKey : metaData.keySet()){
-//				attributes.put(contentNominalNodes.get(i), 
-//						contentTreeComponentFactory.createNominalAttribute(1, metaKey, metaData.get(metaKey)));	
-//				i++;
-//			}
-			
-			// Add all attributes to content node
-			contentsNodeMap.get(content.getKey()).setAttributes(attributes);
-		}
 		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);
 		contentLeavesMap = ImmutableMap.copyOf(contentsNodeMap);
 	}
 	
-	/**
-	 * Finds the corresponding metadata of a content or user node
-	 * 
-	 * @ id is the id of the node element
-	 * @ metaset is the dataset where the metadata is searched for
-	 * 
-	 * @return map of meta information with value and description
-	 */
-	private Map<String,String> findMetaData(Integer id, IDataset<?> metaset) {
-		Iterator<?> it = metaset.iterateOverDatasetItems();
-		while(it.hasNext()){
-			MetaDatasetItem metadata = (MetaDatasetItem) it.next();
-			if(metadata.getContentId() == id){
-				Map<String,String> metaMap = metadata.getValue();
-				return metaMap;
-			}
-		}
-		return null;
-	}
-	
-	private List<INode>  createNominalNodes(IDataset<?> metaset) {
-		List<INode> nominalNodes = new LinkedList<INode>();
-		Iterator<?> userIt = metaset.iterateOverDatasetItems();
-		MetaDatasetItem userItem = (MetaDatasetItem) userIt.next();
-		Map<String,String> userInfos = userItem.getValue();
-		
-		for(String infoKey : userInfos.keySet()){
-			Map<String,String> attributeInfo = new HashMap<String,String>();
-			attributeInfo.put(userInfos.get(infoKey),null);
-			INode info = new Node(ENodeType.Nominal, 0, attributeInfo);
-			nominalNodes.add(info);	
-		}
-		return nominalNodes;
-	}
-
 	/**
 	 * Gets the data set user id to leaf node map.
 	 * 

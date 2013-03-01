@@ -1,6 +1,8 @@
 package ch.uzh.agglorecommender.client;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
 
 /**
@@ -43,19 +45,32 @@ public class FloareaDataset extends AbstractDataset<Double> {
 	 * @param entry A string containing a single user-content-rating information.
 	 */
 	@Override
-	void parseLine(String line) {
-		String[] sAr = line.split("\\s+");
-		if (sAr == null || sAr.length != 3) return;
-		IDatasetItem<Double> di = 
-				new SimpleDatasetItem<Double>(
-						Double.parseDouble(sAr[2]),
-						Integer.parseInt(sAr[0]),
-						Integer.parseInt(sAr[1]));
-		addToDatasetItems(di);
+	protected void parseRatings(List<String> lines) {
+		for (String line : lines) {
+			String[] sAr = line.split("\\s+");
+			if (sAr == null || sAr.length != 3) return;
+			IDatasetItem<Double> di = 
+					new SimpleDatasetItem<Double>(
+							Double.parseDouble(sAr[2]),
+							Integer.parseInt(sAr[0]),
+							Integer.parseInt(sAr[1]));
+			addToDatasetItems(di);			
+		}
 	}
 
 	@Override
-	protected String getPathToDefaultInputFile(DataSetSplit split) {
+	protected String getPathToDefaultRatingsFile(DataSetSplit split) {
 		return pathToDefaultInputFile;
+	}
+	
+	@Override
+	protected List<String> getPathToMetaFiles() {
+		// not available
+		return null;
+	}
+
+	@Override
+	protected void parseMeta(List<InputStream> metaInfos) {
+		// not applicable
 	}
 }

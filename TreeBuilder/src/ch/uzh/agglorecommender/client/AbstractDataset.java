@@ -30,17 +30,20 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 */
 	private List<IDatasetItem<T>> datasetItems = new ArrayList<IDatasetItem<T>>();
 	
-	private List<IMetasetItem> metasetItems = new ArrayList<IMetasetItem>();
-	
 	/**
 	 * The normalizer of this data set.
 	 */
 	private INormalizer<T> normalizer;
 	
 	/**
-	 * The input stream to parse.
+	 * The ratings input stream to parse.
 	 */
-	private InputStream input;
+	private InputStream ratingsInput;
+	
+	/**
+	 * The meta data input streams to parse.
+	 */
+	private List<InputStream> metaInputs = new ArrayList<InputStream>();
 
 	/**
 	 * Instantiates a new data set and parses the data from the specified or 
@@ -49,22 +52,56 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * @param datasetFile the File to load. If {@code null} the default input source is loaded.
 	 */
 	public AbstractDataset(INormalizer<T> normalizer, File datasetFile, DataSetSplit split) {
-		
+
 		this.normalizer = normalizer;
-		
-		try {
-			if (datasetFile == null) {
-				this.input = DatasetLocator.getDataset(getPathToDefaultInputFile(split));
-			} else {
-				this.input = new FileInputStream(datasetFile);
+
+
+		if (datasetFile == null) {
+			this.ratingsInput = getDefaultFileStream((getPathToDefaultRatingsFile(split)));
+		} else {
+			this.ratingsInput = getCustomFileStream(datasetFile);
+		}
+
+		List<String> metaDataFileStrings = getPathToMetaFiles();
+		if (metaDataFileStrings != null) {
+			for (String mS : metaDataFileStrings) {
+				metaInputs.add(getDefaultFileStream(mS));
 			}
+		}
+
+		parseRatings(getStreamLineByLine(ratingsInput));
+		
+		if (metaInputs.size() > 0) {
+			parseMeta(metaInputs);	
+		}
+	}
+	
+	private InputStream getDefaultFileStream(String ressourceDescriptor) {
+		InputStream input = null;
+		try {
+			input = DatasetLocator.getDataset(ressourceDescriptor);
+			if (input == null) throw new FileNotFoundException();
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			this.input = null;
-			TBLogger.getLogger(getClass().getName()).severe("Input file was not found");
+			this.ratingsInput = null;
+			TBLogger.getLogger(getClass().getName()).severe("Input file was not found: " + ressourceDescriptor);
+			// System.exit(-1);
+		}
+		return input;
+	}
+
+	private InputStream getCustomFileStream(File file) {
+		InputStream input = null;
+		try {
+			input = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			this.ratingsInput = null;
+			TBLogger.getLogger(getClass().getName()).severe("Input file was not found: "+ file.getPath());
 			System.exit(-1);
 		}
-		parseDataset(getInput());
+		return input;
 	}
 
 	@Override
@@ -78,15 +115,6 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	}
 	
 	/**
-	 * Gets the current input stream to parse.
-	 *  
-	 * @return the stream to parse.
-	 */
-	InputStream getInput() {
-		return input;
-	}
-	
-	/**
 	 * Parses the input stream according to its format.
 	 * <br>
 	 * <br>
@@ -97,7 +125,8 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * @param input the stream of the input source.
 	 * @param type 
 	 */
-	void parseDataset(InputStream input) {
+	protected List<String> getStreamLineByLine(InputStream input) {
+		List<String> lines = new ArrayList<String>();
 		try {
 			int in = input.read();
 			List<Character> charLi = new ArrayList<Character>();
@@ -105,11 +134,19 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 				charLi.add((char)in);
 				if (in == (int)'\n') {
 					StringBuilder builder = new StringBuilder(charLi.size());
-					for(Character ch: charLi)
-					{
+					for(Character ch: charLi) {
 						builder.append(ch);
 					}
-					parseLine(builder.toString());
+					lines.add(builder.toString());
+//					if (input.equals(ratingsInput)) {
+//						parseRatingsLine();
+//					} else if (metaInputs.contains(input)) {
+//						parseMetaLine(builder.toString());
+//					} else {
+//						TBLogger.getLogger(getClass().getName()).severe("Don't know how to handle input stream: "+ input.toString());
+//						input.close();
+//						System.exit(-1);
+//					}					
 					charLi.clear();
 				}
 				in = input.read();
@@ -117,6 +154,7 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return lines;				
 	}
 	
 	/**
@@ -126,10 +164,14 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 	 * 
 	 * @param line the line to parse
 	 */
-	abstract void parseLine(String line);
+	abstract protected void parseRatings(List<String> lines);
+	
+	abstract protected void parseMeta(List<InputStream> metaInfos);
 	
 	
-	abstract protected String getPathToDefaultInputFile(DataSetSplit split);
+	abstract protected String getPathToDefaultRatingsFile(DataSetSplit split);
+	
+	abstract protected List<String> getPathToMetaFiles();
 	
 	/**
 	 * Adds a data item to the list of data

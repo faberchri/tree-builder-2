@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -35,7 +34,6 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 
 	private final double sumOfSquaredRatings;
 
-	private final Map<String,String> meta;
 
 	/**
 	 * Instantiates a new {@code ClassitAttribute}
@@ -47,13 +45,11 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 	 * @param sumOfSquaredRatings the sum of all squared ratings
 	 * @param support the support of this attribute object.
 	 */
-	public ClassitAttribute(int support, double sumOfRatings,
-			double sumOfSquaredRatings, Map<String,String> meta) {
+	public ClassitAttribute(int support, double sumOfRatings, double sumOfSquaredRatings) {
 
 		this.support = support;
 		this.sumOfRatings = sumOfRatings;
 		this.sumOfSquaredRatings = sumOfSquaredRatings;
-		this.meta = meta;
 	}
 
 	public int getSupport() {
@@ -88,31 +84,5 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 		return sb.toString();
 	}
 
-	@Override
-	public Map<String, String> getMeta() {
-		return meta;
-	}
-
-	@Override
-	public double getMeanOfRatings() {
-		return sumOfRatings / support;
-	}
-
-//	@Override
-//	public double getStd() throws UnsupportedOperationException {
-//		
-//		// Die einzelnen Values fehlen
-//		
-//		// Mean
-//		double mean = 0;
-//		
-//		// Sum of Differences (value - mean)^2
-//		double sumOfDifferences = Math.pow(0,2);
-//		
-//		// Divide through number of variants, take root
-//		double std = Math.sqrt(0);
-//		
-//		return std;
-//	}
 
 }

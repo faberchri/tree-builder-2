@@ -17,7 +17,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.Sets;
 
-public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {
+public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -39,7 +39,7 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 	 */
 	TIntSet combinationsIndicesWithSharedAttributes = new TIntHashSet();
 	
-	public NoCommonAttributeSkipMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
+	public NoCommonRatingAttributeSkipMaxCUSearcher(IMaxCategoryUtilitySearcher decoratedSearcher) {
 		super(decoratedSearcher);
 	}
 
@@ -59,7 +59,7 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 			Iterator<INode> it = l.iterator();
 			INode first = it.next();
 			INode second = it.next();
-			Set<INode> intersection = Sets.intersection(first.getAttributeKeys(), second.getAttributeKeys());
+			Set<INode> intersection = Sets.intersection(first.getNumericalAttributeKeys(), second.getNumericalAttributeKeys());
 			if (intersection.size() == 0) {
 				removedLists++;
 				i.remove();
@@ -94,8 +94,8 @@ public class NoCommonAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearch
 			
 			// get the attributes of both nodes of the combination
 			Iterator<INode> it = clusterSet.getCombination(combination).iterator();
-			Set<INode> attFirst = it.next().getAttributeKeys();
-			Set<INode> attSecond = it.next().getAttributeKeys();
+			Set<INode> attFirst = it.next().getNumericalAttributeKeys();
+			Set<INode> attSecond = it.next().getNumericalAttributeKeys();
 			
 			// check the nodes of the combinations share an attribute
 			boolean remove = true;

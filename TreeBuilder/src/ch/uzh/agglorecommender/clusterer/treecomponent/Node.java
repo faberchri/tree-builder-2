@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +49,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<Object, IAttribute> nominalAttributes;
+	private Map<Object, IAttribute> nominalAttributes = new HashMap<Object, IAttribute>();
 	
 	/**
 	 * The rating attributes of the node 
@@ -56,7 +57,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<INode, IAttribute> numericalAttributes;
+	private Map<INode, IAttribute> numericalAttributes = new HashMap<INode, IAttribute>();
 	
 	/**
 	 * The children of this node.
@@ -209,7 +210,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public IAttribute getNumericalAttributeValue(INode node) {
+	public IAttribute getNumericalAttributeValue(Object node) {
 		return numericalAttributes.get(node);
 	}
 
@@ -246,7 +247,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public boolean hasAttribute(INode attribute) {
+	public boolean hasAttribute(Object attribute) {
 		boolean b = numericalAttributes.containsKey(attribute);
 		if (b == false) {
 			b = nominalAttributes.containsKey(attribute);
@@ -301,7 +302,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				+ getSimpleDataSetIdString(this)
 				+ "<br> Category Utility: "
 				+ formater.format(getCategoryUtility())
-				+ "<br><table><tr>";
+				+ "<br>";
 
 		List<INode> merge = new ArrayList<INode>();
 		merge.add(this);
@@ -334,7 +335,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	
 	private String createNominalAttributesHTMLTable(List<Object> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<td>attr</td><td>data set id</td><td>type</td><td width='150'>value -> probability</td></tr>";
+		String description = "<table><tr><td>attr</td><td width='150'>value -> probability</td></tr>";
 
 		// Data
 		for(Object attributeKey : attributes) {
@@ -353,12 +354,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 			description += "</td></tr>";
 		}
-		return description;
+		return description += "</table>";
 	}
 	
 	private String createNumericalAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td><td>meta</td></tr>";
+		String description = "<table><tr><td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
 		List<INode> merge = new ArrayList<INode>();
 		merge.add(this);
 		// Data
@@ -373,7 +374,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
     				"<td>" + attributeValue.getSupport()+ "</td>" +
     				"</tr>";
 		}
-		return description;
+		return description += "</table>";
 
 	}
 	

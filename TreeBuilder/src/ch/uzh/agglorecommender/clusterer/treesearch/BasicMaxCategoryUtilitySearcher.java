@@ -1,6 +1,5 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import gnu.trove.TCollections;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
@@ -103,47 +102,6 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	
 
 	
-	private TIntDoubleMap obtainMergeResultsMultithreadedMaxCUCheckIndexed(TIntSet combinationIds, final IClusterSetIndexed<INode> clusterSet) {
-
-		final Logger log = TBLogger.getLogger(getClass().getName());
-		
-		final TIntDoubleMap pRes = TCollections.synchronizedMap(new TIntDoubleHashMap(combinationIds.size()));
-
-	    ExecutorService service = new IndexedThreadPoolExecutor();
-
-	    List<Future<Double>> futures = new ArrayList<Future<Double>>(combinationIds.size());
-		final TIntIterator iterator = combinationIds.iterator();
-		for ( int i = combinationIds.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
-			final int combinationId = iterator.next();
-	        Callable<Double> callable = new Callable<Double>() {
-	        	
-	            public Double call() {
-	            	double catUtil = calculateCategoryUtility(clusterSet.getCombination(combinationId));
-	            	pRes.put(combinationId, catUtil);
-	    			return catUtil;
-	            }
-	        };
-	        try {
-	        	futures.add(service.submit(callable));
-			} catch (RejectedExecutionException e) {
-				break; 
-			}
-	        
-	    }
-
-	    service.shutdown();
-	    try {
-			service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.severe(e.getStackTrace().toString());
-			log.severe(e.getMessage());
-			log.severe("InterruptedException while awaitTermination for infinite time.");
-			System.exit(-1);
-		}
-
-	    return pRes;
-	}
-	
 	@Override
 	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
 		Logger log = TBLogger.getLogger(getClass().getName());
@@ -240,46 +198,6 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 * @return the max possible category utility value
 	 */
 	protected abstract double getMaxTheoreticalPossibleCategoryUtility();
-	
-	
-	private class IndexedThreadPoolExecutor extends ThreadPoolExecutor{
-		
-		Logger log = TBLogger.getLogger(getClass().getName());
-		
-		public IndexedThreadPoolExecutor() {			
-			super(Runtime.getRuntime().availableProcessors(),
-					Runtime.getRuntime().availableProcessors(),
-		    		0L, TimeUnit.MILLISECONDS,
-		    		new LinkedBlockingQueue<Runnable>());
-		}
-		
-		@Override
-    	protected void afterExecute(Runnable r, Throwable t) {
-    		super.afterExecute(r, t);
-    		FutureTask<Double> ft = (FutureTask<Double>) r;
-    		try {
-    			Double cu = ft.get();
-    			if (cu == null) return;
-    			double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
-    			if (cu >= theoreticalMaxCu) {
-    				if (cu > theoreticalMaxCu) {
-    					// error. shouldn't be possible
-    					log.severe("calculated category utility is greater than teoretical maximum.");
-    					log.severe("Exiting application!");
-    					System.exit(-1);
-    				}
-    				log.fine("Merge result with max theoretical category utility was found." +
-    						" Terminating category utilitie calculation for remaining merges.");
-
-    				shutdownNow();
-    				awaitTermination(2, TimeUnit.SECONDS);
-    			}
-    		} catch (InterruptedException | ExecutionException e) {
-    			log.info("InterruptedException or ExecutionException in attempt " +
-    					"to fetch calculation result in afterExecute call.");  				
-    		}
-    	}		
-	}
 	
 	
 	private class MergeResultThreadPoolExecutor extends ThreadPoolExecutor{

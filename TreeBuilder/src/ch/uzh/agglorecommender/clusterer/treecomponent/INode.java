@@ -48,7 +48,7 @@ public interface INode {
 	 * @return the {@code IAttribute} object mapped to the
 	 * passed node or null if no mapping is present.
 	 */
-	public IAttribute getNumericalAttributeValue(INode node);
+	public IAttribute getNumericalAttributeValue(Object node);
 	
 	/**
 	 * Gets the attribute value for the passed {@code attribute}.
@@ -162,7 +162,7 @@ public interface INode {
 	 * for a present mapping.
 	 * @return true if a mapping is present, else false.
 	 */
-	public boolean hasAttribute(INode attribute);
+	public boolean hasAttribute(Object attribute);
 	
 	/**
 	 * Removes the mapping for {@code attribute }

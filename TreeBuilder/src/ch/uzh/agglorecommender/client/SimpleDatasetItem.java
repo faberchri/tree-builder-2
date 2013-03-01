@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.client;
 
-import java.util.Map;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Basic implementation of the {@code IDatasetItem} interface.
@@ -26,6 +27,23 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	private final int contentId;
 	
 	/**
+	 * maps a meta attribute 
+	 * (e.g. age) to the items
+	 * corresponding value (e.g. 20). Since the attribute can have different values
+	 * (e.g. occupation: student and programmer) we need a multimap.
+	 */
+	private Multimap<Object, Object> userMetaMap = HashMultimap.create();
+	
+	/**
+	 * maps a meta attribute 
+	 * (genre) to the items
+	 * corresponding value (thriller). Since the attribute can have different values
+	 * (e.g. genre: thriller and action) we need a multimap.
+	 */
+	private Multimap<Object, Object> contentMetaMap = HashMultimap.create();
+
+	
+	/**
 	 * Instantiates a new {@code SimpleDataSetItem} which
 	 * represents a user-content-rating combination.
 	 * 
@@ -33,14 +51,16 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	 * @param userId the id of the user of the rating.
 	 * @param contentId the id of the rated content.
 	 */
-	public SimpleDatasetItem(T value, int userId, int contentId) {
+	public SimpleDatasetItem(T value,
+			int userId,
+			int contentId)  {
 		this.value = value;
 		this.userId = userId;
 		this.contentId = contentId;
 	}
 
 	@Override
-	public T getValue() {
+	public T getRating() {
 		return value;
 	}
 
@@ -55,9 +75,25 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	}
 	
 	@Override
-	public Map<Object, Object> getMetaMap() {
-		// TODO Auto-generated method stub
-
+	public Multimap<Object, Object> getUserMetaMap() {
+		if (userMetaMap.size() == 0) return null;
+		return userMetaMap;
+	}
+	
+	@Override
+	public Multimap<Object, Object> getContentMetaMap() {
+		if (contentMetaMap.size() == 0) return null;
+		return contentMetaMap;
+	}
+	
+	@Override
+	public void addUserMetaData(Object attribute, Object value) {
+		userMetaMap.put(attribute, value);
+	}
+	
+	@Override
+	public void addContentMetaData(Object attribute, Object value) {
+		contentMetaMap.put(attribute, value);
 	}
 
 }
