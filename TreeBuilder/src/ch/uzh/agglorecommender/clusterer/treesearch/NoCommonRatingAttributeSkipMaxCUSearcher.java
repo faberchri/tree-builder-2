@@ -97,7 +97,7 @@ public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtility
 			Set<INode> attFirst = it.next().getNumericalAttributeKeys();
 			Set<INode> attSecond = it.next().getNumericalAttributeKeys();
 			
-			// check the nodes of the combinations share an attribute
+			// check if nodes of the combinations share an attribute
 			boolean remove = true;
 			for (INode aF : attFirst) {
 				if (attSecond.contains(aF)) {

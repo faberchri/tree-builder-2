@@ -1,4 +1,4 @@
-package ch.uzh.agglorecommender.client;
+package ch.uzh.agglorecommender.clusterer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ch.uzh.agglorecommender.client.IDataset;
+import ch.uzh.agglorecommender.client.IDatasetItem;
+import ch.uzh.agglorecommender.client.INormalizer;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;

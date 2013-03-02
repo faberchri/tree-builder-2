@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
+import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -58,7 +59,12 @@ public class TestDriver {
 					getTrainingDataset(),
 					TreeComponentFactory.getInstance());
 			log.info("Starting new run ...");
-			clusterResult = tb.startClustering(cla.serializeRun, in);
+			clusterResult = tb.startClustering(
+					cla.serializeRun,
+					in,
+					cla.nodeUpdater,
+					cla.useUserMetaDataForClustering,
+					cla.useContentMetaDataForClustering);
 		}
 		return clusterResult;
 	}	
@@ -135,10 +141,7 @@ public class TestDriver {
 		// initialize the RapidMiner operator description
 		SerializableRMOperatorDescription.setOperatorDescription("groupKey", "key", "iconName");
 		
-		return new TreeBuilder(
-				cla.nodeUpdater,
-				cla.useUserMetaDataForClustering,
-				cla.useContentMetaDataForClustering);		
+		return new TreeBuilder();		
 	}
 	
 	private static IDataset<?> getTestDataset() {

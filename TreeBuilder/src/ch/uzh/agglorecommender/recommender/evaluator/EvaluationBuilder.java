@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
-import ch.uzh.agglorecommender.client.InitialNodesCreator;
+import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;

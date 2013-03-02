@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
-import ch.uzh.agglorecommender.client.InitialNodesCreator;
 import ch.uzh.agglorecommender.client.SerializableRMOperatorDescription;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -131,11 +130,13 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @param searcherContent the best merge searcher for nodes of type content.
 	 * @param nodeUpdater the node updater used in the clustering process.
 	 */
-	public TreeBuilder(
-			INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
+	public TreeBuilder() {
 		
 		super(SerializableRMOperatorDescription.getOperatorDescription());
 
+	}
+	
+	private void initTreeBuilder(INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
 		this.nodeUpdater = nodeUpdater;
 		
 		if (useUserMetaDataForClustering) {
@@ -156,6 +157,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 				
 		this.treeComponentFactory = TreeComponentFactory.getInstance();
 		this.treeVisualizer = new TreeVisualizer();	
+
 	}
 		
 	/**
@@ -178,8 +180,11 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * If null no file is created.
 	 * @return the result of the clustering process
 	 */
-	public ClusterResult startClustering(String pathToWriteSerializedObject, InitialNodesCreator leafNodes) {
+	public ClusterResult startClustering(String pathToWriteSerializedObject, InitialNodesCreator leafNodes, INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
 		log = TBLogger.getLogger(getClass().getName());
+		
+		initTreeBuilder(nodeUpdater, useUserMetaDataForClustering, useContentMetaDataForClustering);
+		
 		this.result = new ClusterResult(
 				leafNodes.getUserLeaves(), leafNodes.getContentLeaves(),
 				null, null, builderId);
