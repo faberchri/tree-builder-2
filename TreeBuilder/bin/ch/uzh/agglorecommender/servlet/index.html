@@ -33,44 +33,25 @@ xmlhttp.send();
 </head>
 <body>
 
-<div id='wrapper' align="center">
-<!-- <div id='main' align="left"> -->
-
-<h1>Recommendation UI</h3>
-
+<h3>Recommendation Servlet Test</h3>
 <form action=""> 
 Type some text: <input type="text" id="txt1" onkeyup="showHint(this.value)" />
 </form>
 <p>Response from servlet: <span id="txtHint"></span></p> 
 
-<!-- Menu Side ---------->
+// Menu Side ---------------------------------
 <div id='menu'>
 <h3>User Information</h3>
-<form action="GET" method="get">
-<input type="hidden" name="method" value="recommendation">
-Alter 
-<input name="age" type="text"><br>
-Geschlecht 
-<select name="gender">
-	<option value="F">F</option>
-	<option value="M">M</option>
-</select><br>
-<input type="submit" value="Senden">
-</form>
 
-<h3>Movie (0 Ratings abgegeben)</h3>
-<form action="GET" method="get">
 
-</form>
+<h3>Movie</h3>
 
 </div>
 
-<!-- Recommendation Side ---------->
+// Recommendation Side ---------------------------------
 <div id="recommendation">
 <h3>Recommendation</h3>
 
-<!-- </div> -->
-</div>
 </div>
 </body>
 </html>

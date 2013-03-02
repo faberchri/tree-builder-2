@@ -37,7 +37,7 @@ public final class RecommendationBuilder {
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(ClusterResult clusterResult, int radiusU, int radiusC) {
+	public RecommendationBuilder(ClusterResult clusterResult) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
@@ -45,8 +45,8 @@ public final class RecommendationBuilder {
 		this.leavesMapC 	= clusterResult.getContentTreeLeavesMap();
 		
 		// Parameters for Recommendation
-		this.radiusU = radiusU;
-		this.radiusC = radiusC;
+//		this.radiusU = radiusU;
+//		this.radiusC = radiusC;
 	}
 	
 	/**
