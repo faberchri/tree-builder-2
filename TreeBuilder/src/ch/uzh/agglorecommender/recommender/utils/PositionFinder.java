@@ -1,14 +1,11 @@
-package ch.uzh.agglorecommender.recommender.treeutils;
+package ch.uzh.agglorecommender.recommender.utils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
-import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
 
 public class PositionFinder {
 	
@@ -34,26 +31,23 @@ public class PositionFinder {
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(position);
 			
-			// Define utility searcher
-			ClassitMaxCategoryUtilitySearcher classitUS = null;
-			CobwebMaxCategoryUtilitySearcher cobwebUS = null;
-			if(inputNode.getAttributeKeys().iterator().next().getClass().equals(ClassitAttribute.class)){
-				classitUS = new ClassitMaxCategoryUtilitySearcher();
-			}
-			else if(inputNode.getAttributeKeys().iterator().next().getClass().equals(CobwebAttribute.class)){
-				cobwebUS = new CobwebMaxCategoryUtilitySearcher();
-			}
+//			// Define utility searcher
+//			ClassitMaxCategoryUtilitySearcher classitUS = null;
+//			CobwebMaxCategoryUtilitySearcher cobwebUS = null;
+//			if(inputNode.getNumericalAttributeKeys().iterator().next().getClass().equals(ClassitAttribute.class)){
+//				classitUS = new ClassitMaxCategoryUtilitySearcher();
+//			}
+//			else if(inputNode.getAttributeKeys().iterator().next().getClass().equals(CobwebAttribute.class)){
+//				cobwebUS = new CobwebMaxCategoryUtilitySearcher();
+//			}
+			
+			SharedMaxCategoryUtilitySearcher cuSearcher = new SharedMaxCategoryUtilitySearcher();
 			
 			
 			// Establish cut off value when 0, ie. when position is on root
 			if(cutoff == 0) {
 				if(position != null){
-					if(classitUS != null){
-						cutoff = classitUS.calculateCategoryUtility(nodesToCalculate);
-					}
-					else if(cobwebUS != null){
-						cutoff = cobwebUS.calculateCategoryUtility(nodesToCalculate);	
-					}
+					cutoff = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
 				}
 				else {
 					System.out.println("Root node is null");
@@ -70,12 +64,7 @@ public class PositionFinder {
 						INode tempPosition = compareSet.next();
 						nodesToCalculate.set(0, tempPosition);
 						double utility = 0.0;
-						if(classitUS != null){
-							utility = classitUS.calculateCategoryUtility(nodesToCalculate);
-						}
-						else if(cobwebUS != null){
-							utility = cobwebUS.calculateCategoryUtility(nodesToCalculate);	
-						}
+						utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){

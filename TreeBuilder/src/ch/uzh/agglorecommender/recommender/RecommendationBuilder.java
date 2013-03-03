@@ -1,16 +1,18 @@
 package ch.uzh.agglorecommender.recommender;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.treeutils.PositionFinder;
+import ch.uzh.agglorecommender.recommender.utils.PositionFinder;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -75,22 +77,23 @@ public final class RecommendationBuilder {
 	 * 
 	 * @param position this is the starting point for collecting
 	 * @param inputNodeID this node defines the content that needs to be collected
+	 * 
+	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
 	 */
-	public Map<Integer, IAttribute> collectRatings(INode position, INode testNode, Map<Integer, IAttribute> contentRatings) {
+	public Map<Integer, IAttribute> collectRatings(INode position, INode inputNode, Map<Integer, IAttribute> numericalData) {
 		
-		//Create Map for content of test user with empty values if not existing
-		if(contentRatings == null) {
-			
-			contentRatings = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
-			Set<INode> testContentKeys = testNode.getAttributeKeys();
-			for(INode testContentKey : testContentKeys) {
-				contentRatings.put((int)testContentKey.getDatasetId(),null);
+		// Create Data Maps of Input Node Attributes with empty values if maps do not already exist
+		if(numericalData == null) {
+			numericalData = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
+			Set<INode> numInputKeys = inputNode.getNumericalAttributeKeys();
+			for(INode numInputKey : numInputKeys) {
+				numericalData.put((int)numInputKey.getDatasetId(),null);
 			}
 			
 		}
 		
 		// Look for content nodes on the list and add it to collected ratings map		
-		Set<INode> posContentKeys = position.getAttributeKeys();
+		Set<INode> posContentKeys = position.getNumericalAttributeKeys();
 		Map<Integer,IAttribute> posContentMap = new HashMap<Integer,IAttribute>();
 		for(INode posContentKey : posContentKeys){
 			
@@ -103,10 +106,10 @@ public final class RecommendationBuilder {
 				  }
 			}
 			
-			posContentMap.put(contentDatasetID, position.getAttributeValue(posContentKey));
+			posContentMap.put(contentDatasetID, position.getNumericalAttributeValue(posContentKey));
 		}
 		
-		for (Entry<Integer, IAttribute> contentRating : contentRatings.entrySet()) {
+		for (Entry<Integer, IAttribute> contentRating : numericalData.entrySet()) {
 			
 			int datasetID = contentRating.getKey();
 		    IAttribute rating = contentRating.getValue();
@@ -116,7 +119,7 @@ public final class RecommendationBuilder {
 		    	
 		    	try {
 		    		IAttribute contentAttributes = posContentMap.get(datasetID);
-		    		contentRatings.put(datasetID, posContentMap.get(datasetID));
+		    		numericalData.put(datasetID, posContentMap.get(datasetID));
 		    	}
 		    	catch (Exception e){
 		    		System.out.println(e);
@@ -127,20 +130,20 @@ public final class RecommendationBuilder {
 		}
 		
 		// Check if all movies were found
-		if(contentRatings.containsValue(null) != true){
-			return contentRatings;
+		if(numericalData.containsValue(null) != true){
+			return numericalData;
 		}
 		else {
 			
 			// Go one level up if possible
 			if(position.getParent() != null) {
-				contentRatings = collectRatings(position.getParent(),testNode,contentRatings);
-				if (contentRatings != null){
-					return contentRatings;
+				numericalData = collectRatings(position.getParent(),inputNode,numericalData);
+				if (numericalData != null){
+					return numericalData;
 				}
 			}
 			else {
-				return contentRatings;
+				return numericalData;
 			}
 		}
 		
@@ -159,10 +162,10 @@ public final class RecommendationBuilder {
 		INode position = finder.findPosition(inputNode,rootU,0);
 		
 		// Calculate recommendation based on this position
-		Map<INode,IAttribute> recommendedContent = new HashMap<INode,IAttribute>();
+		Map<INode,IAttribute> recommended = new HashMap<INode,IAttribute>();
 		
 		if(!(position == null)){
-			recommendedContent = recommend(position,radiusU,radiusC);
+			recommended = recommend(position,radiusU,radiusC);
 		}
 		
 		// Remove content nodes that the user has already rated
@@ -174,7 +177,7 @@ public final class RecommendationBuilder {
 //			}
 //		}
 		
-		return recommendedContent;
+		return recommended;
 		
 	}
 	
@@ -189,12 +192,11 @@ public final class RecommendationBuilder {
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
-		// Find relevant User
-		INode relUser = collectNode(position,radiusU);
-		System.out.println("starting recommendation from user node: " + relUser.toString());
+		// Find relevant User / Content Node
+		INode relevantNode = collectNode(position,radiusU);
 		
-		// collect leaf content nodes from relUser content items
-		Set<INode> userAttributes = relUser.getAttributeKeys();
+		// Collect leaf content / user nodes from relevant Node
+		Set<INode> userAttributes = relevantNode.getNumericalAttributeKeys();
 		for(INode content : userAttributes){
 			
 			Map<INode, IAttribute> contentLeafNodes = collectLeaves(content,null);
@@ -249,8 +251,7 @@ public final class RecommendationBuilder {
 		
 		// If position is leaf
 		if(position.isLeaf()){
-			System.out.println(position.getAttributesString());
-			leaves.put(position,position.getAttributeValue(position));
+			leaves.put(position,position.getNumericalAttributeValue(position));
 			return leaves;
 		}
 	
@@ -263,7 +264,7 @@ public final class RecommendationBuilder {
 			Map<INode, IAttribute> tempLeaves = (collectLeaves(child,leaves));
 			for(INode tempLeaf : tempLeaves.keySet()){
 				if(!leaves.keySet().contains(tempLeaf)){
-					leaves.put(tempLeaf,tempLeaf.getAttributeValue(tempLeaf));
+					leaves.put(tempLeaf,tempLeaf.getNumericalAttributeValue(tempLeaf));
 				}
 			}
 		}
@@ -344,8 +345,13 @@ public final class RecommendationBuilder {
 
 	Comparator<IAttribute> ratingComparator = new Comparator<IAttribute>() {
         @Override public int compare(IAttribute a1, IAttribute a2) {
+<<<<<<< HEAD
             if (a1.getMeanOfRatings() < a2.getMeanOfRatings()) return -1;
             if (a1.getMeanOfRatings() > a2.getMeanOfRatings()) return 1;
+=======
+            if ((a1.getSumOfRatings() / a1.getSupport()) < (a2.getSumOfRatings() / a2.getSupport())) return -1;
+            if ((a1.getSumOfRatings() / a1.getSupport()) > (a2.getSumOfRatings() / a2.getSupport())) return 1;
+>>>>>>> Removed Most Errors from Recommendation
             return 0;
         }           
     };

@@ -1,0 +1,46 @@
+body {
+	text-align: center;
+	margin: 0;
+	padding: 0 0 15px 0;
+	font-family: trebuchet ms, arial, helvetica, sans-serif;
+	background-image: url(img/bg.png);
+	color: black;
+}
+
+#wrapper {
+  	margin: 0 auto;
+  	width: 960px;
+  	text-align: left;
+  	padding: 0;
+}
+
+#header {
+ background-color:red;
+margin-bottom:0px;
+border:none;
+background:url(img/logo.png) top left no-repeat;
+background-position: 162px 20px ;
+height:150px;
+  }
+
+#main {
+  margin: 5px 0px 0 15px;
+  clear: both;
+  width: 930px;
+  padding-bottom: 5px;
+  background: green;
+}
+
+#menu {
+	background:green;
+	width:500px;
+	float:left;
+	display: inline;
+}
+
+#recommendation {
+	background:blue;
+	width:420px;
+	float:left;
+	display: inline;
+}

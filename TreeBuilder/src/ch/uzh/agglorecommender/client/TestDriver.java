@@ -15,8 +15,8 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
-import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
-import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
+import ch.uzh.agglorecommender.recommender.utils.Evaluator;
+import ch.uzh.agglorecommender.recommender.utils.NodeInserter;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -79,7 +79,7 @@ public class TestDriver {
 	private static void test(ClusterResult trainingOutput) {
 				
 		// Instantiate Evaluations Builder
-		EvaluationBuilder eb = new EvaluationBuilder();
+		Evaluator eb = new Evaluator();
 		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput,0,0);
 		
 		// Run Recommendation Type 1

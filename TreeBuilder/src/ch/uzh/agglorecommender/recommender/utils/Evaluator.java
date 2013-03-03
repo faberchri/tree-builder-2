@@ -1,15 +1,12 @@
-package ch.uzh.agglorecommender.recommender.evaluator;
+package ch.uzh.agglorecommender.recommender.utils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,10 +18,28 @@ import com.google.common.collect.ImmutableMap;
  * or create random users as input nodes for recommendations
  * 
  */
-public class EvaluationBuilder {
+public class Evaluator {
 
 	Random randomGenerator = new Random();
 	
+	/**
+	 * Creates usable Map of test users for evaluation
+	 * Helper method for recommendations of type 1 (rmse test)
+	 * 
+	 * @param testSet reference on the test set
+	 */
+	public Map<INode, Integer> getTestUsers(InitialNodesCreator testSet){
+		
+		Map<INode,Integer> testUsers = new HashMap<INode,Integer>();
+		
+		ImmutableMap<Integer, INode> userLeaves = testSet.getUserLeaves();
+		for(Integer userLeaf : userLeaves.keySet()){
+			testUsers.put(userLeaves.get(userLeaf), userLeaf);
+		}
+		
+		return testUsers;
+	}
+
 	/**
 	 * Runs multiple evaluations with different test nodes to eliminate variances
 	 * 
@@ -114,7 +129,7 @@ public class EvaluationBuilder {
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
 		
-		for(INode ratingKey: testNode.getAttributeKeys()) {
+		for(INode ratingKey: testNode.getNumericalAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
@@ -124,7 +139,7 @@ public class EvaluationBuilder {
 			}
 			
 			// Calculate real rating
-			IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
+			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
 			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
 			
 			// Real Difference Squared
@@ -132,7 +147,7 @@ public class EvaluationBuilder {
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / testNode.getAttributeKeys().size();
+		double mse = sumOfSquaredDifferences / testNode.getNumericalAttributeKeys().size();
 		
 		// Take root
 		double rmse = Math.sqrt(mse);
@@ -152,7 +167,7 @@ public class EvaluationBuilder {
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
-		for(INode ratingKey: testNode.getAttributeKeys()) {
+		for(INode ratingKey: testNode.getNumericalAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
@@ -162,7 +177,7 @@ public class EvaluationBuilder {
 			}
 			
 			// Calculate real rating
-			IAttribute rRatingAtt = testNode.getAttributeValue(ratingKey);
+			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
 			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
 			
 			// Absolute Difference Squared
@@ -170,100 +185,82 @@ public class EvaluationBuilder {
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / testNode.getAttributeKeys().size();
+		double mse = sumOfSquaredDifferences / testNode.getNumericalAttributeKeys().size();
 		
 		// Take root
 		double ame = Math.sqrt(mse);
 	
 		return ame;
 	}
-
-	/**
-	 * Creates usable Map of test users for evaluation
-	 * Helper method for recommendations of type 1 (rmse test)
-	 * 
-	 * @param testSet reference on the test set
-	 */
-	public Map<INode, Integer> getTestUsers(InitialNodesCreator testSet){
-		
-		Map<INode,Integer> testUsers = new HashMap<INode,Integer>();
-		
-		ImmutableMap<Integer, INode> userLeaves = testSet.getUserLeaves();
-		for(Integer userLeaf : userLeaves.keySet()){
-			testUsers.put(userLeaves.get(userLeaf), userLeaf);
-		}
-		
-		return testUsers;
-	}
 	
-	/**
-	 * Creates a random user with random ratings & demographics
-	 * Helper method for recommendations of type 2 (recommend unknown content)
-	 * 
-	 * @param testRatings 
-	 * @param testDemographics 
-	 * @param testset reference on the test set
-	 * 
-	 * @return INode testUser
-	 */
-	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String,String> testDemographics) {
-		
-		INode testUser = new Node(ENodeType.User, 0, testDemographics);
-		testUser.setAttributes(testRatings);
-		
-		System.out.println("Test User Demographics: " + testUser.getMeta());
-		
-		System.out.println("Test User Ratings: ");
-		for(INode content : testUser.getAttributeKeys()){
-			IAttribute attribute = testUser.getAttributeValue(content);
-			System.out.println(attribute.getMeta().get(1) + " -> Rating: " + testUser.getAttributeValue(content).getMeanOfRatings());
-		}
-		
-		return testUser;
-	}
+//	/**
+//	 * Creates a random user with random ratings & demographics
+//	 * Helper method for recommendations of type 2 (recommend unknown content)
+//	 * 
+//	 * @param testRatings 
+//	 * @param testDemographics 
+//	 * @param testset reference on the test set
+//	 * 
+//	 * @return INode testUser
+//	 */
+//	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String,String> testDemographics) {
+//		
+//		INode testUser = new Node(ENodeType.User, 0, testDemographics);
+//		testUser.setAttributes(testRatings);
+//		
+//		System.out.println("Test User Demographics: " + testUser.getMeta());
+//		
+//		System.out.println("Test User Ratings: ");
+//		for(INode content : testUser.getAttributeKeys()){
+//			IAttribute attribute = testUser.getAttributeValue(content);
+//			System.out.println(attribute.getMeta().get(1) + " -> Rating: " + testUser.getAttributeValue(content).getMeanOfRatings());
+//		}
+//		
+//		return testUser;
+//	}
 	
-	/**
-	 * Picks some random content from the tree that the user has to rate
-	 * 
-	 * @param limit number of movies that should be rated
-	 * @param trainingOutput the tree that should be used to pick random content
-	 * 
-	 * @ return Map<INode,IAttribute> attribute map
-	 */
-	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
-		
-		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
-		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
-		
-		int i = 0;
-		for(INode contentKey : randomUser.getAttributeKeys()){
-			
-			if(i < limit){
-				contentRatings.put(contentKey, randomUser.getAttributeValue(contentKey));
-			}
-			i++;
-		}
-		
-		return contentRatings;
-	}
+//	/**
+//	 * Picks some random content from the tree that the user has to rate
+//	 * 
+//	 * @param limit number of movies that should be rated
+//	 * @param trainingOutput the tree that should be used to pick random content
+//	 * 
+//	 * @ return Map<INode,IAttribute> attribute map
+//	 */
+//	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
+//		
+//		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
+//		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
+//		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
+//		
+//		int i = 0;
+//		for(INode contentKey : randomUser.getAttributeKeys()){
+//			
+//			if(i < limit){
+//				contentRatings.put(contentKey, randomUser.getAttributeValue(contentKey));
+//			}
+//			i++;
+//		}
+//		
+//		return contentRatings;
+//	}
 	
-	/**
-	 * Creates the demographic data of the user
-	 * 
-	 * @ return Map<INode,IAttribute> attribute map
-	 */
-	public Map<String,String> defineDemographics() {
-		
-		// Define demographic values
-		Map<String,String> demographics = new HashMap<String,String>();
-		demographics.put("24","Age");
-		demographics.put("M","Gender");
-		demographics.put("1","Work");
-		
-		// Ask Tester and define
-		// Implement later
-		
-		return demographics;
-	}
+//	/**
+//	 * Creates the demographic data of the user
+//	 * 
+//	 * @ return Map<INode,IAttribute> attribute map
+//	 */
+//	public Map<String,String> defineDemographics() {
+//		
+//		// Define demographic values
+//		Map<String,String> demographics = new HashMap<String,String>();
+//		demographics.put("24","Age");
+//		demographics.put("M","Gender");
+//		demographics.put("1","Work");
+//		
+//		// Ask Tester and define
+//		// Implement later
+//		
+//		return demographics;
+//	}
 }

@@ -14,7 +14,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
+import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 
 /*
  * Testing EvaluationBuilder.calculateAME(INode testNode, Map<Integer, IAttribute> predictedRatings)
@@ -71,10 +71,10 @@ public class CalculateAMEtest {
 	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
-        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
         method.setAccessible(true);
       
-        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -136,10 +136,10 @@ public class CalculateAMEtest {
 	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
-        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
         method.setAccessible(true);
       
-        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -200,10 +200,10 @@ public class CalculateAMEtest {
 	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
-        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
         method.setAccessible(true);
       
-        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -264,10 +264,10 @@ public class CalculateAMEtest {
 	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
-        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
         method.setAccessible(true);
       
-        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
@@ -328,10 +328,10 @@ public class CalculateAMEtest {
 	double calcResult = Double.MIN_VALUE;
 	try {
         Class[] parameterTypes = {INode.class, Map.class};
-        Method method = EvaluationBuilder.class.getDeclaredMethod("calculateAME", parameterTypes);
+        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
         method.setAccessible(true);
       
-        calcResult = (double) method.invoke(EvaluationBuilder.class.newInstance(),testNode,predictionMap);
+        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }

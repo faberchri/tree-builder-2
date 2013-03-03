@@ -12,7 +12,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.recommender.evaluator.EvaluationBuilder;
+import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 
 public class CalculateRMSEtest {
 	
@@ -54,7 +54,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 3.60555127546;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
@@ -100,7 +100,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 0;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
@@ -146,7 +146,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 7.07106781187;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
@@ -192,7 +192,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 10;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
@@ -238,7 +238,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(0, predictedA1);
 	predictionMap.put(1, predictedA2);
 	
-	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
+	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 0;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);

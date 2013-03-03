@@ -1,4 +1,4 @@
-package ch.uzh.agglorecommender.recommender.treeutils;
+package ch.uzh.agglorecommender.recommender.utils;
 
 import java.io.File;
 import java.util.Iterator;
