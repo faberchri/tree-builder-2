@@ -24,9 +24,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(4.0, null);
+			.createNumericAttribute(4.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(3.0, null);
+			.createNumericAttribute(3.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -58,7 +58,6 @@ public class CalculateRMSEtest {
 	double expectedResult = 5.09901951359;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
 	
 }
 	
