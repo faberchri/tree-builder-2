@@ -34,9 +34,9 @@ public class CalculateAMEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(4.0, null);
+			.createNumericalLeafAttribute(4.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(3.0, null);
+			.createNumericalLeafAttribute(3.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -57,9 +57,9 @@ public class CalculateAMEtest {
 	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(5.0, null);
+			.createNumericalLeafAttribute(5.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(8.0, null);
+			.createNumericalLeafAttribute(8.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -99,9 +99,9 @@ public class CalculateAMEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -122,9 +122,9 @@ public class CalculateAMEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -163,9 +163,9 @@ public class CalculateAMEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -186,9 +186,9 @@ public class CalculateAMEtest {
 	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -227,9 +227,9 @@ public class CalculateAMEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -250,9 +250,9 @@ public class CalculateAMEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -291,9 +291,9 @@ public class CalculateAMEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -314,9 +314,9 @@ public class CalculateAMEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
