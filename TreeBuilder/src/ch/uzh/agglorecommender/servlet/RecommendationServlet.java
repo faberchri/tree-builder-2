@@ -1,7 +1,6 @@
 package ch.uzh.agglorecommender.servlet;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
+import ch.uzh.agglorecommender.recommender.treeutils.InputReader;
 import ch.uzh.agglorecommender.recommender.treeutils.NodeInserter;
 
 public class RecommendationServlet extends AbstractHandler {
@@ -31,28 +31,28 @@ public class RecommendationServlet extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
    
-	// Build Node
+	// Define Type of Node
 	ENodeType eNodeType = ENodeType.valueOf(request.getParameter("type"));
-	Collection<INode> children = null;
-	Double categoryUtility = 0.0;
 	
-	// Read User Data
-	Map<Object, IAttribute> nomMap = new HashMap<Object,IAttribute>();
-	String[] userData = request.getParameter("userData").split("\\-");
-	
-	// Read Parse Data
-	Map<INode,IAttribute> numMap = new HashMap<INode,IAttribute>();
-	String[] ratingData = request.getParameter("ratingData").split("\\-");
-	for(String rating : ratingData){
+	// Read Content Information
+	Map<String, String> nomMapTemp = new HashMap<String,String>();
+	String[] contentData = request.getParameter("userData").split("\\-");
+	for(String rating : contentData){
 		String[] ratingSplit = rating.split("\\*");
-		
-		// Generate Node & Attribute (like at the beginning)
-		
-		
-		numMap.put(ratingSplit[0], ratingSplit[1]);
+		nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
 	}
+	Map<Object,IAttribute> nomMap = InputReader.buildNominalAttributes(nomMapTemp);
+	
+	// Read Collaborative Information
+	Map<String, String> numMapTemp = new HashMap<String,String>();
+	String[] collaborativeData = request.getParameter("ratingData").split("\\-");
+	for(String rating : collaborativeData){
+		String[] ratingSplit = rating.split("\\*");
+		numMapTemp.put(ratingSplit[0], ratingSplit[1]);
+	}
+	Map<INode,IAttribute> numMap = InputReader.buildNumericalAttributes(nomMapTemp);
 				
-	Node inputNode = new Node(eNodeType,children,numMap,nomMap,categoryUtility);
+	Node inputNode = new Node(eNodeType,null,numMap,nomMap,0.0);
 	
 	// Create Recommendation
 	if(request.getParameter("method") == "recommendation"){	
