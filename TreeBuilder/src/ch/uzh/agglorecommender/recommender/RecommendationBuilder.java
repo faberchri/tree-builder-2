@@ -345,14 +345,22 @@ public final class RecommendationBuilder {
 
 	Comparator<IAttribute> ratingComparator = new Comparator<IAttribute>() {
         @Override public int compare(IAttribute a1, IAttribute a2) {
-<<<<<<< HEAD
-            if (a1.getMeanOfRatings() < a2.getMeanOfRatings()) return -1;
-            if (a1.getMeanOfRatings() > a2.getMeanOfRatings()) return 1;
-=======
+
             if ((a1.getSumOfRatings() / a1.getSupport()) < (a2.getSumOfRatings() / a2.getSupport())) return -1;
             if ((a1.getSumOfRatings() / a1.getSupport()) > (a2.getSumOfRatings() / a2.getSupport())) return 1;
->>>>>>> Removed Most Errors from Recommendation
+
             return 0;
         }           
     };
+    
+    public void printRecommendation(Map<INode, IAttribute> sortedRecommendation){
+		if(sortedRecommendation != null){
+			System.out.println("=> Recommended Movies: ");
+			for(INode recommendation: sortedRecommendation.keySet()){
+				if(recommendation.getMeta() != null){
+					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + recommendation.getMeanOfRatings());
+				}
+			}
+		}
+    }
 }

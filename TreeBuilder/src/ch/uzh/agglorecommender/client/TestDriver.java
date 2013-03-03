@@ -3,9 +3,9 @@ package ch.uzh.agglorecommender.client;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
@@ -80,7 +80,7 @@ public class TestDriver {
 				
 		// Instantiate Evaluations Builder
 		Evaluator eb = new Evaluator();
-		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput,0,0);
+		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput);
 		
 		// Run Recommendation Type 1
 		System.out.println("-------------------------------");
@@ -102,20 +102,14 @@ public class TestDriver {
 		System.out.println("Starting Recommendation Type 2");
 		System.out.println("-------------------------------");
 		
+		// Deprecated after testing
 		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
-		Map<String,String> testDemographics = eb.defineDemographics(); // Demographics
-		INode testUser = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
-		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(testUser); // Create Recommendation
-		ArrayList<IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
+		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
 		
-		if(sortedRecommendation != null){
-			System.out.println("=> Recommended Movies: ");
-			for(IAttribute recommendation: sortedRecommendation){
-				if(recommendation.getMeta() != null){
-					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + recommendation.getMeanOfRatings());
-				}
-			}
-		}
+		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
+		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		rb.printRecommendation(sortedRecommendation);
 	}
 	
 	/**

@@ -1,6 +1,5 @@
 package ch.uzh.agglorecommender.recommender.utils;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,20 +18,6 @@ public class NodeInserter {
 	public NodeInserter(ClusterResult clusterResult, TreeComponentFactory userTreeComponentFactory){
 		this.clusterResult = clusterResult;
 		this.userTreeComponentFactory = userTreeComponentFactory;
-	}
-	
-	/**
-	 * Read Insertion File, create Nodes and insert
-	 * 
-	 * @param file this file is going to be read
-	 * 
-	 */
-	public void processList(File file) {
-		// FIXME Implement
-		
-		for (INode node : nodes){
-			insert(node);
-		}
 	}
 	
 	/**

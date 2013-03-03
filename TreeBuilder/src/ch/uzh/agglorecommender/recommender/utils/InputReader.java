@@ -15,9 +15,9 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 
 public class InputReader {
 	
-	public InputReader (userLeafs, contentLeafs){
-		
-	}
+//	public InputReader (userLeafs, contentLeafs){
+//		
+//	}
   
 	/**
 	 * Read Input File, parse lines (userid,itemid,)
@@ -66,6 +66,7 @@ public class InputReader {
 	 * 
 	 */
 	public static Map<Object,IAttribute> buildNominalAttributes(Map<String,String> attributes) {
+		return null;
 		
 	}
 	
@@ -94,6 +95,7 @@ public class InputReader {
 	}
 	
 	private static INode findNode(String datasetID, ENodeType type){
+		return null;
 		
 	}
 

@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
+import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 
 import com.google.common.collect.ImmutableMap;
@@ -193,74 +197,75 @@ public class Evaluator {
 		return ame;
 	}
 	
-//	/**
-//	 * Creates a random user with random ratings & demographics
-//	 * Helper method for recommendations of type 2 (recommend unknown content)
-//	 * 
-//	 * @param testRatings 
-//	 * @param testDemographics 
-//	 * @param testset reference on the test set
-//	 * 
-//	 * @return INode testUser
-//	 */
-//	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String,String> testDemographics) {
-//		
-//		INode testUser = new Node(ENodeType.User, 0, testDemographics);
-//		testUser.setAttributes(testRatings);
-//		
-//		System.out.println("Test User Demographics: " + testUser.getMeta());
-//		
-//		System.out.println("Test User Ratings: ");
-//		for(INode content : testUser.getAttributeKeys()){
-//			IAttribute attribute = testUser.getAttributeValue(content);
-//			System.out.println(attribute.getMeta().get(1) + " -> Rating: " + testUser.getAttributeValue(content).getMeanOfRatings());
-//		}
-//		
-//		return testUser;
-//	}
+	/**
+	 * Creates a random user with random ratings & demographics
+	 * Helper method for recommendations of type 2 (recommend unknown content)
+	 * 
+	 * @param testRatings 
+	 * @param testDemographics 
+	 * @param testset reference on the test set
+	 * 
+	 * @return INode testUser
+	 */
+	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<Object, IAttribute> testDemographics) {
+		
+		INode testUser = new Node(ENodeType.User, 0);
+		testUser.setNumericalAttributes(testRatings);
+		testUser.setNominalAttributes(testDemographics);
+		
+		return testUser;
+	}
 	
-//	/**
-//	 * Picks some random content from the tree that the user has to rate
-//	 * 
-//	 * @param limit number of movies that should be rated
-//	 * @param trainingOutput the tree that should be used to pick random content
-//	 * 
-//	 * @ return Map<INode,IAttribute> attribute map
-//	 */
-//	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
-//		
-//		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-//		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
-//		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
-//		
-//		int i = 0;
-//		for(INode contentKey : randomUser.getAttributeKeys()){
-//			
-//			if(i < limit){
-//				contentRatings.put(contentKey, randomUser.getAttributeValue(contentKey));
-//			}
-//			i++;
-//		}
-//		
-//		return contentRatings;
-//	}
+	/**
+	 * Picks some random content from the tree that the user has to rate
+	 * 
+	 * @param limit number of movies that should be rated
+	 * @param trainingOutput the tree that should be used to pick random content
+	 * 
+	 * @ return Map<INode,IAttribute> attribute map
+	 */
+	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
+		
+		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
+		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
+		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
+		
+		int i = 0;
+		for(INode contentKey : randomUser.getNumericalAttributeKeys()){
+			
+			if(i < limit){
+				contentRatings.put(contentKey, randomUser.getNumericalAttributeValue(contentKey));
+			}
+			i++;
+		}
+		
+		return contentRatings;
+	}
 	
-//	/**
-//	 * Creates the demographic data of the user
-//	 * 
-//	 * @ return Map<INode,IAttribute> attribute map
-//	 */
-//	public Map<String,String> defineDemographics() {
-//		
-//		// Define demographic values
-//		Map<String,String> demographics = new HashMap<String,String>();
-//		demographics.put("24","Age");
-//		demographics.put("M","Gender");
-//		demographics.put("1","Work");
-//		
-//		// Ask Tester and define
-//		// Implement later
-//		
-//		return demographics;
-//	}
+	/**
+	 * Creates the demographic data of the user
+	 * 
+	 * @ return Map<INode,IAttribute> attribute map
+	 */
+	public Map<Object,IAttribute> defineDemographics() {
+		
+		// Define demographic values
+		Map<Object,IAttribute> demographics = new HashMap<Object,IAttribute>();
+		
+		Map<Object,Double> a1Map = new HashMap<Object,Double>();
+		a1Map.put(24, 1.0);
+		IAttribute a1  = new CobwebAttribute(a1Map);
+		Map<Object,Double> a2Map = new HashMap<Object,Double>();
+		a1Map.put("M", 1.0);
+		IAttribute a2  = new CobwebAttribute(a2Map);
+		Map<Object,Double> a3Map = new HashMap<Object,Double>();
+		a1Map.put("Student", 1.0);
+		IAttribute a3  = new CobwebAttribute(a3Map);
+		
+		demographics.put("Age",a1);
+		demographics.put("Gender",a2);
+		demographics.put("Occupation",a3);
+		
+		return demographics;
+	}
 }
