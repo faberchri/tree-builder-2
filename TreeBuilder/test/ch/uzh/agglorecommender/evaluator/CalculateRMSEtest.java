@@ -24,9 +24,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(4.0, null);
+			.createNumericalLeafAttribute(4.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(3.0, null);
+			.createNumericalLeafAttribute(3.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -45,9 +45,9 @@ public class CalculateRMSEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(5.0, null);
+			.createNumericalLeafAttribute(5.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(8.0, null);
+			.createNumericalLeafAttribute(8.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -55,7 +55,7 @@ public class CalculateRMSEtest {
 	predictionMap.put(1, predictedA2);
 	
 	double calcResult = EvaluationBuilder.class.newInstance().calculateRMSE(testNode,predictionMap);
-	double expectedResult = 5.09901951359;
+	double expectedResult = 3.60555127546;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	
@@ -70,9 +70,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -91,9 +91,9 @@ public class CalculateRMSEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -116,9 +116,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -137,9 +137,9 @@ public class CalculateRMSEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -162,9 +162,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -183,9 +183,9 @@ public class CalculateRMSEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -208,9 +208,9 @@ public class CalculateRMSEtest {
 	
 	//Create test node to be compared with prediction
 	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
@@ -229,9 +229,9 @@ public class CalculateRMSEtest {
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
 	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(10.0, null);
+			.createNumericalLeafAttribute(10.0);
 	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericAttribute(0.0, null);
+			.createNumericalLeafAttribute(0.0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
