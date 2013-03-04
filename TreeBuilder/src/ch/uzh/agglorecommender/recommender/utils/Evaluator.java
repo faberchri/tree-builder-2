@@ -96,7 +96,7 @@ public class Evaluator {
 		if(testNode != null){
 			
 			// Get Predicitions & Real Values
-			Map<Integer, IAttribute> predictedRatings = rb.runTestRecommendation(testNode);
+			Map<Integer, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode);
 			
 			if(predictedRatings != null) {
 				
@@ -105,6 +105,8 @@ public class Evaluator {
 				// Pick the real ratings for the predicted ratings from the recommendation
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
+				
+				System.out.println(eval.toString());
 				
 				return eval;
 				
@@ -154,9 +156,7 @@ public class Evaluator {
 		double mse = sumOfSquaredDifferences / testNode.getNumericalAttributeKeys().size();
 		
 		// Take root
-		double rmse = Math.sqrt(mse);
-	
-		return rmse;
+		return Math.sqrt(mse);
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public class Evaluator {
 	private double calculateAME(INode testNode,Map<Integer, IAttribute> predictedRatings) {
 		
 		// Calculate Difference of predicted values to real values
-		double sumOfSquaredDifferences = 0;
+		double sumOfDifferences = 0;
 		for(INode ratingKey: testNode.getNumericalAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
@@ -185,16 +185,11 @@ public class Evaluator {
 			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
 			
 			// Absolute Difference Squared
-			sumOfSquaredDifferences += Math.pow(Math.abs(rRating - pRating),2);
+			sumOfDifferences += Math.abs(rRating - pRating);
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / testNode.getNumericalAttributeKeys().size();
-		
-		// Take root
-		double ame = Math.sqrt(mse);
-	
-		return ame;
+		return sumOfDifferences / testNode.getNumericalAttributeKeys().size();
 	}
 	
 	/**
@@ -267,5 +262,11 @@ public class Evaluator {
 		demographics.put("Occupation",a3);
 		
 		return demographics;
+	}
+
+	public void printEvaluationResult(Map<String, Double> eval) {
+		if(eval != null){
+			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		}
 	}
 }

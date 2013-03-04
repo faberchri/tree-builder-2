@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treecomponent;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +12,15 @@ import ch.uzh.agglorecommender.util.TBLogger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 
-public class TreeComponentFactory  {
+public class TreeComponentFactory implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8378733065044532885L;
+	
+	
+	
 	private static TreeComponentFactory factory = new TreeComponentFactory();
 	
 	private TreeComponentFactory() {

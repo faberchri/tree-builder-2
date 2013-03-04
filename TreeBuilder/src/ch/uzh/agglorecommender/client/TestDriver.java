@@ -5,13 +5,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
-import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
@@ -31,8 +29,7 @@ public class TestDriver {
 	private static Logger log = TBLogger.getLogger(TestDriver.class.toString());
 	
 
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws Exception {
 
 		// Process Command Line Arguments
 		jc = new JCommander(cla, args);
@@ -41,7 +38,6 @@ public class TestDriver {
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
 		test(training());
-//		insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
 	}
 	
 	private static ClusterResult training() {
@@ -75,53 +71,64 @@ public class TestDriver {
 	 * Recommendation Type 2 delivers qualitative information (the recommendation)
 	 * 
 	 * @param trainingOutput the trainingCluster for evaluation
+	 * @throws Exception 
 	 */
-	private static void test(ClusterResult trainingOutput) {
+	private static void test(ClusterResult trainingOutput) throws Exception {
 				
-		// Instantiate Evaluations Builder
-		Evaluator eb = new Evaluator();
-		RecommendationBuilder rb = new RecommendationBuilder(trainingOutput);
+		// Instantiate Tools
+		Evaluator eb 				= new Evaluator();
+		RecommendationBuilder rb 	= new RecommendationBuilder(trainingOutput);
+		NodeInserter ni 			= new NodeInserter(trainingOutput,TreeComponentFactory.getInstance());
+		InitialNodesCreator testSet = new InitialNodesCreator(getTestDataset(),TreeComponentFactory.getInstance());
 		
-		// Run Recommendation Type 1
+		// Run Quantitative Evaluation
 		System.out.println("-------------------------------");
 		System.out.println("Starting Recommendation Type 1");
 		System.out.println("-------------------------------");
 		
-		InitialNodesCreator testSet = new InitialNodesCreator(
-				getTestDataset(),
-				TreeComponentFactory.getInstance());
-		Map<INode,Integer> testNodes = eb.getTestUsers(testSet);
-		Map<String, Double> eval = eb.kFoldEvaluation(testNodes, rb);
+		Map<INode,Integer> testNodes 	= eb.getTestUsers(testSet);
+		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
+		eb.printEvaluationResult(eval);
 		
-		if(eval != null){
-			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
-		}
+		// Start User Interfaces for qualitative evaluation and insertion
+//		System.out.println("-------------------------------");
+//		System.out.println("Starting Recommendation Type 2");
+//		System.out.println("-------------------------------");
+//		
+//		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
+//		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
+//		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
+//		
+//		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
+//		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+//		rb.printRecommendation(sortedRecommendation);
 		
-		// Recommendation Type 2
-		System.out.println("-------------------------------");
-		System.out.println("Starting Recommendation Type 2");
-		System.out.println("-------------------------------");
+//		// Start UI
+//		BasicUI basicUI = new BasicUI(rb,ni);
+//		basicUI.startService();
+//
+//		// Basic UI Test
+//		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
+//		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
+//		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
+//		
+//		// Console Input
+//		System.out.println("Hello");
+//		System.out.println("Hello");
+//		
+//		// Method Input
+////		basicUI.recommendation(inputNode);
+////		basicUI.insertion(inputNode);
+//		
+//		// Insertion
+//		
+//		
+//		// Start Web based UI Extension
+//		WebUI webUI = new WebUI(basicUI); // Hangs in on basicUI, listens on 8081
+//		webUI.startService();
 		
-		// Deprecated after testing
-		Map<INode, IAttribute> testRatings = eb.rateRandomContent(trainingOutput,3); // Ratings
-		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
-		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
-		
-		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
-		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
-		rb.printRecommendation(sortedRecommendation);
-	}
-	
-	/**
-	 * Allows insertion of a new node to an existing tree
-	 * 
-	 * @param tree the tree to insert the node
-	 * @param treeComponentFactory the tree component factory that should be used
-	 * @param inputNode the node that should be inserted
-	 */
-	private static void insert(ClusterResult tree, TreeComponentFactory treeComponentFactory, INode inputNode) {
-		NodeInserter nodeInserter = new NodeInserter(tree,treeComponentFactory);
-		nodeInserter.insert(inputNode);
+		// Real user interaction Test
+		// open localhost:8081
 	}
 	
 	/**
@@ -167,7 +174,7 @@ public class TestDriver {
 //					// training and test data set is the same
 //					dataset = (IDataset<?>) constructor.newInstance(inputFile);
 //					break;
-//				}
+//				}	
 				if (parameterTypes.length == 2 && parameterTypes[0] == File.class && parameterTypes[1] == DataSetSplit.class) {
 					dataset = (IDataset<?>) constructor.newInstance(inputFile, split);
 					break;

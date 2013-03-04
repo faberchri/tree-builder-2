@@ -3,8 +3,8 @@ package ch.uzh.agglorecommender.recommender;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -56,19 +56,18 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<Integer, IAttribute> runTestRecommendation(INode testNode){
+	public Map<Integer, IAttribute> runQuantitativeTest(INode testNode){
 		
 		// Find position of the similar node in the tree
 		INode position = leavesMapU.get((int)testNode.getDatasetId());
 		
-		if(position == null) {
-			return null;
-		}	
-		else {
-
+		try {
 			// Collect ratings of all content given by the input node
 			Map<Integer, IAttribute> contentRatings = collectRatings(position,testNode,null);
 			return contentRatings;
+		}
+		catch (Exception e){
+			return null;
 		}
 	}
 	
@@ -80,73 +79,93 @@ public final class RecommendationBuilder {
 	 * 
 	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
 	 */
-	public Map<Integer, IAttribute> collectRatings(INode position, INode inputNode, Map<Integer, IAttribute> numericalData) {
+	private Map<Integer, IAttribute> collectRatings(INode position, INode testNode, Map<Integer, IAttribute> ratingList) {
 		
-		// Create Data Maps of Input Node Attributes with empty values if maps do not already exist
-		if(numericalData == null) {
-			numericalData = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
-			Set<INode> numInputKeys = inputNode.getNumericalAttributeKeys();
+		// Create Ratings Map with empty values if it does not already exist
+		if(ratingList == null) {
+			ratingList = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
+			Set<INode> numInputKeys = testNode.getNumericalAttributeKeys();
 			for(INode numInputKey : numInputKeys) {
-				numericalData.put((int)numInputKey.getDatasetId(),null);
+				ratingList.put((int)numInputKey.getDatasetId(),null);
 			}
-			
 		}
 		
 		// Look for content nodes on the list and add it to collected ratings map		
-		Set<INode> posContentKeys = position.getNumericalAttributeKeys();
-		Map<Integer,IAttribute> posContentMap = new HashMap<Integer,IAttribute>();
-		for(INode posContentKey : posContentKeys){
+		Set<INode> posRatingKeys = position.getNumericalAttributeKeys();
+		int i=0;
+		for(INode posRatingKey : posRatingKeys){
 			
-			// Find Dataset ID of Content Node -> FIXME: very inefficient
-			int contentDatasetID = 0;
-			for (Iterator<Entry<Integer, INode>> iter = leavesMapC.entrySet().iterator(); iter.hasNext();) {
-				  Map.Entry<Integer,INode> e = (Map.Entry<Integer,INode>) iter.next();
-				  if (posContentKey.getId() == e.getValue().getId()){
-					  contentDatasetID = e.getKey();
-				  }
+			// Need all dataset item ids
+			List<Integer> datasetIds = posRatingKey.getDataSetIds();
+			for(int searchDatasetId : ratingList.keySet()){
+				
+				if(ratingList.get(searchDatasetId) == null){
+					if(datasetIds.contains(searchDatasetId)){
+						
+						// Attribute is original
+						if(datasetIds.size() == 1){
+							ratingList.put(searchDatasetId, position.getNumericalAttributeValue(posRatingKey));
+						}
+						// Attribute is not original
+						else {
+							IAttribute originalAttribute = findOriginalAttribute(position,searchDatasetId);
+							ratingList.put(searchDatasetId, originalAttribute);
+						}
+					}
+				}
 			}
-			
-			posContentMap.put(contentDatasetID, position.getNumericalAttributeValue(posContentKey));
 		}
-		
-		for (Entry<Integer, IAttribute> contentRating : numericalData.entrySet()) {
 			
-			int datasetID = contentRating.getKey();
-		    IAttribute rating = contentRating.getValue();
-		    
-		    // Check if value still needs to be found
-		    if(rating == null){
-		    	
-		    	try {
-		    		IAttribute contentAttributes = posContentMap.get(datasetID);
-		    		numericalData.put(datasetID, posContentMap.get(datasetID));
-		    	}
-		    	catch (Exception e){
-		    		System.out.println(e);
-		    	}
-		    	
-		    }
-		    
-		}
-		
 		// Check if all movies were found
-		if(numericalData.containsValue(null) != true){
-			return numericalData;
+		if(ratingList.containsValue(null) != true){
+			return ratingList;
 		}
 		else {
 			
 			// Go one level up if possible
 			if(position.getParent() != null) {
-				numericalData = collectRatings(position.getParent(),inputNode,numericalData);
-				if (numericalData != null){
-					return numericalData;
+				ratingList = collectRatings(position.getParent(),testNode,ratingList);
+				if (ratingList != null){
+					return ratingList;
 				}
 			}
 			else {
-				return numericalData;
+				return ratingList;
 			}
 		}
+		return null;
+	}
+	
+	private IAttribute findOriginalAttribute(INode position, int datasetID) {
 		
+		// Get all children of position
+		Iterator<INode> children = position.getChildren();
+		
+		// Determine the one child that has the datasetID in one of its attributes
+		while(children.hasNext()){
+			INode child = children.next();
+			for(INode attributeKey : child.getNumericalAttributeKeys()){
+				
+				List<Integer> datasetIds = attributeKey.getDataSetIds();
+				
+				// Catch condition
+				if(datasetIds.size() == 1 && datasetIds.get(0) == datasetID){
+					return child.getNumericalAttributeValue(attributeKey);
+				}
+				else {
+					for(int tempDatasetId : datasetIds){
+						if(tempDatasetId == datasetID){
+							
+							// Search on level deeper 
+							IAttribute originalAttribute = findOriginalAttribute(child,datasetID);
+							if(originalAttribute != null){
+								return originalAttribute;
+							}
+						}
+					}
+				}
+			}
+		}
 		return null;
 	}
 
@@ -188,7 +207,7 @@ public final class RecommendationBuilder {
 	 * @param radiusU defines how many levels of users should be incorporated 
 	 * @param radiusC defines how many levels of content should be incorporated 
 	 */
-	public Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
+	private Map<INode, IAttribute> recommend(INode position, int radiusU, int radiusC) {
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
@@ -215,7 +234,7 @@ public final class RecommendationBuilder {
 	 * @param position starting point to calculate recommendation 
 	 * @param radius defines how many levels above start position should be incorporated 
 	 */
-	public INode collectNode(INode position,int radius){
+	private INode collectNode(INode position,int radius){
 		
 		INode relevantNode = null;
 
@@ -242,7 +261,7 @@ public final class RecommendationBuilder {
 	 * @param position this node is the starting point to find leaves 
 	 * @param leaves collection of all leaves
 	 */
-	public Map<INode, IAttribute> collectLeaves(INode position, Map<INode,IAttribute> leaves){
+	private Map<INode, IAttribute> collectLeaves(INode position, Map<INode,IAttribute> leaves){
 		
 		// Create leaves set if not exists
 		if(leaves == null){
@@ -283,17 +302,21 @@ public final class RecommendationBuilder {
 	 */
 	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 
-		// FIXME sollte hier Comparator verwenden http://www.roseindia.net/java/example/java/util/sortedmap.shtml
-
-		SortedMap<INode,IAttribute> finalRecommendation = new TreeMap<INode,IAttribute>(ratingComparator);
-
-		for(INode node : unsortedRecommendation.keySet()){
-			finalRecommendation.put(node, unsortedRecommendation.get(node));
-		}
+	    //********** NEW WAY - HAS STILL BUGS ********************
+//		 FIXME sollte hier Comparator verwenden http://www.roseindia.net/java/example/java/util/sortedmap.shtml
+		ValueComparator bvc =  new ValueComparator(unsortedRecommendation);
+		SortedMap<INode,IAttribute> finalRecommendation = new TreeMap<INode,IAttribute>(bvc);
+		finalRecommendation.putAll(unsortedRecommendation);
+		
+//		for(INode node : unsortedRecommendation.keySet()){
+//			finalRecommendation.put(node, unsortedRecommendation.get(node));
+//		}
 
 	    System.out.println(finalRecommendation); 
 
 	    return finalRecommendation;
+	    
+	    //********** NEW WAY - HAS STILL BUGS ********************
 
 //		// Create Array from Map
 //		IAttribute[] sortedRecommendation = new IAttribute[unsortedRecommendation.size()];
@@ -313,7 +336,7 @@ public final class RecommendationBuilder {
 //			IAttribute newRating = sortedRecommendation[f];
 //			IAttribute insertedRating = sortedRecommendation[f-1];
 //			
-//			if (newRating.getMeanOfRatings() > insertedRating.getMeanOfRatings()) continue;
+//			if ((newRating.getSumOfRatings() / newRating.getSupport()) > (insertedRating.getSumOfRatings() / insertedRating.getSupport())) continue;
 //			temp = sortedRecommendation[f];
 //			i    = f-1;
 //			
@@ -343,23 +366,31 @@ public final class RecommendationBuilder {
 //		return finalRecommendation;
 	}
 
-	Comparator<IAttribute> ratingComparator = new Comparator<IAttribute>() {
-        @Override public int compare(IAttribute a1, IAttribute a2) {
+    class ValueComparator implements Comparator<INode> {
 
-            if ((a1.getSumOfRatings() / a1.getSupport()) < (a2.getSumOfRatings() / a2.getSupport())) return -1;
-            if ((a1.getSumOfRatings() / a1.getSupport()) > (a2.getSumOfRatings() / a2.getSupport())) return 1;
+        Map<INode, IAttribute> base;
+        public ValueComparator(Map<INode, IAttribute> base) {
+            this.base = base;
+        }
 
-            return 0;
-        }           
-    };
+        // Note: this comparator imposes orderings that are inconsistent with equals.    
+        public int compare(INode n1, INode n2) {
+            if (base.get(n1).getSumOfRatings()/base.get(n1).getSupport() >= base.get(n2).getSumOfRatings()/base.get(n2).getSupport()) {
+                return -1;
+            } else {
+                return 1;
+            } // returning 0 would merge keys
+        }
+    }
     
-    public void printRecommendation(Map<INode, IAttribute> sortedRecommendation){
+    public void printRecommendation(SortedMap<INode, IAttribute> sortedRecommendation){
 		if(sortedRecommendation != null){
 			System.out.println("=> Recommended Movies: ");
 			for(INode recommendation: sortedRecommendation.keySet()){
-				if(recommendation.getMeta() != null){
-					System.out.println(recommendation.getMeta().get(1) + " -> Rating: " + recommendation.getMeanOfRatings());
-				}
+//				if(recommendation.getMeta() != null){
+//					System.out.println(recommendation.getMeta() + " -> Rating: " + recommendation.getMeanOfRatings());
+//				}
+				System.out.println(recommendation.getNominalAttributesString() + " -> Rating: " + sortedRecommendation.get(recommendation).getSumOfRatings()/sortedRecommendation.get(recommendation).getSupport());
 			}
 		}
     }

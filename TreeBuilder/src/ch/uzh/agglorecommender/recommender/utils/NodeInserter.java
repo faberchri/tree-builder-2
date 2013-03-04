@@ -13,26 +13,28 @@ public class NodeInserter {
 	
 	ClusterResult clusterResult = null;
 	TreeComponentFactory userTreeComponentFactory = null;
-	PositionFinder positionFinder  = new PositionFinder();
+	static PositionFinder positionFinder  = new PositionFinder();
 	
-	public NodeInserter(ClusterResult clusterResult, TreeComponentFactory userTreeComponentFactory){
+	public NodeInserter(ClusterResult clusterResult, TreeComponentFactory treeComponentFactory){
 		this.clusterResult = clusterResult;
-		this.userTreeComponentFactory = userTreeComponentFactory;
+		this.userTreeComponentFactory = treeComponentFactory;
 	}
 	
 	/**
 	 * Decides which insertion method to use and runs specific method
 	 * 
 	 * @param node this node is going to be inserted
+	 * @return 
 	 * 
 	 */
-	public void insert(INode node) {
+	public static Boolean insert(INode node) {
 		
 		// Find fitting method of insertion
 		// FIXME Implement
 		
 		newNode(node);
 		
+		return true;
 	}
 
 	/**
@@ -41,7 +43,7 @@ public class NodeInserter {
 	 * @param node this node is going to be inserted
 	 * 
 	 */
-	public void newNode(INode node) {
+	public static void newNode(INode node) {
 		
 		INode position = positionFinder.findPosition(node, null, 0);
 		if(position != null){

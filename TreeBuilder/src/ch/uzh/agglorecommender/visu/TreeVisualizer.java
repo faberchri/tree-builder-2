@@ -93,8 +93,8 @@ public class TreeVisualizer {
 	 * @param content
 	 */
 	public void visualize() {
-			vbC.updateGraph(contentNodes);
-			vbU.updateGraph(userNodes);
+		vbC.updateGraph(contentNodes);
+		vbU.updateGraph(userNodes);
 	}
 	
 	/**
