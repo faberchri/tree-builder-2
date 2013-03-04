@@ -57,32 +57,31 @@ public class Evaluator {
 			
 		// Establish Maps
 		Map<String,Double> eval = null;
-		Map<String,Double> sumOfEval = new HashMap<String,Double>();
-		sumOfEval.put("RMSE", 0.0);
-		sumOfEval.put("AME", 0.0);
+		Map<String,Double> totalEvalValue = new HashMap<String,Double>();
+		totalEvalValue.put("RMSE", 0.0);
+		totalEvalValue.put("AME", 0.0);
 			
-		// Calculate evaluation for all test nodes
+		// Calculate evaluation for all test nodes and update mean
 		for(INode testNode : testNodes.keySet()) {
 			
 			eval = evaluate(testNode,rb);
 				
-			// Add up results
-			for(String evMethod : sumOfEval.keySet()){
-				if(eval.get(evMethod) != null){
-					Double sumOfEValue = sumOfEval.get(evMethod);
-					sumOfEValue += eval.get(evMethod);
-					sumOfEval.put(evMethod, sumOfEValue);
+			for(String evalMethod : totalEvalValue.keySet()){
+				if(eval.get(evalMethod) != null){
+					Double currentSum = totalEvalValue.get(evalMethod);
+					currentSum += eval.get(evalMethod);
+					totalEvalValue.put(evalMethod, currentSum);
 				}
 			}
 		}
 			
 		// Take Mean of every value
-		for(String eKey : sumOfEval.keySet()){
-			Double meanEvalValue = sumOfEval.get(eKey) / testNodes.size();
-			sumOfEval.put(eKey, meanEvalValue);
+		for(String evalMethod : totalEvalValue.keySet()){
+			Double meanEvalValue = totalEvalValue.get(evalMethod) / testNodes.size();
+			totalEvalValue.put(evalMethod, meanEvalValue);
 		}
 		
-		return eval;
+		return totalEvalValue;
 	}
 
 	/**
