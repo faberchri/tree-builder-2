@@ -224,18 +224,23 @@ public final class RecommendationBuilder {
 		
 		for(INode leafNode : leafNodes){
 			for(INode attKey : leafNode.getNumericalAttributeKeys()){
-				if(recommendation.containsKey(attKey)){
-					
-					IAttribute oldAtt = recommendation.get(attKey);
-					IAttribute newAtt = leafNode.getNumericalAttributeValue(attKey);
-					int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
-					double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
-					IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
-							
-					recommendation.put(attKey, merged);
-				}
-				else{
-					recommendation.put(attKey, leafNode.getNumericalAttributeValue(attKey));
+				
+				List<INode> attributeLeafNodes = collectLeaves(attKey,null);
+				
+				for(INode attLeaf : attributeLeafNodes){
+					if(recommendation.containsKey(attLeaf)){
+						
+						IAttribute oldAtt = recommendation.get(attLeaf);
+						IAttribute newAtt = leafNode.getNumericalAttributeValue(attKey); // FIXME wrong
+						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
+						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
+						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
+								
+						recommendation.put(attLeaf, merged);
+					}
+					else{
+						recommendation.put(attLeaf, leafNode.getNumericalAttributeValue(attKey)); // FIXME wrong
+					}
 				}
 			}
 		}
@@ -356,10 +361,23 @@ public final class RecommendationBuilder {
 		if(recommendationCollection != null){
 			System.out.println("=> Recommended: ");
 			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
-				System.out.println(
-						entry.getKey().toString() +
-						" -> " + entry.getValue().getSumOfRatings() / entry.getValue().getSupport()
-				);
+				
+				//***************TERRIBLE -> FIXME***********************
+				// Find Information about Recommendation
+				Iterator<Entry<Object,Double>> title = null;
+				for(Object attribute : entry.getKey().getNominalAttributeKeys()){
+//					System.out.println(attribute.toString());
+					if(attribute.equals("title")){
+						title = entry.getKey().getNominalAttributeValue(attribute).getProbabilities();
+					}
+				}
+				String titleText="";
+				while(title.hasNext()){
+					titleText = (String) title.next().getKey();
+				}
+				
+				System.out.println(titleText + " -> " + entry.getValue().getSumOfRatings() / entry.getValue().getSupport());
+				//**************************************
 			}
 		}
     }
