@@ -346,7 +346,7 @@ public final class RecommendationBuilder {
         	double mean1 = a1.getSumOfRatings() / a1.getSupport();
         	double mean2 = a2.getSumOfRatings() / a2.getSupport();
         	
-        	// FIXME ev braucht es noch eine Sortierung nach Support
+        	// FIXME Support muss auch noch miteinbezogen werden
         	
             if (mean1 >= mean2) {
                 return -1;
@@ -364,19 +364,12 @@ public final class RecommendationBuilder {
 				
 				//***************TERRIBLE -> FIXME***********************
 				// Find Information about Recommendation
-				Iterator<Entry<Object,Double>> title = null;
-				for(Object attribute : entry.getKey().getNominalAttributeKeys()){
-//					System.out.println(attribute.toString());
-					if(attribute.equals("title")){
-						title = entry.getKey().getNominalAttributeValue(attribute).getProbabilities();
-					}
+				Iterator<Entry<Object, Double>> titleIt = entry.getKey().getNominalAttributeValue("title").getProbabilities();
+				String title="";
+				while(titleIt.hasNext()){
+					title = (String) titleIt.next().getKey();
 				}
-				String titleText="";
-				while(title.hasNext()){
-					titleText = (String) title.next().getKey();
-				}
-				
-				System.out.println(titleText + " -> " + entry.getValue().getSumOfRatings() / entry.getValue().getSupport());
+				System.out.println(entry.getValue().getSumOfRatings() / entry.getValue().getSupport() + " -> " + title);
 				//**************************************
 			}
 		}
