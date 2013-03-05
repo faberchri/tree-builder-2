@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -190,11 +191,11 @@ public final class RecommendationBuilder {
 			System.out.println("Found similar user: " + position.getNominalAttributesString());
 		}
 		
-		// Create List of movies that the user has already rated
-		List<Long> watched = new LinkedList<Long>();
+		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
+		List<Integer> watched = new LinkedList<Integer>();
 		Set<INode> ratingKeys = inputNode.getNumericalAttributeKeys();
 		for(INode rating : ratingKeys) {
-			watched.add(rating.getDatasetId());
+			watched.addAll(rating.getDataSetIds());
 		}
 		
 		// Calculate recommendation based on this position
@@ -209,9 +210,9 @@ public final class RecommendationBuilder {
 	 * Collect all the content that should be recommended based on given user and radius
 	 * 
 	 * @param position starting point to calculate recommendation 
-	 * @param watched 
+	 * @param watched list of dataset items the user has already rated
 	 */
-	private Map<INode, IAttribute> recommend(INode position, List<Long> watched) {
+	private Map<INode, IAttribute> recommend(INode position, List<Integer> watched) {
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
@@ -238,21 +239,6 @@ public final class RecommendationBuilder {
 				}
 			}
 		}
-		
-//		// Calculate recommendation
-//		Set<INode> attributes = position.getNumericalAttributeKeys();
-//		for(INode attribute : attributes){
-//			
-//			Map<INode, IAttribute> leafNodes = collectLeaves(attribute,null);
-//			
-//			// Add Nodes that the user has not yet seen
-//			for(INode leafNode : leafNodes.keySet()){
-//				if(!watched.contains(leafNode.getDatasetId())){
-//					recommendation.put(leafNode, leafNodes.get(leafNode));
-//				}
-//			}
-//
-//		}
 		
 	    return recommendation;
 	}
@@ -352,11 +338,10 @@ public final class RecommendationBuilder {
         	IAttribute a1 = base.get(n1);
         	IAttribute a2 = base.get(n2);
         	
-        	System.out.println(a1.toString());
-        	
         	double mean1 = a1.getSumOfRatings() / a1.getSupport();
         	double mean2 = a2.getSumOfRatings() / a2.getSupport();
         	
+        	// FIXME ev braucht es noch eine Sortierung nach Support
         	
             if (mean1 >= mean2) {
                 return -1;
@@ -366,14 +351,15 @@ public final class RecommendationBuilder {
         }
     }
     
-    public void printRecommendation(Map<INode, IAttribute> unsortedRecommendation){
-		if(unsortedRecommendation != null){
-			System.out.println("=> Recommended Movies: ");
-			for(INode recommendation: unsortedRecommendation.keySet()){
-//				if(recommendation.getMeta() != null){
-//					System.out.println(recommendation.getMeta() + " -> Rating: " + recommendation.getMeanOfRatings());
-//				}
-				System.out.println(recommendation.getNominalAttributesString() + " -> Rating: " + unsortedRecommendation.get(recommendation).getSumOfRatings()/unsortedRecommendation.get(recommendation).getSupport());
+    public void printRecommendation(SortedMap<INode, IAttribute> recommendationCollection){
+    	
+		if(recommendationCollection != null){
+			System.out.println("=> Recommended: ");
+			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
+				System.out.println(
+						entry.getKey().toString() +
+						" -> " + entry.getValue().getSumOfRatings() / entry.getValue().getSupport()
+				);
 			}
 		}
     }

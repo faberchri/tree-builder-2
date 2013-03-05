@@ -88,9 +88,9 @@ public class TestDriver {
 		System.out.println("Starting Recommendation Type 1");
 		System.out.println("-------------------------------");
 		
-		Map<INode,Integer> testNodes 	= eb.getTestUsers(testSet);
-		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
-		eb.printEvaluationResult(eval);
+//		Map<INode,Integer> testNodes 	= eb.getTestUsers(testSet);
+//		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
+//		eb.printEvaluationResult(eval);
 		
 		// Start User Interfaces for qualitative evaluation and insertion
 		System.out.println("-------------------------------");
