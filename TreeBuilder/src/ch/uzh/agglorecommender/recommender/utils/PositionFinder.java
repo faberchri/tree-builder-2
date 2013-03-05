@@ -9,8 +9,6 @@ import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySear
 
 public class PositionFinder {
 	
-	private double highestUtility = 0;
-	
 	/**
 	 * Finds the best position (most similar node) in the tree for a given node
 	 * Calculations are based on category utility. If the previously calculated
@@ -26,25 +24,16 @@ public class PositionFinder {
 		
 		if(inputNode != null) {
 			
+			// Establish highest Utility
+			double highestUtility = 0;
+			
 			// Prepare nodes array for utility calculation
 			List<INode> nodesToCalculate = new LinkedList<INode>();
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(position);
 			
-//			// Define utility searcher
-//			ClassitMaxCategoryUtilitySearcher classitUS = null;
-//			CobwebMaxCategoryUtilitySearcher cobwebUS = null;
-//			if(inputNode.getNumericalAttributeKeys().iterator().next().getClass().equals(ClassitAttribute.class)){
-//				classitUS = new ClassitMaxCategoryUtilitySearcher();
-//			}
-//			else if(inputNode.getAttributeKeys().iterator().next().getClass().equals(CobwebAttribute.class)){
-//				cobwebUS = new CobwebMaxCategoryUtilitySearcher();
-//			}
-			
-			SharedMaxCategoryUtilitySearcher cuSearcher = new SharedMaxCategoryUtilitySearcher();
-			
-			
 			// Establish cut off value when 0, ie. when position is on root
+			SharedMaxCategoryUtilitySearcher cuSearcher = new SharedMaxCategoryUtilitySearcher();
 			if(cutoff == 0) {
 				if(position != null){
 					cutoff = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
@@ -75,12 +64,9 @@ public class PositionFinder {
 					
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
-						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
+						INode finalPosition = findPosition(inputNode,nextPosition,highestUtility);
 						if (finalPosition != null){
 							return finalPosition;
-						}
-						else {
-							return position;
 						}
 					}
 					else {
@@ -94,6 +80,7 @@ public class PositionFinder {
 				}
 			}
 		}
+		System.out.println("Input node was null");
 		return null;
 	}
 }
