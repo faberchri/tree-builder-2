@@ -1,4 +1,4 @@
-package ch.uzh.agglorecommender.recommender.ui;
+package ch.uzh.agglorecommender.recommender.ui.extensions;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -19,22 +19,23 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.recommender.ui.BasicUI;
 
 public class WebExtension extends AbstractHandler {
 	
 	private final BasicUI basicUI;
 	private final Server server;
 
-	public WebExtension(BasicUI basicUI) {
+	public WebExtension(BasicUI basicUI) throws Exception {
 	    
 		this.basicUI = basicUI;
 			
-		this.server = new Server(8081); // Port number should not be changed
+		server = new Server(8081); // Port number should not be changed
 	
 	    ResourceHandler resource_handler = new ResourceHandler();
 	    resource_handler.setDirectoriesListed(true);
-	    resource_handler.setWelcomeFiles(new String[] { "index.html" });
-	    resource_handler.setResourceBase("./src/ch/uzh/agglorecommender/servlet/");
+	    resource_handler.setWelcomeFiles(new String[] {"index.html"});
+	    resource_handler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/ui/extensions/"); // FIXME Error here
 	
 	    HandlerList handlers = new HandlerList();
 	    handlers.setHandlers(new Handler[] { resource_handler, new WebExtension(basicUI)});
@@ -43,8 +44,8 @@ public class WebExtension extends AbstractHandler {
 	  }
 	
 	public void startService() throws Exception{
-	    this.server.start();
-	    this.server.join();
+	    server.start();
+	    server.join();
 	}
 	
 	public void stopService() throws Exception {
