@@ -6,6 +6,7 @@ import java.util.Random;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -218,20 +219,21 @@ public class Evaluator {
 	 * 
 	 * @ return Map<INode,IAttribute> attribute map
 	 */
-	public Map<INode,IAttribute> rateRandomContent(ClusterResult trainingOutput, int limit) {
+	public Map<INode,IAttribute> defineRatings(ClusterResult trainingOutput, int limit) {
 		
 		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-		int randomUserID = randomGenerator.nextInt(trainingOutput.getUserTreeLeavesMap().size());
-		INode randomUser = trainingOutput.getUserTreeLeavesMap().get(randomUserID);
 		
-		int i = 0;
-		for(INode contentKey : randomUser.getNumericalAttributeKeys()){
-			
-			if(i < limit){
-				contentRatings.put(contentKey, randomUser.getNumericalAttributeValue(contentKey));
-			}
-			i++;
-		}
+		// Pick Godfather
+		INode godfather = trainingOutput.getContentTreeLeavesMap().get(127);//127
+		System.out.println(godfather.getNominalAttributesString());
+		IAttribute godfatherAtt = new ClassitAttribute(1, 10, 100);
+		contentRatings.put(godfather, godfatherAtt);
+		
+		// Pick GoodFellas
+		INode goodfellas = trainingOutput.getContentTreeLeavesMap().get(182);//182
+		System.out.println(goodfellas.getNominalAttributesString());
+		IAttribute goodfellasAtt = new ClassitAttribute(1, 10, 100);
+		contentRatings.put(goodfellas, goodfellasAtt);
 		
 		return contentRatings;
 	}
@@ -247,13 +249,13 @@ public class Evaluator {
 		Map<Object,IAttribute> demographics = new HashMap<Object,IAttribute>();
 		
 		Map<Object,Double> a1Map = new HashMap<Object,Double>();
-		a1Map.put(24, 1.0);
+		a1Map.put(23, 1.0);
 		IAttribute a1  = new CobwebAttribute(a1Map);
 		Map<Object,Double> a2Map = new HashMap<Object,Double>();
 		a1Map.put("M", 1.0);
 		IAttribute a2  = new CobwebAttribute(a2Map);
 		Map<Object,Double> a3Map = new HashMap<Object,Double>();
-		a1Map.put("Student", 1.0);
+		a1Map.put("student", 1.0);
 		IAttribute a3  = new CobwebAttribute(a3Map);
 		
 		demographics.put("Age",a1);

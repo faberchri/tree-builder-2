@@ -52,8 +52,7 @@ public class PositionFinder {
 						  
 						INode tempPosition = compareSet.next();
 						nodesToCalculate.set(0, tempPosition);
-						double utility = 0.0;
-						utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
+						double utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){
@@ -61,6 +60,8 @@ public class PositionFinder {
 							nextPosition = tempPosition;
 						}
 					}
+					
+					System.out.println(">> " + nextPosition.toString());
 					
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {

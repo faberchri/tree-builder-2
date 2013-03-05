@@ -222,24 +222,28 @@ public final class RecommendationBuilder {
 		// Collect leaf content / user nodes from relevant Node
 		List<INode> leafNodes = collectLeaves(position,null);
 		
+		// Process Attributes of leaf nodes
 		for(INode leafNode : leafNodes){
 			for(INode attKey : leafNode.getNumericalAttributeKeys()){
 				
 				List<INode> attributeLeafNodes = collectLeaves(attKey,null);
 				
+				// Find leaf nodes of attribute
 				for(INode attLeaf : attributeLeafNodes){
 					if(recommendation.containsKey(attLeaf)){
 						
+						// Identify ratings
 						IAttribute oldAtt = recommendation.get(attLeaf);
-						IAttribute newAtt = leafNode.getNumericalAttributeValue(attKey); // FIXME wrong
+						IAttribute newAtt = leafNode.getNumericalAttributeValue(attKey); // FIXME is this rating correct?
+						
+						// Add Merged Node
 						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
 						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
 						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
-								
 						recommendation.put(attLeaf, merged);
 					}
 					else{
-						recommendation.put(attLeaf, leafNode.getNumericalAttributeValue(attKey)); // FIXME wrong
+						recommendation.put(attLeaf, leafNode.getNumericalAttributeValue(attKey));
 					}
 				}
 			}
@@ -362,15 +366,16 @@ public final class RecommendationBuilder {
 			System.out.println("=> Recommended: ");
 			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
 				
-				//***************TERRIBLE -> FIXME***********************
-				// Find Information about Recommendation
+				// Find Information about Recommendation -> FIXME unflexibel
 				Iterator<Entry<Object, Double>> titleIt = entry.getKey().getNominalAttributeValue("title").getProbabilities();
 				String title="";
 				while(titleIt.hasNext()){
 					title = (String) titleIt.next().getKey();
 				}
-				System.out.println(entry.getValue().getSumOfRatings() / entry.getValue().getSupport() + " -> " + title);
-				//**************************************
+				double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
+				
+				System.out.printf("%.2f", rating);
+				System.out.println(" -> " + title);
 			}
 		}
     }
