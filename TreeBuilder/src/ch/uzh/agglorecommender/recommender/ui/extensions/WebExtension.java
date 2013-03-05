@@ -13,6 +13,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
@@ -32,13 +33,13 @@ public class WebExtension extends AbstractHandler {
 			
 		server = new Server(8081); // Port number should not be changed
 	
-	    ResourceHandler resource_handler = new ResourceHandler();
-	    resource_handler.setDirectoriesListed(true);
-	    resource_handler.setWelcomeFiles(new String[] {"index.html"});
-	    resource_handler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/ui/extensions/"); // FIXME Error here
+	    ResourceHandler resourceHandler = new ResourceHandler();
+	    resourceHandler.setDirectoriesListed(true);
+	    resourceHandler.setWelcomeFiles(new String[] {"index.html"});
+	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/ui/extensions/"); // FIXME Error here
 	
 	    HandlerList handlers = new HandlerList();
-	    handlers.setHandlers(new Handler[] { resource_handler, new WebExtension(basicUI)});
+	    handlers.setHandlers(new Handler[] {resourceHandler, new DefaultHandler()});
 	
 	    server.setHandler(handlers);
 	  }
