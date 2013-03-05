@@ -105,7 +105,7 @@ public class TestDriver {
 		
 		// Start UI
 		BasicUI basicUI = new BasicUI(rb,ni);
-		basicUI.startService();
+//		basicUI.startService();
 
 		// Start Web based UI Extension
 		WebExtension webUI = new WebExtension(basicUI); // Hangs in on basicUI, listens on 8081

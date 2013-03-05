@@ -26,7 +26,7 @@ xmlhttp.onreadystatechange=function()
     document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
     }
   }
-xmlhttp.open("GET","http://localhost:8081/request?id=" + str, true);
+xmlhttp.open("GET","http://localhost:8081/request?test=" + str, true);
 xmlhttp.send();
 }
 </script>
@@ -36,7 +36,7 @@ xmlhttp.send();
 <div id='wrapper' align="center">
 <!-- <div id='main' align="left"> -->
 
-<h1>Recommendation UI</h3>
+<h1>Recommendation Web UI</h3>
 
 <form action=""> 
 Type some text: <input type="text" id="txt1" onkeyup="showHint(this.value)" />
