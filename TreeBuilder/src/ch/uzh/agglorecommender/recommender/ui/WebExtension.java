@@ -16,6 +16,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
@@ -53,19 +54,27 @@ public class WebExtension extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
    
+		// Retrieve Type
+		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
+		
 		// Read MetaInfo to List<String>
 		List<String> metaInfo = new LinkedList();
+		// FIXME Implement
+		
 		// Read Ratings to List<String>
 		List<String> ratings = new LinkedList();
+		// FIXME Implement
+		
+		INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
 		
 		// Create Recommendation
 		Map<INode,IAttribute> recommendation = null;
 		if(request.getParameter("method") == "recommendation"){	
-			recommendation = basicUI.recommendation(metaInfo,ratings);	
+			recommendation = basicUI.recommend(inputNode);	
 		}
 		// Write Insertion
 		else if(request.getParameter("method") == "insertion"){
-			basicUI.insertion(metaInfo,ratings);
+			basicUI.insert(inputNode);
 		}
 		    
 		response.setContentType("text/text");  // text/xml
