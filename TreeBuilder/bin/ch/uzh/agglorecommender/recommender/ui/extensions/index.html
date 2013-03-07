@@ -3,10 +3,31 @@
 <head>
 <link rel="stylesheet" type="text/css" href="style.css">
 <script>
+	
+	<!-- Ratings List -->
+	var ratings = new Array();
+	
 	<!-- Ajax ---------->
 	function check(){
-		alert("checking request");
-		ajax("request=recommendation&test=","x","recommendations");
+		alert(ratings.length);
+		
+		<!--- grab ratings ---->
+		for(int i=0;i<10;i++){
+			var rating_element = document.getElementById(i);
+			var datasetID = rating_element.name;
+			var rating = rating_element.value;
+			if(rating != 'not seen'){
+				ratings[ratings.length] = datasetID + '-' + rating;
+			}
+		}
+		
+		<!-- send -->
+		if(ratings.length >= 10){
+			ajax("request=recommendation&test=","x","recommendations"); <!-- enough movies have been rated -->
+		}
+		else {
+			ajax('type=Content&limit=10&request=item','s','movies'); <!-- load more movies to rate -->
+		}
 	}
 	
 	function ajax(parameters,str,update){
