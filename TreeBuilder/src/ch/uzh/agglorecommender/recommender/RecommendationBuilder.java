@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.utils.PositionFinder;
@@ -32,8 +33,6 @@ public final class RecommendationBuilder {
 	private ImmutableMap<Integer,INode> leavesMapU;
 	private ImmutableMap<Integer,INode> leavesMapC;
 	private INode rootU;
-	private int radiusU = 0;
-	private int radiusC = 0;
 	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
@@ -379,4 +378,21 @@ public final class RecommendationBuilder {
 			}
 		}
     }
+    
+	public List<INode> createItemList(ENodeType type, int limit){
+		
+		List<INode> itemList = new LinkedList<INode>();
+		
+		if(type == ENodeType.Content){
+			INode godfather 	= leavesMapC.get(127);
+			INode goodfellas 	= leavesMapC.get(182);
+			itemList.add(godfather);
+			itemList.add(goodfellas);
+		}
+		else if (type == ENodeType.User){
+			
+		}
+		
+		return itemList;
+	}
 }

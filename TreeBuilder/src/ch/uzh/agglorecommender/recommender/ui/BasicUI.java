@@ -45,15 +45,6 @@ public class BasicUI {
 		System.out.println("service stopped");
 	}
 	
-	private static String inputListener(){	
-		Scanner input = new Scanner(System.in);
-		input.useDelimiter("\n");
-		System.out.print("agglorecommender > ");
-		String command = input.next( );
-		
-		return command;
-	}
-	
 	public void runCommand(String command){
 		
 		// Stop signal for system
@@ -88,6 +79,59 @@ public class BasicUI {
 		}
 	}
 	
+	public Map<INode, IAttribute> recommend(INode inputNode){
+		Map<INode,IAttribute> unsortedRecommendation = this.rb.runRecommendation(inputNode); // Create Recommendation
+		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		this.rb.printRecommendation(sortedRecommendation);
+		return sortedRecommendation;
+	}
+	
+	public boolean insert(INode inputNode){
+		
+		//**********//
+		// MUSS HIER DIE DATASET ITEM ID DEFINIEREN -> +1 der anzahl leaf nodes dieses Typs
+		//*********//
+		
+		Boolean result = this.ni.insert(inputNode);
+		return result;
+	}
+	
+	public INode buildNode(List<String> metaInfo,List<String> ratings, ENodeType type){
+			
+		// Read Content Information
+		Map<String, String> nomMapTemp = new HashMap<String,String>();
+		for(String meta : metaInfo){
+			String[] ratingSplit = meta.split("\\-");
+			nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
+		}
+		Map<Object,IAttribute> nomMap = buildNominalAttributes(nomMapTemp);
+			
+		// Read Collaborative Information
+		Map<String, String> numMapTemp = new HashMap<String,String>();
+		for(String rating : ratings){
+			String[] ratingSplit = rating.split("\\-");
+			numMapTemp.put(ratingSplit[0], ratingSplit[1]);
+		}
+		Map<INode,IAttribute> numMap = buildNumericalAttributes(numMapTemp,type);
+						
+		return new Node(type,null,numMap,nomMap,0.0);
+	}
+	
+	//************* DOPPELT **********************//
+	
+	public List<INode> getItemList(ENodeType type, int limit){
+		return rb.createItemList(type,limit);
+	}
+
+	private static String inputListener(){	
+		Scanner input = new Scanner(System.in);
+		input.useDelimiter("\n");
+		System.out.print("agglorecommender > ");
+		String command = input.next( );
+		
+		return command;
+	}
+
 	private boolean isValidCommand (String[] fields){
 		if(fields.length == 5){
 			if(fields[0].equals("recommend") || fields[0].equals("insert")){
@@ -107,51 +151,13 @@ public class BasicUI {
 		}
 		return false;
 	}
-	
-	public Map<INode, IAttribute> recommend(INode inputNode){
-		Map<INode,IAttribute> unsortedRecommendation = this.rb.runRecommendation(inputNode); // Create Recommendation
-		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
-		this.rb.printRecommendation(sortedRecommendation);
-		return sortedRecommendation;
-	}
-	
-	public boolean insert(INode inputNode){
-		
-		//**********//
-		// MUSS HIER DIE DATASET ITEM ID DEFINIEREN -> +1 der anzahl leaf nodes dieses Typs
-		//*********//
-		
-		Boolean result = this.ni.insert(inputNode);
-		return result;
-	}
-	
-	public List<String> readInputFile(File file){
+
+	private List<String> readInputFile(File file){
 		InputStream stream = getCustomFileStream(file);
 		List<String> lines = getStreamLineByLine(stream);
 		return lines;
 	}
-	
-	public INode buildNode(List<String> metaInfo,List<String> ratings, ENodeType type){
-			
-		// Read Content Information
-		Map<String, String> nomMapTemp = new HashMap<String,String>();
-		for(String meta : metaInfo){
-			String[] ratingSplit = meta.split("\\;");
-			nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
-		}
-		Map<Object,IAttribute> nomMap = buildNominalAttributes(nomMapTemp);
-			
-		// Read Collaborative Information
-		Map<String, String> numMapTemp = new HashMap<String,String>();
-		for(String rating : ratings){
-			String[] ratingSplit = rating.split("\\*");
-			numMapTemp.put(ratingSplit[0], ratingSplit[1]);
-		}
-		Map<INode,IAttribute> numMap = buildNumericalAttributes(nomMapTemp,type);
-						
-		return new Node(type,null,numMap,nomMap,0.0);
-	}
-	
+
 	private static Map<INode,IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
 	
 		Map<INode,IAttribute> numAttributes = new HashMap<INode,IAttribute>();
@@ -175,7 +181,7 @@ public class BasicUI {
 		return null;
 	}
 
-	public static Map<Object,IAttribute> buildNominalAttributes(Map<String,String> attributes) {
+	private static Map<Object,IAttribute> buildNominalAttributes(Map<String,String> attributes) {
 		// FIXME Implement
 		return null;
 	}
@@ -194,7 +200,7 @@ public class BasicUI {
 		return input;
 	}
 	
-	protected List<String> getStreamLineByLine(InputStream input) {
+	private List<String> getStreamLineByLine(InputStream input) {
 		List<String> lines = new ArrayList<String>();
 		try {
 			int in = input.read();
@@ -217,4 +223,5 @@ public class BasicUI {
 		return lines;				
 	}
 	//************* DOPPELT **********************//
+	
 }
