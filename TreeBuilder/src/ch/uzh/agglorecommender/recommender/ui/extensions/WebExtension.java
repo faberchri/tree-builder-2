@@ -1,9 +1,11 @@
 package ch.uzh.agglorecommender.recommender.ui.extensions;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -64,21 +66,24 @@ public class WebExtension extends AbstractHandler {
 		String requestType = request.getParameter("request");
 		
 		// Deliver items to rate
-		// http://localhost:8081/request?request=items&type=content&limit=10
+		// http://localhost:8081/request?request=items&type=Content&limit=10
 		if(requestType.equals("items")){
 			
 			ENodeType type = ENodeType.valueOf(request.getParameter("type"));
 			int limit = Integer.parseInt(request.getParameter("limit"));
 			
 			List<INode> itemList = basicUI.getItemList(type, limit);
-			response.getWriter().write("<message items>" + itemList.toString() + "</message>");
+			
+			for(INode item : itemList){
+				response.getWriter().write("<item><id>" + item.getDatasetId() + "</id><name>" + getMeta(item) + "</name></item>");
+			}
 			
 		}
 		
 		else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
 			
-//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=234-8*123-2
-//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=234-8*123-2
+//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
+//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
 			
 			// ************** Create Node ***************
 			
@@ -93,6 +98,8 @@ public class WebExtension extends AbstractHandler {
 				metaInfo.add(meta);
 			}
 			
+//			System.out.println(metaInfo.toString());
+			
 			// Read Ratings to List<String> -> content node+rating
 			List<String> ratings = new LinkedList<String>();
 			String ratingsFull = request.getParameter("ratings");
@@ -100,6 +107,8 @@ public class WebExtension extends AbstractHandler {
 			for(String rating : ratingList){
 				ratings.add(rating);
 			}
+			
+//			System.out.println(ratings.toString());
 			
 			INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
 			System.out.println("Created Node: " + 
@@ -111,8 +120,17 @@ public class WebExtension extends AbstractHandler {
 			
 			// Create Recommendation
 			if(requestType.equals("recommendation")){	
-				Map<INode,IAttribute> recommendation = basicUI.recommend(inputNode);
-				response.getWriter().write("<message recommendation>" + recommendation.toString() + "</message>");
+				SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
+				
+				System.out.println(recommendations.toString());
+				
+				for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
+					String title = getMeta(recommendation.getKey());
+					IAttribute attribute = recommendation.getValue();
+					System.out.println(attribute.toString());
+					Double rating = attribute.getSumOfRatings() / attribute.getSupport();
+					response.getWriter().write("<message recommendation><title>" + title + "</title><rating>" + rating + "</message>");
+				}
 			}
 			// Write Insertion
 			else if(requestType.equals("insertion")){
@@ -133,4 +151,14 @@ public class WebExtension extends AbstractHandler {
 	    baseRequest.setHandled(true);
 		//********************************************
   }
+	
+	//********* DOPPELT ****************//
+	private String getMeta(INode node){
+		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue("title").getProbabilities();
+		String title="";
+		while(titleIt.hasNext()){
+			title = (String) titleIt.next().getKey();
+		}
+		return title;
+	}
 }

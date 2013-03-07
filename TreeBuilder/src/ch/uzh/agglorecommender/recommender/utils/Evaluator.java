@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.recommender.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
@@ -24,8 +23,6 @@ import com.google.common.collect.ImmutableMap;
  * 
  */
 public class Evaluator {
-
-	Random randomGenerator = new Random();
 	
 	/**
 	 * Creates usable Map of test users for evaluation

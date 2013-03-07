@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.SortedMap;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -23,7 +24,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 public class BasicUI {
 	
-	private RecommendationBuilder rb;
+	private static RecommendationBuilder rb;
 	private NodeInserter ni;
 	private boolean listen;
 
@@ -79,10 +80,10 @@ public class BasicUI {
 		}
 	}
 	
-	public Map<INode, IAttribute> recommend(INode inputNode){
+	public SortedMap<INode, IAttribute> recommend(INode inputNode){
 		Map<INode,IAttribute> unsortedRecommendation = this.rb.runRecommendation(inputNode); // Create Recommendation
 		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
-		this.rb.printRecommendation(sortedRecommendation);
+//		this.rb.printRecommendation(sortedRecommendation);
 		return sortedRecommendation;
 	}
 	
@@ -104,6 +105,9 @@ public class BasicUI {
 			String[] ratingSplit = meta.split("\\-");
 			nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
 		}
+		
+//		System.out.println(nomMapTemp.toString());
+		
 		Map<Object,IAttribute> nomMap = buildNominalAttributes(nomMapTemp);
 			
 		// Read Collaborative Information
@@ -112,6 +116,9 @@ public class BasicUI {
 			String[] ratingSplit = rating.split("\\-");
 			numMapTemp.put(ratingSplit[0], ratingSplit[1]);
 		}
+		
+//		System.out.println(numMapTemp.toString());
+		
 		Map<INode,IAttribute> numMap = buildNumericalAttributes(numMapTemp,type);
 						
 		return new Node(type,null,numMap,nomMap,0.0);
@@ -161,10 +168,10 @@ public class BasicUI {
 	private static Map<INode,IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
 	
 		Map<INode,IAttribute> numAttributes = new HashMap<INode,IAttribute>();
-		for(String datasetID : attributes.keySet()){
+		for(String datasetID: attributes.keySet()){
 		
 			// Find Node with dataset id 
-			INode node = findNode(datasetID,type); // FIXME wie damit umgehen?
+			INode node = findNode(datasetID, type);
 			
 			// Create Attribute
 			int rating = Integer.parseInt(attributes.get(datasetID));
@@ -177,13 +184,17 @@ public class BasicUI {
 	}
 	
 	private static INode findNode(String datasetID, ENodeType type) {
-		// FIXME Implement
-		return null;
+		return rb.findNode(Integer.parseInt(datasetID),type);
 	}
 
 	private static Map<Object,IAttribute> buildNominalAttributes(Map<String,String> attributes) {
-		// FIXME Implement
-		return null;
+		Map<Object,IAttribute> nominalAttributes = new HashMap<Object,IAttribute>();
+		for(String attKey : attributes.keySet()){
+			Map<String,Double> probabilityMap = new HashMap<String,Double>();
+			probabilityMap.put(attKey,1.0);
+			nominalAttributes.put(attKey, new CobwebAttribute(probabilityMap));
+		}
+		return nominalAttributes;
 	}
 	
 	

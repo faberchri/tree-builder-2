@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -360,39 +361,64 @@ public final class RecommendationBuilder {
     }
     
     public void printRecommendation(SortedMap<INode, IAttribute> recommendationCollection){
-    	
+		
 		if(recommendationCollection != null){
 			System.out.println("=> Recommended: ");
 			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
 				
 				// Find Information about Recommendation -> FIXME unflexibel
-				Iterator<Entry<Object, Double>> titleIt = entry.getKey().getNominalAttributeValue("title").getProbabilities();
-				String title="";
-				while(titleIt.hasNext()){
-					title = (String) titleIt.next().getKey();
-				}
+				String title = getMeta(entry.getKey());
 				double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
 				
 				System.out.printf("%.2f", rating);
 				System.out.println(" -> " + title);
 			}
 		}
-    }
-    
+	}
+
 	public List<INode> createItemList(ENodeType type, int limit){
 		
 		List<INode> itemList = new LinkedList<INode>();
+		Random randomGenerator = new Random();
 		
 		if(type == ENodeType.Content){
-			INode godfather 	= leavesMapC.get(127);
-			INode goodfellas 	= leavesMapC.get(182);
-			itemList.add(godfather);
-			itemList.add(goodfellas);
-		}
-		else if (type == ENodeType.User){
-			
+			for(int i = 0;i < limit;i++){
+				INode randomNode = null;
+				if(type == ENodeType.Content){
+					randomNode = leavesMapC.get(randomGenerator.nextInt(leavesMapC.size()));
+				}
+				else if (type == ENodeType.User){
+					randomNode = leavesMapU.get(randomGenerator.nextInt(leavesMapU.size()));	
+				}
+				itemList.add(randomNode);
+			}
 		}
 		
 		return itemList;
+	}
+	
+	public INode findNode(int datasetID, ENodeType type){
+		INode node = null;
+		if(type == ENodeType.Content){
+			System.out.println("looking for node in c " + datasetID);
+			node = leavesMapC.get(datasetID);
+		}
+		else if (type == ENodeType.User){
+			System.out.println("looking for node in u " + datasetID);
+			node = leavesMapU.get(datasetID);
+		}
+		
+		System.out.println("found node: " + node.toString());
+		
+		return node;
+	}
+	
+	private String getMeta(INode node){
+		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue("title").getProbabilities();
+		String title="";
+		while(titleIt.hasNext()){
+			title = (String) titleIt.next().getKey();
+		}
+		return title;
 	}
 }
