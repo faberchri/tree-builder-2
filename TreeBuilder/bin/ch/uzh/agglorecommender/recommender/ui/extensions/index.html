@@ -3,82 +3,81 @@
 <head>
 <link rel="stylesheet" type="text/css" href="style.css">
 <script>
-function showHint(str)
-{
-var xmlhttp;
-if (str.length==0)
-  { 
-  document.getElementById("txtHint").innerHTML="";
-  return;
-  }
-if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-  xmlhttp=new XMLHttpRequest();
-  }
-else
-  {// code for IE6, IE5
-  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-xmlhttp.onreadystatechange=function()
-  {
-  if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-    document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
-    }
-  }
-xmlhttp.open("GET","http://localhost:8081/request?test=" + str, true);
-xmlhttp.send();
+	<!-- Ajax ---------->
+	function check(){
+		alert("checking request");
+		ajax("request=recommendation&test=","x","recommendations");
+	}
+	
+	function ajax(parameters,str,update){
+		var xmlhttp;
+		if (str.length==0){ 
+  			document.getElementById(update).innerHTML="";
+  			return;
+  		}
+		if (window.XMLHttpRequest){
+			// code for IE7+, Firefox, Chrome, Opera, Safari
+  			xmlhttp=new XMLHttpRequest();
+  		}
+		else {
+			// code for IE6, IE5
+  			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  		}
+		xmlhttp.onreadystatechange=function(){
+  			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+    			document.getElementById(update).innerHTML=xmlhttp.responseText;
+    		}
+  		}
+	xmlhttp.open("GET","http://localhost:8081/ajax?" + parameters + str, true);
+	xmlhttp.send();
 }
+
+
 </script>
 </head>
-<body>
+<body onload="ajax('type=Content&limit=10&request=item','s','movies')">
 
 <div id='wrapper' align="center">
 <!-- <div id='main' align="left"> -->
 
 <h1>Recommendation Web UI</h3>
 
-<form action=""> 
-Type some text: <input type="text" id="txt1" onkeyup="showHint(this.value)" />
-</form>
-<p>Response from servlet: <span id="txtHint"></span></p> 
-
 <!-- Menu Side ---------->
 <div id='menu'>
 <h3>User Information</h3>
-<form action="GET" method="get">
 <input type="hidden" name="method" value="recommendation">
-Alter 
-<input name="age" type="text"><br>
-Geschlecht 
+
+<!--------- User ------------>
+<table>
+<tr>
+<td>Alter</td><td><input name="age" type="text"></td>
+</tr><tr>
+<td>Geschlecht</td><td>
 <select name="gender">
 	<option value="F">F</option>
 	<option value="M">M</option>
-</select><br>
+</select></td>
+</tr>
+</table>
+<br>
 
-<h3>Movie (0 Ratings abgegeben)</h3 onLoad="showHint(this.value)">
-Godfather <select name="film">
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="9">9</option>
-	<option value="10">10</option>
-</select><br>
+<!--------- Movies ------------>
+<h3>Movie (0 Ratings abgegeben)</h3>
+<div id="movies"></div>
 
+<br>
+
+<!--- Fake Form --->
+<form action="" method="get" onsubmit="check()"> <!-- Ÿber id(1,2,3,...) -> name und wert -> dann array -> wenn array voll -> recommendation anfordern -->
 <input type="submit" value="Senden">
 </form>
 
 </div>
 
 <!-- Recommendation Side ---------->
-<div id="recommendation">
-<h3>Recommendation</h3>
-
+<div id="recommendations">
+<h3>Recommendations</h3>
+<div id="recommendations">No Recommendations so far..</div>
 <!-- </div> -->
 </div>
 </div>

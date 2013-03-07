@@ -57,90 +57,101 @@ public class WebExtension extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
 		
+//		System.out.println("request: " + request.toString());
+		
 		//********** PreDefinition *******************
 		response.setContentType("text/text");  // text/xml
 	    response.setHeader("Cache-Control", "no-cache");
 	    response.setStatus(HttpServletResponse.SC_OK);
 	    //********************************************
 		
-		String requestType = request.getParameter("request");
-		
-		// Deliver items to rate
-		// http://localhost:8081/request?request=items&type=Content&limit=10
-		if(requestType.equals("items")){
+	    if(request.getParameterMap().containsKey("request")) {
+			String requestType = request.getParameter("request");
 			
-			ENodeType type = ENodeType.valueOf(request.getParameter("type"));
-			int limit = Integer.parseInt(request.getParameter("limit"));
-			
-			List<INode> itemList = basicUI.getItemList(type, limit);
-			
-			for(INode item : itemList){
-				response.getWriter().write("<item><id>" + item.getDatasetId() + "</id><name>" + getMeta(item) + "</name></item>");
-			}
-			
-		}
-		
-		else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
-			
-//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
-//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
-			
-			// ************** Create Node ***************
-			
-			// Retrieve Type
-			ENodeType type = ENodeType.valueOf(request.getParameter("type"));
-			
-			// Read MetaInfo to List<String> -> attribute+value
-			List<String> metaInfo = new LinkedList<String>();
-			String metaFull = request.getParameter("meta");
-			String[] metaList = metaFull.split("\\*");
-			for(String meta : metaList){
-				metaInfo.add(meta);
-			}
-			
-//			System.out.println(metaInfo.toString());
-			
-			// Read Ratings to List<String> -> content node+rating
-			List<String> ratings = new LinkedList<String>();
-			String ratingsFull = request.getParameter("ratings");
-			String[] ratingList = ratingsFull.split("\\*");
-			for(String rating : ratingList){
-				ratings.add(rating);
-			}
-			
-//			System.out.println(ratings.toString());
-			
-			INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
-			System.out.println("Created Node: " + 
-					inputNode.toString() + 
-					inputNode.getNominalAttributesString() + 
-					inputNode.getNumericalAttributesString());
-			
-			// *************************************
-			
-			// Create Recommendation
-			if(requestType.equals("recommendation")){	
-				SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
+			// Deliver items to rate
+			if(requestType.equals("items")){
 				
-				System.out.println(recommendations.toString());
+				ENodeType type = ENodeType.valueOf(request.getParameter("type"));
+				int limit = Integer.parseInt(request.getParameter("limit"));
 				
-				for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
-					String title = getMeta(recommendation.getKey());
-					IAttribute attribute = recommendation.getValue();
-					System.out.println(attribute.toString());
-					Double rating = attribute.getSumOfRatings() / attribute.getSupport();
-					response.getWriter().write("<message recommendation><title>" + title + "</title><rating>" + rating + "</message>");
+				List<INode> itemList = basicUI.getItemList(type, limit);
+				
+				int i=1;
+				for(INode item : itemList){
+					response.getWriter().write( 
+							"<select id='" + i + "' name=" +item.getDatasetId() +">" +
+							"<option value='not seen'>not seen</option>" +
+							"<option value='1'>1</option>" +
+							"<option value='2'>2</option>" +
+							"<option value='3'>3</option>" +
+							"<option value='4'>4</option>" +
+							"<option value='5'>5</option>" +
+							"<option value='6'>6</option>" +
+							"<option value='7'>7</option>" +
+							"<option value='8'>8</option>" +
+							"<option value='9'>9</option>" +
+							"<option value='10'>10</option>" +
+							"</select> " +
+							getMeta(item) + "<br>");
+					i++;
+				}
+				
+			}
+			
+			else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
+				
+				System.out.println("HEEEEELLOOO");
+				
+	//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
+	//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
+				
+				// ************** Create Node ***************
+				
+				// Retrieve Type
+				ENodeType type = ENodeType.valueOf(request.getParameter("type"));
+				
+				// Read MetaInfo to List<String> -> attribute+value
+				List<String> metaInfo = new LinkedList<String>();
+				String metaFull = request.getParameter("meta");
+				String[] metaList = metaFull.split("\\*");
+				for(String meta : metaList){
+					metaInfo.add(meta);
+				}
+				
+				// Read Ratings to List<String> -> content node+rating
+				List<String> ratings = new LinkedList<String>();
+				String ratingsFull = request.getParameter("ratings");
+				String[] ratingList = ratingsFull.split("\\*");
+				for(String rating : ratingList){
+					ratings.add(rating);
+				}
+				
+				INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
+				System.out.println("Created Node: " + 
+						inputNode.toString() + 
+						inputNode.getNominalAttributesString() + 
+						inputNode.getNumericalAttributesString());
+				
+				// Create Recommendation
+				if(requestType.equals("recommendation")){	
+					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
+					
+					System.out.println(recommendations.toString());
+					
+					for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
+						String title = getMeta(recommendation.getKey());
+						IAttribute attribute = recommendation.getValue();
+						Double rating = attribute.getSumOfRatings() / attribute.getSupport();
+						response.getWriter().write("<message recommendation><title>" + title + "</title><rating>" + rating + "</message>");
+					}
+				}
+				// Write Insertion
+				else if(requestType.equals("insertion")){
+					Boolean success = basicUI.insert(inputNode);
+					response.getWriter().write("<message insertion>" + success + "</message>");
 				}
 			}
-			// Write Insertion
-			else if(requestType.equals("insertion")){
-				Boolean success = basicUI.insert(inputNode);
-				response.getWriter().write("<message insertion>" + success + "</message>");
-			}
-			
-			// *************************************
-		}
-		
+	    }
 		else {
 		    // Create Response
 			response.getWriter().write("<message test>" + request.getParameter("test") + "</message>");

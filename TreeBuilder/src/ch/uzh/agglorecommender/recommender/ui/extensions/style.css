@@ -32,15 +32,18 @@ height:150px;
 }
 
 #menu {
-	background:green;
+	background:white;
 	width:500px;
 	float:left;
 	display: inline;
 }
 
 #recommendation {
-	background:blue;
+	background:white;
+	border: 1px #333 solid;
 	width:420px;
 	float:left;
 	display: inline;
+	padding:5px;
+	min-height:500px;
 }
