@@ -60,7 +60,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 1
 		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNominalAttributes(attMap1);
+		node1.setNumericalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
@@ -71,7 +71,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 2
 		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNominalAttributes(attMap2);
+		node2.setNumericalAttributes(attMap2);
 
 		
 
@@ -157,7 +157,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 1
 		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNominalAttributes(attMap1);
+		node1.setNumericalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
@@ -168,7 +168,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 2
 		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNominalAttributes(attMap2);
+		node2.setNumericalAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -260,7 +260,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 1
 		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNominalAttributes(attMap1);
+		node1.setNumericalAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
@@ -272,7 +272,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 2
 		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNominalAttributes(attMap2);
+		node2.setNumericalAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();

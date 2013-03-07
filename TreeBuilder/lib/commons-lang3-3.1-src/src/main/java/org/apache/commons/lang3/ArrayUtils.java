@@ -297,7 +297,8 @@ public class ArrayUtils {
      * @return the array, not null unless a null array is passed in
      * @since  3.0
      */
-    public static <T> T[] toArray(final T... items) {
+    @SafeVarargs
+	public static <T> T[] toArray(final T... items) {
         return items;
     }
 
@@ -3445,7 +3446,8 @@ public class ArrayUtils {
      * @since 2.1
      * @throws IllegalArgumentException if the array types are incompatible
      */
-    public static <T> T[] addAll(T[] array1, T... array2) {
+    @SafeVarargs
+	public static <T> T[] addAll(T[] array1, T... array2) {
         if (array1 == null) {
             return clone(array2);
         } else if (array2 == null) {
@@ -4995,7 +4997,8 @@ public class ArrayUtils {
      *         earliest-encountered occurrences of the specified elements.
      * @since 3.0.1
      */
-    public static <T> T[] removeElements(T[] array, T... values) {
+    @SafeVarargs
+	public static <T> T[] removeElements(T[] array, T... values) {
         if (isEmpty(array) || isEmpty(values)) {
             return clone(array);
         }

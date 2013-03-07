@@ -1,14 +1,17 @@
 package ch.uzh.agglorecommender.recommender.ui;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
 
-import ch.uzh.agglorecommender.client.AbstractDataset;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -16,6 +19,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.utils.NodeInserter;
+import ch.uzh.agglorecommender.util.TBLogger;
 
 public class BasicUI {
 	
@@ -122,8 +126,8 @@ public class BasicUI {
 	}
 	
 	public List<String> readInputFile(File file){
-		InputStream stream = AbstractDataset.getCustomFileStream(file);
-		List<String> lines = AbstractDataset.getStreamLineByLine(stream);
+		InputStream stream = getCustomFileStream(file);
+		List<String> lines = getStreamLineByLine(stream);
 		return lines;
 	}
 	
@@ -175,4 +179,42 @@ public class BasicUI {
 		// FIXME Implement
 		return null;
 	}
+	
+	
+	//************* DOPPELT (AbstractDataset) **********************//
+	private InputStream getCustomFileStream(File file) {
+		InputStream input = null;
+		try {
+			input = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			TBLogger.getLogger(getClass().getName()).severe("Input file was not found: "+ file.getPath());
+			System.exit(-1);
+		}
+		return input;
+	}
+	
+	protected List<String> getStreamLineByLine(InputStream input) {
+		List<String> lines = new ArrayList<String>();
+		try {
+			int in = input.read();
+			List<Character> charLi = new ArrayList<Character>();
+			while (in != -1) {
+				charLi.add((char)in);
+				if (in == (int)'\n') {
+					StringBuilder builder = new StringBuilder(charLi.size());
+					for(Character ch: charLi) {
+						builder.append(ch);
+					}
+					lines.add(builder.toString());				
+					charLi.clear();
+				}
+				in = input.read();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return lines;				
+	}
+	//************* DOPPELT **********************//
 }

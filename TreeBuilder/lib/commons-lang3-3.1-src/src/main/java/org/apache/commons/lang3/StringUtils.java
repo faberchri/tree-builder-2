@@ -3235,7 +3235,8 @@ public class StringUtils {
      * @since 2.0
      * @since 3.0 Changed signature to use varargs
      */
-    public static <T> String join(T... elements) {
+    @SafeVarargs
+	public static <T> String join(T... elements) {
         return join(elements, null);
     }
 

@@ -18,10 +18,10 @@ package org.apache.commons.lang3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.EnumSet;
 
 /**
  * <p>Utility library to provide helper methods for Java enums.</p>
@@ -157,7 +157,8 @@ public class EnumUtils {
      * @throws IllegalArgumentException if {@code enumClass} is not an enum class or has more than 64 values
      * @since 3.0.1
      */
-    public static <E extends Enum<E>> long generateBitVector(Class<E> enumClass, E... values) {
+    @SafeVarargs
+	public static <E extends Enum<E>> long generateBitVector(Class<E> enumClass, E... values) {
         Validate.noNullElements(values);
         return generateBitVector(enumClass, Arrays.<E> asList(values));
     }

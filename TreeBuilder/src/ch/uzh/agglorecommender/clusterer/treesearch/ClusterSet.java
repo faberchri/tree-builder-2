@@ -180,7 +180,8 @@ public class ClusterSet<E> implements Serializable, IClusterSet<E> {
 		log.info(c + " initial combination indices list created. Expected: " + initialNumberOfCombinations + ", most recent list: " + sublist);
 	}
 	
-    private static <T> scala.collection.immutable.List<T> newScalaList(T ... ts) {
+    @SafeVarargs
+	private static <T> scala.collection.immutable.List<T> newScalaList(T ... ts) {
     	scala.collection.immutable.List<T> result = List$.MODULE$.empty();
         for(int i = ts.length; i > 0; i--) {
             result = new $colon$colon(ts[i - 1], result);

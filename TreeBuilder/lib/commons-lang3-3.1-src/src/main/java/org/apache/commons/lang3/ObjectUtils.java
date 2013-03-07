@@ -116,7 +116,8 @@ public class ObjectUtils {
      *  or {@code null} if there are no non-null values
      * @since 3.0
      */
-    public static <T> T firstNonNull(T... values) {
+    @SafeVarargs
+	public static <T> T firstNonNull(T... values) {
         if (values != null) {
             for (T val : values) {
                 if (val != null) {
@@ -341,7 +342,8 @@ public class ObjectUtils {
      *   <li>If all the comparables are null, null is returned.
      *  </ul>
      */
-    public static <T extends Comparable<? super T>> T min(T... values) {
+    @SafeVarargs
+	public static <T extends Comparable<? super T>> T min(T... values) {
         T result = null;
         if (values != null) {
             for (T value : values) {
@@ -366,7 +368,8 @@ public class ObjectUtils {
      *   <li>If all the comparables are null, null is returned.
      *  </ul>
      */
-    public static <T extends Comparable<? super T>> T max(T... values) {
+    @SafeVarargs
+	public static <T extends Comparable<? super T>> T max(T... values) {
         T result = null;
         if (values != null) {
             for (T value : values) {
@@ -426,7 +429,8 @@ public class ObjectUtils {
      * @throws IllegalArgumentException if items is empty or contains {@code null} values
      * @since 3.0.1
      */
-    public static <T extends Comparable<? super T>> T median(T... items) {
+    @SafeVarargs
+	public static <T extends Comparable<? super T>> T median(T... items) {
         Validate.notEmpty(items);
         Validate.noNullElements(items);
         TreeSet<T> sort = new TreeSet<T>();
@@ -447,7 +451,8 @@ public class ObjectUtils {
      * @throws IllegalArgumentException if items is empty or contains {@code null} values
      * @since 3.0.1
      */
-    public static <T> T median(Comparator<T> comparator, T... items) {
+    @SafeVarargs
+	public static <T> T median(Comparator<T> comparator, T... items) {
         Validate.notEmpty(items, "null/empty items");
         Validate.noNullElements(items);
         Validate.notNull(comparator, "null comparator");
@@ -468,7 +473,8 @@ public class ObjectUtils {
      * @return most populous T, {@code null} if non-unique or no items supplied
      * @since 3.0.1
      */
-    public static <T> T mode(T... items) {
+    @SafeVarargs
+	public static <T> T mode(T... items) {
         if (ArrayUtils.isNotEmpty(items)) {
             HashMap<T, MutableInt> occurrences = new HashMap<T, MutableInt>(items.length);
             for (T t : items) {

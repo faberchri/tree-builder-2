@@ -256,7 +256,7 @@ public class TreePanel extends JPanel {
 			}
 			
 			private boolean allExpanded() {
-				Collection c = graph.getVertices();
+				Collection<INode> c = graph.getVertices();
 				for (Object o : c) {
 					if (! (o instanceof INode)) return false;
 				}

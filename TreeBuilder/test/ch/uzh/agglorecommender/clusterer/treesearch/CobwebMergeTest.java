@@ -29,7 +29,7 @@ public class CobwebMergeTest {
 
 	
 	private double getProbability(Double value, INode node, INode attributeNode){
-		IAttribute attribute = node.getAttributeValue(attributeNode);
+		IAttribute attribute = node.getNominalAttributeValue(attributeNode);
 		Iterator<Entry<Object,Double>> iterator = attribute.getProbabilities();
 		Double probability = 2.0;
 		while (iterator.hasNext()) {
@@ -45,7 +45,7 @@ public class CobwebMergeTest {
 	}
 	
 	private int getNumberOfValues(INode node, INode attributeNode){
-		IAttribute attribute = node.getAttributeValue(attributeNode);
+		IAttribute attribute = node.getNominalAttributeValue(attributeNode);
 		Iterator<Entry<Object,Double>> iterator = attribute.getProbabilities();
 		int counter = 0; 
 		while(iterator.hasNext()){
@@ -71,27 +71,27 @@ public class CobwebMergeTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 0.2);
-		IAttribute attribute_1 = new CobwebAttribute(attMap, null);
+		IAttribute attribute_1 = new CobwebAttribute(attMap);
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.8);
-		IAttribute attribute_2 = new CobwebAttribute(attMap, null);
+		IAttribute attribute_2 = new CobwebAttribute(attMap);
 		
 		// attribute maps
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, 0, null);
+		INode sharedAttribute = new Node(ENodeType.Content, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, 0, null);
+		INode node1 = new Node(ENodeType.User, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, 0, null);
+		INode node2 = new Node(ENodeType.User, 0);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -111,10 +111,10 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging the following nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
-		INode newNode = new Node(ENodeType.User,0, null);
+		INode newNode = new Node(ENodeType.User,0);
 
 		TreeBuilder tr = new TreeBuilder(
 				new CobwebMaxCategoryUtilitySearcher(),
@@ -131,7 +131,7 @@ public class CobwebMergeTest {
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         e.printStackTrace();
     }
-		System.out.println("New node: "+newNode.getAttributesString());
+		System.out.println("New node: "+newNode.getNumericalAttributesString() + newNode.getNominalAttributesString());
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
@@ -174,16 +174,16 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -203,7 +203,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging the following nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode = new Node(ENodeType.User,0);
@@ -224,7 +224,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
-		System.out.println("New node: "+newNode.getAttributesString());
+		System.out.println("New node: "+newNode.getNumericalAttributesString() + newNode.getNominalAttributesString());
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
@@ -274,8 +274,8 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// common attributes
-		INode sharedAttribute1 = new Node(ENodeType.Content, null, null);
-		INode sharedAttribute2 = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute1 = new Node(ENodeType.Content, null, null, null, 0);
+		INode sharedAttribute2 = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute1, attribute1N1);
@@ -284,9 +284,9 @@ public class CobwebMergeTest {
 		attMap2.put(sharedAttribute2, attribute2N2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -306,7 +306,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging the following nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode = new Node(ENodeType.User,0);
@@ -333,7 +333,7 @@ public class CobwebMergeTest {
 		 * Merged node: Attribute 1: rating = 1, p = 1 Attribute 2: rating = 2, p = 0.5. rating = 8, p = 0.5
 		 */
 		
-		System.out.println("New node: "+newNode.getAttributesString());
+		System.out.println("New node: "+newNode.getNumericalAttributesString() + newNode.getNominalAttributesString());
 		
 		CobwebMergeTest tester = new CobwebMergeTest();
 		
@@ -380,16 +380,16 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -409,7 +409,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging the following nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode = new Node(ENodeType.User,0);
@@ -430,7 +430,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
-		System.out.println("New node: "+newNode.getAttributesString());
+		System.out.println("New node: "+newNode.getNumericalAttributesString() + newNode.getNominalAttributesString());
 	
 	/*
 	 * Node 1: rating = 1, p = 0.5
@@ -480,16 +480,16 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
 
 		// create the utility calcultaor
@@ -509,7 +509,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging the following nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode = new Node(ENodeType.User,0);
@@ -530,7 +530,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
-		System.out.println("New node: "+newNode.getAttributesString());
+		System.out.println("New node: "+newNode.getNumericalAttributesString() + newNode.getNominalAttributesString());
 		/*
 		 * Node 1: rating = 3, p = 0.6
 		 * Node 2: rating = 3, p = 0.3
@@ -584,7 +584,7 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap3 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
@@ -592,11 +592,11 @@ public class CobwebMergeTest {
 		attMap3.put(sharedAttribute, attribute_3);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
-		INode node3 = new Node(ENodeType.User, null, null);
+		INode node3 = new Node(ENodeType.User, null, null, null, 0);
 		node3.setAttributes(attMap3);
 		
 		// create the utility calcultaor
@@ -617,7 +617,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging first two nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode12 = new Node(ENodeType.User,0);
@@ -638,7 +638,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 				
-		System.out.println("New node: "+newNode12.getAttributesString());
+		System.out.println("New node: "+newNode12.getNumericalAttributesString() + newNode12.getNominalAttributesString());
 		
 		// merging resulting node with node 3
 		openNodes.add(node3);
@@ -650,7 +650,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging remaining two nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		try {
@@ -662,7 +662,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
-		System.out.println("New node: "+newNode123.getAttributesString());
+		System.out.println("New node: "+newNode123.getNumericalAttributesString() + newNode123.getNominalAttributesString());
 	
 		/*
 		 * Node 1: rating = 1, p = 1
@@ -731,7 +731,7 @@ public class CobwebMergeTest {
 		Map<INode, IAttribute> attMap3 = new HashMap<INode, IAttribute>();
 		
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null, null, 0);
 		
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
@@ -739,11 +739,11 @@ public class CobwebMergeTest {
 		attMap3.put(sharedAttribute, attribute_3);
 		
 		// create nodes
-		INode node1 = new Node(ENodeType.User, null, null);
+		INode node1 = new Node(ENodeType.User, null, null, null, 0);
 		node1.setAttributes(attMap1);
-		INode node2 = new Node(ENodeType.User, null, null);
+		INode node2 = new Node(ENodeType.User, null, null, null, 0);
 		node2.setAttributes(attMap2);
-		INode node3 = new Node(ENodeType.User, null, null);
+		INode node3 = new Node(ENodeType.User, null, null, null, 0);
 		node3.setAttributes(attMap3);
 		
 		// create the utility calcultaor
@@ -764,7 +764,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging first two nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		INode newNode12 = new Node(ENodeType.User,0);
@@ -785,7 +785,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 				
-		System.out.println("New node: "+newNode12.getAttributesString());
+		System.out.println("New node: "+newNode12.getNumericalAttributesString() + newNode12.getNominalAttributesString());
 		
 		// merging resulting node with node 3
 		openNodes.add(node3);
@@ -797,7 +797,7 @@ public class CobwebMergeTest {
 		
 		System.out.println("	Merging remaining two nodes: ");
 		for (INode node : nodesToUpdate) {
-			System.out.println(node.getAttributesString());
+			System.out.println(node.getNumericalAttributesString() + node.getNominalAttributesString());
 		}
 
 		try {
@@ -809,7 +809,7 @@ public class CobwebMergeTest {
         e.printStackTrace();
     }
 		
-		System.out.println("New node: "+newNode123.getAttributesString());
+		System.out.println("New node: "+newNode123.getNumericalAttributesString() + newNode123.getNominalAttributesString());
 	
 		/*
 		 * Node 1: rating = 1, p = 0.5
