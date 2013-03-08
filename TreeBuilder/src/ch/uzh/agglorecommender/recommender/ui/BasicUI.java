@@ -98,12 +98,16 @@ public class BasicUI {
 	}
 	
 	public INode buildNode(List<String> metaInfo,List<String> ratings, ENodeType type){
-			
+		
+		System.out.println("Building Node");
+		
 		// Read Content Information
 		Map<String, String> nomMapTemp = new HashMap<String,String>();
 		for(String meta : metaInfo){
 			String[] ratingSplit = meta.split("\\-");
-			nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			if(ratingSplit.length>2){
+				nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			}
 		}
 		
 //		System.out.println(nomMapTemp.toString());
@@ -114,7 +118,9 @@ public class BasicUI {
 		Map<String, String> numMapTemp = new HashMap<String,String>();
 		for(String rating : ratings){
 			String[] ratingSplit = rating.split("\\-");
-			numMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			if(ratingSplit.length>2){
+				numMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			}
 		}
 		
 //		System.out.println(numMapTemp.toString());

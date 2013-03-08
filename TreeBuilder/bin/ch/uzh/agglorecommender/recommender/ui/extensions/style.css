@@ -5,6 +5,7 @@ body {
 	font-family: trebuchet ms, arial, helvetica, sans-serif;
 	background-image: url(img/bg.png);
 	color: black;
+	font-size: 12px;
 }
 
 #wrapper {
@@ -33,7 +34,7 @@ height:150px;
 
 #menu {
 	background:white;
-	width:500px;
+	width:370px;
 	float:left;
 	display: inline;
 }
@@ -41,9 +42,10 @@ height:150px;
 #recommendation {
 	background:white;
 	border: 1px #333 solid;
-	width:420px;
+	width:550px;
 	float:left;
 	display: inline;
 	padding:5px;
 	min-height:500px;
+	padding-left:15px;
 }

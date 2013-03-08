@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.recommender.ui.extensions;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -76,31 +77,39 @@ public class WebExtension extends AbstractHandler {
 				
 				List<INode> itemList = basicUI.getItemList(type, limit);
 				
+				response.getWriter().write("<table>");
+				
 				int i=1;
 				for(INode item : itemList){
-					response.getWriter().write( 
-							"<select id='" + i + "' name=" +item.getDatasetId() +">" +
-							"<option value='not seen'>not seen</option>" +
-							"<option value='1'>1</option>" +
-							"<option value='2'>2</option>" +
-							"<option value='3'>3</option>" +
-							"<option value='4'>4</option>" +
-							"<option value='5'>5</option>" +
-							"<option value='6'>6</option>" +
-							"<option value='7'>7</option>" +
-							"<option value='8'>8</option>" +
-							"<option value='9'>9</option>" +
-							"<option value='10'>10</option>" +
-							"</select> " +
-							getMeta(item) + "<br>");
-					i++;
+					
+					if(item != null){
+						response.getWriter().write( 
+								"<tr><td>" +
+								"<select id='" + i + "' name=" + item.getDatasetId() +">" +
+								"<option value='not seen'>not seen</option>" +
+								"<option value='1'>1</option>" +
+								"<option value='2'>2</option>" +
+								"<option value='3'>3</option>" +
+								"<option value='4'>4</option>" +
+								"<option value='5'>5</option>" +
+								"<option value='6'>6</option>" +
+								"<option value='7'>7</option>" +
+								"<option value='8'>8</option>" +
+								"<option value='9'>9</option>" +
+								"<option value='10'>10</option>" +
+								"</select> " +
+								"</td><td width='250'>" +
+								getMeta(item,"title") +
+								"</td></tr>");
+						i++;
+					}
 				}
+				
+				response.getWriter().write("</table>");
 				
 			}
 			
 			else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
-				
-				System.out.println("HEEEEELLOOO");
 				
 	//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
 	//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
@@ -127,23 +136,30 @@ public class WebExtension extends AbstractHandler {
 				}
 				
 				INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
-				System.out.println("Created Node: " + 
-						inputNode.toString() + 
-						inputNode.getNominalAttributesString() + 
-						inputNode.getNumericalAttributesString());
+//				System.out.println("Created Node: " + 
+//						inputNode.toString() + 
+//						inputNode.getNominalAttributesString() + 
+//						inputNode.getNumericalAttributesString());
 				
 				// Create Recommendation
 				if(requestType.equals("recommendation")){	
 					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
 					
-					System.out.println(recommendations.toString());
+					response.getWriter().write("<table style='width:570px'>");
 					
 					for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
-						String title = getMeta(recommendation.getKey());
+						
+						String title 	= getMeta(recommendation.getKey(),"title");
+						String url		= "<a href='" + getMeta(recommendation.getKey(),"IMDb URL") + "' target='_blank'>IMDB Link</a>";
+						
 						IAttribute attribute = recommendation.getValue();
 						Double rating = attribute.getSumOfRatings() / attribute.getSupport();
-						response.getWriter().write("<message recommendation><title>" + title + "</title><rating>" + rating + "</message>");
+						DecimalFormat df = new DecimalFormat("#.##");
+						
+						response.getWriter().write("<tr><td style='width:30px'>" + df.format(rating) + "</td><td style='width:440px'>" + title + "</td><td style='width:100px'>" + url + "</td></tr>");
 					}
+					
+					response.getWriter().write("</table>");
 				}
 				// Write Insertion
 				else if(requestType.equals("insertion")){
@@ -164,12 +180,12 @@ public class WebExtension extends AbstractHandler {
   }
 	
 	//********* DOPPELT ****************//
-	private String getMeta(INode node){
-		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue("title").getProbabilities();
-		String title="";
-		while(titleIt.hasNext()){
-			title = (String) titleIt.next().getKey();
+	private String getMeta(INode node, String info){
+		Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();
+		String meta ="";
+		while(metaIt.hasNext()){
+			meta = (String) metaIt.next().getKey();
 		}
-		return title;
+		return meta;
 	}
 }
