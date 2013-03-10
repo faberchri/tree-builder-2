@@ -78,8 +78,6 @@ public class Monitor implements Serializable {
 		this.display = new Display();
 	}
 	
-	
-
 	public void addComparison() {
 		this.totalComparisons++;
 		TBLogger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
