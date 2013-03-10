@@ -34,6 +34,7 @@ public final class RecommendationBuilder {
 	private ImmutableMap<Integer,INode> leavesMapU;
 	private ImmutableMap<Integer,INode> leavesMapC;
 	private INode rootU;
+	private INode rootC;
 	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
@@ -46,6 +47,7 @@ public final class RecommendationBuilder {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
+		this.rootC			= clusterResult.getContentTreeRoot();
 		this.leavesMapU 	= clusterResult.getUserTreeLeavesMap();
 		this.leavesMapC 	= clusterResult.getContentTreeLeavesMap();
 		
@@ -181,14 +183,26 @@ public final class RecommendationBuilder {
 		
 		// Find the most similar node in the tree
 		PositionFinder finder = new PositionFinder();
-		INode position = finder.findPosition(inputNode,rootU,0);
+		
+		INode position = null;
+		if(inputNode.getNodeType() == ENodeType.User){
+			position = finder.findPosition(inputNode,rootU,0);
+		}
+		else if(inputNode.getNodeType() == ENodeType.Content){
+			position = finder.findPosition(inputNode,rootC,0);
+		}
 		
 		if(position == null){
 			System.out.println("Starting Position was not found");
 			return null;
 		}
 		else {
-			System.out.println("Found similar user: " + position.getNominalAttributesString());
+			System.out.println("Found similar user: ");
+			System.out.println(position.getNominalAttributesString());
+			System.out.println(position.getNumericalAttributesString());
+			System.out.println("input user: ");
+			System.out.println(inputNode.getNominalAttributesString());
+			System.out.println(inputNode.getNumericalAttributesString());
 		}
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)

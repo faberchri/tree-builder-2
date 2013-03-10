@@ -4,15 +4,17 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.SortedMap;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
+import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
-import ch.uzh.agglorecommender.recommender.ui.BasicUI;
-import ch.uzh.agglorecommender.recommender.ui.extensions.WebExtension;
 import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 import ch.uzh.agglorecommender.recommender.utils.NodeInserter;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -91,25 +93,25 @@ public class TestDriver {
 //		eb.printEvaluationResult(eval);
 		
 		// Start User Interfaces for qualitative evaluation and insertion
-//		System.out.println("-------------------------------");
-//		System.out.println("Starting Recommendation Type 2");
-//		System.out.println("-------------------------------");
-//		
-//		Map<INode, IAttribute> testRatings = eb.defineRatings(trainingOutput,3); // Ratings
-//		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
-//		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
-//		
-//		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
-//		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
-//		rb.printRecommendation(sortedRecommendation);
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 2");
+		System.out.println("-------------------------------");
 		
-		// Start UI
-		BasicUI basicUI = new BasicUI(rb,ni);
-//		basicUI.startService();
-
-		// Start Web based UI Extension
-		WebExtension webUI = new WebExtension(basicUI); // Hangs in on basicUI, listens on 8081
-		webUI.startService();
+		Map<INode, IAttribute> testRatings = eb.defineRatings(trainingOutput,3); // Ratings
+		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
+		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
+		
+		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
+		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		rb.printRecommendation(sortedRecommendation);
+		
+//		// Start UI
+//		BasicUI basicUI = new BasicUI(rb,ni);
+////		basicUI.startService();
+//
+//		// Start Web based UI Extension
+//		WebExtension webUI = new WebExtension(basicUI); // Hangs in on basicUI, listens on 8081
+//		webUI.startService();
 	}
 	
 	/**

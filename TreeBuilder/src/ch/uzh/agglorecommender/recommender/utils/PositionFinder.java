@@ -62,6 +62,7 @@ public class PositionFinder {
 					}
 					
 					System.out.println(">> " + nextPosition.toString());
+					System.out.println(highestUtility + "/" + cutoff);
 					
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
