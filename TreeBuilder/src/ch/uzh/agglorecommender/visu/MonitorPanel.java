@@ -44,19 +44,17 @@ public class MonitorPanel extends JPanel{
 	    	monitor = Monitor.getInstance();
 	    	
 	        // Add monitoring parameters
-	        cycle 			= new JLabel("Cycles:" + monitor.getCycleCount());
 	        elapsedTime 	= new JLabel("Elapsed Time: " + monitor.getElapsedTime());	
 	        totalOpenNodes	= new JLabel("Open Nodes: " + monitor.getTotalOpenNodes());
-	        merges			= new JLabel("Merges: " + monitor.getTotalMergedNodes());
+	        merges			= new JLabel("Merges: " + monitor.getCycleCount());
 	        speed			= new JLabel("Speed: " + monitor.getTimePerMerge());
-	        expTime 		= new JLabel("Exp. Time: " + monitor.getTotalExpectedTime());
+	        expTime 		= new JLabel("Time Left: " + monitor.getTotalExpectedTime());
 	        
 	        progressBar 	= new JProgressBar(0, 100); 
 	        progressBar.setStringPainted(true);
 	        
 	        // Add to panel
 	        add(elapsedTime);
-	        add(cycle);
 	        add(totalOpenNodes);
 	        add(merges);
 	        add(speed);
@@ -81,11 +79,10 @@ public class MonitorPanel extends JPanel{
 	    	long exSeconds	= TimeUnit.SECONDS.toSeconds(monitor.getTotalExpectedTime()) - exMinutes * 60;
 	    	
 	    	elapsedTime.setText		("Elapsed Time: " 	+ nft.format(elHours) + ":" + nft.format(elMinutes) + ":" + nft.format(elSeconds));
-	    	cycle.setText			("Cycles: " 		+ monitor.getCycleCount());
 	    	totalOpenNodes.setText	("Open Nodes: " 	+ monitor.getTotalOpenNodes());
-	    	merges.setText			("Merges: " 		+ monitor.getTotalMergedNodes());
+	    	merges.setText			("Merges: " 		+ monitor.getCycleCount());
 	    	speed.setText			("Speed: " 			+ df.format(monitor.getTimePerMerge()) + "/s");
-	    	expTime.setText			("Exp. Time: " 		+ nft.format(exHours) + ":" + nft.format(exMinutes) + ":" + nft.format(exSeconds));
+	    	expTime.setText			("Time Left: " 		+ nft.format(exHours) + ":" + nft.format(exMinutes) + ":" + nft.format(exSeconds));
 	    	progressBar.setValue	((int) monitor.getPercentageOfMerges());
 	    }
 

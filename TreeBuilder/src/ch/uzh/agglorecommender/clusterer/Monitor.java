@@ -111,22 +111,10 @@ public class Monitor implements Serializable {
 	}
 	
     /*
-     * Calculates number of total mergedNodes
-     */
-	public long getTotalMergedNodes() {
-    	
-		long totalMergedNodes = 0;
-    	totalMergedNodes += contentNodeCount - openContentNodes;
-    	totalMergedNodes += userNodeCount - openUserNodes;
-    	
-    	return totalMergedNodes;
-	}
-	
-    /*
 	 * Calulates the time used for Merge
 	 */
 	public double getTimePerMerge() {
-		double timePerMerge =  (double) getTotalMergedNodes() / (double) getElapsedTime();
+		double timePerMerge =  (double) getCycleCount() / (double) getElapsedTime();
 		return timePerMerge;
 	}
     
@@ -139,9 +127,9 @@ public class Monitor implements Serializable {
      * Calulates the percentage of comparisons actually calculated
      */
     public double getPercentageOfMerges() {
-    	if ((getTotalMergedNodes() + getTotalOpenNodes()) != 0){
-    		double percentage = (double) getTotalMergedNodes() / ((double) getTotalMergedNodes() + getTotalOpenNodes());
-    		return percentage;
+    	if ((getCycleCount() + getTotalOpenNodes()) != 0){
+    		double percentage = (double) getCycleCount()  / ((double) getCycleCount()  + getTotalOpenNodes());
+    		return percentage * 100;
     	}
     		return 0;
     }
