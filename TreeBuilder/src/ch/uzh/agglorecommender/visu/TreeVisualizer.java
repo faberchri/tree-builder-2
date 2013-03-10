@@ -22,12 +22,14 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 
 public class TreeVisualizer {
-
+	
 	/**
 	 * JPanels which contains the JUNG items for cluster tree visualization.
 	 */
 	private TreePanel vbC;
 	private TreePanel vbU;
+	
+	private MonitorPanel monitorPanel;
 	
 	private boolean isPaused = false;
 	
@@ -60,27 +62,42 @@ public class TreeVisualizer {
 		JFrame frame = new JFrame("Cluster trees");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout());
-				
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		split.setOneTouchExpandable(true);
-        split.setResizeWeight(0.5);
-        frame.getContentPane().add(split, BorderLayout.CENTER);
-       
-        JPanel controlPanel = new JPanel();
-        JButton pB = new PlayButton();
-        controlPanel.add(pB);
-        controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Clustering Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
-        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
-
 		
+		// Tree Panes
+		JSplitPane treeSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		treeSplit.setOneTouchExpandable(true);
+        treeSplit.setResizeWeight(0.5);
+        frame.getContentPane().add(treeSplit, BorderLayout.NORTH);
+        
+        // Control & Monitor Panes
+        JSplitPane controlSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        treeSplit.setOneTouchExpandable(true);
+        treeSplit.setResizeWeight(0.5);
+        frame.getContentPane().add(controlSplit, BorderLayout.SOUTH);
+        
 		// Instantiate TreePanel
 		vbC = new TreePanel(contentNodes);
 		vbC.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Content Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
 		vbU = new TreePanel(userNodes);
 		vbU.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "User Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
 	
-		split.setLeftComponent(vbU);
-		split.setRightComponent(vbC);
+		treeSplit.setLeftComponent(vbU);
+		treeSplit.setRightComponent(vbC);
+       
+        // Control Panel
+        JPanel controlPanel = new JPanel();
+        JButton pB = new PlayButton();
+        controlPanel.add(pB);
+        controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Clustering Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
+//        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
+        
+        // Monitor Panel
+        monitorPanel = new MonitorPanel();
+		monitorPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Monitor", TitledBorder.CENTER, TitledBorder.CENTER));
+//        frame.getContentPane().add(monitorPanel, BorderLayout.PAGE_START);
+        
+        controlSplit.setLeftComponent(controlPanel);
+        controlSplit.setRightComponent(monitorPanel);
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -95,6 +112,7 @@ public class TreeVisualizer {
 	public void visualize() {
 		vbC.updateGraph(contentNodes);
 		vbU.updateGraph(userNodes);
+		monitorPanel.update();
 	}
 	
 	/**
@@ -134,7 +152,7 @@ public class TreeVisualizer {
 	public boolean isPaused() {
 		return isPaused;
 	}
-	
+
 	private class PlayButton extends JButton implements MouseListener {
 		
 		public PlayButton() {
@@ -173,7 +191,6 @@ public class TreeVisualizer {
 		public void mouseExited(MouseEvent e) {
 			// nothing to do			
 		}
-		
 	}
 	
 }

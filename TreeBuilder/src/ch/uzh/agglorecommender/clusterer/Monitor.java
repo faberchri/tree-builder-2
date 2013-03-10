@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import ch.uzh.agglorecommender.util.TBLogger;
-import ch.uzh.agglorecommender.visu.Display;
+import ch.uzh.agglorecommender.visu.MonitorPanel;
 
 /**
  * Class that keeps current count of nodes in the tree
@@ -13,7 +13,7 @@ import ch.uzh.agglorecommender.visu.Display;
  *
  */
 public class Monitor implements Serializable {
-	
+
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
 	 * <br>
@@ -33,7 +33,7 @@ public class Monitor implements Serializable {
 	private long totalComparisons = 0;
 	private long cycles = 0;
 	private long startTime = 0;
-	private transient Display display = null;
+	private transient MonitorPanel display = null;
 	
 	/**
 	 * Constructor to establish node counts and display
@@ -57,7 +57,6 @@ public class Monitor implements Serializable {
 		this.openUserNodes 		= openUserNodes;
 		this.openContentNodes 	= openContentNodes;
 		this.startTime = System.currentTimeMillis();
-		//createDisplay();
 	}
 	
 	/**
@@ -71,17 +70,9 @@ public class Monitor implements Serializable {
 		this.userNodeCount = userNodeCounts;
 	}
 	
-	/**
-	 * Create Graphical Representation of results
-	 */	
-	public void createDisplay() {
-		this.display = new Display();
-	}
-	
 	public void addComparison() {
 		this.totalComparisons++;
 		TBLogger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
-		display.update(this);
 	}
 	
 	private void addCycle() {	
@@ -112,6 +103,13 @@ public class Monitor implements Serializable {
     	return toBeCompared;
 	}
 	
+	/*
+	 * Delivers total comparisons
+	 */
+	public long getTotalComparisons() {
+		return totalComparisons;
+	}
+	
     /*
      * Calculates number of total mergedNodes
      */
@@ -125,53 +123,27 @@ public class Monitor implements Serializable {
 	}
 	
     /*
-     * Calculates expected total comparisons on current level
-     */
-    public long getTotalExpectedComparisonsLvl(long toBeCompared) {
-    	
-    	// Calculate comparisons on current Level
-    	long totalComparisonsOnLevel = 0;
-    	for (long i = 1;i < toBeCompared; i++) {
-    		totalComparisonsOnLevel += toBeCompared - i;
-    	}
-    	
-    	return totalComparisonsOnLevel;
-    } 
-	
-    /*
-     * Calculates expected total comparisons
-     */
-    public long getTotalExpectedComparisons(long toBeCompared) {
-    	
-    	// Calculate comparisons on current Level
-    	long totalComparisonsOnLevel = getTotalExpectedComparisonsLvl(toBeCompared);
-		TBLogger.getLogger(getClass().getName()).fine("totalComparisonsOnLevel: " + totalComparisonsOnLevel);
-
-    	
-    	// Calculate expected total comparisons for the whole clustering process
-    	long totalComparisons = 0;
-    	for (long i = 0;i < totalComparisonsOnLevel; i++) {
-    		totalComparisons += totalComparisonsOnLevel - i;
-    		TBLogger.getLogger(getClass().getName()).fine("calculated: " + totalComparisonsOnLevel +"," + i + ";" + totalComparisons);
-    	}
-    	
-		TBLogger.getLogger(getClass().getName()).fine("totalComparisons: " + totalComparisons);
-    	
-    	return totalComparisons;
-    }
+	 * Calulates the time used for Merge
+	 */
+	public double getTimePerMerge() {
+		double timePerMerge =  (double) getTotalMergedNodes() / (double) getElapsedTime();
+		return timePerMerge;
+	}
     
-    /*
-     * Calulates the time used for comparison
-     */
-    public double calculateTimePerComparison() {
-    	return 0; // IMPLEMENT
+    public long getTotalExpectedTime() {
+    	double expTime = getTimePerMerge() * getTotalOpenNodes();
+    	return (long) expTime;
     }
     
     /*
      * Calulates the percentage of comparisons actually calculated
      */
-    public double calculatePercentageOfComparisons() {
-    	return 0; // IMPLEMENT
+    public double getPercentageOfMerges() {
+    	if ((getTotalMergedNodes() + getTotalOpenNodes()) != 0){
+    		double percentage = (double) getTotalMergedNodes() / ((double) getTotalMergedNodes() + getTotalOpenNodes());
+    		return percentage;
+    	}
+    		return 0;
     }
     
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
@@ -185,7 +157,6 @@ public class Monitor implements Serializable {
     	c.totalComparisons = this.totalComparisons;
     	c.cycles = this.cycles;
     	c.startTime = this.startTime;
-    	c.display = new Display();
     }
 
 	public void update(int openUserNodes, int openContentNodes) {
