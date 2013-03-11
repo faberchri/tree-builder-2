@@ -114,13 +114,21 @@ public class Monitor implements Serializable {
 	 * Calulates the time used for Merge
 	 */
 	public double getTimePerMerge() {
-		double timePerMerge =  (double) getCycleCount() / (double) getElapsedTime();
-		return timePerMerge;
+		if(getElapsedTime() > 0){
+			double timePerMerge =  (double) getCycleCount() / (double) getElapsedTime();
+			return timePerMerge;
+		}
+		else {
+			return 0;
+		}
 	}
     
-    public long getTotalExpectedTime() {
-    	double expTime = getTimePerMerge() * getTotalOpenNodes();
-    	return (long) expTime;
+    public int getTotalExpectedSeconds() {
+    	if(getTimePerMerge() > 0){
+    		int expTime = (int) (getTotalOpenNodes() / getTimePerMerge());
+    		return expTime;
+    	}
+    	return 0;
     }
     
     /*

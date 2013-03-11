@@ -48,7 +48,7 @@ public class MonitorPanel extends JPanel{
 	        totalOpenNodes	= new JLabel("Open Nodes: " + monitor.getTotalOpenNodes());
 	        merges			= new JLabel("Merges: " + monitor.getCycleCount());
 	        speed			= new JLabel("Speed: " + monitor.getTimePerMerge());
-	        expTime 		= new JLabel("Time Left: " + monitor.getTotalExpectedTime());
+	        expTime 		= new JLabel("Time Left: " + monitor.getTotalExpectedSeconds());
 	        
 	        progressBar 	= new JProgressBar(0, 100); 
 	        progressBar.setStringPainted(true);
@@ -69,19 +69,22 @@ public class MonitorPanel extends JPanel{
 	    public void update() {
 	    	
 	    	// Format Time
-	    	long elDays 	= TimeUnit.SECONDS.toDays(monitor.getElapsedTime());
-	    	long elHours	= TimeUnit.SECONDS.toHours(monitor.getElapsedTime()) - elDays * 24;
-	    	long elMinutes	= TimeUnit.SECONDS.toMinutes(monitor.getElapsedTime()) - elHours * 60;
-	    	long elSeconds	= TimeUnit.SECONDS.toSeconds(monitor.getElapsedTime()) - elMinutes * 60;
-	    	long exDays 	= TimeUnit.SECONDS.toDays(monitor.getTotalExpectedTime());
-	    	long exHours	= TimeUnit.SECONDS.toHours(monitor.getTotalExpectedTime()) - exDays * 24;
-	    	long exMinutes	= TimeUnit.SECONDS.toMinutes(monitor.getTotalExpectedTime()) - exHours * 60;
-	    	long exSeconds	= TimeUnit.SECONDS.toSeconds(monitor.getTotalExpectedTime()) - exMinutes * 60;
+	    	long elTime 	= monitor.getElapsedTime();
+	    	long elDays 	= TimeUnit.SECONDS.toDays(elTime);
+	    	long elHours	= TimeUnit.SECONDS.toHours(elTime) - (elDays * 24);
+	    	long elMinutes	= TimeUnit.SECONDS.toMinutes(elTime) - (elHours * 60 + elDays * 24 *60);
+	    	long elSeconds	= TimeUnit.SECONDS.toSeconds(elTime) - (elMinutes * 60 + elHours * 60 * 60 + elDays * 24 * 60 * 60);
+	    	
+	    	long exTime		= monitor.getTotalExpectedSeconds();
+	    	long exDays 	= TimeUnit.SECONDS.toDays(exTime);
+	    	long exHours	= TimeUnit.SECONDS.toHours(exTime) - (exDays * 24);
+	    	long exMinutes	= TimeUnit.SECONDS.toMinutes(exTime) - (exHours * 60 + exDays * 24 * 60);
+	    	long exSeconds	= TimeUnit.SECONDS.toSeconds(exTime) - (exMinutes * 60 + exHours * 60 * 60 + exDays * 24 * 60 * 60);
 	    	
 	    	elapsedTime.setText		("Elapsed Time: " 	+ nft.format(elHours) + ":" + nft.format(elMinutes) + ":" + nft.format(elSeconds));
 	    	totalOpenNodes.setText	("Open Nodes: " 	+ monitor.getTotalOpenNodes());
 	    	merges.setText			("Merges: " 		+ monitor.getCycleCount());
-	    	speed.setText			("Speed: " 			+ df.format(monitor.getTimePerMerge()) + "/s");
+	    	speed.setText			("Speed: " 			+ df.format(monitor.getTimePerMerge()) + " Merge/s");
 	    	expTime.setText			("Time Left: " 		+ nft.format(exHours) + ":" + nft.format(exMinutes) + ":" + nft.format(exSeconds));
 	    	progressBar.setValue	((int) monitor.getPercentageOfMerges());
 	    }
