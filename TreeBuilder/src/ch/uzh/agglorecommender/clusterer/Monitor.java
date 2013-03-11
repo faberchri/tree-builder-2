@@ -106,7 +106,7 @@ public class Monitor implements Serializable {
 		
 		double totalNodes = getTotalOpenNodes() + getCycleCount();
 		double openNodesOnLevel = totalNodes - i;
-		
+				
 		long n = (long) (openNodesOnLevel - 1);
 		long comparisons =  (long) (n*(n+1))/2;
 		
@@ -117,7 +117,7 @@ public class Monitor implements Serializable {
 		
 		long comparisons = 0;
 		
-		for(double i = start;i > end; i--){
+		for(double i = start;i < end; i++){
 			comparisons += getComparisonsOnLevel(i);
 		}
 		
@@ -127,18 +127,18 @@ public class Monitor implements Serializable {
 	
 	public long getProcessedComparisons() {
 		
-		double totalNodes = getTotalOpenNodes() + getCycleCount();
+		double start = 0; 
+		double end = getCycleCount();		
 		
-		double start = totalNodes; 
-		double end = totalNodes - getCycleCount();		
-			
 		return getComparisonSum(start,end);
 	}
 	
 	public long getExpectedFutureComparisons() {
 		
-		double start = getTotalOpenNodes();
-		double end = 0;
+		double totalNodes = getTotalOpenNodes() + getCycleCount();
+		
+		double start = getCycleCount();
+		double end = totalNodes;
 		
 		return getComparisonSum(start,end);	
 	}
@@ -154,42 +154,54 @@ public class Monitor implements Serializable {
 		return 0;
 	}
 	
-	public double getTimePerComparison() {
-		if(getTimePerMerge() > 0){
-			double timePerComparison = (double) getTimePerMerge() / (double) getComparisonsOnLevel(getCycleCount());
-			return timePerComparison;
+	public double getComparisonsPerSecond() {
+		
+		long compOnLevel = getComparisonsOnLevel(getCycleCount());
+		
+		if(compOnLevel > 0){
+			double timePerComparison = (double) getTimePerMerge() / (double) compOnLevel;
+			return 1 / timePerComparison;
 		}			
 		return 0;
 	}
     
-    public int getTotalExpectedSeconds() {
-    	if(getTimePerMerge() > 0){
-    		
-    		int expTime = (int) (getTotalOpenNodes() / getTimePerMerge());
-    		expectationQueue.add(expTime);
-    		
-    		int sumOfExpTime = 0;
-    		for(int expectation : expectationQueue){
-    			sumOfExpTime += expectation;
-    		}
-    		
-    		return (int) sumOfExpTime / expectationQueue.size();
+    /*
+     * Calulates the percentage of comparisons actually calculated
+     */
+    public double getPercentageOfComparisons() {
+    	
+		long processed = getProcessedComparisons();
+		long future = getExpectedFutureComparisons();
+		
+    	if(processed + future > 0){
+    		double percentage = (double) processed  / ((double) processed  + future);
+    		return percentage * 100;
     	}
     	return 0;
     }
     
-    /*
-     * Calulates the percentage of comparisons actually calculated
-     */
-    public double getPercentageOfMerges() {
-    	if ((getCycleCount() + getTotalOpenNodes()) != 0){
-    		double percentage = (double) getProcessedComparisons()  / ((double) getProcessedComparisons()  + getExpectedFutureComparisons());
-    		return percentage * 100;
+    public int getTotalExpectedSeconds() {
+	    
+    	double percentage = getPercentageOfComparisons();
+    	
+    	if(percentage > 0){
+	    	
+	    	double multiplier = 100 / percentage;
+	    	double total = getElapsedTime() * multiplier;
+	    	int expTime = (int) (total - getElapsedTime());
+	    	
+	    	expectationQueue.add(expTime);
+	    	int sumOfExpTime = 0;
+	    	for(int expectation : expectationQueue){
+	    		sumOfExpTime += expectation;
+	    	}
+	    	
+	    	return (int) sumOfExpTime / expectationQueue.size();
     	}
-    		return 0;
-    }
-    
-    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
+    	return 0;
+	}
+
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
     	ois.defaultReadObject();
     	Monitor c = Monitor.getInstance();
     	
