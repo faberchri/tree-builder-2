@@ -31,7 +31,6 @@ public class Monitor implements Serializable {
 	private long openContentNodes = 0;
 	private long openUserNodes = 0;
 	
-	private long totalComparisons = 0;
 	private long cycles = 0;
 	private long startTime = 0;
 	private List<Integer> expectationQueue = new LimitedQueue(10);
@@ -71,11 +70,6 @@ public class Monitor implements Serializable {
 		this.userNodeCount = userNodeCounts;
 	}
 	
-	public void addComparison() {
-		this.totalComparisons++;
-		TBLogger.getLogger(getClass().getName()).info("comparison nr: " + totalComparisons);
-	}
-	
 	private void addCycle() {	
 		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
 		this.cycles++;
@@ -97,18 +91,56 @@ public class Monitor implements Serializable {
      */
 	public long getTotalOpenNodes() {
     	
-		long toBeCompared = 0;
-    	toBeCompared += openContentNodes;
-    	toBeCompared += openUserNodes;
+		long totalNodes = 0;
+    	totalNodes += openContentNodes;
+    	totalNodes += openUserNodes;
     	
-    	return toBeCompared;
+    	return totalNodes;
 	}
 	
 	/*
 	 * Delivers total comparisons
 	 */
-	public long getTotalComparisons() {
-		return totalComparisons;
+	
+	public long getComparisonsOnLevel(double i) {
+		
+		double totalNodes = getTotalOpenNodes() + getCycleCount();
+		double openNodesOnLevel = totalNodes - i;
+		
+		long n = (long) (openNodesOnLevel - 1);
+		long comparisons =  (long) (n*(n+1))/2;
+		
+		return comparisons;
+	}
+	
+	public long getComparisonSum(double start, double end){
+		
+		long comparisons = 0;
+		
+		for(double i = start;i > end; i--){
+			comparisons += getComparisonsOnLevel(i);
+		}
+		
+		return comparisons;
+		
+	}
+	
+	public long getProcessedComparisons() {
+		
+		double totalNodes = getTotalOpenNodes() + getCycleCount();
+		
+		double start = totalNodes; 
+		double end = totalNodes - getCycleCount();		
+			
+		return getComparisonSum(start,end);
+	}
+	
+	public long getExpectedFutureComparisons() {
+		
+		double start = getTotalOpenNodes();
+		double end = 0;
+		
+		return getComparisonSum(start,end);	
 	}
 	
     /*
@@ -119,9 +151,15 @@ public class Monitor implements Serializable {
 			double timePerMerge =  (double) getCycleCount() / (double) getElapsedTime();
 			return timePerMerge;
 		}
-		else {
-			return 0;
-		}
+		return 0;
+	}
+	
+	public double getTimePerComparison() {
+		if(getTimePerMerge() > 0){
+			double timePerComparison = (double) getTimePerMerge() / (double) getComparisonsOnLevel(getCycleCount());
+			return timePerComparison;
+		}			
+		return 0;
 	}
     
     public int getTotalExpectedSeconds() {
@@ -145,7 +183,7 @@ public class Monitor implements Serializable {
      */
     public double getPercentageOfMerges() {
     	if ((getCycleCount() + getTotalOpenNodes()) != 0){
-    		double percentage = (double) getCycleCount()  / ((double) getCycleCount()  + getTotalOpenNodes());
+    		double percentage = (double) getProcessedComparisons()  / ((double) getProcessedComparisons()  + getExpectedFutureComparisons());
     		return percentage * 100;
     	}
     		return 0;
@@ -159,7 +197,6 @@ public class Monitor implements Serializable {
     	c.userNodeCount = this.userNodeCount;
     	c.openContentNodes = this.openContentNodes;
     	c.openUserNodes = this.openUserNodes;
-    	c.totalComparisons = this.totalComparisons;
     	c.cycles = this.cycles;
     	c.startTime = this.startTime;
     }

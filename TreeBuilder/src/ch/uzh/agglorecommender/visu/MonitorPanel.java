@@ -9,8 +9,6 @@ import javax.swing.JProgressBar;
 
 import ch.uzh.agglorecommender.clusterer.Monitor;
 
-
-
 /*
  * Shows progress of comparisons on current level
  */
@@ -47,7 +45,7 @@ public class MonitorPanel extends JPanel{
 	        elapsedTime 	= new JLabel("Elapsed Time: " + monitor.getElapsedTime());	
 	        totalOpenNodes	= new JLabel("Open Nodes: " + monitor.getTotalOpenNodes());
 	        merges			= new JLabel("Merges: " + monitor.getCycleCount());
-	        speed			= new JLabel("Speed: " + monitor.getTimePerMerge());
+	        speed			= new JLabel("Speed: " + monitor.getTimePerComparison());
 	        expTime 		= new JLabel("Time Left: " + monitor.getTotalExpectedSeconds());
 	        
 	        progressBar 	= new JProgressBar(0, 100); 
@@ -84,7 +82,7 @@ public class MonitorPanel extends JPanel{
 	    	elapsedTime.setText		("Elapsed Time: " 	+ nft.format(elHours) + ":" + nft.format(elMinutes) + ":" + nft.format(elSeconds));
 	    	totalOpenNodes.setText	("Open Nodes: " 	+ monitor.getTotalOpenNodes());
 	    	merges.setText			("Merges: " 		+ monitor.getCycleCount());
-	    	speed.setText			("Speed: " 			+ df.format(monitor.getTimePerMerge()) + " Merge/s");
+	    	speed.setText			("Speed: " 			+ df.format(monitor.getTimePerComparison()) + " Comp/s");
 	    	expTime.setText			("Time Left: " 		+ nft.format(exHours) + ":" + nft.format(exMinutes) + ":" + nft.format(exSeconds));
 	    	progressBar.setValue	((int) monitor.getPercentageOfMerges());
 	    }
