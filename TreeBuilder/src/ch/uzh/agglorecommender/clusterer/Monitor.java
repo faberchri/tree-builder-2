@@ -3,9 +3,10 @@ package ch.uzh.agglorecommender.clusterer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 import ch.uzh.agglorecommender.util.TBLogger;
-import ch.uzh.agglorecommender.visu.MonitorPanel;
 
 /**
  * Class that keeps current count of nodes in the tree
@@ -33,7 +34,7 @@ public class Monitor implements Serializable {
 	private long totalComparisons = 0;
 	private long cycles = 0;
 	private long startTime = 0;
-	private transient MonitorPanel display = null;
+	private List<Integer> expectationQueue = new LimitedQueue(10);
 	
 	/**
 	 * Constructor to establish node counts and display
@@ -125,8 +126,16 @@ public class Monitor implements Serializable {
     
     public int getTotalExpectedSeconds() {
     	if(getTimePerMerge() > 0){
+    		
     		int expTime = (int) (getTotalOpenNodes() / getTimePerMerge());
-    		return expTime;
+    		expectationQueue.add(expTime);
+    		
+    		int sumOfExpTime = 0;
+    		for(int expectation : expectationQueue){
+    			sumOfExpTime += expectation;
+    		}
+    		
+    		return (int) sumOfExpTime / expectationQueue.size();
     	}
     	return 0;
     }
@@ -163,6 +172,22 @@ public class Monitor implements Serializable {
 		// Update Open Nodes
 		this.openUserNodes = openUserNodes;
 		this.openContentNodes = openContentNodes;
+	}
+	
+	public class LimitedQueue<E> extends LinkedList<E> {
+
+	    private int limit;
+
+	    public LimitedQueue(int limit) {
+	        this.limit = limit;
+	    }
+
+	    @Override
+	    public boolean add(E o) {
+	        super.add(o);
+	        while (size() > limit) { super.remove(); }
+	        return true;
+	    }
 	}
 
 }
