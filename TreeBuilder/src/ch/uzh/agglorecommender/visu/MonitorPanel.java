@@ -37,9 +37,10 @@ public class MonitorPanel extends JPanel{
 	     * this method should be invoked from the
 	     * event-dispatching thread.
 	     */
-	    public MonitorPanel() {
+	    public MonitorPanel(Monitor monitor) {
 	        
-	    	monitor = Monitor.getInstance();
+//	    	monitor = Monitor.getInstance();
+	    	this.monitor = monitor;
 	    	
 	        // Add monitoring parameters
 	        elapsedTime 	= new JLabel("Elapsed Time: " + monitor.getElapsedTime());	

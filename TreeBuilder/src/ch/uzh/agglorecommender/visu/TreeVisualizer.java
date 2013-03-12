@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
+import ch.uzh.agglorecommender.clusterer.Monitor;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
@@ -37,6 +38,7 @@ public class TreeVisualizer {
 	 * References to open node sets.
 	 */
 	private Collection<INode> userNodes, contentNodes;
+	private Monitor monitor;
 	
 	/**
 	 * Set up the facilities for the tree structure representation.
@@ -45,9 +47,11 @@ public class TreeVisualizer {
 	 */
 	public void initVisualization(
 			Collection<INode> userNodes,
-			Collection<INode> contentNodes) {
+			Collection<INode> contentNodes,
+			Monitor monitor) {
 		this.contentNodes = contentNodes;
 		this.userNodes = userNodes;
+		this.monitor = monitor;
 
 		// Set System L&F
 		try {
@@ -92,7 +96,7 @@ public class TreeVisualizer {
 //        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
         
         // Monitor Panel
-        monitorPanel = new MonitorPanel();
+        monitorPanel = new MonitorPanel(monitor);
 		monitorPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Monitor", TitledBorder.CENTER, TitledBorder.CENTER));
 //        frame.getContentPane().add(monitorPanel, BorderLayout.PAGE_START);
         

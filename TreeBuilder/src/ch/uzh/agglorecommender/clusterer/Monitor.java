@@ -3,9 +3,9 @@ package ch.uzh.agglorecommender.clusterer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.List;
 
+import ch.uzh.agglorecommender.util.LimitedQueue;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 /**
@@ -26,13 +26,11 @@ public class Monitor implements Serializable {
 	
 	private static Monitor monitor = new Monitor();
 	
-	private long contentNodeCount = 0;
-	private long userNodeCount = 0;
 	private long openContentNodes = 0;
 	private long openUserNodes = 0;
-	
 	private long cycles = 0;
 	private long startTime = 0;
+	private long timeOfLastCycle = 0;
 	private List<Integer> expectationQueue = new LimitedQueue(10);
 	
 	/**
@@ -66,16 +64,20 @@ public class Monitor implements Serializable {
 	 * @param userNodeCounts number of user nodes
 	 */
 	public void setInitialCounts(long contentNodeCounts, long userNodeCounts) {
-		this.contentNodeCount = contentNodeCounts;
-		this.userNodeCount = userNodeCounts;
+		this.openContentNodes = contentNodeCounts;
+		this.openUserNodes = userNodeCounts;
 	}
 	
 	private void addCycle() {	
-		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+cycles);
-		this.cycles++;
+		timeOfLastCycle = System.currentTimeMillis();
+		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+ cycles);
+		cycles++;
+//		TBLogger.getLogger(getClass().getName()).info("ID: " + serialVersionUID);
 	}
 	
 	public long getCycleCount() {
+//		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+ cycles);
+//		TBLogger.getLogger(getClass().getName()).info("ID: " + serialVersionUID);
 		return cycles;
 	}
 	
@@ -190,13 +192,15 @@ public class Monitor implements Serializable {
 	    	double total = getElapsedTime() * multiplier;
 	    	int expTime = (int) (total - getElapsedTime());
 	    	
-	    	expectationQueue.add(expTime);
-	    	int sumOfExpTime = 0;
-	    	for(int expectation : expectationQueue){
-	    		sumOfExpTime += expectation;
-	    	}
+	    	return expTime;
 	    	
-	    	return (int) sumOfExpTime / expectationQueue.size();
+//	    	expectationQueue.add(expTime);
+//	    	int sumOfExpTime = 0;
+//	    	for(int expectation : expectationQueue){
+//	    		sumOfExpTime += expectation;
+//	    	}
+//	    	
+//	    	return (int) sumOfExpTime / expectationQueue.size();
     	}
     	return 0;
 	}
@@ -205,12 +209,10 @@ public class Monitor implements Serializable {
     	ois.defaultReadObject();
     	Monitor c = Monitor.getInstance();
     	
-    	c.contentNodeCount = this.contentNodeCount;
-    	c.userNodeCount = this.userNodeCount;
-    	c.openContentNodes = this.openContentNodes;
-    	c.openUserNodes = this.openUserNodes;
-    	c.cycles = this.cycles;
-    	c.startTime = this.startTime;
+    	c.openContentNodes 	= this.openContentNodes;
+    	c.openUserNodes 	= this.openUserNodes;
+    	c.cycles 			= this.cycles;
+    	c.startTime 		= this.startTime + (System.currentTimeMillis() - this.timeOfLastCycle);
     }
 
 	public void update(int openUserNodes, int openContentNodes) {
@@ -221,22 +223,6 @@ public class Monitor implements Serializable {
 		// Update Open Nodes
 		this.openUserNodes = openUserNodes;
 		this.openContentNodes = openContentNodes;
-	}
-	
-	public class LimitedQueue<E> extends LinkedList<E> {
-
-	    private int limit;
-
-	    public LimitedQueue(int limit) {
-	        this.limit = limit;
-	    }
-
-	    @Override
-	    public boolean add(E o) {
-	        super.add(o);
-	        while (size() > limit) { super.remove(); }
-	        return true;
-	    }
 	}
 
 }

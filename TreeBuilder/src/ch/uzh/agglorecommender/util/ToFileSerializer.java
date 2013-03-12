@@ -34,6 +34,7 @@ public class ToFileSerializer {
 	 *
 	 */
 	public static void serializeConditionally(Serializable objectToSerialize, String pathToFile, UUID builderId) {
+		
 		// return if no serialization path was specified
 		if (pathToFile == null) return;
 		
