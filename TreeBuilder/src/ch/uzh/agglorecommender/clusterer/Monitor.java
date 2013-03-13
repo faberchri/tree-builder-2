@@ -33,6 +33,8 @@ public class Monitor implements Serializable {
 	private long timeOfLastCycle = 0;
 	private List<Integer> expectationQueue = new LimitedQueue(10);
 	
+	private Boolean alreadyInitialized = false;
+	
 	/**
 	 * Constructor to establish node counts and display
 	 */
@@ -54,7 +56,12 @@ public class Monitor implements Serializable {
 		setInitialCounts(openContentNodes,openUserNodes);
 		this.openUserNodes 		= openUserNodes;
 		this.openContentNodes 	= openContentNodes;
-		this.startTime = System.currentTimeMillis();
+		
+		if(this.alreadyInitialized == false){
+			this.startTime = System.currentTimeMillis();
+		}
+		
+		this.alreadyInitialized = true;
 	}
 	
 	/**
@@ -192,15 +199,13 @@ public class Monitor implements Serializable {
 	    	double total = getElapsedTime() * multiplier;
 	    	int expTime = (int) (total - getElapsedTime());
 	    	
-	    	return expTime;
+	    	expectationQueue.add(expTime);
+	    	int sumOfExpTime = 0;
+	    	for(int expectation : expectationQueue){
+	    		sumOfExpTime += expectation;
+	    	}
 	    	
-//	    	expectationQueue.add(expTime);
-//	    	int sumOfExpTime = 0;
-//	    	for(int expectation : expectationQueue){
-//	    		sumOfExpTime += expectation;
-//	    	}
-//	    	
-//	    	return (int) sumOfExpTime / expectationQueue.size();
+	    	return (int) sumOfExpTime / expectationQueue.size();
     	}
     	return 0;
 	}
