@@ -19,12 +19,12 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	/**
 	 * The user id.
 	 */
-	private final int userId;
+	private final String userId;
 	
 	/**
 	 * The content id.
 	 */
-	private final int contentId;
+	private final String contentId;
 	
 	/**
 	 * maps a meta attribute 
@@ -32,7 +32,7 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	 * corresponding value (e.g. 20). Since the attribute can have different values
 	 * (e.g. occupation: student and programmer) we need a multimap.
 	 */
-	private Multimap<Object, Object> userMetaMap = HashMultimap.create();
+	private Multimap<String, Object> userMetaMap = HashMultimap.create();
 	
 	/**
 	 * maps a meta attribute 
@@ -40,7 +40,7 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	 * corresponding value (thriller). Since the attribute can have different values
 	 * (e.g. genre: thriller and action) we need a multimap.
 	 */
-	private Multimap<Object, Object> contentMetaMap = HashMultimap.create();
+	private Multimap<String, Object> contentMetaMap = HashMultimap.create();
 
 	
 	/**
@@ -52,8 +52,8 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	 * @param contentId the id of the rated content.
 	 */
 	public SimpleDatasetItem(T value,
-			int userId,
-			int contentId)  {
+			String userId,
+			String contentId)  {
 		this.value = value;
 		this.userId = userId;
 		this.contentId = contentId;
@@ -65,35 +65,47 @@ public class SimpleDatasetItem<T extends Number> implements IDatasetItem<T>{
 	}
 
 	@Override
-	public int getUserId() {
+	public String getUserId() {
 		return userId;
 	}
 
 	@Override
-	public int getContentId() {
+	public String getContentId() {
 		return contentId;
 	}
 	
 	@Override
-	public Multimap<Object, Object> getUserMetaMap() {
+	public Multimap<String, Object> getNominalUserMetaMap() {
 		if (userMetaMap.size() == 0) return null;
 		return userMetaMap;
 	}
 	
 	@Override
-	public Multimap<Object, Object> getContentMetaMap() {
+	public Multimap<String, Object> getNominalContentMetaMap() {
 		if (contentMetaMap.size() == 0) return null;
 		return contentMetaMap;
 	}
 	
 	@Override
-	public void addUserMetaData(Object attribute, Object value) {
+	public void addUserMetaData(String attribute, Object value) {
 		userMetaMap.put(attribute, value);
 	}
 	
 	@Override
-	public void addContentMetaData(Object attribute, Object value) {
+	public void addContentMetaData(String attribute, Object value) {
 		contentMetaMap.put(attribute, value);
+	}
+
+	@Override
+	public Multimap<String, Double> getNumericalUserMetaMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Multimap<String, Double> getNumericalContentMetaMap() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

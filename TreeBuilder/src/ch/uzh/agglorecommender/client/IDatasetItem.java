@@ -15,14 +15,14 @@ public interface IDatasetItem<T> {
 	 * 
 	 * @return the id of the user
 	 */
-	public int getUserId();
+	public String getUserId();
 	
 	/**
 	 * The id of the content item of the rating.
 	 * 
 	 * @return the id of the content item.
 	 */
-	public int getContentId();
+	public String getContentId();
 	
 	/**
 	 * The rating value.
@@ -32,17 +32,27 @@ public interface IDatasetItem<T> {
 	public T getRating();
 
 	/**
-	 * The background information of the user.
+	 * The nominal background information of the user.
 	 */
-	public Multimap<Object, Object> getUserMetaMap();
+	public Multimap<String, Object> getNominalUserMetaMap();
 	
 	/**
-	 * The background information of the content.
+	 * The nominal background information of the content.
 	 */
-	public Multimap<Object, Object> getContentMetaMap();
+	public Multimap<String, Object> getNominalContentMetaMap();
+	
+	/**
+	 * The numerical background information of the user.
+	 */
+	public Multimap<String, Double> getNumericalUserMetaMap();
+	
+	/**
+	 * The numerical background information of the content.
+	 */
+	public Multimap<String, Double> getNumericalContentMetaMap();
 
-	public void addContentMetaData(Object attribute, Object value);
+	public void addContentMetaData(String attribute, Object value);
 
-	public void addUserMetaData(Object attribute, Object value);
+	public void addUserMetaData(String attribute, Object value);
 	
 }

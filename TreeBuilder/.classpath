@@ -104,5 +104,7 @@
 	<classpathentry kind="lib" path="lib/trove-3/3.0.3/lib/trove-3.0.3.jar" sourcepath="lib/trove-3/3.0.3/trove-3.0.3-src.jar"/>
 	<classpathentry kind="lib" path="lib/servlet/javax.servlet-3.0.0.v201112011016.jar"/>
 	<classpathentry kind="lib" path="lib/servlet/jetty-all-9.0.0.RC2.jar"/>
+	<classpathentry kind="lib" path="lib/XMLBeansInput/xmltypes.jar" sourcepath="lib/XMLBeansInput"/>
+	<classpathentry kind="lib" path="lib/super-csv/super-csv/super-csv-2.0.1.jar" sourcepath="lib/super-csv/super-csv/super-csv-2.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

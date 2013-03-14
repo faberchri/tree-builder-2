@@ -2,6 +2,8 @@ package ch.uzh.agglorecommender.client;
 
 import java.util.Iterator;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * 
  * @author fabian
@@ -26,6 +28,8 @@ public interface IDataset <T extends Number> {
 	 * @return the corresponding normalizer.
 	 */
 	public INormalizer<T> getNormalizer();
+	
+	public ImmutableMap<String, Boolean> getAttributeClusteringConfig();
 	
 	public enum DataSetSplit{
 		TRAINING, TEST

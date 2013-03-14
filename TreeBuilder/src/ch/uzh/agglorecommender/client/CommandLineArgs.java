@@ -61,5 +61,13 @@ public class CommandLineArgs {
 			description = "Meta information of content are taken into account for clustering if provided by the specified data set.")
 	protected boolean useContentMetaDataForClustering = false;
 	
+	@Parameter(names = { "-p", "-datasetProperties" },
+			description = "Path to dataset properties xml-file. Example: /path/to/input/file",
+			validateWith = FileReadValidatorConverter.class,
+			converter = FileReadValidatorConverter.class,
+			arity = 1,
+			required = true)
+	protected File datasetProperties;
+	
 	
 }

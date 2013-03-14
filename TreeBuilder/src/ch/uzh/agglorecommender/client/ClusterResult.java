@@ -28,12 +28,12 @@ public class ClusterResult implements Serializable {
 	/**
 	 * Map of user id as in data set to the corresponding node.
 	 */
-	private final ImmutableMap<Integer, INode> userTreeLeavesMap;
+	private final ImmutableMap<String, INode> userTreeLeavesMap;
 	
 	/**
 	 * Map of content id as in data set to the corresponding node.
 	 */
-	private final ImmutableMap<Integer, INode> contentTreeLeavesMap;
+	private final ImmutableMap<String, INode> contentTreeLeavesMap;
 	
 	/**
 	 * The root node of the user cluster tree of a completed
@@ -62,8 +62,8 @@ public class ClusterResult implements Serializable {
 	 * @param contentTreeRoot root of the content tree
 	 * @param treeBuilderId unique id of the tree builder / run.
 	 */
-	public ClusterResult(ImmutableMap<Integer, INode> userTreeLeavesMap,
-			ImmutableMap<Integer, INode> contentTreeLeavesMap,
+	public ClusterResult(ImmutableMap<String, INode> userTreeLeavesMap,
+			ImmutableMap<String, INode> contentTreeLeavesMap,
 			INode userTreeRoot, INode contentTreeRoot, UUID treeBuilderId) {
 		
 		this.userTreeLeavesMap = userTreeLeavesMap;
@@ -79,7 +79,7 @@ public class ClusterResult implements Serializable {
 	 * @return the immutable map of the user id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	public ImmutableMap<Integer, INode> getUserTreeLeavesMap() {
+	public ImmutableMap<String, INode> getUserTreeLeavesMap() {
 		return userTreeLeavesMap;
 	}
 
@@ -89,7 +89,7 @@ public class ClusterResult implements Serializable {
 	 * @return the immutable map of the content id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	public ImmutableMap<Integer, INode> getContentTreeLeavesMap() {
+	public ImmutableMap<String, INode> getContentTreeLeavesMap() {
 		return contentTreeLeavesMap;
 	}
 

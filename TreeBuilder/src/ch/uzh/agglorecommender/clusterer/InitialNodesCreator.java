@@ -27,12 +27,12 @@ public class InitialNodesCreator {
 	/**
 	 * Map of user id as in data set to the corresponding node.
 	 */
-	private final ImmutableMap<Integer, INode> userLeavesMap;
+	private final ImmutableMap<String, INode> userLeavesMap;
 	
 	/**
 	 * Map of content id as in data set to the corresponding node.
 	 */
-	private final ImmutableMap<Integer, INode> contentLeavesMap;
+	private final ImmutableMap<String, INode> contentLeavesMap;
 	
 	/**
 	 * Instantiates a new InitialNodesCreator object
@@ -49,8 +49,8 @@ public class InitialNodesCreator {
 	public InitialNodesCreator(IDataset<?> dataset,
 			TreeComponentFactory treeComponentFactory) {
 		
-		Map<Integer, List<IDatasetItem<?>>> usersMap = new HashMap<Integer, List<IDatasetItem<?>>>();
-		Map<Integer, List<IDatasetItem<?>>> contentsMap = new HashMap<Integer, List<IDatasetItem<?>>>();
+		Map<String, List<IDatasetItem<?>>> usersMap = new HashMap<String, List<IDatasetItem<?>>>();
+		Map<String, List<IDatasetItem<?>>> contentsMap = new HashMap<String, List<IDatasetItem<?>>>();
 		
 		// sort data items according to user id and content id
 		Iterator<?> it = dataset.iterateOverDatasetItems();
@@ -73,32 +73,42 @@ public class InitialNodesCreator {
 		}
 		
 		// create for each user and content id one node
-		Map<Integer, INode> usersNodeMap = new HashMap<Integer, INode>();
-		for (Integer i : usersMap.keySet()) {
-			usersNodeMap.put(i, treeComponentFactory.createLeafNode(ENodeType.User, i, usersMap.get(i).get(0).getUserMetaMap()));
+		Map<String, INode> usersNodeMap = new HashMap<String, INode>();
+		for (String i : usersMap.keySet()) {
+			usersNodeMap.put(i,
+					treeComponentFactory.createLeafNode(
+							ENodeType.User, i,
+							usersMap.get(i).get(0).getNominalUserMetaMap(),
+							usersMap.get(i).get(0).getNumericalUserMetaMap(),
+							ImmutableMap.copyOf(dataset.getAttributeClusteringConfig())));
 		}		
-		Map<Integer, INode> contentsNodeMap = new HashMap<Integer, INode>();
-		for (Integer i : contentsMap.keySet()) {
-			contentsNodeMap.put(i, treeComponentFactory.createLeafNode(ENodeType.Content, i, contentsMap.get(i).get(0).getContentMetaMap()));
+		Map<String, INode> contentsNodeMap = new HashMap<String, INode>();
+		for (String i : contentsMap.keySet()) {
+			contentsNodeMap.put(i,
+					treeComponentFactory.createLeafNode(
+							ENodeType.Content, i,
+							contentsMap.get(i).get(0).getNominalContentMetaMap(),
+							contentsMap.get(i).get(0).getNumericalContentMetaMap(),
+							ImmutableMap.copyOf(dataset.getAttributeClusteringConfig())));
 		}
 		
 		// attach to each node its attribute maps
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
+		for (Map.Entry<String, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
 			Map<INode, IAttribute> numAttributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<?> di : entry.getValue()) {
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
 				numAttributes.put(contentsNodeMap.get(di.getContentId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
 			}
-			usersNodeMap.get(entry.getKey()).setNumericalAttributes(numAttributes);
+			usersNodeMap.get(entry.getKey()).setRatingAttributes(numAttributes);
 //			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
-		for (Map.Entry<Integer, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
+		for (Map.Entry<String, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
 			for (IDatasetItem<?> di : entry.getValue()) {			
 				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
 				attributes.put(usersNodeMap.get(di.getUserId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
 			}
-			contentsNodeMap.get(entry.getKey()).setNumericalAttributes(attributes);
+			contentsNodeMap.get(entry.getKey()).setRatingAttributes(attributes);
 //			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		
@@ -112,7 +122,7 @@ public class InitialNodesCreator {
 	 * @return the immutable map of the user id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	public ImmutableMap<Integer, INode> getUserLeaves() {
+	public ImmutableMap<String, INode> getUserLeaves() {
 		return userLeavesMap;
 	}
 
@@ -122,7 +132,7 @@ public class InitialNodesCreator {
 	 * @return the immutable map of the content id as in the data set to the
 	 * node in the cluster tree.
 	 */
-	public ImmutableMap<Integer, INode> getContentLeaves() {
+	public ImmutableMap<String, INode> getContentLeaves() {
 		return contentLeavesMap;
 	}
 }

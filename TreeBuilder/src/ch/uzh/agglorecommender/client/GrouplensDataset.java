@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 
 
@@ -77,13 +78,11 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	protected void parseRatings(List<String> lines) {
 		for (String line : lines) {
 			String[] fields = line.split("\t");
-			Integer[] intFields = new Integer[fields.length];
 			for (int i = 0; i < fields.length; i++) {
-				if (i != fields.length - 1 ) {
-					intFields[i] = Integer.parseInt(fields[i].trim());
-				}
+				fields[i] = fields[i].trim();
 			}
-			addToDatasetItems(new SimpleDatasetItem<Integer>(intFields[2], intFields[0], intFields[1]));			
+			int rating = Integer.parseInt(fields[2]);
+			addToDatasetItems(new SimpleDatasetItem<Integer>(rating, fields[0], fields[1]));			
 		}
 	}
 	
@@ -110,8 +109,8 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 	@Override
 	protected void parseMeta(List<InputStream> metaInfos) {
 		Map<Integer, String> genres = parseGenres(metaInfos.get(0));
-		ListMultimap<Integer, String> contents = parseContents(metaInfos.get(1), genres);
-		ListMultimap<Integer, String> users = parseUsers(metaInfos.get(3));
+		ListMultimap<String, String> contents = parseContents(metaInfos.get(1), genres);
+		ListMultimap<String, String> users = parseUsers(metaInfos.get(3));
 		
 		String[] cAtts = {"title","release date","IMDb URL","genre"};
 		String[] uAtts = {"age","sex","occupation","zip-code"};
@@ -123,8 +122,8 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 		}
 	}
 	
-	private void addContentMetaToDatasetItem(IDatasetItem<Integer> dI, ListMultimap<Integer, String> contents, String[] cAtts) {		
-		int cId = dI.getContentId();
+	private void addContentMetaToDatasetItem(IDatasetItem<Integer> dI, ListMultimap<String, String> contents, String[] cAtts) {		
+		String cId = dI.getContentId();
 		List<String> cValues = contents.get(cId);
 		for (int i = 0; i < cValues.size(); i++) {
 			if (i > 2) {
@@ -136,8 +135,8 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 		}
 	}
 	
-	private void addUserMetaToDatasetItem(IDatasetItem<Integer> dI, ListMultimap<Integer, String> users, String[] uAtts) {
-		int uId = dI.getUserId();
+	private void addUserMetaToDatasetItem(IDatasetItem<Integer> dI, ListMultimap<String, String> users, String[] uAtts) {
+		String uId = dI.getUserId();
 		List<String> uValues = users.get(uId);
 		if (uValues.size() != 4) {
 			Logger log = TBLogger.getLogger(getClass().getName());
@@ -160,8 +159,8 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 		return genres;
 	}
 	
-	private ListMultimap<Integer, String> parseContents(InputStream itemStream, Map<Integer, String> genres) {
-		ListMultimap<Integer, String> r = ArrayListMultimap.create();
+	private ListMultimap<String, String> parseContents(InputStream itemStream, Map<Integer, String> genres) {
+		ListMultimap<String, String> r = ArrayListMultimap.create();
 		List<String> lines = getStreamLineByLine(itemStream);
 		for (String line : lines) {
 			
@@ -174,7 +173,7 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 			//////////////////////////////////////////////
 			
 			String[] fields = line.split("\\|");
-			int itemId = Integer.parseInt(fields[0].trim());
+			String itemId = fields[0].trim();
 //			System.out.println(line);
 			for (int i = 1; i < fields.length; i++) {	
 //				System.out.println(fields[i]);
@@ -191,16 +190,22 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 		return r;
 	}
 	
-	private ListMultimap<Integer, String> parseUsers(InputStream userStream) {
-		ListMultimap<Integer, String> r = ArrayListMultimap.create();
+	private ListMultimap<String, String> parseUsers(InputStream userStream) {
+		ListMultimap<String, String> r = ArrayListMultimap.create();
 		List<String> lines = getStreamLineByLine(userStream);
 		for (String line : lines) {
 			String[] fields = line.split("\\|");
-			int userId = Integer.parseInt(fields[0].trim());
+			String userId = fields[0].trim();
 			for (int i = 1; i < fields.length; i++) {
 				r.put(userId, fields[i].trim());
 			}
 		}
 		return r;
+	}
+
+	@Override
+	public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

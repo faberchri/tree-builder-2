@@ -5,41 +5,60 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
+
 public interface INode {
 		
 	/**
-	 * Sets the nominal attribute map of this node to {@code attributes}.
+	 * Sets the nominal meta attribute map of this node to {@code attributes}.
 	 * 
-	 * @param attributes the new nominal attribute map for this node.
+	 * @param attributes the new nominal meta attribute map for this node.
 	 */
-	public void setNominalAttributes(Map<Object, IAttribute> attributes);
+	public void setNominalMetaAttributes(Map<String, IAttribute> attributes);
+	
+	/**
+	 * Sets the numerical meta attribute map of this node to {@code attributes}.
+	 * 
+	 * @param attributes the new numerical meta attribute map for this node.
+	 */
+	public void setNumericalMetaAttributes(Map<String, IAttribute> attributes);
 	
 	/**
 	 * Sets the numerical attribute map of this node to {@code attributes}.
 	 * 
-	 * @param attributes the new numerical attribute map for this node.
+	 * @param attributes the new numerical meta attribute map for this node.
 	 */
-	public void setNumericalAttributes(Map<INode, IAttribute> attributes);
+	public void setRatingAttributes(Map<INode, IAttribute> attributes);
 	
 	/**
 	 * Adds a new entry (INode-IAttribute-key-value-pair)
-	 * to the numerical attribute map of this node. A previously
+	 * to the rating attribute map of this node. A previously
 	 * existing mapping for the key (INode) is replaced.
 	 * 
 	 * @param key the key for the numerical node attribute mapping
 	 * @param value the value for the node attribute mapping.
 	 */
-	public void addNumericalAttribute(INode key, IAttribute value);
+	public void addRatingAttribute(INode key, IAttribute value);
 	
 	/**
-	 * Adds a new entry (INode-IAttribute-key-value-pair)
-	 * to the nominal attribute map of this node. A previously
+	 * Adds a new entry (String-IAttribute-key-value-pair)
+	 * to the numerical meta attribute map of this node. A previously
+	 * existing mapping for the key (INode) is replaced.
+	 * 
+	 * @param key the key for the numerical node attribute mapping
+	 * @param value the value for the node attribute mapping.
+	 */
+	public void addNumericalMetaAttribute(String key, IAttribute value);
+	
+	/**
+	 * Adds a new entry (String-IAttribute-key-value-pair)
+	 * to the nominal meta attribute map of this node. A previously
 	 * existing mapping for the key (INode) is replaced.
 	 * 
 	 * @param key the key for the nominal node attribute mapping
 	 * @param value the value for the node attribute mapping.
 	 */
-	public void addNominalAttribute(Object key, IAttribute value);
+	public void addNominalMetaAttribute(String key, IAttribute value);
 	
 	/**
 	 * Gets the attribute value for the passed {@code node}.
@@ -48,7 +67,7 @@ public interface INode {
 	 * @return the {@code IAttribute} object mapped to the
 	 * passed node or null if no mapping is present.
 	 */
-	public IAttribute getNumericalAttributeValue(Object node);
+	public IAttribute getNumericalAttributeValue(Object attribute);
 	
 	/**
 	 * Gets the attribute value for the passed {@code attribute}.
@@ -59,21 +78,43 @@ public interface INode {
 	 */
 	public IAttribute getNominalAttributeValue(Object attribute);
 	
-	/**
-	 * Gets all nodes from the numerical attribute map of this node.
-	 * 
-	 * @return an unmodifiable set with all nodes (keys)
-	 * contained in this nodes numerical attribute map.
-	 */
-	public Set<INode> getNumericalAttributeKeys();
+//	/**
+//	 * Gets the attribute value for the passed {@code attribute}.
+//	 *
+//	 * @param attribute the key to fetch the attribute value.
+//	 * @return the {@code IAttribute} object mapped to the
+//	 * passed node or null if no mapping is present.
+//	 */
+//	public IAttribute getRatingAttributeValue(INode attribute);
+	
+	public boolean useAttributeForClustering(Object attribute);
+	
+	public ImmutableMap<String, Boolean> getClusteringControlMap();
+
 	
 	/**
-	 * Gets all nodes from the nominal attribute map of this node.
+	 * Gets all nodes from the numerical meta attribute map of this node.
 	 * 
-	 * @return an unmodifiable set with all nodes (keys)
-	 * contained in this nodes nominal attribute map.
+	 * @return an unmodifiable set with all keys
+	 * contained in this nodes numerical attribute map.
 	 */
-	public Set<Object> getNominalAttributeKeys();
+	public Set<String> getNumericalMetaAttributeKeys();
+	
+	/**
+	 * Gets all nodes from the nominal meta attribute map of this node.
+	 * 
+	 * @return an unmodifiable set with all keys
+	 * contained in this nodes nominal meta attribute map.
+	 */
+	public Set<String> getNominalMetaAttributeKeys();
+	
+	/**
+	 * Gets all nodes from the rating attribute map of this node.
+	 * 
+	 * @return an unmodifiable set with all INodes (keys)
+	 * contained in this ratings attribute map.
+	 */
+	public Set<INode> getRatingAttributeKeys();
 	
 //	/**
 //	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
@@ -166,26 +207,13 @@ public interface INode {
 	
 	/**
 	 * Removes the mapping for {@code attribute }
-	 * from this node's numerical attribute map.
-	 * 
-	 * @param attribute The INode for
-	 * which the mapping is removed.
-	 * @return the value previously mapped to the {@code attribute}
-	 * or null if no mapping was present.
-	 */
-	public IAttribute removeNumericalAttribute(INode attribute);
-	
-	/**
-	 * Removes the mapping for {@code attribute }
-	 * from this node's nominal attribute map.
+	 * from all attribute maps of this node.
 	 * 
 	 * @param attribute The object for
 	 * which the mapping is removed.
-	 * @return the value previously mapped to the {@code attribute}
-	 * or null if no mapping was present.
 	 */
-	public IAttribute removeNominalAttribute(Object attribute);
-		
+	public void removeAttribute(Object attribute);
+			
 	/**
 	 * Gets the total count of children
 	 * 
@@ -235,7 +263,7 @@ public interface INode {
 	 * 
 	 * @return the datasetID
 	 */
-	public long getDatasetId();
+	public String getDatasetId();
 	
 	/**
 	 * Gets the id(s) of the data item(s) (i.e. user or contend item) 
@@ -247,8 +275,7 @@ public interface INode {
 	 * and equal to the number of cluster instances (e.g. users) if
 	 * node is the root.
 	 */
-	public List<Integer> getDataSetIds();
-	
+	public List<String> getDataSetIds();
 	
 	/**
 	 * Sets the id of the node. Used for evaluations.

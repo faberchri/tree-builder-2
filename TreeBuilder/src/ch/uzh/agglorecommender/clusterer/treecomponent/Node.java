@@ -16,6 +16,8 @@ import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
+import com.google.common.collect.ImmutableMap;
+
 
 public class Node implements INode, Comparable<Node>, Serializable {
 
@@ -32,7 +34,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Node id counter.
 	 */
 	private static long idCounter = 0;
-		
+
 	/**
 	 * The unique id of this node.
 	 */
@@ -44,21 +46,31 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	private final ENodeType nodeType;
 
 	/**
-	 * The background attributes of the node (e.g. gender, age, genre).
+	 * The numerical background attributes of the node (e.g. gender, age, genre).
 	 * Stores for each node that is an
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<Object, IAttribute> nominalAttributes = new HashMap<Object, IAttribute>();
-	
+	private Map<String, IAttribute> numericalMetaAttributes = new HashMap<String, IAttribute>();
+
+	/**
+	 * The nominal background attributes of the node (e.g. gender, age, genre).
+	 * Stores for each node that is an
+	 * attribute of this node a mapping
+	 * to an IAttribute object.
+	 */
+	private Map<String, IAttribute> nominalMetaAttributes = new HashMap<String, IAttribute>();
+
 	/**
 	 * The rating attributes of the node 
 	 * Stores for each node that is an
 	 * attribute of this node a mapping
 	 * to an IAttribute object.
 	 */
-	private Map<INode, IAttribute> numericalAttributes = new HashMap<INode, IAttribute>();
-	
+	private Map<INode, IAttribute> ratingAttributes = new HashMap<INode, IAttribute>();
+
+	private final ImmutableMap<String, Boolean> useForClustering;
+
 	/**
 	 * The children of this node.
 	 */
@@ -69,12 +81,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * Is null s long as the node was not merged.
 	 */
 	private INode parent = null;
-	
+
 	/**
 	 * The id of the represented data item in the data set.
 	 * Is null if the size of this cluster is > 1.
 	 */
-	private final Integer dataSetId;
+	private final String dataSetId;
 
 	/**
 	 * The category utility of the merge of this nodes children or 1 if node is leaf
@@ -86,12 +98,15 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
 
-	public Node(ENodeType nodeType, int dataSetId) {
+	public Node(ENodeType nodeType,
+			String dataSetId,
+			ImmutableMap<String, Boolean> useForClustering) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
+		this.useForClustering = useForClustering;
 	}
-	
+
 	/**
 	 * Node constructor
 	 * @param nodeType Type of the node
@@ -100,8 +115,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	public Node(ENodeType nodeType,
 			Collection<INode> children,
-			Map<INode, IAttribute> numericalAttributes, 
-			Map<Object, IAttribute> nominalAttributes,
+			Map<INode, IAttribute> ratingAttributes,
+			Map<String, IAttribute> numericalMetaAttributes, 
+			Map<String, IAttribute> nominalMetaAttributes,
 			double categoryUtility) {
 		this.nodeType = nodeType;
 		if (children != null) {
@@ -110,17 +126,18 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				child.setParent(this);
 			}	
 		}
-		this.numericalAttributes = numericalAttributes;
-		this.nominalAttributes = nominalAttributes;
+		this.numericalMetaAttributes = numericalMetaAttributes;
+		this.nominalMetaAttributes = nominalMetaAttributes;
+		this.ratingAttributes = ratingAttributes;
 		this.dataSetId = null;
 		this.categoryUtility = categoryUtility;
+		this.useForClustering = children.iterator().next().getClusteringControlMap();
 	}
 
 	@Override
 	public String getNumericalAttributesString() {
 
-		List<INode> keyList = new ArrayList<INode>(numericalAttributes.keySet());
-		
+		List<INode> keyList = new ArrayList<INode>(ratingAttributes.keySet());
 		// sort attributes by node id
 		Collections.sort(keyList, new Comparator<INode>() {
 			@Override
@@ -128,11 +145,26 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				return Long.compare(o1.getId(), o2.getId());
 			}
 		});
-		
-		String s = "";
-		for (INode node : keyList) {
-			s = s.concat(node.toString()).concat(": ").concat(numericalAttributes.get(node).toString()).concat(";\t");
+
+		List<String> keyList2 = new ArrayList<String>(numericalMetaAttributes.keySet());
+		Collections.sort(keyList2);
+
+		return "ratings: "
+				.concat(getAttributesString(keyList, ratingAttributes))
+				.concat(" | numerical meta attributes: ")
+				.concat(getAttributesString(keyList2, numericalMetaAttributes));
+
+	}
+
+	private String getAttributesString(List<? extends Object> keyList, Map<? extends Object,? extends Object> atts) {	
+		StringBuilder sb = new StringBuilder();
+		for (Object o : keyList) {
+			sb.append(o.toString());
+			sb.append(": ");
+			sb.append(atts.get(o).toString());
+			sb.append(";\t");
 		}
+		String s = sb.toString();
 
 		if (s.length() == 0) {
 			return "no_attributes";
@@ -140,22 +172,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			return s.substring(0, s.length()-1);
 		}
 	}
-	
+
 	@Override
 	public String getNominalAttributesString() {
-
-		List<Object> keyList = new ArrayList<Object>(nominalAttributes.keySet());
+		List<Object> keyList = new ArrayList<Object>(nominalMetaAttributes.keySet());
 		Collections.sort(keyList, new ObjectComparator());
-		String s = "";
-		for (Object att : keyList) {
-			s = s.concat(att.toString()).concat(": ").concat(nominalAttributes.get(att).toString()).concat(";\t");
-		}
-
-		if (s.length() == 0) {
-			return "no_attributes";
-		} else {
-			return s.substring(0, s.length()-1);
-		}
+		return "nominalMetaAttributes: ".concat(getAttributesString(keyList, nominalMetaAttributes));
 	}
 
 	@Override
@@ -213,35 +235,63 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public void setNumericalAttributes(Map<INode, IAttribute> attributes) {
+	public void setNumericalMetaAttributes(Map<String, IAttribute> attributes) {
 		dirtySet.add(this);
-		this.numericalAttributes = attributes;
+		this.numericalMetaAttributes = attributes;
 	}
-	
+
 	@Override
-	public void setNominalAttributes(Map<Object, IAttribute> attributes) {
+	public void setRatingAttributes(Map<INode, IAttribute> attributes) {
 		dirtySet.add(this);
-		this.nominalAttributes = attributes;
+		this.ratingAttributes = attributes;
 	}
 
 	@Override
-	public Set<INode> getNumericalAttributeKeys() {
-		return Collections.unmodifiableSet(numericalAttributes.keySet());
-	}
-	
-	@Override
-	public Set<Object> getNominalAttributeKeys() {
-		return Collections.unmodifiableSet(nominalAttributes.keySet());
+	public void setNominalMetaAttributes(Map<String, IAttribute> attributes) {
+		dirtySet.add(this);
+		this.nominalMetaAttributes = attributes;
 	}
 
 	@Override
-	public IAttribute getNumericalAttributeValue(Object node) {
-		return numericalAttributes.get(node);
+	public Set<INode> getRatingAttributeKeys() {
+		return Collections.unmodifiableSet(ratingAttributes.keySet());
 	}
 
 	@Override
-	public IAttribute getNominalAttributeValue(Object attribute) {
-		return nominalAttributes.get(attribute);
+	public Set<String> getNumericalMetaAttributeKeys() {
+		return Collections.unmodifiableSet(numericalMetaAttributes.keySet());
+	}
+
+	@Override
+	public Set<String> getNominalMetaAttributeKeys() {
+		return Collections.unmodifiableSet(nominalMetaAttributes.keySet());
+	}
+
+	@Override
+	public IAttribute getNumericalAttributeValue(Object att) {
+		IAttribute res = ratingAttributes.get(att);
+		if (res != null) return res;
+		return numericalMetaAttributes.get(att);
+	}
+
+	@Override
+	public IAttribute getNominalAttributeValue(Object att) {
+		return nominalMetaAttributes.get(att);
+	}
+
+	//	@Override
+	//	public IAttribute getRatingAttributeValue(INode node) {
+	//		return ratingAttributes.get(node);
+	//	}
+
+	@Override
+	public boolean useAttributeForClustering(Object attribute) {
+		if (useForClustering == null) return true;
+		Boolean r = useForClustering.get(attribute);
+		if (r != null) {
+			return r;
+		}
+		return true;
 	}
 
 	@Override
@@ -255,15 +305,21 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public void addNominalAttribute(Object key, IAttribute value) {
+	public void addNominalMetaAttribute(String key, IAttribute value) {
 		dirtySet.add(this);
-		nominalAttributes.put(key, value);		
+		nominalMetaAttributes.put(key, value);		
 	}
-	
+
 	@Override
-	public void addNumericalAttribute(INode node, IAttribute attribute) {
+	public void addNumericalMetaAttribute(String key, IAttribute value) {
 		dirtySet.add(this);
-		numericalAttributes.put(node, attribute);		
+		numericalMetaAttributes.put(key, value);		
+	}
+
+	@Override
+	public void addRatingAttribute(INode node, IAttribute attribute) {
+		dirtySet.add(this);
+		ratingAttributes.put(node, attribute);		
 	}
 
 	@Override
@@ -273,24 +329,25 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public boolean hasAttribute(Object attribute) {
-		boolean b = numericalAttributes.containsKey(attribute);
-		if (b == false) {
-			b = nominalAttributes.containsKey(attribute);
+		if (ratingAttributes.containsKey(attribute)) {
+			return true;
 		}
-		return b;
+		if (numericalMetaAttributes.containsKey(attribute)) {
+			return true;
+		}
+		if (nominalMetaAttributes.containsKey(attribute)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public IAttribute removeNumericalAttribute(INode attribute) {
+	public void removeAttribute(Object attribute) {
 		dirtySet.add(this);
-		return numericalAttributes.remove(attribute);
+		ratingAttributes.remove(attribute);
+		numericalMetaAttributes.remove(attribute);
+		nominalMetaAttributes.remove(attribute);
 	}
-	
-	@Override
-	public IAttribute removeNominalAttribute(Object attribute) {
-		dirtySet.add(this);
-		return nominalAttributes.remove(attribute);
-	}	
 
 	@Override
 	public int getChildrenCount() {
@@ -316,84 +373,117 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public String getAttributeHTMLLabelString() {
 		DecimalFormat formater = new DecimalFormat("#.####");
 		String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>"
 				+ "<body> Node: "
 				+ getId()
-				+ "<br> data set id: "
+				+ "<br>data set id: "
 				+ getSimpleDataSetIdString(this)
-				+ "<br> Category Utility: "
+				+ "<br>Category Utility: "
 				+ formater.format(getCategoryUtility())
+				+ "<br>Cluster size: "
+				+ getNumberOfLeafNodes()
 				+ "<br>";
 
 		List<INode> merge = new ArrayList<INode>();
 		merge.add(this);
 
-		if (numericalAttributes.size() > 0) {
-			List<Node> atKeyLi = new ArrayList(numericalAttributes.keySet());
+		description += "<h2>Rating Attributes</h2>";		
+		if (ratingAttributes.size() > 0) {
+			List<Node> atKeyLi = new ArrayList(ratingAttributes.keySet());
 			Collections.sort(atKeyLi);	
-			description += createNumericalAttributesHTMLTable(atKeyLi, formater);
+			description += createRatingsAttributesHTMLTable(atKeyLi, formater);
 		}
-		
-		if (nominalAttributes.size() > 0) {
-			List<Object> atKeyLi = new ArrayList(nominalAttributes.keySet());
+		description += "<h2>Numerical Meta Attributes</h2>";
+		if (numericalMetaAttributes.size() > 0) {
+			List<String> atKeyLi = new ArrayList<>(numericalMetaAttributes.keySet());
+			Collections.sort(atKeyLi);	
+			description += createNumericalMetaAttributesHTMLTable(atKeyLi, formater);
+		}
+		description += "<h2>Nominal Meta Attributes</h2>";
+		if (nominalMetaAttributes.size() > 0) {
+			List<String> atKeyLi = new ArrayList<>(nominalMetaAttributes.keySet());
 			Collections.sort(atKeyLi, new ObjectComparator());
-			description += createNominalAttributesHTMLTable(atKeyLi, formater);
+			description += createNominalMetaAttributesHTMLTable(atKeyLi, formater);
 		}
-		return description += "</table></body></html>";
+		return description += "</body></html>";
 	}
-	
-	private String createNominalAttributesHTMLTable(List<Object> attributes, DecimalFormat formater) {
+
+	private String createNumericalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<table><tr><td>attr</td><td width='150'>value -> probability</td></tr>";
+		String description = "<table><tr><td>tag</td><td>mean</td><td>std</td><td>support</td></tr>";
+		// Data
+		for(String attributeKey : attributes) {
+
+			IAttribute attributeValue = getNumericalAttributeValue(attributeKey);
+			description += "<tr><td>" + attributeKey.toString() + "</td>";
+			if (useAttributeForClustering(attributeKey)) {
+
+				description+= "<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
+						"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())) + "</td>" +
+						"<td>" + attributeValue.getSupport()+ "</td>" +
+						"</tr>";
+			} else {
+				description = "<td>- not used for clustering -</td></tr>";
+			}
+		}
+		return description += "</table>";
+	}
+
+	private String createNominalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
+		// Header
+		String description = "<table><tr><td>tag</td><td width='150'>value -> probability</td></tr>";
 
 		// Data
-		for(Object attributeKey : attributes) {
-			
+		for(String attributeKey : attributes) {
+
 			IAttribute attributeValue = getNominalAttributeValue(attributeKey);
 			description += "<tr><td>" + attributeKey.toString() + "</td>";
 
 			Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
-			description += "<td>";
-			while ( values.hasNext() ){
-				Entry<Object,Double> tempEntry = values.next();
-				description += tempEntry.getKey().toString() + " -> " +
-						formater.format(tempEntry.getValue().doubleValue()) + "<br>";
-
+			if (! useAttributeForClustering(attributeKey)) {
+				description += "<td>- not used for clustering -<br>";
+			} else {
+				description += "<td>";
 			}
 
+			while ( values.hasNext() ){
+				Entry<Object,Double> tempEntry = values.next();
+				description += tempEntry.getKey().toString();
+				if (useAttributeForClustering(attributeKey)) {
+					description += " -> " +	formater.format(tempEntry.getValue().doubleValue()); 
+				}
+				description += "<br>";
+			}
 			description += "</td></tr>";
 		}
 		return description += "</table>";
 	}
-	
-	private String createNumericalAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
+
+	private String createRatingsAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<table><tr><td>attr</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
-		List<INode> merge = new ArrayList<INode>();
-		merge.add(this);
+		String description = "<table><tr><td>cluster id</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
 		// Data
 		for(INode attributeKey : attributes) {
-			 
+
 			IAttribute attributeValue = getNumericalAttributeValue(attributeKey);
 			description += "<tr><td>" + attributeKey.getId() + "</td>" +
 					"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
 					"<td>" + attributeKey.getNodeType() + "</td>"+
-    				"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
-    				"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge)) + "</td>" +
-    				"<td>" + attributeValue.getSupport()+ "</td>" +
-    				"</tr>";
+					"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
+					"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())) + "</td>" +
+					"<td>" + attributeValue.getSupport()+ "</td>" +
+					"</tr>";
 		}
 		return description += "</table>";
-
 	}
-	
+
 	private String getSimpleDataSetIdString(INode node) {
 		String dataSetIdsString = "";
-		List<Integer> ids = node.getDataSetIds();
+		List<String> ids = node.getDataSetIds();
 		if (ids.size() > 1) {
 			dataSetIdsString = ids.get(0) + ", " + ids.get(1) + " ...";
 		}
@@ -402,19 +492,19 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return dataSetIdsString;
 	}
-	
+
 	@Override
 	public void setId(long id) {
 		this.id = id;
 	}
-	
+
 	@Override
-	public List<Integer> getDataSetIds() {
-		List<Integer> li = new ArrayList<Integer>();
+	public List<String> getDataSetIds() {
+		List<String> li = new ArrayList<String>();
 		return getDataSetIds(li);
 	}
-	
-	private List<Integer> getDataSetIds(List<Integer> li) {
+
+	private List<String> getDataSetIds(List<String> li) {
 		if (isLeaf()) {
 			li.add(dataSetId);
 		} else {
@@ -424,23 +514,23 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return li;
 	}
-	
+
 	@Override
 	public double getCategoryUtility() {
 		return categoryUtility;
 	}
-	
+
 	@Override
 	public boolean isDirty() {
 		return dirtySet.contains(this);
 	}
-	
+
 	@Override
 	public void setClean() {
 		dirtySet.remove(this);
-		
+
 	}
-	
+
 	/**
 	 * Gets the set of dirty nodes.
 	 * @return all nodes with recently changed attributes.
@@ -450,10 +540,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public long getDatasetId() {
+	public String getDatasetId() {
 		return dataSetId;
 	}
-	
+
 	private class ObjectComparator implements Comparator<Object> {
 		@Override
 		public int compare(Object o1, Object o2) {			
@@ -467,5 +557,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			return 0;
 		};
 	}
-	
+
+	@Override
+	public ImmutableMap<String, Boolean> getClusteringControlMap() {
+		return useForClustering;
+	}
+
 }

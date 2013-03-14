@@ -7,6 +7,8 @@ import java.util.Random;
 
 import ch.uzh.agglorecommender.util.TBLogger;
 
+import com.google.common.collect.ImmutableMap;
+
 
 
 /**
@@ -146,7 +148,7 @@ public class RandomDataset implements IDataset<Double> {
 		for (int i = 0; i < randomMatrix[0].length; i++) {
 			for (int j = 0; j < randomMatrix.length; j++) {
 				if (randomMatrix[j][i] != null) {
-					datasetItems.add(new SimpleDatasetItem<Double>(randomMatrix[j][i], i, j));	
+					datasetItems.add(new SimpleDatasetItem<Double>(randomMatrix[j][i], String.valueOf(i), String.valueOf(j)));	
 				}
 			}
 		}
@@ -169,6 +171,12 @@ public class RandomDataset implements IDataset<Double> {
 	private static void main(String[] args) {
 		RandomDataset ds = new RandomDataset(10, 10, 60);
 		ds.printRandomMatrix();
+	}
+
+	@Override
+	public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
+		// not applicable since no meta data available
+		return null;
 	}
 
 }

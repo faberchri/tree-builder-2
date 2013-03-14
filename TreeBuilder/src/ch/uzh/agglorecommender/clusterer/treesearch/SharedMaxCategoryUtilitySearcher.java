@@ -32,11 +32,12 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	@Override
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
 				
-		Set<INode> numAtts = new HashSet<INode>();
+		Set<Object> numAtts = new HashSet<Object>();
 		Set<Object> nomAtts = new HashSet<Object>();
 		for (INode n : possibleMerge) {
-			numAtts.addAll(n.getNumericalAttributeKeys());
-			nomAtts.addAll(n.getNominalAttributeKeys());
+			numAtts.addAll(n.getRatingAttributeKeys());
+			numAtts.addAll(n.getNumericalMetaAttributeKeys());
+			nomAtts.addAll(n.getNominalMetaAttributeKeys());
 		}
 		
 		double numOfNomAtts = nomAtts.size();

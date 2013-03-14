@@ -253,7 +253,7 @@ public class SerializationUtils {
          * of the current <code>Thread</code> to resolve the class.
          * @param desc An instance of class <code>ObjectStreamClass</code>.
          * @return A <code>Class</code> object corresponding to <code>desc</code>.
-         * @throws IOException Any of the usual Input/Output exceptions.
+         * @throws IOException Any of the usual InputParser/Output exceptions.
          * @throws ClassNotFoundException If class of a serialized object cannot be found.
          */
         @Override

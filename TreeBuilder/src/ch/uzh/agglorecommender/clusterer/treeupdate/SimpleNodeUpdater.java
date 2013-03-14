@@ -24,9 +24,9 @@ public class SimpleNodeUpdater implements INodeUpdater, Serializable {
 	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate) {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		
-		for (INode attNode : newNode.getNumericalAttributeKeys()) {
+		for (INode attNode : newNode.getRatingAttributeKeys()) {
 			if (nodesToUpdate.contains(attNode)) {
-				attNode.addNumericalAttribute(newNode, newNode.getNumericalAttributeValue(attNode));
+				attNode.addRatingAttribute(newNode, newNode.getNumericalAttributeValue(attNode));
 				log.finest(attNode.toString() + " updated with " + newNode);
 			} else {
 //				log.finest(attNode.toString() + " NOT updated with " + newNode);

@@ -38,9 +38,14 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		Set<Object> allAttributes = new HashSet<Object>();
 		int totalLeafCount = 0;
 		for (INode node : possibleMerge) {
-			Set<Object> nomAttKeys = node.getNominalAttributeKeys();
+			Set<String> nomAttKeys = node.getNominalMetaAttributeKeys();
 			if (nomAttKeys.isEmpty()) return 0.0;
-			allAttributes.addAll(nomAttKeys);
+			Collection<String> metAtts = node.getNominalMetaAttributeKeys();
+			for (String att : metAtts) {
+				if (node.useAttributeForClustering(att)) {
+					allAttributes.add(att);
+				}
+			}
 			totalLeafCount += node.getNumberOfLeafNodes();
 		}
 		

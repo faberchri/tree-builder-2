@@ -31,18 +31,22 @@ public class TestDriver {
 	private static Logger log = TBLogger.getLogger(TestDriver.class.toString());
 	
 
-	public static void main(String[] args) throws Exception {
-
+	public static void main(String[] args) {
+		
 		// Process Command Line Arguments
 		jc = new JCommander(cla, args);
 		jc.setProgramName("TreeBuilder");
 		
+		InputParser parser = new InputParser(cla.datasetProperties);
+		
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
-		test(training());
+		ClusterResult clusterResult = training(parser.getTrainigsDataset());
+		test(clusterResult, parser.getTestDataset());
+//		insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
 	}
 	
-	private static ClusterResult training() {
+	private static ClusterResult training(IDataset<?> trainingsDataset) {
 		// Build Tree
 		TreeBuilder tb = null;
 		ClusterResult clusterResult = null;
@@ -54,7 +58,7 @@ public class TestDriver {
 		} else {
 			tb = createNewTreeBuilder();
 			InitialNodesCreator in = new InitialNodesCreator(
-					getTrainingDataset(),
+					trainingsDataset,
 					TreeComponentFactory.getInstance());
 			log.info("Starting new run ...");
 			clusterResult = tb.startClustering(
@@ -75,13 +79,14 @@ public class TestDriver {
 	 * @param trainingOutput the trainingCluster for evaluation
 	 * @throws Exception 
 	 */
-	private static void test(ClusterResult trainingOutput) throws Exception {
+
+	private static void test(ClusterResult trainingOutput, IDataset<?> testDataset) {
 				
 		// Instantiate Tools
 		Evaluator eb 				= new Evaluator();
 		RecommendationBuilder rb 	= new RecommendationBuilder(trainingOutput);
 		NodeInserter ni 			= new NodeInserter(trainingOutput,TreeComponentFactory.getInstance());
-		InitialNodesCreator testSet = new InitialNodesCreator(getTestDataset(),TreeComponentFactory.getInstance());
+		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
 		
 		// Run Quantitative Evaluation
 //		System.out.println("-------------------------------");
@@ -91,6 +96,7 @@ public class TestDriver {
 //		Map<INode,Integer> testNodes 	= eb.getTestUsers(testSet);
 //		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
 //		eb.printEvaluationResult(eval);
+
 		
 		// Start User Interfaces for qualitative evaluation and insertion
 		System.out.println("-------------------------------");

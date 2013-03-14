@@ -85,7 +85,7 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			this.ratingsInput = null;
-			TBLogger.getLogger(getClass().getName()).severe("Input file was not found: " + ressourceDescriptor);
+			TBLogger.getLogger(getClass().getName()).severe("InputParser file was not found: " + ressourceDescriptor);
 			// System.exit(-1);
 		}
 		return input;
@@ -98,7 +98,7 @@ public abstract class AbstractDataset<T extends Number> implements IDataset<T> {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			this.ratingsInput = null;
-			TBLogger.getLogger(getClass().getName()).severe("Input file was not found: "+ file.getPath());
+			TBLogger.getLogger(getClass().getName()).severe("InputParser file was not found: "+ file.getPath());
 			System.exit(-1);
 		}
 		return input;

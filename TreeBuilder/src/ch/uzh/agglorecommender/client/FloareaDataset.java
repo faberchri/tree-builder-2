@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
+import com.google.common.collect.ImmutableMap;
+
 
 /**
  * The data set of Floraea. 
@@ -52,8 +54,8 @@ public class FloareaDataset extends AbstractDataset<Double> {
 			IDatasetItem<Double> di = 
 					new SimpleDatasetItem<Double>(
 							Double.parseDouble(sAr[2]),
-							Integer.parseInt(sAr[0]),
-							Integer.parseInt(sAr[1]));
+							sAr[0],
+							sAr[1]);
 			addToDatasetItems(di);			
 		}
 	}
@@ -72,5 +74,11 @@ public class FloareaDataset extends AbstractDataset<Double> {
 	@Override
 	protected void parseMeta(List<InputStream> metaInfos) {
 		// not applicable
+	}
+
+	@Override
+	public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
+		// not applicable, since no meta data available
+		return null;
 	}
 }

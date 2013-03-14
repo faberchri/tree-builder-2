@@ -59,7 +59,7 @@ public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtility
 			Iterator<INode> it = l.iterator();
 			INode first = it.next();
 			INode second = it.next();
-			Set<INode> intersection = Sets.intersection(first.getNumericalAttributeKeys(), second.getNumericalAttributeKeys());
+			Set<INode> intersection = Sets.intersection(first.getRatingAttributeKeys(), second.getRatingAttributeKeys());
 			if (intersection.size() == 0) {
 				removedLists++;
 				i.remove();
@@ -94,8 +94,8 @@ public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtility
 			
 			// get the attributes of both nodes of the combination
 			Iterator<INode> it = clusterSet.getCombination(combination).iterator();
-			Set<INode> attFirst = it.next().getNumericalAttributeKeys();
-			Set<INode> attSecond = it.next().getNumericalAttributeKeys();
+			Set<INode> attFirst = it.next().getRatingAttributeKeys();
+			Set<INode> attSecond = it.next().getRatingAttributeKeys();
 			
 			// check if nodes of the combinations share an attribute
 			boolean remove = true;

@@ -130,7 +130,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 
 	}
 	
-	private void initTreeBuilder(INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
+	private void initTreeBuilder(INodeUpdater nodeUpdater,
+			boolean useUserMetaDataForClustering,
+			boolean useContentMetaDataForClustering) {
+		
 		this.nodeUpdater = nodeUpdater;
 		
 		if (useUserMetaDataForClustering) {
@@ -174,7 +177,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * If null no file is created.
 	 * @return the result of the clustering process
 	 */
-	public ClusterResult startClustering(String pathToWriteSerializedObject, InitialNodesCreator leafNodes, INodeUpdater nodeUpdater, boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
+	public ClusterResult startClustering(String pathToWriteSerializedObject,
+			InitialNodesCreator leafNodes, INodeUpdater nodeUpdater,
+			boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
 		log = TBLogger.getLogger(getClass().getName());
 		
 		initTreeBuilder(nodeUpdater, useUserMetaDataForClustering, useContentMetaDataForClustering);
@@ -199,8 +204,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 //		}	
 //		for (INode n : leafNodes.getUserLeaves().values()) {
 //			userNodes.add(n);
-//		}
-		
+//		}	
 	}
 	
 	
