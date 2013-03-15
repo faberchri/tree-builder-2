@@ -104,8 +104,9 @@ public class TestDriver {
 		System.out.println("-------------------------------");
 		
 		Map<INode, IAttribute> testRatings = eb.defineRatings(trainingOutput,3); // Ratings
-		Map<Object, IAttribute> testDemographics = eb.defineDemographics(); // Demographics
-		INode inputNode = eb.createTestUser(testRatings,testDemographics); // Create User with Ratings & Demographics
+		Map<String, IAttribute> testDemographicsNum = eb.defineDemographics(); // Demographics
+		Map<String, IAttribute> testDemographicsNom = eb.defineDemographics(); // Demographics
+		INode inputNode = eb.createTestUser(testRatings,testDemographicsNum,testDemographicsNom); // Create User with Ratings & Demographics
 		
 		Map<INode,IAttribute> unsortedRecommendation = rb.runRecommendation(inputNode); // Create Recommendation
 		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User

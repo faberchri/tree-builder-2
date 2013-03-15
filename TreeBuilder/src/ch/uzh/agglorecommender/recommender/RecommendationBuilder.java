@@ -61,14 +61,14 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<Integer, IAttribute> runQuantitativeTest(INode testNode){
+	public Map<String, IAttribute> runQuantitativeTest(INode testNode){
 		
 		// Find position of the similar node in the tree
 		INode position = leavesMapU.get(testNode.getDatasetId());
 		
 		try {
 			// Collect ratings of all content given by the input node
-			Map<Integer, IAttribute> contentRatings = collectRatings(position,testNode,null);
+			Map<String, IAttribute> contentRatings = collectRatings(position,testNode,null);
 			return contentRatings;
 		}
 		catch (Exception e){
@@ -84,25 +84,27 @@ public final class RecommendationBuilder {
 	 * 
 	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
 	 */
-	private Map<Integer, IAttribute> collectRatings(INode position, INode testNode, Map<Integer, IAttribute> ratingList) {
+	private Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList) {
 		
 		// Create Ratings Map with empty values if it does not already exist
 		if(ratingList == null) {
-			ratingList = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
-			Set<INode> numInputKeys = testNode.getNumericalAttributeKeys();
+			ratingList = new HashMap<String,IAttribute>(); // DatasetID, AttributeData
+			
+			Set<INode> numInputKeys = testNode.getRatingAttributeKeys();
+			
 			for(INode numInputKey : numInputKeys) {
 				ratingList.put(numInputKey.getDatasetId(),null);
 			}
 		}
 		
 		// Look for content nodes on the list and add it to collected ratings map		
-		Set<INode> posRatingKeys = position.getNumericalAttributeKeys();
+		Set<INode> posRatingKeys = position.getRatingAttributeKeys();
 		int i=0;
 		for(INode posRatingKey : posRatingKeys){
 			
 			// Need all dataset item ids
 			List<String> datasetIds = posRatingKey.getDataSetIds();
-			for(int searchDatasetId : ratingList.keySet()){
+			for(String searchDatasetId : ratingList.keySet()){
 				
 				if(ratingList.get(searchDatasetId) == null){
 					if(datasetIds.contains(searchDatasetId)){
@@ -141,7 +143,7 @@ public final class RecommendationBuilder {
 		return null;
 	}
 	
-	private IAttribute findOriginalAttribute(INode position, int datasetID) {
+	private IAttribute findOriginalAttribute(INode position, String searchDatasetId) {
 		
 		// Get all children of position
 		Iterator<INode> children = position.getChildren();
@@ -149,20 +151,20 @@ public final class RecommendationBuilder {
 		// Determine the one child that has the datasetID in one of its attributes
 		while(children.hasNext()){
 			INode child = children.next();
-			for(INode attributeKey : child.getNumericalAttributeKeys()){
+			for(INode attributeKey : child.getRatingAttributeKeys()){
 				
 				List<String> datasetIds = attributeKey.getDataSetIds();
 				
 				// Catch condition
-				if(datasetIds.size() == 1 && datasetIds.get(0) == datasetID){
+				if(datasetIds.size() == 1 && datasetIds.get(0).equals(searchDatasetId)){
 					return child.getNumericalAttributeValue(attributeKey);
 				}
 				else {
-					for(int tempDatasetId : datasetIds){
-						if(tempDatasetId == datasetID){
+					for(String tempDatasetId : datasetIds){
+						if(tempDatasetId.equals(searchDatasetId)){
 							
 							// Search on level deeper 
-							IAttribute originalAttribute = findOriginalAttribute(child,datasetID);
+							IAttribute originalAttribute = findOriginalAttribute(child,searchDatasetId);
 							if(originalAttribute != null){
 								return originalAttribute;
 							}
@@ -207,7 +209,7 @@ public final class RecommendationBuilder {
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
 		List<String> watched = new LinkedList<String>();
-		Set<INode> ratingKeys = inputNode.getNumericalAttributeKeys();
+		Set<INode> ratingKeys = inputNode.getRatingAttributeKeys();
 		for(INode rating : ratingKeys) {
 			watched.addAll(rating.getDataSetIds());
 		}
@@ -226,7 +228,7 @@ public final class RecommendationBuilder {
 	 * @param position starting point to calculate recommendation 
 	 * @param watched list of dataset items the user has already rated
 	 */
-	private Map<INode, IAttribute> recommend(INode position, List<Integer> watched) {
+	private Map<INode, IAttribute> recommend(INode position, List<String> watched) {
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
@@ -238,7 +240,7 @@ public final class RecommendationBuilder {
 		
 		// Process Attributes of leaf nodes
 		for(INode leafNode : leafNodes){
-			for(INode attKey : leafNode.getNumericalAttributeKeys()){
+			for(INode attKey : leafNode.getRatingAttributeKeys()){
 				
 				List<INode> attributeLeafNodes = collectLeaves(attKey,null);
 				

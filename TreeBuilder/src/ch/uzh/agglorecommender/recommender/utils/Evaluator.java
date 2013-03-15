@@ -29,12 +29,12 @@ public class Evaluator {
 	 * 
 	 * @param testSet reference on the test set
 	 */
-	public Map<INode, Integer> getTestUsers(InitialNodesCreator testSet){
+	public Map<INode, String> getTestUsers(InitialNodesCreator testSet){
 		
-		Map<INode,Integer> testUsers = new HashMap<INode,Integer>();
+		Map<INode,String> testUsers = new HashMap<INode,String>();
 		
-		ImmutableMap<Integer, INode> userLeaves = testSet.getUserLeaves();
-		for(Integer userLeaf : userLeaves.keySet()){
+		ImmutableMap<String, INode> userLeaves = testSet.getUserLeaves();
+		for(String userLeaf : userLeaves.keySet()){
 			testUsers.put(userLeaves.get(userLeaf), userLeaf);
 		}
 		
@@ -92,7 +92,7 @@ public class Evaluator {
 		if(testNode != null){
 			
 			// Get Predicitions & Real Values
-			Map<Integer, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode);
+			Map<String, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode);
 			
 			if(predictedRatings != null) {
 				
@@ -126,16 +126,16 @@ public class Evaluator {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
+	public double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
 		
-		for(INode ratingKey: testNode.getNumericalAttributeKeys()) {
+		for(INode ratingKey: testNode.getRatingAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get((int)ratingKey.getDatasetId());
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
@@ -149,7 +149,7 @@ public class Evaluator {
 		}
 		
 		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / testNode.getNumericalAttributeKeys().size();
+		double mse = sumOfSquaredDifferences / testNode.getRatingAttributeKeys().size();
 		
 		// Take root
 		return Math.sqrt(mse);
@@ -163,15 +163,15 @@ public class Evaluator {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	private double calculateAME(INode testNode,Map<Integer, IAttribute> predictedRatings) {
+	private double calculateAME(INode testNode,Map<String, IAttribute> predictedRatings) {
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfDifferences = 0;
-		for(INode ratingKey: testNode.getNumericalAttributeKeys()) {
+		for(INode ratingKey: testNode.getRatingAttributeKeys()) {
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
-			IAttribute pRatingAtt = predictedRatings.get((int)ratingKey.getDatasetId());
+			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
@@ -185,7 +185,7 @@ public class Evaluator {
 		}
 		
 		// Division through number of Content Items
-		return sumOfDifferences / testNode.getNumericalAttributeKeys().size();
+		return sumOfDifferences / testNode.getRatingAttributeKeys().size();
 	}
 	
 	/**
@@ -198,11 +198,12 @@ public class Evaluator {
 	 * 
 	 * @return INode testUser
 	 */
-	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<Object, IAttribute> testDemographics) {
+	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String, IAttribute> testDemographicsNum, Map<String, IAttribute> testDemographicsNom) {
 		
-		INode testUser = new Node(ENodeType.User, 0);
-		testUser.setNumericalAttributes(testRatings);
-		testUser.setNominalAttributes(testDemographics);
+		INode testUser = new Node(ENodeType.User, "999", null); // FIXME
+		testUser.setRatingAttributes(testRatings); // Ratings
+		testUser.setNominalMetaAttributes(testDemographicsNom); // Nominal Meta FIXME
+		testUser.setNumericalMetaAttributes(testDemographicsNum); // Numerical Meta FIXME
 		
 		return testUser;
 	}
@@ -239,7 +240,7 @@ public class Evaluator {
 	 * 
 	 * @ return Map<INode,IAttribute> attribute map
 	 */
-	public Map<Object,IAttribute> defineDemographics() {
+	public Map<String, IAttribute> defineDemographics() {
 		
 		// Define demographic values
 		Map<Object,IAttribute> demographics = new HashMap<Object,IAttribute>();

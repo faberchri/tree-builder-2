@@ -97,6 +97,7 @@ public class BasicUI {
 		return result;
 	}
 	
+	// FIXME
 	public INode buildNode(List<String> metaInfo,List<String> ratings, ENodeType type){
 		
 		System.out.println("Building Node");
@@ -127,7 +128,7 @@ public class BasicUI {
 		
 		Map<INode,IAttribute> numMap = buildNumericalAttributes(numMapTemp,type);
 						
-		return new Node(type,null,numMap,nomMap,0.0);
+		return new Node(type,null,numMap,null,null,0.0);
 	}
 	
 	//************* DOPPELT **********************//
