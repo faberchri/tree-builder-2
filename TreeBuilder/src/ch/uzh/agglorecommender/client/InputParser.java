@@ -106,6 +106,8 @@ public class InputParser {
 
 		trainigsDataset = new Dataset(trainingItems);
 		testDataset = new Dataset(testItems);
+		
+		useForClustering.remove(input.getRatingArray()[0].getAttribute().getTag());
 	}
 
 	public IDataset<Double> getTestDataset() {
