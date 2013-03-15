@@ -144,7 +144,7 @@ public class Monitor implements Serializable {
 	
 	public long getExpectedFutureComparisons() {
 		
-		double totalNodes = getTotalOpenNodes() + getCycleCount();
+		double totalNodes = getTotalOpenNodes() + getCycleCount() - 1;
 		
 		double start = getCycleCount();
 		double end = totalNodes;
