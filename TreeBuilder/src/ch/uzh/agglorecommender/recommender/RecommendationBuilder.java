@@ -31,8 +31,8 @@ import com.google.common.collect.ImmutableMap;
 public final class RecommendationBuilder {
 	
 	// Parameters
-	private ImmutableMap<Integer,INode> leavesMapU;
-	private ImmutableMap<Integer,INode> leavesMapC;
+	private ImmutableMap<String, INode> leavesMapU;
+	private ImmutableMap<String, INode> leavesMapC;
 	private INode rootU;
 	private INode rootC;
 	
@@ -64,7 +64,7 @@ public final class RecommendationBuilder {
 	public Map<Integer, IAttribute> runQuantitativeTest(INode testNode){
 		
 		// Find position of the similar node in the tree
-		INode position = leavesMapU.get((int)testNode.getDatasetId());
+		INode position = leavesMapU.get(testNode.getDatasetId());
 		
 		try {
 			// Collect ratings of all content given by the input node
@@ -91,7 +91,7 @@ public final class RecommendationBuilder {
 			ratingList = new HashMap<Integer,IAttribute>(); // DatasetID, AttributeData
 			Set<INode> numInputKeys = testNode.getNumericalAttributeKeys();
 			for(INode numInputKey : numInputKeys) {
-				ratingList.put((int)numInputKey.getDatasetId(),null);
+				ratingList.put(numInputKey.getDatasetId(),null);
 			}
 		}
 		
@@ -101,7 +101,7 @@ public final class RecommendationBuilder {
 		for(INode posRatingKey : posRatingKeys){
 			
 			// Need all dataset item ids
-			List<Integer> datasetIds = posRatingKey.getDataSetIds();
+			List<String> datasetIds = posRatingKey.getDataSetIds();
 			for(int searchDatasetId : ratingList.keySet()){
 				
 				if(ratingList.get(searchDatasetId) == null){
@@ -151,7 +151,7 @@ public final class RecommendationBuilder {
 			INode child = children.next();
 			for(INode attributeKey : child.getNumericalAttributeKeys()){
 				
-				List<Integer> datasetIds = attributeKey.getDataSetIds();
+				List<String> datasetIds = attributeKey.getDataSetIds();
 				
 				// Catch condition
 				if(datasetIds.size() == 1 && datasetIds.get(0) == datasetID){
@@ -206,7 +206,7 @@ public final class RecommendationBuilder {
 		}
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
-		List<Integer> watched = new LinkedList<Integer>();
+		List<String> watched = new LinkedList<String>();
 		Set<INode> ratingKeys = inputNode.getNumericalAttributeKeys();
 		for(INode rating : ratingKeys) {
 			watched.addAll(rating.getDataSetIds());
