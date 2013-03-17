@@ -12,11 +12,11 @@ import java.util.Set;
 import org.junit.Test;
 
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
+import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
@@ -27,7 +27,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 	//Node1, A1 = 4, A2 = 3
 	//Node2, A2 = 5, A3 = 5
-	//@Test
+	@Test
 	public void classitTestI() {
 
 		System.out.println(" ");
@@ -39,39 +39,41 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// Creating the attributes
 
-		IAttribute N1A1 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(4.0, null);
-		IAttribute N1A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(3.0, null);
-		IAttribute N2A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(5.0, null);
-		IAttribute N2A3 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(5.0, null);
+		IAttribute N1A1 = TreeComponentFactory.getInstance()
+				.createNumericalLeafAttribute(4.0);
+		IAttribute N1A2 = TreeComponentFactory.getInstance()
+				.createNumericalLeafAttribute(3.0);
+		IAttribute N2A2 = TreeComponentFactory.getInstance()
+				.createNumericalLeafAttribute(5.0);
+		IAttribute N2A3 = TreeComponentFactory.getInstance()
+				.createNumericalLeafAttribute(5.0);
 
 		// ClassitAttribute map of node 1
 		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
 
 		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute = new Node(ENodeType.Content, 0);
+		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		
+		//public Node(ENodeType nodeType, String dataSetId, ImmutableMap<String, Boolean> useForClustering)
 
 		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(new Node(ENodeType.Content, 0), N1A1);
+		attMap1.put(new Node(ENodeType.Content, null, null), N1A1);
 		attMap1.put(sharedAttribute, N1A2);
 
 		// create node 1
-		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNumericalAttributes(attMap1);
+		INode node1 = new Node(ENodeType.User, null, null);
+		node1.setRatingAttributes(attMap1);
 
 		// attribute map of node 2
 		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
 
 		// add the corresponding attributes to the attribute map of node 2
 		attMap2.put(sharedAttribute, N2A2);
-		attMap2.put(new Node(ENodeType.Content, 0), N2A3);
+		attMap2.put(new Node(ENodeType.Content, null, null), N2A3);
 
 		// create node 2
-		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNumericalAttributes(attMap2);
+		INode node2 = new Node(ENodeType.User, null, null);
+		node2.setRatingAttributes(attMap2);
 
 		
 
@@ -96,12 +98,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
 		
 
-		TreeBuilder tr = new TreeBuilder(
-				new ClassitMaxCategoryUtilitySearcher(),
-				new ClassitMaxCategoryUtilitySearcher(),
-				ClassitTreeComponentFactory.getInstance(),
-				ClassitTreeComponentFactory.getInstance(),
-				null);
+		TreeBuilder tr = new TreeBuilder();
 		
 		try {
             Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
@@ -127,209 +124,209 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 	// Node 1: A1 = 1, A2 = 8
 	// Node 2: A1 = 4, A2 = 5
 	//@Test
-	public void classitTestII() {
-
-		System.out.println(" ");
-		System.out
-				.println("----------------------Starting test ..----------------------");
-
-		// Creating the attributes
-
-		IAttribute N1A1 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(1.0, null);
-		IAttribute N1A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(8.0, null);
-		IAttribute N2A1 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(4.0, null);
-		IAttribute N2A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(5.0, null);
-
-		// ClassitAttribute map of node 1
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-
-		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
-		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
-		
-		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(sharedAttribute1, N1A1);
-		attMap1.put(sharedAttribute2, N1A2);
-
-		// create node 1
-		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNumericalAttributes(attMap1);
-
-		// attribute map of node 2
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
-
-		// add the corresponding attributes to the attribute map of node 2
-		attMap2.put(sharedAttribute1, N2A1);
-		attMap2.put(sharedAttribute2, N2A2);
-
-		// create node 2
-		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNumericalAttributes(attMap2);
-
-		// add the two created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new IndexAwareSet<INode>();
-		openNodes.add(node1);
-		openNodes.add(node2);
-
-		// Print standard deviations
-		System.out.println("Node 1: " + node1.getNumericalAttributesString());
-		System.out.println("Node 2: " + node2.getNumericalAttributesString());
-
-		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
-		nodesToUpdate.add(node1);
-		nodesToUpdate.add(node2);
-
-		// Merge
-		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
-		
-		IMergeResult merge = null;
-		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
-		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
-		
-
-		TreeBuilder tr = new TreeBuilder(
-				new ClassitMaxCategoryUtilitySearcher(),
-				new ClassitMaxCategoryUtilitySearcher(),
-				ClassitTreeComponentFactory.getInstance(),
-				ClassitTreeComponentFactory.getInstance(),
-				null);
-		
-		try {
-            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
-            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
-            method.setAccessible(true);
-          
-            //This causes an IllegalArgumentException (object is not an instance of declaring class).. Why?
-            merge = (IMergeResult) method.invoke(tr,leafNodes,utilityCalc);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        
-				
-		Double utility = merge.getCategoryUtility();
-		
-		System.out.println("Merge result: "+merge.toString());
-
-		// evaluate the category utility result
-		
-		assertEquals("category utility", 3.0 / 2.0, utility, 0.000001);
-
-	}
-	
-	// Node 1: A1 = 14, A2 = 7, A3 = 8
-	// Node 2: A1 = 12, A2 = 7, A3 = 20
-	// (Example from J.H.Gennari et al."Models of incremental concept formation", p. 32, figure 6)
-	@Test
-	public void classitTestIII() {
-
-		System.out.println(" ");
-		System.out
-				.println("----------------------Starting test ..----------------------");
-
-		// Creating the attributes
-
-		IAttribute N1A1 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(14.0, null);
-		IAttribute N1A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(7.0, null);
-		IAttribute N1A3 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(8.0, null);
-		IAttribute N2A1 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(12.0, null);
-		IAttribute N2A2 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(7.0, null);
-		IAttribute N2A3 = ClassitTreeComponentFactory.getInstance()
-				.createNumericAttribute(20.0, null);
-
-		// ClassitAttribute map of node 1
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-
-		// this node is an attribute of node 1 and node 2
-		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
-		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
-		INode sharedAttribute3 = new Node(ENodeType.Content, 0);
-		
-		// add the corresponding attributes to the attribute map of node 1
-		attMap1.put(sharedAttribute1, N1A1);
-		attMap1.put(sharedAttribute2, N1A2);
-		attMap1.put(sharedAttribute3, N1A3);
-
-		// create node 1
-		INode node1 = new Node(ENodeType.User, 0);
-		node1.setNumericalAttributes(attMap1);
-
-		// attribute map of node 2
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
-
-		// add the corresponding attributes to the attribute map of node 2
-		attMap2.put(sharedAttribute1, N2A1);
-		attMap2.put(sharedAttribute2, N2A2);
-		attMap2.put(sharedAttribute2, N2A3);
-
-		// create node 2
-		INode node2 = new Node(ENodeType.User, 0);
-		node2.setNumericalAttributes(attMap2);
-
-		// add the two created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new IndexAwareSet<INode>();
-		openNodes.add(node1);
-		openNodes.add(node2);
-
-		// Print standard deviations
-		System.out.println("Node 1: " + node1.getNumericalAttributesString());
-		System.out.println("Node 2: " + node2.getNumericalAttributesString());
-
-		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
-		nodesToUpdate.add(node1);
-		nodesToUpdate.add(node2);
-
-		// Merge
-		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
-		
-		IMergeResult merge = null;
-		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
-		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
-		
-
-		TreeBuilder tr = new TreeBuilder(
-				new ClassitMaxCategoryUtilitySearcher(),
-				new ClassitMaxCategoryUtilitySearcher(),
-				ClassitTreeComponentFactory.getInstance(),
-				ClassitTreeComponentFactory.getInstance(),
-				null);
-		
-		try {
-            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
-            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
-            method.setAccessible(true);
-          
-            merge = (IMergeResult) method.invoke(tr,leafNodes,utilityCalc);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        
-				
-		Double utility = merge.getCategoryUtility();
-		
-		System.out.println("Merge result: "+merge.toString());
-
-		// evaluate the category utility result
-		
-		assertEquals("category utility", 0.72222222, utility, 0.000001);
-
-	}
-/*
-	@Test
-	public void testSimpleClassitTree() {
-
-		System.out.println(" ");
-		System.out
-				.println("----------------------Starting test 2..----------------------");
-		// Ratings are doubles
+//	public void classitTestII() {
+//
+//		System.out.println(" ");
+//		System.out
+//				.println("----------------------Starting test ..----------------------");
+//
+//		// Creating the attributes
+//
+//		IAttribute N1A1 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(1.0);
+//		IAttribute N1A2 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(8.0);
+//		IAttribute N2A1 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(4.0);
+//		IAttribute N2A2 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(5.0);
+//
+//		// ClassitAttribute map of node 1
+//		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
+//
+//		// this node is an attribute of node 1 and node 2
+//		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
+//		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
+//		
+//		// add the corresponding attributes to the attribute map of node 1
+//		attMap1.put(sharedAttribute1, N1A1);
+//		attMap1.put(sharedAttribute2, N1A2);
+//
+//		// create node 1
+//		INode node1 = new Node(ENodeType.User, 0);
+//		node1.setRatingAttributes(attMap1);
+//
+//		// attribute map of node 2
+//		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
+//
+//		// add the corresponding attributes to the attribute map of node 2
+//		attMap2.put(sharedAttribute1, N2A1);
+//		attMap2.put(sharedAttribute2, N2A2);
+//
+//		// create node 2
+//		INode node2 = new Node(ENodeType.User, 0);
+//		node2.setRatingAttributes(attMap2);
+//
+//		// add the two created user nodes to a set (set of open nodes)
+//		Set<INode> openNodes = new IndexAwareSet<INode>();
+//		openNodes.add(node1);
+//		openNodes.add(node2);
+//
+//		// Print standard deviations
+//		System.out.println("Node 1: " + node1.getNumericalAttributesString());
+//		System.out.println("Node 2: " + node2.getNumericalAttributesString());
+//
+//		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
+//		nodesToUpdate.add(node1);
+//		nodesToUpdate.add(node2);
+//
+//		// Merge
+//		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
+//		
+//		IMergeResult merge = null;
+//		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
+//		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
+//		
+//
+//		TreeBuilder tr = new TreeBuilder(
+//				new ClassitMaxCategoryUtilitySearcher(),
+//				new ClassitMaxCategoryUtilitySearcher(),
+//				TreeComponentFactory.getInstance(),
+//				TreeComponentFactory.getInstance(),
+//				null);
+//		
+//		try {
+//            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
+//            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
+//            method.setAccessible(true);
+//          
+//            //This causes an IllegalArgumentException (object is not an instance of declaring class).. Why?
+//            merge = (IMergeResult) method.invoke(tr,leafNodes,utilityCalc);
+//        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
+//        
+//				
+//		Double utility = merge.getCategoryUtility();
+//		
+//		System.out.println("Merge result: "+merge.toString());
+//
+//		// evaluate the category utility result
+//		
+//		assertEquals("category utility", 3.0 / 2.0, utility, 0.000001);
+//
+//	}
+//	
+//	// Node 1: A1 = 14, A2 = 7, A3 = 8
+//	// Node 2: A1 = 12, A2 = 7, A3 = 20
+//	// (Example from J.H.Gennari et al."Models of incremental concept formation", p. 32, figure 6)
+//	@Test
+//	public void classitTestIII() {
+//
+//		System.out.println(" ");
+//		System.out
+//				.println("----------------------Starting test ..----------------------");
+//
+//		// Creating the attributes
+//
+//		IAttribute N1A1 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(14.0);
+//		IAttribute N1A2 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(7.0);
+//		IAttribute N1A3 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(8.0);
+//		IAttribute N2A1 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(12.0);
+//		IAttribute N2A2 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(7.0);
+//		IAttribute N2A3 = TreeComponentFactory.getInstance()
+//				.createNumericalLeafAttribute(20.0);
+//
+//		// ClassitAttribute map of node 1
+//		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
+//
+//		// this node is an attribute of node 1 and node 2
+//		INode sharedAttribute1 = new Node(ENodeType.Content, 0);
+//		INode sharedAttribute2 = new Node(ENodeType.Content, 0);
+//		INode sharedAttribute3 = new Node(ENodeType.Content, 0);
+//		
+//		// add the corresponding attributes to the attribute map of node 1
+//		attMap1.put(sharedAttribute1, N1A1);
+//		attMap1.put(sharedAttribute2, N1A2);
+//		attMap1.put(sharedAttribute3, N1A3);
+//
+//		// create node 1
+//		INode node1 = new Node(ENodeType.User, 0);
+//		node1.setRatingAttributes(attMap1);
+//
+//		// attribute map of node 2
+//		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
+//
+//		// add the corresponding attributes to the attribute map of node 2
+//		attMap2.put(sharedAttribute1, N2A1);
+//		attMap2.put(sharedAttribute2, N2A2);
+//		attMap2.put(sharedAttribute2, N2A3);
+//
+//		// create node 2
+//		INode node2 = new Node(ENodeType.User, 0);
+//		node2.setRatingAttributes(attMap2);
+//
+//		// add the two created user nodes to a set (set of open nodes)
+//		Set<INode> openNodes = new IndexAwareSet<INode>();
+//		openNodes.add(node1);
+//		openNodes.add(node2);
+//
+//		// Print standard deviations
+//		System.out.println("Node 1: " + node1.getNumericalAttributesString());
+//		System.out.println("Node 2: " + node2.getNumericalAttributesString());
+//
+//		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
+//		nodesToUpdate.add(node1);
+//		nodesToUpdate.add(node2);
+//
+//		// Merge
+//		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
+//		
+//		IMergeResult merge = null;
+//		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
+//		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
+//		
+//
+//		TreeBuilder tr = new TreeBuilder(
+//				new ClassitMaxCategoryUtilitySearcher(),
+//				new ClassitMaxCategoryUtilitySearcher(),
+//				TreeComponentFactory.getInstance(),
+//				TreeComponentFactory.getInstance(),
+//				null);
+//		
+//		try {
+//            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
+//            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
+//            method.setAccessible(true);
+//          
+//            merge = (IMergeResult) method.invoke(tr,leafNodes,utilityCalc);
+//        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
+//        
+//				
+//		Double utility = merge.getCategoryUtility();
+//		
+//		System.out.println("Merge result: "+merge.toString());
+//
+//		// evaluate the category utility result
+//		
+//		assertEquals("category utility", 0.72222222, utility, 0.000001);
+//
+//	}
+///*
+//	@Test
+//	public void testSimpleClassitTree() {
+//
+//		System.out.println(" ");
+//		System.out
+//				.println("----------------------Starting test 2..----------------------");
+//		// Ratings are doubles
 
 		/*
 		 * Based on example in J.H.Gennari et al.
@@ -338,37 +335,37 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// Creating the attributes
 
-		IAttribute H1 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute H1 = TreeComponentFactory.getInstance().createAttribute(
 				13); // Ht of instance 1
-		IAttribute H2 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute H2 = TreeComponentFactory.getInstance().createAttribute(
 				12); // Ht of instance 2
-		IAttribute H4 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute H4 = TreeComponentFactory.getInstance().createAttribute(
 				28); // Ht of instance 4
-		IAttribute H5 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute H5 = TreeComponentFactory.getInstance().createAttribute(
 				25); // Ht of instance 5
-		IAttribute H6 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute H6 = TreeComponentFactory.getInstance().createAttribute(
 				41); // Ht of instance 6
 
-		IAttribute W1 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute W1 = TreeComponentFactory.getInstance().createAttribute(
 				6.5); // Wid for instance 1
-		IAttribute W2 = ClassitTreeComponentFactory.getInstance()
+		IAttribute W2 = TreeComponentFactory.getInstance()
 				.createAttribute(7); // Wid for instance 2
-		IAttribute W4 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute W4 = TreeComponentFactory.getInstance().createAttribute(
 				13); // Wid for instance 4
-		IAttribute W5 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute W5 = TreeComponentFactory.getInstance().createAttribute(
 				15); // Wid for instance 5
-		IAttribute W6 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute W6 = TreeComponentFactory.getInstance().createAttribute(
 				36); // Wid for instance 6
 
-		IAttribute T1 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute T1 = TreeComponentFactory.getInstance().createAttribute(
 				7.5); // Txt for instance 1
-		IAttribute T2 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute T2 = TreeComponentFactory.getInstance().createAttribute(
 				20); // Txt for instance 2
-		IAttribute T4 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute T4 = TreeComponentFactory.getInstance().createAttribute(
 				19); // Txt for instance 4
-		IAttribute T5 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute T5 = TreeComponentFactory.getInstance().createAttribute(
 				24); // Txt for instance 5
-		IAttribute T6 = ClassitTreeComponentFactory.getInstance().createAttribute(
+		IAttribute T6 = TreeComponentFactory.getInstance().createAttribute(
 				30); // Txt for instance 6
 
 		// ClassitAttribute map of the nodes
@@ -456,8 +453,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(),
-				ClassitTreeComponentFactory.getInstance(),
-				ClassitTreeComponentFactory.getInstance(),
+				TreeComponentFactory.getInstance(),
+				TreeComponentFactory.getInstance(),
 				null);
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 		INode newNode = new Node(ENodeType.Content,null,null);
@@ -564,17 +561,17 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		 *  ClassitAttribute 3 (A3): 5  
 		 
 		// Creating the attributes
-		IAttribute N1A1 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N1A1 = TreeComponentFactory.getInstance()
 				.createAttribute(1); // ClassitAttribute 1 of node 1
-		IAttribute N2A1 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N2A1 = TreeComponentFactory.getInstance()
 				.createAttribute(1); // ClassitAttribute 1 of node 2
-		IAttribute N1A2 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N1A2 = TreeComponentFactory.getInstance()
 				.createAttribute(3); // ClassitAttribute 2 of node 1
-		IAttribute N3A2 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N3A2 = TreeComponentFactory.getInstance()
 				.createAttribute(3); // ClassitAttribute 2 of node 3
-		IAttribute N2A3 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N2A3 = TreeComponentFactory.getInstance()
 				.createAttribute(5); // ClassitAttribute 3 of node 2
-		IAttribute N3A3 = ClassitTreeComponentFactory.getInstance()
+		IAttribute N3A3 = TreeComponentFactory.getInstance()
 				.createAttribute(5); // ClassitAttribute 3 of node 3
 
 		// ClassitAttribute map of the nodes
@@ -656,8 +653,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		// Ratings are integers
 		
 		//Create the attributes
-		IAttribute A1 = ClassitTreeComponentFactory.getInstance().createAttribute(3);
-		IAttribute A2 = ClassitTreeComponentFactory.getInstance().createAttribute(7);
+		IAttribute A1 = TreeComponentFactory.getInstance().createAttribute(3);
+		IAttribute A2 = TreeComponentFactory.getInstance().createAttribute(7);
 		
 		//Create the attribute maps
 		Map<INode,IAttribute> attMap1 = new HashMap<INode,IAttribute>();
@@ -696,8 +693,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder tr = new TreeBuilder(
 				new ClassitMaxCategoryUtilitySearcher(),
 				new ClassitMaxCategoryUtilitySearcher(),
-				ClassitTreeComponentFactory.getInstance(),
-				ClassitTreeComponentFactory.getInstance(),
+				TreeComponentFactory.getInstance(),
+				TreeComponentFactory.getInstance(),
 				null);
 		//INode newNode = tr.createTestingMergedNode(nodesToUpdate, openNodes);
 		INode newNode = new Node(ENodeType.Content,null,null);

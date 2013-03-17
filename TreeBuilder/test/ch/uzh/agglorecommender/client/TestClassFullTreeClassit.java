@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treeupdate.NullUpdater;
 
@@ -57,7 +56,7 @@ public class TestClassFullTreeClassit {
 			rootNode.getChildrenCount();
 			
 			//Checkk the leafes
-			ImmutableMap<Integer, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
+			ImmutableMap<String, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
 			int numberOfLeafes = leafNodes.size();
 			assertEquals("Number of leafes", 10, numberOfLeafes, 0.1);
 			

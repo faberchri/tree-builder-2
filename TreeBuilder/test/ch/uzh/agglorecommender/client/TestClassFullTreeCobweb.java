@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebTreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treeupdate.NullUpdater;
 
@@ -53,7 +52,7 @@ public class TestClassFullTreeCobweb {
 		System.out.println("------------Retrieving values...------------");
 		
 		//Checkk the leafes
-		ImmutableMap<Integer, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
+		ImmutableMap<String, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
 		int numberOfLeafes = leafNodes.size();
 		assertEquals("Number of leafes", 10, numberOfLeafes, 0.1);
 		
