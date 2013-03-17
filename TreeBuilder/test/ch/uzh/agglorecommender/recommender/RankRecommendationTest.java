@@ -39,6 +39,13 @@ public class RankRecommendationTest {
 		unsortedRecommendations.put(node3, att3);
 		unsortedRecommendations.put(node4,att4);
 		
+		Iterator j = unsortedRecommendations.entrySet().iterator();
+		while(j.hasNext()){
+			Map.Entry pair = (Map.Entry) j.next();
+			System.out.println(((IAttribute)pair.getValue()).getSumOfRatings());
+			
+		}
+		
 		System.out.println("Lenght: "+unsortedRecommendations.size());
 		// Sort recommendations
 		ClusterResult cr = new ClusterResult(null,null,null, null, null);
