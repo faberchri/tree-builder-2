@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,8 +46,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 
-public class InputParser {
+public class InputParser implements Serializable {
 
+	/**
+	 * 
+	 */
 	private static final String USER_ID = "user id";
 	private static final String CONTENT_ID = "content id";
 	private static final String META_ID = "meta id";
@@ -373,7 +377,7 @@ public class InputParser {
 	}
 
 
-	private class NominalAttributeWrapper implements IWrappedAttribute {
+	private class NominalAttributeWrapper implements Serializable, IWrappedAttribute {
 
 		protected final NominalAttribute attribute;
 		protected Map<String,ListMultimap<String, Object>> mappedAttributes;
@@ -442,7 +446,7 @@ public class InputParser {
 
 	}
 
-	private class NominalMultivaluedAttributeWrapper extends NominalAttributeWrapper implements IWrappedAttribute {
+	private class NominalMultivaluedAttributeWrapper extends NominalAttributeWrapper implements Serializable, IWrappedAttribute {
 
 		protected final NominalMultivaluedAttribute attribute;
 
@@ -478,7 +482,7 @@ public class InputParser {
 		}
 	}
 
-	private class NumericalAttributeWrapper implements IWrappedAttribute {
+	private class NumericalAttributeWrapper implements Serializable, IWrappedAttribute {
 
 		protected final NumericalAttribute attribute;
 		protected Map<String,ListMultimap<String, Double>> mappedAttributes;
@@ -538,8 +542,11 @@ public class InputParser {
 
 	}
 
-	private class Dataset implements IDataset<Double> {
+	private class Dataset implements Serializable, IDataset<Double> {
 
+		/**
+		 * 
+		 */
 		private final List<IDatasetItem<Double>> items;
 
 		private final INormalizer<Double> normalizer;
@@ -586,9 +593,9 @@ public class InputParser {
 
 	}
 
-	private class DatasetItem implements IDatasetItem<Double> {
+	private class DatasetItem implements Serializable, IDatasetItem<Double> {
 
-		/**
+	/**
 		 * The rating.
 		 */
 		private final double value;

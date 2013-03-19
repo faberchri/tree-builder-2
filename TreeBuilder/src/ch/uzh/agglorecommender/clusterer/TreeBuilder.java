@@ -218,9 +218,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * @return The resulting @code{cluster result} object.
 	 */
 	private ClusterResult cluster(String pathToWriteSerializedObject) {
-				
+				 
 		// Initialize Visualizer
-		treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView(), monitor);
+//		treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView(), monitor);
 		
 		// Initialize Monitor
 		monitor.initMonitoring(userNodes.size(), contentNodes.size());
@@ -242,7 +242,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			monitor.update(userNodes.size(),contentNodes.size());
 			
 			// Create/Update Visualization
-			treeVisualizer.visualize();
+//			treeVisualizer.visualize();
 			
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
@@ -258,7 +258,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
 		// Create/Update Visualization
-		treeVisualizer.visualize();
+//		treeVisualizer.visualize();
 		
 		if (contentNodes.size() == 1 && userNodes.size() == 1) {
 			result = new ClusterResult(

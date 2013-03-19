@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
  *
  * @param <T> the data type of the rating
  */
-public interface IDataset <T extends Number> {
+public interface IDataset <T extends Number>{
 	
 	/**
 	 * Retrieve the data of the data set.
