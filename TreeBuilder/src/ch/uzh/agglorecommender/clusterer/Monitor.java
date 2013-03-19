@@ -101,10 +101,13 @@ public class Monitor implements Serializable {
 	public long getTotalOpenNodes() {
     	
 		long totalNodes = 0;
-    	totalNodes += openContentNodes;
-    	totalNodes += openUserNodes;
+    	totalNodes += openContentNodes -1;
+    	totalNodes += openUserNodes -1;
     	
-    	return totalNodes;
+    	if(totalNodes >= 0) {
+    		return totalNodes;
+    	}
+    	else return 0;
 	}
 	
 	/*
@@ -144,7 +147,7 @@ public class Monitor implements Serializable {
 	
 	public long getExpectedFutureComparisons() {
 		
-		double totalNodes = getTotalOpenNodes() + getCycleCount() - 1;
+		double totalNodes = getTotalOpenNodes() + getCycleCount();
 		
 		double start = getCycleCount();
 		double end = totalNodes;
@@ -184,7 +187,7 @@ public class Monitor implements Serializable {
 		
     	if(processed + future > 0){
     		double percentage = (double) processed  / ((double) processed  + future);
-    		return percentage * 100;
+    		return (int) (percentage * 100);
     	}
     	return 0;
     }

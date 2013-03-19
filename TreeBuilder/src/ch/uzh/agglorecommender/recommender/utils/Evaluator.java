@@ -3,13 +3,9 @@ package ch.uzh.agglorecommender.recommender.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
-import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 
 import com.google.common.collect.ImmutableMap;
@@ -48,7 +44,7 @@ public class Evaluator {
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 * 
 	 */
-	public Map<String,Double> kFoldEvaluation(Map<INode,Integer> testNodes, RecommendationBuilder rb) throws NullPointerException{
+	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes, RecommendationBuilder rb) throws NullPointerException{
 		
 		System.out.println("kFoldEvaluation started..");
 			
@@ -188,79 +184,79 @@ public class Evaluator {
 		return sumOfDifferences / testNode.getRatingAttributeKeys().size();
 	}
 	
-	/**
-	 * Creates a random user with random ratings & demographics
-	 * Helper method for recommendations of type 2 (recommend unknown content)
-	 * 
-	 * @param testRatings 
-	 * @param testDemographics 
-	 * @param testset reference on the test set
-	 * 
-	 * @return INode testUser
-	 */
-	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String, IAttribute> testDemographicsNum, Map<String, IAttribute> testDemographicsNom) {
-		
-		INode testUser = new Node(ENodeType.User, "999", null); // FIXME
-		testUser.setRatingAttributes(testRatings); // Ratings
-		testUser.setNominalMetaAttributes(testDemographicsNom); // Nominal Meta FIXME
-		testUser.setNumericalMetaAttributes(testDemographicsNum); // Numerical Meta FIXME
-		
-		return testUser;
-	}
-	
-	/**
-	 * Picks some random content from the tree that the user has to rate
-	 * 
-	 * @param limit number of movies that should be rated
-	 * @param trainingOutput the tree that should be used to pick random content
-	 * 
-	 * @ return Map<INode,IAttribute> attribute map
-	 */
-	public Map<INode,IAttribute> defineRatings(ClusterResult trainingOutput, int limit) {
-		
-		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-		
-//		// Pick Godfather
-//		INode godfather = trainingOutput.getContentTreeLeavesMap().get(127);//127
-//		System.out.println(godfather.getNominalAttributesString());
-//		IAttribute godfatherAtt = new ClassitAttribute(1, 10, 100);
-//		contentRatings.put(godfather, godfatherAtt);
+//	/**
+//	 * Creates a random user with random ratings & demographics
+//	 * Helper method for recommendations of type 2 (recommend unknown content)
+//	 * 
+//	 * @param testRatings 
+//	 * @param testDemographics 
+//	 * @param testset reference on the test set
+//	 * 
+//	 * @return INode testUser
+//	 */
+//	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String, IAttribute> testDemographicsNum, Map<String, IAttribute> testDemographicsNom) {
 //		
-//		// Pick GoodFellas
-//		INode goodfellas = trainingOutput.getContentTreeLeavesMap().get(182);//182
-//		System.out.println(goodfellas.getNominalAttributesString());
-//		IAttribute goodfellasAtt = new ClassitAttribute(1, 10, 100);
-//		contentRatings.put(goodfellas, goodfellasAtt);
-		
-		return contentRatings;
-	}
-	
-	/**
-	 * Creates the demographic data of the user
-	 * 
-	 * @ return Map<INode,IAttribute> attribute map
-	 */
-	public Map<String, IAttribute> defineDemographics() {
-		
-		// Define demographic values
-		Map<Object,IAttribute> demographics = new HashMap<Object,IAttribute>();
-		
-		Map<Object,Double> a1Map = new HashMap<Object,Double>();
-		a1Map.put(50, 1.0);
-		IAttribute a1  = new CobwebAttribute(a1Map);
-		Map<Object,Double> a2Map = new HashMap<Object,Double>();
-		a1Map.put("F", 1.0);
-		IAttribute a2  = new CobwebAttribute(a2Map);
-		Map<Object,Double> a3Map = new HashMap<Object,Double>();
-		a1Map.put("programmer", 1.0);
-		IAttribute a3  = new CobwebAttribute(a3Map);
-		
-		demographics.put("Age",a1);
-		demographics.put("Gender",a2);
-		demographics.put("Occupation",a3);
-		
-		return demographics;
-	}
+//		INode testUser = new Node(ENodeType.User, "999", null); // FIXME
+//		testUser.setRatingAttributes(testRatings); // Ratings
+//		testUser.setNominalMetaAttributes(testDemographicsNom); // Nominal Meta FIXME
+//		testUser.setNumericalMetaAttributes(testDemographicsNum); // Numerical Meta FIXME
+//		
+//		return testUser;
+//	}
+//	
+//	/**
+//	 * Picks some random content from the tree that the user has to rate
+//	 * 
+//	 * @param limit number of movies that should be rated
+//	 * @param trainingOutput the tree that should be used to pick random content
+//	 * 
+//	 * @ return Map<INode,IAttribute> attribute map
+//	 */
+//	public Map<INode,IAttribute> defineRatings(ClusterResult trainingOutput, int limit) {
+//		
+//		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
+//		
+////		// Pick Godfather
+////		INode godfather = trainingOutput.getContentTreeLeavesMap().get(127);//127
+////		System.out.println(godfather.getNominalAttributesString());
+////		IAttribute godfatherAtt = new ClassitAttribute(1, 10, 100);
+////		contentRatings.put(godfather, godfatherAtt);
+////		
+////		// Pick GoodFellas
+////		INode goodfellas = trainingOutput.getContentTreeLeavesMap().get(182);//182
+////		System.out.println(goodfellas.getNominalAttributesString());
+////		IAttribute goodfellasAtt = new ClassitAttribute(1, 10, 100);
+////		contentRatings.put(goodfellas, goodfellasAtt);
+//		
+//		return contentRatings;
+//	}
+//	
+//	/**
+//	 * Creates the demographic data of the user
+//	 * 
+//	 * @ return Map<INode,IAttribute> attribute map
+//	 */
+//	public Map<String, IAttribute> defineDemographics() {
+//		
+//		// Define demographic values
+//		Map<String,IAttribute> demographics = new HashMap<>();
+//		
+//		Map<String,Double> a1Map = new HashMap<>();
+//		a1Map.put("50", 1.0);
+//		IAttribute a1  = new CobwebAttribute(a1Map);
+//		Map<String,Double> a2Map = new HashMap<>();
+//		a1Map.put("F", 1.0);
+//		IAttribute a2  = new CobwebAttribute(a2Map);
+//		Map<String,Double> a3Map = new HashMap<>();
+//		a1Map.put("programmer", 1.0);
+//		IAttribute a3  = new CobwebAttribute(a3Map);
+//		
+//		demographics.put("Age",a1);
+//		demographics.put("Gender",a2);
+//		demographics.put("Occupation",a3);
+//		
+//		return demographics;
+//	}
 
 	public void printEvaluationResult(Map<String, Double> eval) {
 		if(eval != null){
