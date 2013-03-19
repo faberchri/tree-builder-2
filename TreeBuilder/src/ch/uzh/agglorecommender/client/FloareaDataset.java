@@ -81,4 +81,10 @@ public class FloareaDataset extends AbstractDataset<Double> {
 		// not applicable, since no meta data available
 		return null;
 	}
+
+	@Override
+	public double denormalize(double value, String attributeTag) {
+		// TODO Auto-generated method stub
+		return value;
+	}
 }

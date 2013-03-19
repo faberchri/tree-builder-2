@@ -7,9 +7,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -69,22 +72,31 @@ implements MouseListener {
 
 				String description = pickedNode.getAttributeHTMLLabelString();
 
+				JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+				splitPanel.setOneTouchExpandable(true);
+				
+				JTree clusterStruc = pickedNode.getJTreeOfSubtree();
+				clusterStruc.setBorder(BorderFactory.createTitledBorder("Cluster content"));
+				splitPanel.setTopComponent(new JScrollPane(clusterStruc));
+				
 				// Create Description Label
 				JLabel label = new JLabel();
 				label.setHorizontalAlignment(JLabel.CENTER);
 				label.setForeground(Color.blue);
 				label.setText(description);
-
+				label.setBorder(BorderFactory.createTitledBorder("Cluster attributes"));
+				splitPanel.setBottomComponent(new JScrollPane(label));
+				
 				// Create dialog that displays label                
-				JDialog dia = new JDialog((Frame) SwingUtilities.windowForComponent(e.getComponent()), "Node attribute map", false);
-
-				dia.add(new JScrollPane(label));
-
+				JDialog dia = new JDialog((Frame) SwingUtilities.windowForComponent(e.getComponent()), ("Cluster " + pickedNode.getId()), false);
+						
+				dia.add(splitPanel);
+						
 				dia.pack();
-				dia.setSize(new Dimension(label.getWidth() + 20, 400));
+				dia.setSize(new Dimension(400, 400));
 				dia.setLocation(e.getXOnScreen() + 20, e.getYOnScreen() + 20);
 				dia.setVisible(true);
-
+				splitPanel.setDividerLocation(0.5);
 			}
 		}
 	}

@@ -80,7 +80,7 @@ public class InitialNodesCreator {
 							ENodeType.User, i,
 							usersMap.get(i).get(0).getNominalUserMetaMap(),
 							usersMap.get(i).get(0).getNumericalUserMetaMap(),
-							ImmutableMap.copyOf(dataset.getAttributeClusteringConfig())));
+							dataset));
 		}		
 		Map<String, INode> contentsNodeMap = new HashMap<String, INode>();
 		for (String i : contentsMap.keySet()) {
@@ -89,7 +89,7 @@ public class InitialNodesCreator {
 							ENodeType.Content, i,
 							contentsMap.get(i).get(0).getNominalContentMetaMap(),
 							contentsMap.get(i).get(0).getNumericalContentMetaMap(),
-							ImmutableMap.copyOf(dataset.getAttributeClusteringConfig())));
+							dataset));
 		}
 		
 		// attach to each node its attribute maps

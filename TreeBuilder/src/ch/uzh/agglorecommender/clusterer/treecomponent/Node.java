@@ -13,7 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 
 import com.google.common.collect.ImmutableMap;
@@ -69,7 +75,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private Map<INode, IAttribute> ratingAttributes = new HashMap<INode, IAttribute>();
 
-	private final ImmutableMap<String, Boolean> useForClustering;
+	private final IDataset<?> dataset;
 
 	/**
 	 * The children of this node.
@@ -100,11 +106,11 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	public Node(ENodeType nodeType,
 			String dataSetId,
-			ImmutableMap<String, Boolean> useForClustering) {
+			IDataset<?> dataset) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
-		this.useForClustering = useForClustering;
+		this.dataset = dataset;
 	}
 
 	/**
@@ -131,7 +137,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		this.ratingAttributes = ratingAttributes;
 		this.dataSetId = null;
 		this.categoryUtility = categoryUtility;
-		this.useForClustering = children.iterator().next().getClusteringControlMap();
+		this.dataset = children.iterator().next().getDataset();
 	}
 
 	@Override
@@ -286,6 +292,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public boolean useAttributeForClustering(Object attribute) {
+		ImmutableMap<String, Boolean> useForClustering = dataset.getAttributeClusteringConfig();
 		if (useForClustering == null) return true;
 		Boolean r = useForClustering.get(attribute);
 		if (r != null) {
@@ -375,110 +382,181 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
+	public JTree getJTreeOfSubtree() {
+		DecimalFormat formater = new DecimalFormat("#.####");
+		return new JTree(getJTreeNode(formater));
+	}
+
+	private DefaultMutableTreeNode getJTreeNode(final DecimalFormat formater) {
+		DefaultMutableTreeNode jNode = new DefaultMutableTreeNode(this) {
+			@Override
+			public String toString() {
+				Node n = (Node)userObject;
+				if (n.isLeaf()) {
+					return n.getJTreeLeafString(formater);
+				} else {
+					return "id: " + n.getId() + ", cluster size: " + n.getNumberOfLeafNodes() + ", merge category utility: " + formater.format(n.getCategoryUtility());
+				}
+			}
+		};
+		Iterator<INode> it = getChildren();
+		while (it.hasNext()) {
+			jNode.add(((Node)it.next()).getJTreeNode(formater));
+		}
+		return jNode;
+	}
+
+	private String getJTreeLeafString(final DecimalFormat formater) {
+		Pattern linkPattern = Pattern.compile("<a href.*>(.*)</a>");
+		StringBuilder sb = new StringBuilder();
+		sb.append("id: ");
+		sb.append(getId());
+		sb.append(" | ");
+
+		Collection<IAttribute> atts = ratingAttributes.values();
+		sb.append("num. of ratings: ");
+		sb.append(atts.size());
+		sb.append(" | ");
+		sb.append("avg. of ratings: ");
+		sb.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(atts) / (double) atts.size()));	
+		sb.append(" | ");
+		sb.append("std. of ratings: ");
+		sb.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(atts)));
+		sb.append(" | ");
+		for (Map.Entry<String, IAttribute> entry : nominalMetaAttributes.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(": ");
+			Iterator<Entry<Object,Double>> it = entry.getValue().getProbabilities();
+			while (it.hasNext()) {
+				Map.Entry<Object, Double> entry2 = it.next();
+				Matcher matcher = linkPattern.matcher(entry2.getKey().toString());
+				if (matcher.matches()) {
+					sb.append(matcher.group(1));
+				} else {
+					sb.append(entry2.getKey());	
+				}
+				sb.append(", ");
+			}
+			sb.setLength(sb.length() - 2);
+			sb.append(" | ");
+		}
+		for (Map.Entry<String, IAttribute> entry : numericalMetaAttributes.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(": ");			
+			sb.append(formater.format(dataset.denormalize(entry.getValue().getSumOfRatings(), entry.getKey())));
+			sb.append(" | ");
+		}
+		sb.setLength(sb.length() - 2);
+		return sb.toString();
+	}
+
+	@Override
 	public String getAttributeHTMLLabelString() {
 		DecimalFormat formater = new DecimalFormat("#.####");
-		String description = "<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>"
-				+ "<body> Node: "
-				+ getId()
-				+ "<br>data set id: "
-				+ getSimpleDataSetIdString(this)
-				+ "<br>Category Utility: "
-				+ formater.format(getCategoryUtility())
-				+ "<br>Cluster size: "
-				+ getNumberOfLeafNodes()
-				+ "<br>";
+		StringBuilder description = new StringBuilder("<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>");
+		description.append("<body> Node: ");
+		description.append(getId());
+		description.append("<br>data set id: ");
+		description.append(getSimpleDataSetIdString(this));
+		description.append("<br>Category Utility: ");
+		description.append(formater.format(getCategoryUtility()));
+		description.append("<br>Cluster size: ");
+		description.append(getNumberOfLeafNodes());
+		description.append("<br>");
 
-		List<INode> merge = new ArrayList<INode>();
-		merge.add(this);
-
-		description += "<h2>Rating Attributes</h2>";		
+		description.append("<h2>Rating Attributes</h2>");		
 		if (ratingAttributes.size() > 0) {
 			List<Node> atKeyLi = new ArrayList(ratingAttributes.keySet());
 			Collections.sort(atKeyLi);	
-			description += createRatingsAttributesHTMLTable(atKeyLi, formater);
+			description.append(createRatingsAttributesHTMLTable(atKeyLi, formater));
 		}
-		description += "<h2>Numerical Meta Attributes</h2>";
+		description.append("<h2>Numerical Meta Attributes</h2>");
 		if (numericalMetaAttributes.size() > 0) {
 			List<String> atKeyLi = new ArrayList<>(numericalMetaAttributes.keySet());
 			Collections.sort(atKeyLi);	
-			description += createNumericalMetaAttributesHTMLTable(atKeyLi, formater);
+			description.append(createNumericalMetaAttributesHTMLTable(atKeyLi, formater));
 		}
-		description += "<h2>Nominal Meta Attributes</h2>";
+		description.append("<h2>Nominal Meta Attributes</h2>");
 		if (nominalMetaAttributes.size() > 0) {
 			List<String> atKeyLi = new ArrayList<>(nominalMetaAttributes.keySet());
 			Collections.sort(atKeyLi, new ObjectComparator());
-			description += createNominalMetaAttributesHTMLTable(atKeyLi, formater);
+			description.append(createNominalMetaAttributesHTMLTable(atKeyLi, formater));
 		}
-		return description += "</body></html>";
+		return description.append("</body></html>").toString();
 	}
 
 	private String createNumericalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<table><tr><td>tag</td><td>mean</td><td>std</td><td>support</td></tr>";
+		StringBuilder description = new StringBuilder("<table><tr><td>tag</td><td>mean</td><td>std</td><td>support</td></tr>");
 		// Data
 		for(String attributeKey : attributes) {
 
 			IAttribute attributeValue = getNumericalAttributeValue(attributeKey);
-			description += "<tr><td>" + attributeKey.toString() + "</td>";
+			description.append( "<tr><td>").append(attributeKey.toString()).append("</td>");
 			if (useAttributeForClustering(attributeKey)) {
 
-				description+= "<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
-						"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())) + "</td>" +
-						"<td>" + attributeValue.getSupport()+ "</td>" +
-						"</tr>";
+				description.append("<td>")
+				.append(formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport()))
+				.append("</td>")
+				.append("<td>")
+				.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())))
+				.append("</td>")
+				.append("<td>")
+				.append(attributeValue.getSupport())
+				.append("</td>").append("</tr>");
 			} else {
-				description = "<td>- not used for clustering -</td></tr>";
+				description.append("<td>- not used for clustering -</td></tr>");
 			}
 		}
-		return description += "</table>";
+		return description.append("</table>").toString();
 	}
 
 	private String createNominalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<table><tr><td>tag</td><td width='150'>value -> probability</td></tr>";
+		StringBuilder description = new StringBuilder("<table><tr><td>tag</td><td width='150'>value -> probability</td></tr>");
 
 		// Data
 		for(String attributeKey : attributes) {
 
 			IAttribute attributeValue = getNominalAttributeValue(attributeKey);
-			description += "<tr><td>" + attributeKey.toString() + "</td>";
+			description.append("<tr><td>").append(attributeKey.toString()).append("</td>");
 
 			Iterator<Entry<Object,Double>> values = attributeValue.getProbabilities();
 			if (! useAttributeForClustering(attributeKey)) {
-				description += "<td>- not used for clustering -<br>";
+				description.append("<td>- not used for clustering -<br>");
 			} else {
-				description += "<td>";
+				description.append("<td>");
 			}
 
 			while ( values.hasNext() ){
 				Entry<Object,Double> tempEntry = values.next();
-				description += tempEntry.getKey().toString();
+				description.append(tempEntry.getKey().toString());
 				if (useAttributeForClustering(attributeKey)) {
-					description += " -> " +	formater.format(tempEntry.getValue().doubleValue()); 
+					description.append(" -> ").append(formater.format(tempEntry.getValue().doubleValue())); 
 				}
-				description += "<br>";
+				description.append("<br>");
 			}
-			description += "</td></tr>";
+			description.append("</td></tr>");
 		}
-		return description += "</table>";
+		return description.append("</table>").toString();
 	}
 
 	private String createRatingsAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
 		// Header
-		String description = "<table><tr><td>cluster id</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>";
+		StringBuilder description = new StringBuilder("<table><tr><td>cluster id</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>");
 		// Data
 		for(INode attributeKey : attributes) {
 
 			IAttribute attributeValue = getNumericalAttributeValue(attributeKey);
-			description += "<tr><td>" + attributeKey.getId() + "</td>" +
-					"<td>" + getSimpleDataSetIdString(attributeKey) + "</td>"+
-					"<td>" + attributeKey.getNodeType() + "</td>"+
-					"<td>" + formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())+ "</td>" +
-					"<td>" + formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())) + "</td>" +
-					"<td>" + attributeValue.getSupport()+ "</td>" +
-					"</tr>";
+			description.append("<tr><td>").append(attributeKey.getId()).append("</td>")
+			.append("<td>").append(getSimpleDataSetIdString(attributeKey)).append("</td>")
+			.append("<td>").append(attributeKey.getNodeType()).append("</td>")
+			.append("<td>").append(formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())).append("</td>")
+			.append("<td>").append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values()))).append("</td>")
+			.append("<td>").append(attributeValue.getSupport()).append("</td>")
+			.append("</tr>");
 		}
-		return description += "</table>";
+		return description.append("</table>").toString();
 	}
 
 	private String getSimpleDataSetIdString(INode node) {
@@ -560,7 +638,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public ImmutableMap<String, Boolean> getClusteringControlMap() {
-		return useForClustering;
+		return dataset.getAttributeClusteringConfig();
+	}
+
+	@Override
+	public IDataset<?> getDataset() {
+		return dataset;
 	}
 
 }

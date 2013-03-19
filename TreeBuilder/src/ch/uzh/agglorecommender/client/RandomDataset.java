@@ -179,4 +179,10 @@ public class RandomDataset implements IDataset<Double> {
 		return null;
 	}
 
+	@Override
+	public double denormalize(double value, String attributeTag) {
+		// TODO Auto-generated method stub
+		return value;
+	}
+
 }

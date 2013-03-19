@@ -29,7 +29,7 @@
     <arin:userNumericalAttribute>
         <arin:Attribute>
             <arin:Tag>age</arin:Tag>
-            <arin:useForClustering>1</arin:useForClustering>
+            <arin:useForClustering>0</arin:useForClustering>
             <arin:minValue>0</arin:minValue>
             <arin:maxValue>100</arin:maxValue>
         </arin:Attribute>
@@ -43,7 +43,7 @@
     <arin:userNominalAttribute>
         <arin:Attribute>
             <arin:Tag>sex</arin:Tag>
-            <arin:useForClustering>1</arin:useForClustering>
+            <arin:useForClustering>0</arin:useForClustering>
         </arin:Attribute>
         <arin:File>
             <arin:ColumnSeparator>+</arin:ColumnSeparator>
@@ -55,7 +55,7 @@
     <arin:userNominalAttribute>
         <arin:Attribute>
             <arin:Tag>occupation</arin:Tag>
-            <arin:useForClustering>1</arin:useForClustering>
+            <arin:useForClustering>0</arin:useForClustering>
         </arin:Attribute>
         <arin:File>
             <arin:ColumnSeparator>+</arin:ColumnSeparator>
@@ -67,7 +67,7 @@
     <arin:userNominalAttribute>
         <arin:Attribute>
             <arin:Tag>zip code</arin:Tag>
-            <arin:useForClustering>1</arin:useForClustering>
+            <arin:useForClustering>0</arin:useForClustering>
             <arin:Category>
                 <arin:CategoryTag>new england</arin:CategoryTag>
                 <arin:IdentificationRegex>^0.*</arin:IdentificationRegex>
@@ -135,7 +135,7 @@
     <arin:contentNominalMultivaluedAttribute>
         <arin:Attribute>
             <arin:Tag>genre</arin:Tag>
-            <arin:useForClustering>1</arin:useForClustering>
+            <arin:useForClustering>0</arin:useForClustering>
             <arin:ValueSeparator>|</arin:ValueSeparator>
         </arin:Attribute>
         <arin:File>

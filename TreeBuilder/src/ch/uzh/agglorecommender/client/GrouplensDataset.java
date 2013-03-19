@@ -208,4 +208,10 @@ public class GrouplensDataset extends AbstractDataset<Integer> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public double denormalize(double value, String attributeTag) {
+		// TODO Auto-generated method stub
+		return value;
+	}
 }

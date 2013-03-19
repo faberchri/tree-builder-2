@@ -31,6 +31,8 @@ public interface IDataset <T extends Number> {
 	
 	public ImmutableMap<String, Boolean> getAttributeClusteringConfig();
 	
+	public double denormalize(double value, String attributeTag);
+	
 	public enum DataSetSplit{
 		TRAINING, TEST
 	}

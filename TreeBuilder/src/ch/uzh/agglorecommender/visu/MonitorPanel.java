@@ -1,11 +1,14 @@
 package ch.uzh.agglorecommender.visu;
 
+import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import ch.uzh.agglorecommender.clusterer.Monitor;
 
@@ -53,11 +56,29 @@ public class MonitorPanel extends JPanel{
 	        progressBar.setStringPainted(true);
 	        
 	        // Add to panel
+  
+	        JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(elapsedTime);
+	        add(sep);
+	        sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(totalOpenNodes);
+	        add(sep);
+	        sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(merges);
+	        add(sep);
+	        sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(speed);
+	        add(sep);
+	        sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(expTime);
+	        add(sep);
+	        sep = new JSeparator(SwingConstants.VERTICAL);
+	        sep.setPreferredSize(new Dimension(10, 30));
 	        add(progressBar);
 	        
 	    }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -38,9 +39,9 @@ public class TreeComponentFactory implements Serializable  {
 			String dataSetId,
 			Multimap<String, Object> nominalMeta,
 			Multimap<String, Double> numericalMeta,
-			ImmutableMap<String, Boolean> clusteringConfig) {
+			IDataset<?> dataset) {
 		
-		INode newNode = new Node(typeOfNewNode, dataSetId,  clusteringConfig);
+		INode newNode = new Node(typeOfNewNode, dataSetId,  dataset);
 		if (nominalMeta != null) {
 			for (Entry<String, Collection<Object>> entry : nominalMeta.asMap().entrySet()) {
 				newNode.addNominalMetaAttribute(entry.getKey(), createNominalLeafAttribute(entry.getValue()));

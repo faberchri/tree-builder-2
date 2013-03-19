@@ -12,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -63,7 +64,7 @@ public class TreeVisualizer {
 		}
 
 		// Initialize Visualization Frame		
-		JFrame frame = new JFrame("Cluster trees");
+		JFrame frame = new JFrame("Agglomerative Clustering");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout());
 		
@@ -71,14 +72,8 @@ public class TreeVisualizer {
 		JSplitPane treeSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		treeSplit.setOneTouchExpandable(true);
         treeSplit.setResizeWeight(0.5);
-        frame.getContentPane().add(treeSplit, BorderLayout.NORTH);
-        
-        // Control & Monitor Panes
-        JSplitPane controlSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        treeSplit.setOneTouchExpandable(true);
-        treeSplit.setResizeWeight(0.5);
-        frame.getContentPane().add(controlSplit, BorderLayout.SOUTH);
-        
+        frame.getContentPane().add(treeSplit, BorderLayout.CENTER);
+                
 		// Instantiate TreePanel
 		vbC = new TreePanel(contentNodes);
 		vbC.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Content Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
@@ -92,17 +87,20 @@ public class TreeVisualizer {
         JPanel controlPanel = new JPanel();
         JButton pB = new PlayButton();
         controlPanel.add(pB);
-        controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Clustering Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
+        controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
 //        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
         
         // Monitor Panel
         monitorPanel = new MonitorPanel(monitor);
-		monitorPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Monitor", TitledBorder.CENTER, TitledBorder.CENTER));
+		monitorPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Progress", TitledBorder.CENTER, TitledBorder.CENTER));
 //        frame.getContentPane().add(monitorPanel, BorderLayout.PAGE_START);
         
-        controlSplit.setLeftComponent(controlPanel);
-        controlSplit.setRightComponent(monitorPanel);
+		JPanel controlAndMonitorPanel = new JPanel(new BorderLayout());
+		controlAndMonitorPanel.add(new JScrollPane(controlPanel),BorderLayout.WEST);
+		controlAndMonitorPanel.add(new JScrollPane(monitorPanel),BorderLayout.CENTER);
 		
+        frame.getContentPane().add(controlAndMonitorPanel, BorderLayout.SOUTH);
+
 		frame.pack();
 		frame.setVisible(true);
 		visualize();		

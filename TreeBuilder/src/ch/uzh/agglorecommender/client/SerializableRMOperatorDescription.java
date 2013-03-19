@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -58,6 +59,14 @@ public class SerializableRMOperatorDescription implements Serializable {
 			if (url.getPath().endsWith(rapidminerOperatorJarFileName)) {
 				myURL = url;
 			}   
+		}
+		// hack for stand-alone TreeBuilder jar
+		if (myURL == null) {
+			try {
+				myURL = new URL("file:/Users/faber/Documents/MScPrj/tree-builder-repo/december-19-2012/tree-builder-2/TreeBuilder/treebuilder.jar");
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		// Build Operator Descriptor for Rapidminer

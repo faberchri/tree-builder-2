@@ -68,6 +68,8 @@ public class InputParser {
 	private Map<String,ListMultimap<String, Double>> numericalContentMetaAttributes = new HashMap<>();
 
 	private Map<String, Boolean> useForClustering = new HashMap<>();
+	
+	private Map<String, NumericalAttribute> numericalAttributes = new HashMap<>();
 
 	public InputParser(File propertiesXmlFile) {
 
@@ -92,7 +94,9 @@ public class InputParser {
 			parseMetaAttribute(input.getContentNominalMultivaluedAttributeArray(i));
 		}
 		for (int i = 0; i < input.sizeOfContentNumericalAttributeArray(); i++) {
-			parseMetaAttribute(input.getContentNumericalAttributeArray(i));
+			ContentNumericalAttribute cna = input.getContentNumericalAttributeArray(i);
+			parseMetaAttribute(cna);
+			numericalAttributes.put(cna.getAttribute().getTag(), cna.getAttribute());
 		}
 		for (int i = 0; i < input.sizeOfUserNominalAttributeArray(); i++) {
 			parseMetaAttribute(input.getUserNominalAttributeArray(i));
@@ -101,7 +105,9 @@ public class InputParser {
 			parseMetaAttribute(input.getUserNominalMultivaluedAttributeArray(i));
 		}
 		for (int i = 0; i < input.sizeOfUserNumericalAttributeArray(); i++) {
-			parseMetaAttribute(input.getUserNumericalAttributeArray(i));
+			UserNumericalAttribute una = input.getUserNumericalAttributeArray(i);
+			parseMetaAttribute(una);
+			numericalAttributes.put(una.getAttribute().getTag(), una.getAttribute());
 		}
 
 		trainigsDataset = new Dataset(trainingItems);
@@ -563,6 +569,19 @@ public class InputParser {
 		@Override
 		public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
 			return ImmutableMap.copyOf(useForClustering);
+		}
+
+		@Override
+		public double denormalize(double value, String attributeTag) {
+			NumericalAttribute att = numericalAttributes.get(attributeTag);
+			if (att == null) {
+				return value;
+			}
+			double r = value / SCALLING_FACTOR;
+			double range = att.getMaxValue() - att.getMinValue();
+			r = r * range;
+			r += att.getMinValue();
+			return r;
 		}
 
 	}

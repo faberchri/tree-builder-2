@@ -35,7 +35,7 @@
         </arin:Attribute>
         <arin:File>
             <arin:ColumnSeparator>+</arin:ColumnSeparator>
-            <arin:Location>/Users/faber/Documents/MScPrj/tree-builder-repo/december-19-2012/tree-builder-2/TreeBuilder/src/ch/uzh/agglorecommender/datasets/Grouplens/users.dat></arin:Location>
+            <arin:Location>/Users/faber/Documents/MScPrj/tree-builder-repo/december-19-2012/tree-builder-2/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/users.dat</arin:Location>
             <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
             <arin:IdColumnNumber>1</arin:IdColumnNumber>
         </arin:File>

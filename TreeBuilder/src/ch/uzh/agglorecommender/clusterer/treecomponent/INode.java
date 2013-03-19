@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JTree;
+
+import ch.uzh.agglorecommender.client.IDataset;
+
 import com.google.common.collect.ImmutableMap;
 
 public interface INode {
@@ -90,6 +94,8 @@ public interface INode {
 	public boolean useAttributeForClustering(Object attribute);
 	
 	public ImmutableMap<String, Boolean> getClusteringControlMap();
+	
+	public IDataset<?> getDataset();
 
 	
 	/**
@@ -289,6 +295,9 @@ public interface INode {
 	 * @return HTML string
 	 */
 	public String getAttributeHTMLLabelString();
+	
+	public JTree getJTreeOfSubtree();
+	
 	
 	/**
 	 * The category utility of this nodes children merge.
