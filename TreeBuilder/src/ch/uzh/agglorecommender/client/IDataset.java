@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.client;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import com.google.common.collect.ImmutableMap;
@@ -13,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
  *
  * @param <T> the data type of the rating
  */
-public interface IDataset <T extends Number>{
+public interface IDataset <T extends Number> extends Serializable{
 	
 	/**
 	 * Retrieve the data of the data set.

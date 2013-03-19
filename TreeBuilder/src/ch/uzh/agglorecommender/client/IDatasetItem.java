@@ -1,5 +1,7 @@
 package ch.uzh.agglorecommender.client;
 
+import java.io.Serializable;
+
 import com.google.common.collect.Multimap;
 
 /**
@@ -8,7 +10,7 @@ import com.google.common.collect.Multimap;
  *
  * @param <T> the data type of the rating
  */
-public interface IDatasetItem<T> {
+public interface IDatasetItem<T> extends Serializable {
 	
 	/**
 	 * The id of the user, who submitted the rating.

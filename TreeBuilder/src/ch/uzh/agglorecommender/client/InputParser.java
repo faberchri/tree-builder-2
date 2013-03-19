@@ -72,8 +72,6 @@ public class InputParser implements Serializable {
 	private Map<String,ListMultimap<String, Double>> numericalContentMetaAttributes = new HashMap<>();
 
 	private Map<String, Boolean> useForClustering = new HashMap<>();
-	
-	private Map<String, NumericalAttribute> numericalAttributes = new HashMap<>();
 
 	public InputParser(File propertiesXmlFile) {
 
@@ -86,6 +84,8 @@ public class InputParser implements Serializable {
 			e.printStackTrace();
 		}
 		validateXML(inputDoc);
+		
+		Map<String, NumericalAttribute> numericalAttributes = new HashMap<>();
 
 		Input input = inputDoc.getInput();
 
@@ -114,8 +114,8 @@ public class InputParser implements Serializable {
 			numericalAttributes.put(una.getAttribute().getTag(), una.getAttribute());
 		}
 
-		trainigsDataset = new Dataset(trainingItems);
-		testDataset = new Dataset(testItems);
+		trainigsDataset = new Dataset(trainingItems, numericalAttributes);
+		testDataset = new Dataset(testItems, numericalAttributes);
 		
 		useForClustering.remove(input.getRatingArray()[0].getAttribute().getTag());
 	}
@@ -367,7 +367,7 @@ public class InputParser implements Serializable {
 		return null;
 	}
 
-	private interface IWrappedAttribute {
+	private interface IWrappedAttribute extends Serializable {
 		public Attribute getAttribute();
 
 		public CellProcessor[] getProcessors(String[] header);
@@ -377,7 +377,7 @@ public class InputParser implements Serializable {
 	}
 
 
-	private class NominalAttributeWrapper implements Serializable, IWrappedAttribute {
+	private class NominalAttributeWrapper implements IWrappedAttribute {
 
 		protected final NominalAttribute attribute;
 		protected Map<String,ListMultimap<String, Object>> mappedAttributes;
@@ -446,7 +446,7 @@ public class InputParser implements Serializable {
 
 	}
 
-	private class NominalMultivaluedAttributeWrapper extends NominalAttributeWrapper implements Serializable, IWrappedAttribute {
+	private class NominalMultivaluedAttributeWrapper extends NominalAttributeWrapper implements IWrappedAttribute {
 
 		protected final NominalMultivaluedAttribute attribute;
 
@@ -482,7 +482,7 @@ public class InputParser implements Serializable {
 		}
 	}
 
-	private class NumericalAttributeWrapper implements Serializable, IWrappedAttribute {
+	private class NumericalAttributeWrapper implements IWrappedAttribute {
 
 		protected final NumericalAttribute attribute;
 		protected Map<String,ListMultimap<String, Double>> mappedAttributes;
@@ -542,17 +542,20 @@ public class InputParser implements Serializable {
 
 	}
 
-	private class Dataset implements Serializable, IDataset<Double> {
+	private class Dataset implements IDataset<Double> {
 
 		/**
 		 * 
 		 */
 		private final List<IDatasetItem<Double>> items;
+		
+		private final Map<String, NumericalAttribute> numericalAttributes;
 
 		private final INormalizer<Double> normalizer;
 
-		public Dataset(List<IDatasetItem<Double>> items) {
+		public Dataset(List<IDatasetItem<Double>> items, Map<String, NumericalAttribute> numericalAttributes) {
 			this.items = items;
+			this.numericalAttributes = numericalAttributes;
 			this.normalizer = new INormalizer<Double>() {
 
 				@Override
@@ -593,7 +596,7 @@ public class InputParser implements Serializable {
 
 	}
 
-	private class DatasetItem implements Serializable, IDatasetItem<Double> {
+	private class DatasetItem implements IDatasetItem<Double> {
 
 	/**
 		 * The rating.
