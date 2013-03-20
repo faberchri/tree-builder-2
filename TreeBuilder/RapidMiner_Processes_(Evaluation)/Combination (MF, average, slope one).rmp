@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.3.005">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.3.005" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="read_aml" compatibility="5.3.005" expanded="true" height="60" name="Read AML" width="90" x="45" y="30">
+        <parameter key="attributes" value="C:\Users\IBM_ADMIN\Desktop\RapidMiner Recommendations\DescriptionFile\AttributeDescriptionFile.aml"/>
+        <parameter key="sample_ratio" value="1.0"/>
+        <parameter key="sample_size" value="-1"/>
+        <parameter key="permute" value="false"/>
+        <parameter key="decimal_point_character" value="."/>
+        <parameter key="column_separators" value=",\s*|;\s*|\s+"/>
+        <parameter key="use_comment_characters" value="true"/>
+        <parameter key="comment_chars" value="#"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quote_character" value="&quot;"/>
+        <parameter key="quoting_escape_character" value="\"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="skip_error_lines" value="false"/>
+        <parameter key="datamanagement" value="double_array"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="read_aml" compatibility="5.3.005" expanded="true" height="60" name="Read AML (3)" width="90" x="45" y="435">
+        <parameter key="attributes" value="C:\Users\IBM_ADMIN\Desktop\RapidMiner Recommendations\DescriptionFile\AttributeDescriptionFile.aml"/>
+        <parameter key="sample_ratio" value="1.0"/>
+        <parameter key="sample_size" value="-1"/>
+        <parameter key="permute" value="false"/>
+        <parameter key="decimal_point_character" value="."/>
+        <parameter key="column_separators" value=",\s*|;\s*|\s+"/>
+        <parameter key="use_comment_characters" value="true"/>
+        <parameter key="comment_chars" value="#"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quote_character" value="&quot;"/>
+        <parameter key="quoting_escape_character" value="\"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="skip_error_lines" value="false"/>
+        <parameter key="datamanagement" value="double_array"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="5.3.005" expanded="true" height="76" name="Set Role" width="90" x="45" y="120">
+        <parameter key="name" value="u1.base (1)"/>
+        <parameter key="target_role" value="user identification"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="5.3.005" expanded="true" height="76" name="Set Role (2)" width="90" x="112" y="165">
+        <parameter key="name" value="u1.base (2)"/>
+        <parameter key="target_role" value="item identification"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="5.3.005" expanded="true" height="112" name="Multiply" width="90" x="246" y="165"/>
+      <operator activated="true" class="irbrecommender:matrix_factorization" compatibility="5.1.000" expanded="true" height="76" name="MF" width="90" x="447" y="30">
+        <parameter key="Min Rating" value="1"/>
+        <parameter key="Range" value="4"/>
+        <parameter key="Num Factors" value="10"/>
+        <parameter key="Learn rate" value="0.01"/>
+        <parameter key="Iteration number" value="30"/>
+        <parameter key="Regularization" value="0.015"/>
+        <parameter key="Initial mean" value="0.0"/>
+        <parameter key="Initial stdev" value="0.1"/>
+      </operator>
+      <operator activated="true" class="irbrecommender:slope_one" compatibility="5.1.000" expanded="true" height="76" name="Slope One" width="90" x="447" y="210">
+        <parameter key="Min Rating" value="1"/>
+        <parameter key="Range" value="4"/>
+      </operator>
+      <operator activated="true" class="irbrecommender:global_average" compatibility="5.1.000" expanded="true" height="76" name="Global Average" width="90" x="447" y="120">
+        <parameter key="Min Rating" value="1"/>
+        <parameter key="Range" value="4"/>
+      </operator>
+      <operator activated="true" class="irbrecommender:model_combiner_rp" compatibility="5.1.000" expanded="true" height="112" name="Model Combiner" width="90" x="648" y="120">
+        <parameter key="default_weight" value="1.0"/>
+        <list key="model_weights"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="5.3.005" expanded="true" height="76" name="Set Role (3)" width="90" x="179" y="435">
+        <parameter key="name" value="u1.base (1)"/>
+        <parameter key="target_role" value="user identification"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="5.3.005" expanded="true" height="76" name="Set Role (4)" width="90" x="313" y="390">
+        <parameter key="name" value="u1.base (2)"/>
+        <parameter key="target_role" value="item identification"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="irbrecommender:apply_model_rp" compatibility="5.1.000" expanded="true" height="76" name="Apply Model" width="90" x="514" y="390">
+        <parameter key="Online updates" value="false"/>
+      </operator>
+      <operator activated="true" class="irbrecommender:performance_rating_prediction" compatibility="5.1.000" expanded="true" height="76" name="Performance" width="90" x="715" y="345">
+        <parameter key="Min Rating" value="1"/>
+        <parameter key="Range" value="4"/>
+      </operator>
+      <connect from_op="Read AML" from_port="output" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Read AML (3)" from_port="output" to_op="Set Role (3)" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Set Role (2)" to_port="example set input"/>
+      <connect from_op="Set Role (2)" from_port="example set output" to_op="Multiply" to_port="input"/>
+      <connect from_op="Multiply" from_port="output 1" to_op="MF" to_port="example set"/>
+      <connect from_op="Multiply" from_port="output 2" to_op="Global Average" to_port="example set"/>
+      <connect from_op="Multiply" from_port="output 3" to_op="Slope One" to_port="example set"/>
+      <connect from_op="MF" from_port="Model" to_op="Model Combiner" to_port="model 1"/>
+      <connect from_op="Slope One" from_port="Model" to_op="Model Combiner" to_port="model 3"/>
+      <connect from_op="Global Average" from_port="Model" to_op="Model Combiner" to_port="model 2"/>
+      <connect from_op="Model Combiner" from_port="grouped model" to_op="Apply Model" to_port="Model"/>
+      <connect from_op="Set Role (3)" from_port="example set output" to_op="Set Role (4)" to_port="example set input"/>
+      <connect from_op="Set Role (4)" from_port="example set output" to_op="Apply Model" to_port="query set"/>
+      <connect from_op="Apply Model" from_port="result set" to_op="Performance" to_port="predictions"/>
+      <connect from_op="Performance" from_port="performance" to_port="result 1"/>
+      <connect from_op="Performance" from_port="evaluation measures" to_port="result 2"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>
