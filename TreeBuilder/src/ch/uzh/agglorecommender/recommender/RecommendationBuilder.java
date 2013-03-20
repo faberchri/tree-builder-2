@@ -67,6 +67,8 @@ public final class RecommendationBuilder {
 		INode position = leavesMapU.get(testNode.getDatasetId());
 		
 		try {
+			
+//			System.out.println("collecting ratings");
 			// Collect ratings of all content given by the input node
 			Map<String, IAttribute> contentRatings = collectRatings(position,testNode,null);
 			return contentRatings;
@@ -115,8 +117,10 @@ public final class RecommendationBuilder {
 						}
 						// Attribute is not original
 						else {
-							IAttribute originalAttribute = findOriginalAttribute(position,searchDatasetId);
-							ratingList.put(searchDatasetId, originalAttribute);
+//							System.out.println("find not original");
+//							IAttribute originalAttribute = findOriginalAttribute(position,searchDatasetId);
+//							ratingList.put(searchDatasetId, originalAttribute);
+							ratingList.put(searchDatasetId, position.getNumericalAttributeValue(posRatingKey));
 						}
 					}
 				}
@@ -164,10 +168,12 @@ public final class RecommendationBuilder {
 						if(tempDatasetId.equals(searchDatasetId)){
 							
 							// Search on level deeper 
+//							System.out.println("search one level deeper");
 							IAttribute originalAttribute = findOriginalAttribute(child,searchDatasetId);
 							if(originalAttribute != null){
 								return originalAttribute;
 							}
+							else return null;
 						}
 					}
 				}

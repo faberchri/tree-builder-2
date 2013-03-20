@@ -85,10 +85,14 @@ public class Evaluator {
 	 */
 	public Map<String,Double> evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
 		
+//		System.out.println("evaluating");
+		
 		if(testNode != null){
 			
 			// Get Predicitions & Real Values
 			Map<String, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode);
+			
+//			System.out.println("received ratings");
 			
 			if(predictedRatings != null) {
 				
