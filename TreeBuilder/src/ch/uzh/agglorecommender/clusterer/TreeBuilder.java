@@ -46,6 +46,8 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private static final boolean visualizationON = false;
+	
 //	/**
 //	 * The data set to cluster.
 //	 */
@@ -153,7 +155,10 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		this.contentMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(this.contentMCUSearcher));
 				
 		this.treeComponentFactory = TreeComponentFactory.getInstance();
-		this.treeVisualizer = new TreeVisualizer();	
+		
+		if (visualizationON) {
+			this.treeVisualizer = new TreeVisualizer();	
+		}
 
 	}
 		
@@ -166,7 +171,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	public ClusterResult resumeClustering(String pathToWriteSerializedObject) {
 		log = TBLogger.getLogger(getClass().getName());
-		treeVisualizer = new TreeVisualizer();
+		if (visualizationON) {
+			treeVisualizer = new TreeVisualizer();			
+		}
 		return cluster(pathToWriteSerializedObject);
 	}
 	
@@ -220,7 +227,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	private ClusterResult cluster(String pathToWriteSerializedObject) {
 				 
 		// Initialize Visualizer
-//		treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView(), monitor);
+		if (visualizationON) {
+			treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView(), monitor);
+		}
 		
 		// Initialize Monitor
 		monitor.initMonitoring(userNodes.size(), contentNodes.size());
@@ -242,7 +251,9 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			monitor.update(userNodes.size(),contentNodes.size());
 			
 			// Create/Update Visualization
-//			treeVisualizer.visualize();
+			if (visualizationON) {
+				treeVisualizer.visualize();
+			}
 			
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
@@ -253,12 +264,14 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			log.info("---------------------- cycle completed (" + ( (double)(System.nanoTime() - time) / 1000000000.0) + " s) -------------------------");
 		} 
 				
-		log.info("Clustering terminated! Serializing TreeBuilder...");
+		log.info("Clustering terminated!");
 		// serialize this TreeBuilder if clustering is completed.
 		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
 		
 		// Create/Update Visualization
-//		treeVisualizer.visualize();
+		if (visualizationON) {
+			treeVisualizer.visualize();
+		}
 		
 		if (contentNodes.size() == 1 && userNodes.size() == 1) {
 			result = new ClusterResult(
@@ -452,6 +465,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * the TreeVisualizer is polled every 0.5 s to check for status change.
 	 */
 	private void interrupt() {
+		if (! visualizationON) return;
 		while (treeVisualizer.isPaused()) {
 			log.info("clustering is interrupted!");
 			try {
