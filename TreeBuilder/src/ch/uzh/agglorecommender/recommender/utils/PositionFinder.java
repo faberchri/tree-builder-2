@@ -70,6 +70,7 @@ public class PositionFinder {
 						if (finalPosition != null){
 							return finalPosition;
 						}
+						else return null;
 					}
 					else {
 						System.out.println("Best position was found in tree: " + position.toString());

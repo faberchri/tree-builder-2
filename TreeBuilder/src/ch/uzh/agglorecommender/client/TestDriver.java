@@ -4,11 +4,13 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 import ch.uzh.agglorecommender.recommender.ui.BasicUI;
@@ -87,13 +89,13 @@ public class TestDriver {
 		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
 		
 //		// Run Quantitative Evaluation
-//		System.out.println("-------------------------------");
-//		System.out.println("Starting Recommendation Type 1");
-//		System.out.println("-------------------------------");
-//		
-//		Map<INode, String> testNodes 	= eb.getTestUsers(testSet);
-//		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
-//		eb.printEvaluationResult(eval);
+		System.out.println("-------------------------------");
+		System.out.println("Starting Recommendation Type 1");
+		System.out.println("-------------------------------");
+		
+		Map<INode, String> testNodes 	= eb.getTestUsers(testSet);
+		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
+		eb.printEvaluationResult(eval);
 
 		
 		// Start User Interfaces for qualitative evaluation and insertion

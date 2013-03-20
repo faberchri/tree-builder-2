@@ -247,11 +247,11 @@ public final class RecommendationBuilder {
 //		INode relevantNode = collectNode(position);
 		
 		// Collect leaf content / user nodes from relevant Node
-		List<INode> leafNodes = collectLeaves(position,null);
+//		List<INode> leafNodes = collectLeaves(position,null);
 		
 		// Process Attributes of leaf nodes
-		for(INode leafNode : leafNodes){
-			for(INode attKey : leafNode.getRatingAttributeKeys()){
+//		for(INode leafNode : leafNodes){
+			for(INode attKey : position.getRatingAttributeKeys()){
 				
 				List<INode> attributeLeafNodes = collectLeaves(attKey,null);
 				
@@ -261,7 +261,7 @@ public final class RecommendationBuilder {
 						
 						// Identify ratings
 						IAttribute oldAtt = recommendation.get(attLeaf);
-						IAttribute newAtt = leafNode.getNumericalAttributeValue(attKey); // FIXME is this rating correct?
+						IAttribute newAtt = position.getNumericalAttributeValue(attKey);
 						
 						// Add Merged Node
 						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
@@ -270,11 +270,11 @@ public final class RecommendationBuilder {
 						recommendation.put(attLeaf, merged);
 					}
 					else{
-						recommendation.put(attLeaf, leafNode.getNumericalAttributeValue(attKey));
+						recommendation.put(attLeaf, position.getNumericalAttributeValue(attKey));
 					}
 				}
 			}
-		}
+//		}
 		
 	    return recommendation;
 	}
