@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
+import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -35,21 +36,24 @@ public final class RecommendationBuilder {
 	private ImmutableMap<String, INode> leavesMapC;
 	private INode rootU;
 	private INode rootC;
+	private IDataset<?> dataset;
 	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
 	 * 
 	 * @param clusterResult the trees on which the recommendation calculation is done
+	 * @param testDataset 
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(ClusterResult clusterResult) {
+	public RecommendationBuilder(ClusterResult clusterResult, IDataset<?> testDataset) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
 		this.rootC			= clusterResult.getContentTreeRoot();
 		this.leavesMapU 	= clusterResult.getUserTreeLeavesMap();
 		this.leavesMapC 	= clusterResult.getContentTreeLeavesMap();
+		this.dataset		= testDataset;
 		
 		// Parameters for Recommendation
 //		this.radiusU = radiusU;
@@ -194,9 +198,11 @@ public final class RecommendationBuilder {
 		
 		INode position = null;
 		if(inputNode.getNodeType() == ENodeType.User){
+			System.out.println("Searching for user");
 			position = finder.findPosition(inputNode,rootU,0);
 		}
 		else if(inputNode.getNodeType() == ENodeType.Content){
+			System.out.println("Searching for content");
 			position = finder.findPosition(inputNode,rootC,0);
 		}
 		
@@ -206,11 +212,11 @@ public final class RecommendationBuilder {
 		}
 		else {
 			System.out.println("Found similar user: ");
-			System.out.println(position.getNominalAttributesString());
-			System.out.println(position.getNumericalAttributesString());
-			System.out.println("input user: ");
-			System.out.println(inputNode.getNominalAttributesString());
-			System.out.println(inputNode.getNumericalAttributesString());
+//			System.out.println(position.getNominalAttributesString());
+//			System.out.println(position.getNumericalAttributesString());
+//			System.out.println("input user: ");
+//			System.out.println(inputNode.getNominalAttributesString());
+//			System.out.println(inputNode.getNumericalAttributesString());
 		}
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
@@ -225,7 +231,6 @@ public final class RecommendationBuilder {
 		recommended = recommend(position,watched);
 		
 		return recommended;
-		
 	}
 	
 	/**
@@ -349,11 +354,19 @@ public final class RecommendationBuilder {
 	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 
 		ValueComparator bvc =  new ValueComparator(unsortedRecommendation);
-		SortedMap<INode,IAttribute> finalRecommendation = new TreeMap<INode,IAttribute>(bvc);
-		finalRecommendation.putAll(unsortedRecommendation);
+		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<INode,IAttribute>(bvc);
+		sortedRecommendation.putAll(unsortedRecommendation);
 		
-	    return finalRecommendation;
-	    
+//		SortedMap<INode,IAttribute> limitedRecommendation = new TreeMap<>(bvc);
+//		int counter = 0;
+//		for(Entry<INode,IAttribute> entry : sortedRecommendation.entrySet()){
+//			if(counter < limit){
+//				
+//				counter++;
+//			}
+//		}
+		
+	    return sortedRecommendation;
 	}
 
     class ValueComparator implements Comparator<INode> {
@@ -403,17 +416,17 @@ public final class RecommendationBuilder {
 		List<INode> itemList = new LinkedList<INode>();
 		Random randomGenerator = new Random();
 		
-		if(type == ENodeType.Content){
-			for(int i = 0;i < limit;i++){
-				INode randomNode = null;
-				if(type == ENodeType.Content){
-					randomNode = leavesMapC.get(randomGenerator.nextInt(leavesMapC.size()));
-				}
-				else if (type == ENodeType.User){
-					randomNode = leavesMapU.get(randomGenerator.nextInt(leavesMapU.size()));	
-				}
-				itemList.add(randomNode);
+		for(int i = 0;i < limit;i++){
+			INode randomNode = null;
+			if(type == ENodeType.Content){
+				int randomID = randomGenerator.nextInt(leavesMapU.size());
+				randomNode = leavesMapU.get("" + randomID);
 			}
+			else if (type == ENodeType.User){
+				int randomID = randomGenerator.nextInt(leavesMapC.size());
+				randomNode = leavesMapC.get("" + randomID);	
+			}
+			itemList.add(randomNode);
 		}
 		
 		return itemList;
@@ -421,13 +434,13 @@ public final class RecommendationBuilder {
 	
 	public INode findNode(int datasetID, ENodeType type){
 		INode node = null;
-		if(type == ENodeType.Content){
+		if(type == ENodeType.User){
 			System.out.println("looking for node in c " + datasetID);
-			node = leavesMapC.get(datasetID);
+			node = leavesMapC.get("" + datasetID);
 		}
-		else if (type == ENodeType.User){
+		else if (type == ENodeType.Content){
 			System.out.println("looking for node in u " + datasetID);
-			node = leavesMapU.get(datasetID);
+			node = leavesMapU.get("" + datasetID);
 		}
 		
 		System.out.println("found node: " + node.toString());
@@ -442,5 +455,9 @@ public final class RecommendationBuilder {
 			title = (String) titleIt.next().getKey();
 		}
 		return title;
+	}
+	
+	public IDataset<?> getDataset(){
+		return this.dataset;
 	}
 }

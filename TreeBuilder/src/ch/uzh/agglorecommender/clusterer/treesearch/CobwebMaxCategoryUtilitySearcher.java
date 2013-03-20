@@ -83,14 +83,16 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 				int currLeafCount = node.getNumberOfLeafNodes();
 				
 				IAttribute aV = node.getNominalAttributeValue(attribute);
-				Iterator<Map.Entry<Object, Double>> it = aV.getProbabilities();
-				while (it.hasNext()) {
-					Map.Entry<Object, Double> entry = it.next();
-					Double prevValueInMap = probabilities.get(entry.getKey());
-					if (prevValueInMap != null) {
-						probabilities.put(entry.getKey(), prevValueInMap + (entry.getValue() * ((double) currLeafCount / (double) leafCount)));						
-					} else {
-						probabilities.put(entry.getKey(), (entry.getValue() * ((double) currLeafCount / (double) leafCount)));
+				if(aV != null){
+					Iterator<Map.Entry<Object, Double>> it = aV.getProbabilities();
+					while (it.hasNext()) {
+						Map.Entry<Object, Double> entry = it.next();
+						Double prevValueInMap = probabilities.get(entry.getKey());
+						if (prevValueInMap != null) {
+							probabilities.put(entry.getKey(), prevValueInMap + (entry.getValue() * ((double) currLeafCount / (double) leafCount)));						
+						} else {
+							probabilities.put(entry.getKey(), (entry.getValue() * ((double) currLeafCount / (double) leafCount)));
+						}
 					}
 				}
 			}

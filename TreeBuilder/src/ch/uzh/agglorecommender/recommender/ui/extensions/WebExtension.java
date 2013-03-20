@@ -58,13 +58,10 @@ public class WebExtension extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
 		
-//		System.out.println("request: " + request.toString());
-		
 		//********** PreDefinition *******************
 		response.setContentType("text/text");  // text/xml
 	    response.setHeader("Cache-Control", "no-cache");
 	    response.setStatus(HttpServletResponse.SC_OK);
-	    //********************************************
 		
 	    if(request.getParameterMap().containsKey("request")) {
 			String requestType = request.getParameter("request");
@@ -106,25 +103,25 @@ public class WebExtension extends AbstractHandler {
 				}
 				
 				response.getWriter().write("</table>");
-				
 			}
 			
 			else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
-				
-	//			http://localhost:8081/request?request=recommendation&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
-	//			http://localhost:8081/request?request=insertion&type=Content&meta=age-23*gender-M&ratings=127-8*182-9
-				
-				// ************** Create Node ***************
 				
 				// Retrieve Type
 				ENodeType type = ENodeType.valueOf(request.getParameter("type"));
 				
 				// Read MetaInfo to List<String> -> attribute+value
-				List<String> metaInfo = new LinkedList<String>();
-				String metaFull = request.getParameter("meta");
-				String[] metaList = metaFull.split("\\*");
+				List<String> numMetaInfo = new LinkedList<String>();
+				String numMetaFull = request.getParameter("nummeta");
+				String[] metaList = numMetaFull.split("\\*");
 				for(String meta : metaList){
-					metaInfo.add(meta);
+					numMetaInfo.add(meta);
+				}
+				List<String> nomMetaInfo = new LinkedList<String>();
+				String nomMetaFull = request.getParameter("nommeta");
+				String[] nomMetaList = nomMetaFull.split("\\*");
+				for(String meta : nomMetaList){
+					nomMetaInfo.add(meta);
 				}
 				
 				// Read Ratings to List<String> -> content node+rating
@@ -132,22 +129,37 @@ public class WebExtension extends AbstractHandler {
 				String ratingsFull = request.getParameter("ratings");
 				String[] ratingList = ratingsFull.split("\\*");
 				for(String rating : ratingList){
+					System.out.println(rating);
 					ratings.add(rating);
 				}
 				
-				INode inputNode = basicUI.buildNode(metaInfo, ratings, type);
+				// Create Node
+//				System.out.println("--------------------");
+//				System.out.println(numMetaInfo.toString());
+//				System.out.println(nomMetaInfo.toString());
+//				System.out.println(ratingList.toString());
+//				System.out.println("--------------------");
+				
+				INode inputNode = basicUI.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
 //				System.out.println("Created Node: " + 
 //						inputNode.toString() + 
 //						inputNode.getNominalAttributesString() + 
-//						inputNode.getNumericalAttributesString());
+//						inputNode.getNumericalAttributesString() + 
+//						inputNode.getNominalMetaAttributeKeys() +
+//						inputNode.getNumericalMetaAttributeKeys()
+//						);
 				
 				// Create Recommendation
 				if(requestType.equals("recommendation")){	
 					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
 					
+					System.out.println("resulting recommendation" + recommendations.toString());
+					
 					response.getWriter().write("<table style='width:570px'>");
 					
 					for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
+						
+//						System.out.println(recommendation.getKey().getNominalAttributesString());
 						
 						String title 	= getMeta(recommendation.getKey(),"title");
 						String url		= "<a href='" + getMeta(recommendation.getKey(),"IMDb URL") + "' target='_blank'>IMDB Link</a>";
@@ -181,11 +193,15 @@ public class WebExtension extends AbstractHandler {
 	
 	//********* DOPPELT ****************//
 	private String getMeta(INode node, String info){
-		Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();
-		String meta ="";
-		while(metaIt.hasNext()){
-			meta = (String) metaIt.next().getKey();
+		if(node.getNominalAttributeValue(info) != null){
+			Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();
+			String meta ="";
+			while(metaIt.hasNext()){
+				meta = (String) metaIt.next().getKey();
+			}
+			return meta;
 		}
-		return meta;
+		
+		return "meta fehlt";
 	}
 }

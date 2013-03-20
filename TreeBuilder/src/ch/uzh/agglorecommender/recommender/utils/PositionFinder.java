@@ -66,7 +66,7 @@ public class PositionFinder {
 					
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
-						INode finalPosition = findPosition(inputNode,nextPosition,highestUtility);
+						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
 						if (finalPosition != null){
 							return finalPosition;
 						}

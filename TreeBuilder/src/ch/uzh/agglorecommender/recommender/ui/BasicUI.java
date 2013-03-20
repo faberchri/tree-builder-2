@@ -6,12 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
 
+import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
@@ -48,41 +51,41 @@ public class BasicUI {
 	
 	public void runCommand(String command){
 		
-		// Stop signal for system
-		if(command.equals("stop")){
-			stopService();
-			System.exit(0);
-		}
-		
-		// Split command
-		String[] fields = command.split("\\s+");
-		
-		// Check validity
-		if(isValidCommand(fields)){
-			
-			System.out.println("Processing command");
-			
-			// Build inputNode from inputFiles
-			ENodeType type = ENodeType.User; // FIXME needs to be dynamic
-			File f1 = new File(fields[2]);
-			File f2 = new File(fields[4]);
-			List<String> metaInfo = readInputFile(f1);
-			List<String> ratings  = readInputFile(f2);
-			INode inputNode = buildNode(metaInfo, ratings, type);
-			
-			// Decide Action
-			if(fields[0].equals("recommend")){
-				recommend(inputNode);
-			}
-			else if(fields[0].equals("insert")){
-				insert(inputNode);
-			}
-		}
+//		// Stop signal for system
+//		if(command.equals("stop")){
+//			stopService();
+//			System.exit(0);
+//		}
+//		
+//		// Split command
+//		String[] fields = command.split("\\s+");
+//		
+//		// Check validity
+//		if(isValidCommand(fields)){
+//			
+//			System.out.println("Processing command");
+//			
+//			// Build inputNode from inputFiles
+//			ENodeType type = ENodeType.User; // FIXME needs to be dynamic
+//			File f1 = new File(fields[2]);
+//			File f2 = new File(fields[4]);
+//			List<String> metaInfo = readInputFile(f1);
+//			List<String> ratings  = readInputFile(f2);
+//			INode inputNode = buildNode(metaInfo, ratings, type);
+//			
+//			// Decide Action
+//			if(fields[0].equals("recommend")){
+//				recommend(inputNode);
+//			}
+//			else if(fields[0].equals("insert")){
+//				insert(inputNode);
+//			}
+//		}
 	}
 	
 	public SortedMap<INode, IAttribute> recommend(INode inputNode){
 		Map<INode,IAttribute> unsortedRecommendation = this.rb.runRecommendation(inputNode); // Create Recommendation
-		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 100); // Pick Top Movies for User
+		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 15); // Pick Top Movies for User
 //		this.rb.printRecommendation(sortedRecommendation);
 		return sortedRecommendation;
 	}
@@ -98,37 +101,65 @@ public class BasicUI {
 	}
 	
 	// FIXME
-	public INode buildNode(List<String> metaInfo,List<String> ratings, ENodeType type){
+	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
 		
 		System.out.println("Building Node");
 		
+//		System.out.println("------------------");
+//		System.out.println(nomMetaInfo.toString());
+//		System.out.println(numMetaInfo.toString());
+//		System.out.println(ratings.toString());
+//		System.out.println("------------------");
+		
 		// Read Content Information
-		Map<String, String> nomMapTemp = new HashMap<String,String>();
-		for(String meta : metaInfo){
-			String[] ratingSplit = meta.split("\\-");
-			if(ratingSplit.length>2){
-				nomMapTemp.put(ratingSplit[0], ratingSplit[1]);
+		Map<String, String> nomMetaMapTemp = new HashMap<String,String>();
+		for(String meta : nomMetaInfo){
+			String[] ratingSplit = meta.split("-");
+			if(ratingSplit.length>=2){
+				nomMetaMapTemp.put(ratingSplit[0], ratingSplit[1]);
 			}
 		}
 		
-//		System.out.println(nomMapTemp.toString());
-		
-		Map<Object,IAttribute> nomMap = buildNominalAttributes(nomMapTemp);
+		Map<String, String> numMetaMapTemp = new HashMap<String,String>();
+		for(String meta : numMetaInfo){
+			String[] ratingSplit = meta.split("-");
+			if(ratingSplit.length>=2){
+				numMetaMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			}
+		}
 			
-		// Read Collaborative Information
-		Map<String, String> numMapTemp = new HashMap<String,String>();
+		// Read Ratings Data
+		Map<String, String> ratingMapTemp = new HashMap<String,String>();
 		for(String rating : ratings){
-			String[] ratingSplit = rating.split("\\-");
-			if(ratingSplit.length>2){
-				numMapTemp.put(ratingSplit[0], ratingSplit[1]);
+			String[] ratingSplit = rating.split("-");
+			if(ratingSplit.length>=2){
+				ratingMapTemp.put(ratingSplit[0], ratingSplit[1]);
 			}
 		}
 		
-//		System.out.println(numMapTemp.toString());
+//		System.out.println("------------------");
+//		System.out.println(ratingMapTemp.toString());
+//		System.out.println(numMetaMapTemp.toString());
+//		System.out.println(nomMetaMapTemp.toString());
+//		System.out.println("------------------");
 		
-		Map<INode,IAttribute> numMap = buildNumericalAttributes(numMapTemp,type);
-						
-		return new Node(type,null,numMap,null,null,0.0);
+		Map<String,IAttribute> nomMetaMap = buildNominalAttributes(nomMetaMapTemp);
+		Map<String,IAttribute> numMetaMap = buildNominalAttributes(numMetaMapTemp);
+		Map<INode,IAttribute> ratingsMap = buildNumericalAttributes(ratingMapTemp,type);
+		
+//		System.out.println("------------------");
+//		System.out.println(ratingsMap.toString());
+//		System.out.println(numMetaMap.toString());
+//		System.out.println(nomMetaMap.toString());
+//		System.out.println("------------------");
+		
+		// Get dataset for configuration -> FIXME
+		IDataset<?> dataset = rb.getDataset();
+		INode fakeChild = new Node(null,null,dataset); 
+		Collection<INode> fakeChildren = new HashSet<>();
+		fakeChildren.add(fakeChild);
+		
+		return new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
 	}
 	
 	//************* DOPPELT **********************//
@@ -194,11 +225,11 @@ public class BasicUI {
 		return rb.findNode(Integer.parseInt(datasetID),type);
 	}
 
-	private static Map<Object,IAttribute> buildNominalAttributes(Map<String,String> attributes) {
-		Map<Object,IAttribute> nominalAttributes = new HashMap<Object,IAttribute>();
+	private static Map<String, IAttribute> buildNominalAttributes(Map<String,String> attributes) {
+		Map<String,IAttribute> nominalAttributes = new HashMap<>();
 		for(String attKey : attributes.keySet()){
 			Map<String,Double> probabilityMap = new HashMap<String,Double>();
-			probabilityMap.put(attKey,1.0);
+			probabilityMap.put(attributes.get(attKey),1.0);
 			nominalAttributes.put(attKey, new CobwebAttribute(probabilityMap));
 		}
 		return nominalAttributes;

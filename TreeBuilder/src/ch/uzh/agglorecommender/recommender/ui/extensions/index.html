@@ -49,10 +49,10 @@
 				ratingParameter = ratingParameter + ratings[j] + "*";
 			}
 			
-			ajax("request=recommendation&type=Content&meta=" + metaParameter + "&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
+			ajax("request=recommendation&type=User&nommeta=" + metaParameter + "&nummeta=&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
 		}
 		
-		ajax('type=Content&limit=10&request=item','s','movies'); <!-- load more movies to rate -->
+		ajax('type=User&limit=15&request=item','s','movies'); <!-- load more movies to rate -->
 	}
 	
 	function ajax(parameters,str,update){
@@ -81,7 +81,7 @@
 
 </script>
 </head>
-<body onload="ajax('type=Content&limit=10&request=item','s','movies')">
+<body onload="ajax('type=User&limit=15&request=item','s','movies')">
 
 <div id='wrapper' align="center">
 <!-- <div id='main' align="left"> -->
