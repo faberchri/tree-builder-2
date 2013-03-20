@@ -14,6 +14,11 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 
+/*
+ * TODO: 
+ * 	1. Sorted list is empty right now
+ *  2. getSumOfRatings() returns sum of squared ratings
+ */
 
 public class RankRecommendationTest {
  //public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit)
@@ -46,14 +51,14 @@ public class RankRecommendationTest {
 			
 		}
 		
-		System.out.println("Lenght: "+unsortedRecommendations.size());
+		System.out.println("Lenght unsorted: "+unsortedRecommendations.size());
 		// Sort recommendations
 		ClusterResult cr = new ClusterResult(null,null,null, null, null);
-		RecommendationBuilder ranker = new RecommendationBuilder(cr);
+		RecommendationBuilder ranker = new RecommendationBuilder(cr, null);
 		Map<INode,IAttribute> sortedRecommendations = new HashMap<INode, IAttribute>();
 		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
 		
-		System.out.println("Lenght: "+sortedRecommendations.size());
+		System.out.println("Lenght sorted: "+sortedRecommendations.size());
 		
 		Iterator i = sortedRecommendations.entrySet().iterator();
 		while(i.hasNext()){
@@ -62,5 +67,6 @@ public class RankRecommendationTest {
 			
 		}
 		// Check results
+		
 	}
 }
