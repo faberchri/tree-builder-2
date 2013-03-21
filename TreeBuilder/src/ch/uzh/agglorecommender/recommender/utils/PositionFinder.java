@@ -3,7 +3,6 @@ package ch.uzh.agglorecommender.recommender.utils;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
@@ -61,16 +60,7 @@ public class PositionFinder {
 						nodesToCalculate.set(1, tempPosition);
 						System.out.println(nodesToCalculate);
 						
-						Random randomGenerator = new Random();
-						double random = randomGenerator.nextInt(10);
-						
-						double utility = 0.0;
-						if(random > 6){
-							utility = random;
-						}
-						else {
-							utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
-						}
+						double utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){

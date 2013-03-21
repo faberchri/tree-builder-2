@@ -292,37 +292,37 @@ public class TreePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				expandAll.getActionListeners()[0].actionPerformed(null);
-				
-				Collection<INode> nodez = fetchAllNodesInForest();
-				Set<Object> isCollapsed = new HashSet<>();
-				
-				// remove all leaves
-				Iterator<INode> it = nodez.iterator();
-				while (it.hasNext()) {
-					INode n = it.next();
-					if (n.isLeaf() && ! n.isRoot()) {
-						isCollapsed.add(n);
-						it.remove();
-					}
-				}
-				
-				MultiPickedState<INode> m = (MultiPickedState<INode>) vv.getPickedVertexState();
-				m.clear();
-				ActionListener collapseListener = collapse.getActionListeners()[0];
-				while (! allCollapsed(nodez)) {
-					Iterator<INode> it2 = nodez.iterator();
-					while (it2.hasNext()) {
-						INode n = it2.next();
-						if (canBeCollapsed(n, isCollapsed)) {
-							m.pick(n, true);				
-							collapseListener.actionPerformed(null);
-							isCollapsed.add(n);
-							it2.remove();
-							m.clear();
-						}
-					}
-				}								
+//				expandAll.getActionListeners()[0].actionPerformed(null);
+//				
+//				Collection<INode> nodez = fetchAllNodesInForest();
+//				Set<Object> isCollapsed = new HashSet<>();
+//				
+//				// remove all leaves
+//				Iterator<INode> it = nodez.iterator();
+//				while (it.hasNext()) {
+//					INode n = it.next();
+//					if (n.isLeaf() && ! n.isRoot()) {
+//						isCollapsed.add(n);
+//						it.remove();
+//					}
+//				}
+//				
+//				MultiPickedState<INode> m = (MultiPickedState<INode>) vv.getPickedVertexState();
+//				m.clear();
+//				ActionListener collapseListener = collapse.getActionListeners()[0];
+//				while (! allCollapsed(nodez)) {
+//					Iterator<INode> it2 = nodez.iterator();
+//					while (it2.hasNext()) {
+//						INode n = it2.next();
+//						if (canBeCollapsed(n, isCollapsed)) {
+//							m.pick(n, true);				
+//							collapseListener.actionPerformed(null);
+//							isCollapsed.add(n);
+//							it2.remove();
+//							m.clear();
+//						}
+//					}
+//				}								
 			}
 			
 			private boolean allCollapsed(Collection<INode> nodes) {
