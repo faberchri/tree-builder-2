@@ -31,7 +31,9 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 **/
 	@Override
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
-				
+		
+		System.out.println(possibleMerge.toString());
+		
 		Set<Object> numAtts = new HashSet<Object>();
 		Set<Object> nomAtts = new HashSet<Object>();
 		for (INode n : possibleMerge) {
@@ -42,6 +44,7 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		
 		double numOfNomAtts = nomAtts.size();
 		double numOfNumAtts = numAtts.size();
+		System.out.println(numOfNumAtts);
 
 		double sumOfAtts = numOfNomAtts + numOfNumAtts;
 		
@@ -52,7 +55,9 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		
 		double utility = 0.0;
 		utility += classit.calculateCategoryUtility(possibleMerge) * (numOfNumAtts / sumOfAtts);
+		System.out.println("after classit" + utility);
  		utility += cobweb.calculateCategoryUtility(possibleMerge) * (numOfNomAtts / sumOfAtts);
+ 		System.out.println("after cobweb" + utility);
 				
 		return utility;
 	}

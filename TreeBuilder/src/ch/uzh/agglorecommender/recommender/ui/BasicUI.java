@@ -145,7 +145,7 @@ public class BasicUI {
 		
 		Map<String,IAttribute> nomMetaMap = buildNominalAttributes(nomMetaMapTemp);
 		Map<String,IAttribute> numMetaMap = buildNominalAttributes(numMetaMapTemp);
-		Map<INode,IAttribute> ratingsMap = buildNumericalAttributes(ratingMapTemp,type);
+		Map<INode,IAttribute> ratingsMap =  buildNumericalAttributes(ratingMapTemp,type);
 		
 //		System.out.println("------------------");
 //		System.out.println(ratingsMap.toString());
@@ -203,9 +203,9 @@ public class BasicUI {
 		return lines;
 	}
 
-	private static Map<INode,IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
+	private static Map<INode, IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
 	
-		Map<INode,IAttribute> numAttributes = new HashMap<INode,IAttribute>();
+		Map<INode,IAttribute> numAttributes = new HashMap<>();
 		for(String datasetID: attributes.keySet()){
 		
 			// Find Node with dataset id 

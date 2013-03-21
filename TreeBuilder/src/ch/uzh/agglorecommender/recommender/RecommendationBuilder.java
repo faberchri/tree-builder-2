@@ -198,11 +198,11 @@ public final class RecommendationBuilder {
 		
 		INode position = null;
 		if(inputNode.getNodeType() == ENodeType.User){
-			System.out.println("Searching for user");
+//			System.out.println("Searching for user:");
 			position = finder.findPosition(inputNode,rootU,0);
 		}
 		else if(inputNode.getNodeType() == ENodeType.Content){
-			System.out.println("Searching for content");
+//			System.out.println("Searching for content");
 			position = finder.findPosition(inputNode,rootC,0);
 		}
 		
@@ -435,11 +435,11 @@ public final class RecommendationBuilder {
 	public INode findNode(int datasetID, ENodeType type){
 		INode node = null;
 		if(type == ENodeType.User){
-			System.out.println("looking for node in c " + datasetID);
+//			System.out.println("looking for node in c " + datasetID);
 			node = leavesMapC.get("" + datasetID);
 		}
 		else if (type == ENodeType.Content){
-			System.out.println("looking for node in u " + datasetID);
+//			System.out.println("looking for node in u " + datasetID);
 			node = leavesMapU.get("" + datasetID);
 		}
 		

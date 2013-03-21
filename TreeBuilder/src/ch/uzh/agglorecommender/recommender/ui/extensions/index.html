@@ -8,20 +8,34 @@
 	var min = 3;
 	
 	<!-- Lists -->
-	var meta = new Array();
+	var metax = new Array();
+	var metay = new Array();
 	var ratings = new Array();
 	
 	<!-- Ajax ---------->
 	function check(){
+		
+		var i;
+		var meta_element;
+		var name;
+		var value;
 	
-		<!--- grab meta --->
-		for(var i = 1;i<=2;i++){
-			var meta_element = document.getElementById("m"+i);
-			var name = meta_element.getAttribute("name");
-			var value = meta_element.value;
-			meta[meta.length] = name + "-" + value;
+		<!--- grab meta nominal --->
+		for(i = 1;i<=2;i++){
+			meta_element = document.getElementById("x"+i);
+			name = meta_element.getAttribute("name");
+			value = meta_element.value;
+			metax[metax.length] = name + "-" + value;
 		}
-	
+
+		<!--- grab meta numeric --->
+		for(i = 1;i<=0;i++){
+			meta_element = document.getElementById("y"+i);
+			name = meta_element.getAttribute("name");
+			value = meta_element.value;
+			metay[metay.length] = name + "-" + value;
+		}
+		
 		<!--- grab ratings ---->
 		for(var i = 1;i <= 10;i++){
 			var rating_element = document.getElementById(i);
@@ -39,9 +53,14 @@
 		<!-- send -->
 		if(ratings.length >= min){
 			
-			var metaParameter = "";
-			for(var j = 0;j < meta.length;j++){
-				metaParameter = metaParameter + meta[j] + "*";
+			var metaxParameter = "";
+			for(var j = 0;j < metax.length;j++){
+				metaxParameter = metaxParameter + metax[j] + "*";
+			}
+			
+			var metayParameter = "";
+			for(var j = 0;j < metay.length;j++){
+				metayParameter = metayParameter + metay[j] + "*";
 			}
 			
 			var ratingParameter = "";
@@ -49,7 +68,7 @@
 				ratingParameter = ratingParameter + ratings[j] + "*";
 			}
 			
-			ajax("request=recommendation&type=User&nommeta=" + metaParameter + "&nummeta=&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
+			ajax("request=recommendation&type=User&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
 		}
 		
 		ajax('type=User&limit=15&request=item','s','movies'); <!-- load more movies to rate -->
@@ -94,13 +113,25 @@
 
 <!--------- User ------------>
 <table>
+
 <tr>
-<td>Alter</td><td><input id="m1" name="age" type="text"></td>
-</tr><tr>
+<td>Alter</td><td><input id="x3" name="age" type="text"></td>
+</tr>
+
+<tr>
 <td>Geschlecht</td><td>
-<select id="m2" name="gender">
+<select id="x1" name="gender">
 	<option value="F">F</option>
 	<option value="M">M</option>
+</select></td>
+</tr>
+
+<tr>
+<td>Occupation</td><td>
+<select id="x2" name="occupation">
+	<option value="Artist">Artist</option>
+	<option value="Engineer">Engineer</option>
+	<option value="Engineer">Student</option>
 </select></td>
 </tr>
 </table>

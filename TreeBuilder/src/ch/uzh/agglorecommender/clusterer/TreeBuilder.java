@@ -46,7 +46,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean visualizationON = false;
+	private static final boolean visualizationON = true;
 	
 //	/**
 //	 * The data set to cluster.

@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.recommender.utils;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
@@ -22,6 +23,11 @@ public class PositionFinder {
 	 */
 	public INode findPosition(INode inputNode,INode position,double cutoff) {
 		
+//		System.out.println("--------------------");
+//		System.out.println(inputNode.getNumericalAttributesString());
+//		System.out.println(inputNode.getNominalAttributesString());
+//		System.out.println("--------------------");
+		
 		if(inputNode != null) {
 			
 			// Establish highest Utility
@@ -36,7 +42,8 @@ public class PositionFinder {
 			SharedMaxCategoryUtilitySearcher cuSearcher = new SharedMaxCategoryUtilitySearcher();
 			if(cutoff == 0) {
 				if(position != null){
-					cutoff = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
+//					cutoff = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
+					cutoff = 0;
 				}
 				else {
 					System.out.println("Root node is null");
@@ -51,11 +58,23 @@ public class PositionFinder {
 					while(compareSet.hasNext()) {
 						  
 						INode tempPosition = compareSet.next();
-						nodesToCalculate.set(0, tempPosition);
-						double utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
+						nodesToCalculate.set(1, tempPosition);
+						System.out.println(nodesToCalculate);
+						
+						Random randomGenerator = new Random();
+						double random = randomGenerator.nextInt(10);
+						
+						double utility = 0.0;
+						if(random > 6){
+							utility = random;
+						}
+						else {
+							utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
+						}
 						
 						// Find child with highest utility of all children and higher utility than previously found
 						if(utility >= highestUtility){
+							System.out.println(utility + "/" + tempPosition.toString());
 							highestUtility = utility;
 							nextPosition = tempPosition;
 						}
@@ -64,13 +83,13 @@ public class PositionFinder {
 					System.out.println(">> " + nextPosition.toString());
 					System.out.println(highestUtility + "/" + cutoff);
 					
+//					System.exit(1);
 					// Make decision based on calculated highestUtility
 					if(highestUtility >= cutoff) {
-						INode finalPosition = findPosition(inputNode,nextPosition,highestUtility);
+						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
 						if (finalPosition != null){
 							return finalPosition;
 						}
-						else return null;
 					}
 					else {
 						System.out.println("Best position was found in tree: " + position.toString());

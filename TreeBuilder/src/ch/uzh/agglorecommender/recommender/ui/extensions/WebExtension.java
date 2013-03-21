@@ -113,12 +113,14 @@ public class WebExtension extends AbstractHandler {
 				// Read MetaInfo to List<String> -> attribute+value
 				List<String> numMetaInfo = new LinkedList<String>();
 				String numMetaFull = request.getParameter("nummeta");
+//				System.out.println("nummeta: " + numMetaFull);
 				String[] metaList = numMetaFull.split("\\*");
 				for(String meta : metaList){
 					numMetaInfo.add(meta);
 				}
 				List<String> nomMetaInfo = new LinkedList<String>();
 				String nomMetaFull = request.getParameter("nommeta");
+//				System.out.println("nommeta: " + nomMetaFull);
 				String[] nomMetaList = nomMetaFull.split("\\*");
 				for(String meta : nomMetaList){
 					nomMetaInfo.add(meta);
@@ -129,7 +131,7 @@ public class WebExtension extends AbstractHandler {
 				String ratingsFull = request.getParameter("ratings");
 				String[] ratingList = ratingsFull.split("\\*");
 				for(String rating : ratingList){
-					System.out.println(rating);
+//					System.out.println(rating);
 					ratings.add(rating);
 				}
 				
@@ -148,6 +150,8 @@ public class WebExtension extends AbstractHandler {
 //						inputNode.getNominalMetaAttributeKeys() +
 //						inputNode.getNumericalMetaAttributeKeys()
 //						);
+//				
+//				System.exit(1);
 				
 				// Create Recommendation
 				if(requestType.equals("recommendation")){	
