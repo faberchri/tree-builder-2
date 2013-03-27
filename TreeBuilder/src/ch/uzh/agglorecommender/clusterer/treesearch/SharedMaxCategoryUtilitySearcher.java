@@ -1,14 +1,14 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
-public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySearcher implements Serializable {
+/**
+ * Allows for category utility calculation considering both numerical and nominal attributes.
+ */
+public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySearcher {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -21,31 +21,23 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		
 	private ClassitMaxCategoryUtilitySearcher classit = new ClassitMaxCategoryUtilitySearcher();
 	private CobwebMaxCategoryUtilitySearcher cobweb = new CobwebMaxCategoryUtilitySearcher();
-
-	/**Calculates utility of merging nodes in possibleMerge based on Classit Category Utility formula
-	 * Utility is calculated as follows:
-	 * 1. For all attributes calculate 1/stdev
-	 * 2. Divide the sum of this values by the number of attributes
-	 * @param possibleMerge The nodes for which to calculate the utility
-	 * @return the utility of merging the nodes in possibleMerge
-	 **/
+	
+	/**
+	 * Calculates the category utility for the numerical attributes and the nominal attributes separately
+	 * and combines the two category utility weighted by the number of attributes.
+	 */
 	@Override
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
+				
+		int numOfNomAtts = 0;
+		int numOfNumAtts = 0;
 		
-		System.out.println(possibleMerge.toString());
-		
-		Set<Object> numAtts = new HashSet<Object>();
-		Set<Object> nomAtts = new HashSet<Object>();
 		for (INode n : possibleMerge) {
-			numAtts.addAll(n.getRatingAttributeKeys());
-			numAtts.addAll(n.getNumericalMetaAttributeKeys());
-			nomAtts.addAll(n.getNominalMetaAttributeKeys());
+			numOfNomAtts += n.getRatingAttributeKeys().size();
+			numOfNomAtts += n.getNumericalMetaAttributeKeys().size();
+			numOfNomAtts += n.getNominalMetaAttributeKeys().size();
 		}
 		
-		double numOfNomAtts = nomAtts.size();
-		double numOfNumAtts = numAtts.size();
-		System.out.println(numOfNumAtts);
-
 		double sumOfAtts = numOfNomAtts + numOfNumAtts;
 		
 		if (sumOfAtts == 0) {
@@ -54,9 +46,9 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		}
 		
 		double utility = 0.0;
-		utility += classit.calculateCategoryUtility(possibleMerge) * (numOfNumAtts / sumOfAtts);
+		utility += classit.calculateCategoryUtility(possibleMerge) * ((double)numOfNumAtts / sumOfAtts);
 		System.out.println("after classit" + utility);
- 		utility += cobweb.calculateCategoryUtility(possibleMerge) * (numOfNomAtts / sumOfAtts);
+ 		utility += cobweb.calculateCategoryUtility(possibleMerge) * ((double)numOfNomAtts / sumOfAtts);
  		System.out.println("after cobweb" + utility);
 				
 		return utility;
@@ -65,6 +57,6 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	@Override
 	protected double getMaxTheoreticalPossibleCategoryUtility() {
 		return (cobweb.getMaxTheoreticalPossibleCategoryUtility()
-				+ (classit.getMaxTheoreticalPossibleCategoryUtility() * ClassitMaxCategoryUtilitySearcher.acuity)) / 2.0;
+				+ (classit.getMaxTheoreticalPossibleCategoryUtility() * ClassitMaxCategoryUtilitySearcher.getAcuity())) / 2.0;
 	}
 }

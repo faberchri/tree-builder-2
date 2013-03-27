@@ -7,21 +7,9 @@ import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.TIntSet;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -34,7 +22,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
  * interface.
  *
  */
-public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher, Serializable {
+public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -45,7 +33,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 */
 	private static final long serialVersionUID = 1L;
 
-
+	
 	@Override
 	public TIntDoubleMap getMaxCategoryUtilityMerges(TIntSet combinationIds,
 			IClusterSetIndexed<INode> clusterSet) {
@@ -54,12 +42,18 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 		
 		List<SplitWorker> workers = new ArrayList<SplitWorker>();
 		List<TIntList> splits = splitCombinationIdsSet(combinationIds);
+		
+		// create new SplitWorker object for each entry in splits
+		// and start SplitWorker in new thread. Allows parallel
+		// category utility calculation.
 		for (TIntList split : splits) {
 			SplitWorker w = new SplitWorker(split, this, clusterSet);
 			workers.add(w);
 			w.start();
 		}
 		TIntDoubleMap res = new TIntDoubleHashMap(combinationIds.size());
+		
+		// wait for completion of each SplitWorker and collect its results
 		for (SplitWorker t : workers) {
 			try {
 				t.join();
@@ -71,6 +65,8 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 			}
 			res.putAll(t.getCalcRes());
 		}
+		
+		// reset static variable of split worker for next clustering cycle
 		SplitWorker.maxCUFound = false;
 				
 		time = System.nanoTime() - time;
@@ -79,6 +75,13 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 		return res;
 	}
 	
+	/**
+	 * Splits the collection of combination ids into that many equally sized lists of
+	 * combination ids as processors are available.
+	 *  
+	 * @param combinationIds collection of possible merges
+	 * @return list of combination id lists
+	 */
 	private List<TIntList> splitCombinationIdsSet(TIntSet combinationIds) {
 		double numOfSplits = Runtime.getRuntime().availableProcessors();
 		int splitSize = (int) Math.ceil((double)combinationIds.size() / numOfSplits);
@@ -100,87 +103,6 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 		return res;
 	}
 	
-
-	
-	@Override
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet) {
-		Logger log = TBLogger.getLogger(getClass().getName());
-		long time = System.nanoTime();
-		
-		// Calculates for all indices combinations in 
-		// combinations the category
-		// utility and stores it in a IMergeResult object.
-		// Add the IMergeResults to a set.
-		Set<IMergeResult> mergeResults = obtainMergeResultsMultithreadedMaxCUCheck(combinationsToCheck);
-
-		time = System.nanoTime() - time;
-		log.finer("Time to calculate new category utility values: " + ( (double) (time) ) / 1000000000.0 + " seconds");
-		return mergeResults;
-	}
-	
-	/**
-	 * Calculates for entries in the combinationIndicesList the resulting IMergeResult
-	 * until a MergeResult has the maximal theoretical possible
-	 * category utility or all entries in the combinationIndicesList are calculated.
-	 * <br>
-	 * Multi-threaded implementation using ExecutorService.
-	 * 
-	 * @param combinations list of merge combinations
-	 * @return the list of all IMergeResults (length of return list == combinationIndicesList.size())
-	 */
-	private Set<IMergeResult> obtainMergeResultsMultithreadedMaxCUCheck(Set<Collection<INode>> combinations) {
-
-		final Logger log = TBLogger.getLogger(getClass().getName());
-
-	    ExecutorService service = new MergeResultThreadPoolExecutor();
-
-	    List<Future<IMergeResult>> futures = new ArrayList<Future<IMergeResult>>(combinations.size());
-	    for (final Collection<INode> possibleMerge : combinations) {
-	        Callable<IMergeResult> callable = new Callable<IMergeResult>() {
-	        	
-	            public IMergeResult call() {
-	    			return new MergeResult(calculateCategoryUtility(possibleMerge), possibleMerge);
-	            }
-	        };
-	        try {
-	        	futures.add(service.submit(callable));
-			} catch (RejectedExecutionException e) {
-				break; 
-			}
-	        
-	    }
-
-	    service.shutdown();
-	    try {
-			service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.severe(e.getStackTrace().toString());
-			log.severe(e.getMessage());
-			log.severe("InterruptedException while awaitTermination for infinite time.");
-			System.exit(-1);
-		}
-
-	    Set<IMergeResult> mergeResults = new HashSet<IMergeResult>(combinations.size());
-	    for (Future<IMergeResult> future : futures) {
-	    	IMergeResult tmp = null;
-
-	    	if (future.isDone()) {
-	    		try {
-	    			tmp = future.get();
-	    		} catch (InterruptedException | ExecutionException e) {
-	    			log.severe(e.getStackTrace().toString());
-	    			log.severe(e.getMessage());
-	    			log.severe("InterruptedException or ExecutionException while" +
-	    					" retrieving utility calculation results from futures.");
-	    			System.exit(-1);
-	    		}
-	    	}
-	    	if (tmp != null) {
-	    		mergeResults.add(tmp);
-	    	}
-	    }
-	    return mergeResults;
-	}
 		
 	/**
 	 * Calculates the category utility according to the implementing subclass (i.e. Cobweb or Classit)
@@ -199,45 +121,4 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	 */
 	protected abstract double getMaxTheoreticalPossibleCategoryUtility();
 	
-	
-	private class MergeResultThreadPoolExecutor extends ThreadPoolExecutor{
-		
-		Logger log = TBLogger.getLogger(getClass().getName());
-		
-		public MergeResultThreadPoolExecutor() {			
-			super(Runtime.getRuntime().availableProcessors(),
-					Runtime.getRuntime().availableProcessors(),
-		    		0L, TimeUnit.MILLISECONDS,
-		    		new LinkedBlockingQueue<Runnable>());
-		}
-		
-		@Override
-    	protected void afterExecute(Runnable r, Throwable t) {
-    		super.afterExecute(r, t);
-    		FutureTask<IMergeResult> ft = (FutureTask<IMergeResult>) r;
-    		try {
-    			IMergeResult mr = ft.get();
-    			if (mr == null) return;
-    			double cu = mr.getCategoryUtility();
-    			double theoreticalMaxCu = getMaxTheoreticalPossibleCategoryUtility();
-    			if (cu >= theoreticalMaxCu) {
-    				if (cu > theoreticalMaxCu) {
-    					// error. shouldn't be possible
-    					log.severe("calculated category utility is greater than teoretical maximum.");
-    					log.severe("Exiting application!");
-    					System.exit(-1);
-    				}
-    				log.fine("Merge result with max theoretical category utility was found." +
-    						" Terminating category utilitie calculation for remaining merges.");
-
-    				shutdownNow();
-    				awaitTermination(2, TimeUnit.SECONDS);
-    			}
-    		} catch (InterruptedException | ExecutionException e) {
-    			log.info("InterruptedException or ExecutionException in attempt " +
-    					"to fetch calculation result in afterExecute call.");  				
-    		}
-    	}
-		
-	}
 }

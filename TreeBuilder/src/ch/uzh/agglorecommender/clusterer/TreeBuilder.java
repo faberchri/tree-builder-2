@@ -4,7 +4,6 @@ import gnu.trove.map.TIntDoubleMap;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -313,48 +312,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 			}
 		}
 	}
-		
-	/**
-	 * Gets the best merge from the passed set and returns the resulting new node.
-	 * 
-	 * @param nodes the set of nodes in which the best merge is searched.
-	 * @param mcus the max category searcher to use
-	 * @return the merge result or null if no possible merge was found.
-	 */
-	private IMergeResult searchBestMergeResult(IClusterSet<INode> nodes, IMaxCategoryUtilitySearcher mcus) {
-
-		if(nodes.size() < 2) return null;
-
-		// get the IMergeResult with the highest utility value
-		// from the obtained IMergeResults
-		IMergeResult best = null;
-		Set<IMergeResult> shortList = mcus.getMaxCategoryUtilityMerges(nodes.getCombinations(), nodes);
-		System.gc();
-		double max = -Double.MAX_VALUE; // initialized with the smallest possible double value
-		for (IMergeResult r : shortList) {
-			double cUt = r.getCategoryUtility();
-			if (max < cUt) {
-				best = r;
-				max = cUt;
-			}
-		}
-		if (best == null) {
-			log.severe("Err: Best merge is == null; in: " + getClass().getSimpleName() );
-			System.exit(-1);
-		}
-
-		log.info("Best node merge has category utility of "
-				+best.getCategoryUtility() +" and includes: " + best.getNodes());
-
-		Monitor counter = Monitor.getInstance();
-
-		log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
-				nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-		//			treeVisualizer.printAllOpenUserNodes();
-		return best;
-	}
-	
-	
+			
 	/**
 	 * Gets the best merge from the passed set and returns the resulting new node.
 	 * 

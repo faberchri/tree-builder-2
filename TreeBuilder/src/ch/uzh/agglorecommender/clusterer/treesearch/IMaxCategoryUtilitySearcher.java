@@ -3,8 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.set.TIntSet;
 
-import java.util.Collection;
-import java.util.Set;
+import java.io.Serializable;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
@@ -16,18 +15,15 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
  * of all possible merges.
  *
  */
-public interface IMaxCategoryUtilitySearcher {
-
+public interface IMaxCategoryUtilitySearcher  extends Serializable {
+	
 	/**
-	 * Searches in {@code combinationsToCheck} for the node combinations for
-	 * which a merge produces a new node with a high category utility value.
+	 * Searches in {@code combinationsIds} for node combinations with a high category utility value.
 	 * 
 	 * @param combinationsToCheck the node combinations to test.
-	 * @return Set of IMergeResult with a high category utility.
+	 * @param clusterSet the node set of the current clustering cycle
+	 * @return A mapping of combination ids to the category utility of the merge.
 	 */
-	public Set<IMergeResult> getMaxCategoryUtilityMerges(Set<Collection<INode>> combinationsToCheck, IClusterSet<INode> clusterSet);
-
-	
 	public TIntDoubleMap getMaxCategoryUtilityMerges(TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet);
 	
 }
