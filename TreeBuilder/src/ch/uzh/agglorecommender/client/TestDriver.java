@@ -81,8 +81,8 @@ public class TestDriver {
 	private static void test(ClusterResult trainingOutput, IDataset<?> testDataset) throws Exception {
 				
 		// Instantiate Tools
-		Evaluator eb 				= new Evaluator();
 		RecommendationBuilder rb 	= new RecommendationBuilder(trainingOutput,testDataset);
+		Evaluator ev 				= new Evaluator(rb);
 		NodeInserter ni 			= new NodeInserter(trainingOutput,TreeComponentFactory.getInstance());
 		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
 		
@@ -92,7 +92,7 @@ public class TestDriver {
 //		System.out.println("-------------------------------");
 //		
 //		Map<INode, String> testNodes 	= eb.getTestUsers(testSet);
-//		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes, rb);
+//		Map<String, Double> eval 		= eb.kFoldEvaluation(testNodes);
 //		eb.printEvaluationResult(eval);
 
 		
@@ -111,7 +111,7 @@ public class TestDriver {
 //		rb.printRecommendation(sortedRecommendation);
 		
 //		// Start UI
-		BasicUI basicUI = new BasicUI(rb,ni);
+		BasicUI basicUI = new BasicUI(rb,ni,ev);
 //		basicUI.startService();
 
 		// Start Web based UI Extension

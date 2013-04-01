@@ -23,6 +23,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.ui.BasicUI;
+import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
 public class WebExtension extends AbstractHandler {
 	
@@ -58,7 +59,6 @@ public class WebExtension extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
 		
-		//********** PreDefinition *******************
 		response.setContentType("text/text");  // text/xml
 	    response.setHeader("Cache-Control", "no-cache");
 	    response.setStatus(HttpServletResponse.SC_OK);
@@ -72,7 +72,11 @@ public class WebExtension extends AbstractHandler {
 				ENodeType type = ENodeType.valueOf(request.getParameter("type"));
 				int limit = Integer.parseInt(request.getParameter("limit"));
 				
-				List<INode> itemList = basicUI.getItemList(type, limit);
+				// Build Node
+				INode inputNode = createNode(request);
+				
+				// Build item list
+				List<INode> itemList = basicUI.getItemList(type, limit, inputNode);
 				
 				response.getWriter().write("<table>");
 				
@@ -82,7 +86,7 @@ public class WebExtension extends AbstractHandler {
 					if(item != null){
 						response.getWriter().write( 
 								"<tr><td>" +
-								"<select id='" + i + "' name=" + item.getDatasetId() +">" +
+								"<select id='" + i + "' title='"+ getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
 								"<option value='not seen'>not seen</option>" +
 								"<option value='1'>1</option>" +
 								"<option value='2'>2</option>" +
@@ -107,63 +111,25 @@ public class WebExtension extends AbstractHandler {
 			
 			else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
 				
-				// Retrieve Type
-				ENodeType type = ENodeType.valueOf(request.getParameter("type"));
-				
-				// Read MetaInfo to List<String> -> attribute+value
-				List<String> numMetaInfo = new LinkedList<String>();
-				String numMetaFull = request.getParameter("nummeta");
-//				System.out.println("nummeta: " + numMetaFull);
-				String[] metaList = numMetaFull.split("\\*");
-				for(String meta : metaList){
-					numMetaInfo.add(meta);
-				}
-				List<String> nomMetaInfo = new LinkedList<String>();
-				String nomMetaFull = request.getParameter("nommeta");
-//				System.out.println("nommeta: " + nomMetaFull);
-				String[] nomMetaList = nomMetaFull.split("\\*");
-				for(String meta : nomMetaList){
-					nomMetaInfo.add(meta);
-				}
-				
-				// Read Ratings to List<String> -> content node+rating
-				List<String> ratings = new LinkedList<String>();
-				String ratingsFull = request.getParameter("ratings");
-				String[] ratingList = ratingsFull.split("\\*");
-				for(String rating : ratingList){
-//					System.out.println(rating);
-					ratings.add(rating);
-				}
-				
-				// Create Node
-//				System.out.println("--------------------");
-//				System.out.println(numMetaInfo.toString());
-//				System.out.println(nomMetaInfo.toString());
-//				System.out.println(ratingList.toString());
-//				System.out.println("--------------------");
-				
-				INode inputNode = basicUI.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
-//				System.out.println("Created Node: " + 
-//						inputNode.toString() + 
-//						inputNode.getNominalAttributesString() + 
-//						inputNode.getNumericalAttributesString() + 
-//						inputNode.getNominalMetaAttributeKeys() +
-//						inputNode.getNumericalMetaAttributeKeys()
-//						);
-//				
-//				System.exit(1);
+				// Build Node
+				INode inputNode = createNode(request);
 				
 				// Create Recommendation
-				if(requestType.equals("recommendation")){	
-					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode);
+				if(requestType.equals("recommendation")){
 					
-					System.out.println("resulting recommendation" + recommendations.toString());
+					long startTime = System.nanoTime();
 					
-					response.getWriter().write("<table style='width:570px'>");
+					TreePosition position = basicUI.getSimilarPosition(inputNode);
+					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode,position.getNode());
+					
+					long endTime = System.nanoTime();
+					long duration = endTime - startTime;
+					
+					String evaluation = basicUI.evaluate(inputNode);
+					
+					response.getWriter().write("<table style='width:100%'>");
 					
 					for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
-						
-//						System.out.println(recommendation.getKey().getNominalAttributesString());
 						
 						String title 	= getMeta(recommendation.getKey(),"title");
 						String url		= "<a href='" + getMeta(recommendation.getKey(),"IMDb URL") + "' target='_blank'>IMDB Link</a>";
@@ -172,10 +138,13 @@ public class WebExtension extends AbstractHandler {
 						Double rating = attribute.getSumOfRatings() / attribute.getSupport();
 						DecimalFormat df = new DecimalFormat("#.##");
 						
-						response.getWriter().write("<tr><td style='width:30px'>" + df.format(rating) + "</td><td style='width:440px'>" + title + "</td><td style='width:100px'>" + url + "</td></tr>");
+						response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'>" + url + "</td></tr>");
 					}
 					
-					response.getWriter().write("</table>");
+					response.getWriter().write("</table><br>");
+					response.getWriter().write("Utility: " + position.getUtility() + "<br><br>");
+					response.getWriter().write(evaluation + "<br>");
+					response.getWriter().write("Duration: " + (duration/1000000000) + " Seconds<br>");
 				}
 				// Write Insertion
 				else if(requestType.equals("insertion")){
@@ -189,13 +158,46 @@ public class WebExtension extends AbstractHandler {
 			response.getWriter().write("<message test>" + request.getParameter("test") + "</message>");
 		}
 	    
-		//********** PostDefinition ******************
 	    response.flushBuffer();
 	    baseRequest.setHandled(true);
-		//********************************************
   }
 	
-	//********* DOPPELT ****************//
+	private INode createNode(HttpServletRequest request){
+		
+		// Retrieve Type
+		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
+		
+		// Read MetaInfo to List<String> -> attribute+value
+		List<String> numMetaInfo = new LinkedList<String>();
+		String numMetaFull = request.getParameter("nummeta");
+		if(numMetaFull != null){
+			String[] metaList = numMetaFull.split("\\*");
+			for(String meta : metaList){
+				numMetaInfo.add(meta);
+			}
+		}
+		List<String> nomMetaInfo = new LinkedList<String>();
+		String nomMetaFull = request.getParameter("nommeta");
+		if(nomMetaFull != null){
+			String[] nomMetaList = nomMetaFull.split("\\*");
+			for(String meta : nomMetaList){
+				nomMetaInfo.add(meta);
+			}
+		}
+		
+		// Read Ratings to List<String> -> content node+rating
+		List<String> ratings = new LinkedList<String>();
+		String ratingsFull = request.getParameter("ratings");
+		if(ratingsFull != null){
+			String[] ratingList = ratingsFull.split("\\*");
+			for(String rating : ratingList){
+				ratings.add(rating);
+			}
+		}
+		
+		return basicUI.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
+	}
+	
 	private String getMeta(INode node, String info){
 		if(node.getNominalAttributeValue(info) != null){
 			Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();

@@ -7,7 +7,17 @@ import java.util.List;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
 
+import com.google.common.collect.ImmutableMap;
+
 public class PositionFinder {
+	
+	SharedMaxCategoryUtilitySearcher cuSearcher;
+	UnpackerTool unpacker;
+	
+	public PositionFinder(ImmutableMap<String,INode> leavesMap){
+		cuSearcher = new SharedMaxCategoryUtilitySearcher();
+		unpacker = new UnpackerTool(leavesMap);
+	}
 	
 	/**
 	 * Finds the best position (most similar node) in the tree for a given node
@@ -18,81 +28,41 @@ public class PositionFinder {
 	 * 
 	 * @param inputNodeID this node is the base of the search
 	 * @param position this is the current starting point of the search
-	 * @param cutoff this is the previously calculated utility value
 	 */
-	public INode findPosition(INode inputNode,INode position,double cutoff) {
+	public TreePosition findPosition(INode inputNode,INode position) {
 		
-//		System.out.println("--------------------");
-//		System.out.println(inputNode.getNumericalAttributesString());
-//		System.out.println(inputNode.getNominalAttributesString());
-//		System.out.println("--------------------");
-		
-		if(inputNode != null) {
+		if(inputNode != null && position != null) {
 			
-			// Establish highest Utility
-			double highestUtility = 0;
-			
-			// Prepare nodes array for utility calculation
+			// Calculate Utility of Position
 			List<INode> nodesToCalculate = new LinkedList<INode>();
+			INode unpackedNode = unpacker.unpack(position);
 			nodesToCalculate.add(inputNode);
-			nodesToCalculate.add(position);
+			nodesToCalculate.add(unpackedNode);
+			double highestUtility = cuSearcher.calculateCategoryUtility(nodesToCalculate);
 			
-			// Establish cut off value when 0, ie. when position is on root
-			SharedMaxCategoryUtilitySearcher cuSearcher = new SharedMaxCategoryUtilitySearcher();
-			if(cutoff == 0) {
-				if(position != null){
-//					cutoff = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
-					cutoff = 0;
-				}
-				else {
-					System.out.println("Root node is null");
-				}
-			}
+			TreePosition bestPosition = new TreePosition(position,highestUtility);
 			
-			if(position != null) {
-				if(position.getChildrenCount() > 0){
+			// Collect Best Position from Children
+			if(position.getChildrenCount() > 0){
 			
-					Iterator<INode> compareSet = position.getChildren();
-					INode nextPosition = null;
-					while(compareSet.hasNext()) {
+				Iterator<INode> children = position.getChildren();
+					
+				while(children.hasNext()) {
 						  
-						INode tempPosition = compareSet.next();
-						nodesToCalculate.set(1, tempPosition);
-						System.out.println(nodesToCalculate);
+					INode child = children.next();
 						
-						double utility = cuSearcher.calculateCategoryUtility(nodesToCalculate);	
-						
-						// Find child with highest utility of all children and higher utility than previously found
-						if(utility >= highestUtility){
-							System.out.println(utility + "/" + tempPosition.toString());
-							highestUtility = utility;
-							nextPosition = tempPosition;
+					// Find child with highest utility of all children and higher utility than previously found
+					TreePosition tempPosition = findPosition(inputNode,child);
+					if(tempPosition != null){
+						if(tempPosition.getUtility() > bestPosition.getUtility()){
+							bestPosition = tempPosition;
 						}
 					}
-					
-					System.out.println(">> " + nextPosition.toString());
-					System.out.println(highestUtility + "/" + cutoff);
-					
-//					System.exit(1);
-					// Make decision based on calculated highestUtility
-					if(highestUtility >= cutoff) {
-						INode finalPosition = findPosition(inputNode,nextPosition,cutoff);
-						if (finalPosition != null){
-							return finalPosition;
-						}
-					}
-					else {
-						System.out.println("Best position was found in tree: " + position.toString());
-						return position;
-					}
 				}
-				else {
-					System.out.println("Best position was found in leaf: " + position.toString());
-					return position;
-				}
+				return bestPosition;
 			}
+			return bestPosition;
 		}
-		System.out.println("Input node was null");
 		return null;
 	}
 }

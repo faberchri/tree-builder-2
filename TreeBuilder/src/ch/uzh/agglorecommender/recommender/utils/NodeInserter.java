@@ -13,7 +13,7 @@ public class NodeInserter {
 	
 	ClusterResult clusterResult = null;
 	TreeComponentFactory userTreeComponentFactory = null;
-	static PositionFinder positionFinder  = new PositionFinder();
+	static PositionFinder positionFinder  = new PositionFinder(null);
 	
 	public NodeInserter(ClusterResult clusterResult, TreeComponentFactory treeComponentFactory){
 		this.clusterResult = clusterResult;
@@ -45,9 +45,9 @@ public class NodeInserter {
 	 */
 	public static void newNode(INode node) {
 		
-		INode position = positionFinder.findPosition(node, null, 0);
+		TreePosition position = positionFinder.findPosition(node, null);
 		if(position != null){
-			position.addChild(node);
+			position.getNode().addChild(node);
 		}
 	}
 	
@@ -60,22 +60,22 @@ public class NodeInserter {
 	public void incorporateNode(INode node) {
 			
 		// Find position to insert node
-		INode position = positionFinder.findPosition(node, null, 0);
+		TreePosition position = positionFinder.findPosition(node, null);
 			
 		if(position != null){
 			
 			// Create new Node
 			List<INode> nodesToMerge = new LinkedList<INode>();
 			nodesToMerge.add(node);
-			nodesToMerge.add(position);
+			nodesToMerge.add(position.getNode());
 			
 			INode newNode = userTreeComponentFactory.createInternalNode(
 					ENodeType.User,
 					nodesToMerge,0); // FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
 			
 			// Insert new Node into tree
-			newNode.setParent(position.getParent());
-			Iterator<INode> children = position.getChildren();
+			newNode.setParent(position.getNode().getParent());
+			Iterator<INode> children = position.getNode().getChildren();
 			while(children.hasNext()){	
 				INode child = children.next();
 				child.setParent(newNode);

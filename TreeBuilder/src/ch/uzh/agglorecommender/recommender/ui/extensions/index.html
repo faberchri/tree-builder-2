@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Recommendation Web UI</title>
 <link rel="stylesheet" type="text/css" href="style.css">
 <script>
 
-	<!-- Parameter -->
-	var min = 3;
+    <!-- Parameter -->
+	var min = 0;
 	
 	<!-- Lists -->
 	var metax = new Array();
 	var metay = new Array();
 	var ratings = new Array();
+	var ratingsView = new Array();
 	
 	<!-- Ajax ---------->
 	function check(){
@@ -37,47 +39,69 @@
 		}
 		
 		<!--- grab ratings ---->
-		for(var i = 1;i <= 10;i++){
+		for(var i = 1;i <= 100;i++){
 			var rating_element = document.getElementById(i);
 			if(rating_element != null){
 				var datasetID = rating_element.getAttribute("name");
+				var title = rating_element.getAttribute("title");
 				var rating = rating_element.value;
-				if(rating != 'not seen') {
+				if(rating != "not seen") {
 					ratings[ratings.length] = datasetID + '-' + rating;
+					ratingsView[ratingsView.length] = "<td style='width:10%'>" + rating + "</td><td style='width:90%'>" + title + "</td>";
+					updateRatingsView();
 				}
+			}
+			else {
+				break;
 			}
 		}
 		
 		counter.innerText = "Movies (" + ratings.length + " von mind. " + min + " Ratings abgegeben)";
 		
+		<!-- collect -->
+		var metaxParameter = "";
+		for(var j = 0;j < metax.length;j++){
+			metaxParameter = metaxParameter + metax[j] + "*";
+		}
+		
+		var metayParameter = "";
+		for(var j = 0;j < metay.length;j++){
+			metayParameter = metayParameter + metay[j] + "*";
+		}
+		
+		var ratingParameter = "";
+		for(var j = 0;j < ratings.length;j++){
+			ratingParameter = ratingParameter + ratings[j] + "*";
+		}
+		
 		<!-- send -->
 		if(ratings.length >= min){
-			
-			var metaxParameter = "";
-			for(var j = 0;j < metax.length;j++){
-				metaxParameter = metaxParameter + metax[j] + "*";
-			}
-			
-			var metayParameter = "";
-			for(var j = 0;j < metay.length;j++){
-				metayParameter = metayParameter + metay[j] + "*";
-			}
-			
-			var ratingParameter = "";
-			for(var j = 0;j < ratings.length;j++){
-				ratingParameter = ratingParameter + ratings[j] + "*";
-			}
-			
+			document.getElementById('recommendations').innerHTML="<img src='ajax-loader.gif' border='0'> Calulating Recommendations... Please Wait";
 			ajax("request=recommendation&type=User&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
 		}
 		
-		ajax('type=User&limit=15&request=item','s','movies'); <!-- load more movies to rate -->
+		ajax("request=items&type=User&limit=15&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","s","movies"); <!-- load more movies to rate -->
+	}
+	
+	function updateRatingsView(){
+		
+		var ratingText = "<table style='width:100%'>";
+		
+	    for(var i = 0;i < ratingsView.length; i++) {
+	  		var element = ratingsView[i];
+	  		ratingText = ratingText + "<tr>" + element + "</tr>";
+		}
+	    
+	    ratingText = ratingText + "</table>";
+
+	    document.getElementById('ratings').innerHTML = ratingText;
 	}
 	
 	function ajax(parameters,str,update){
+		
 		var xmlhttp;
 		if (str.length==0){ 
-  			document.getElementById(update).innerHTML="";
+  			document.getElementById(update).innerHTML = "";
   			return;
   		}
 		if (window.XMLHttpRequest){
@@ -88,19 +112,21 @@
 			// code for IE6, IE5
   			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
   		}
+		
 		xmlhttp.onreadystatechange=function(){
   			if (xmlhttp.readyState==4 && xmlhttp.status==200){
     			document.getElementById(update).innerHTML=xmlhttp.responseText;
     		}
   		}
-	xmlhttp.open("GET","http://localhost:8081/ajax?" + parameters + str, true);
-	xmlhttp.send();
+		
+		xmlhttp.open("GET","http://localhost:8081/ajax?" + parameters + str, true);
+		xmlhttp.send();
 }
 
 
 </script>
 </head>
-<body onload="ajax('type=User&limit=15&request=item','s','movies')">
+<body onload='check();'>
 
 <div id='wrapper' align="center">
 <!-- <div id='main' align="left"> -->
@@ -150,10 +176,20 @@
 
 <!-- Recommendation Side ---------->
 <div id="recommendation">
-<h3>Recommendations</h3>
-<div id="recommendations">Not enough movies rated..</div>
-<!-- </div> -->
+	<h3>Recommendations</h3>
+	<div id="recommendations">Please provide some information..</div>
+	</div>
 </div>
+
+<!-- Additional Information -->
+<div id="additional" align="left">
+	
+	<!-- My Ratings -->
+	<div id="myratings">
+		<h3>Previous Ratings</h3>
+		<div id="ratings">No movies have been rated..</div>
+	</div>
 </div>
+
 </body>
 </html>
