@@ -145,11 +145,9 @@ public class WebExtension extends AbstractHandler {
 					response.getWriter().write("Utility: " + position.getUtility() + "<br><br>");
 					response.getWriter().write(evaluation + "<br>");
 					response.getWriter().write("Duration: " + (duration/1000000000) + " Seconds<br>");
-				}
-				// Write Insertion
-				else if(requestType.equals("insertion")){
-					Boolean success = basicUI.insert(inputNode);
-					response.getWriter().write("<message insertion>" + success + "</message>");
+					
+					Boolean success = false; //basicUI.insert(inputNode);
+					response.getWriter().write("Insertion: " + success + "<br>");
 				}
 			}
 	    }

@@ -4,20 +4,19 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
+import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
 
 public class NodeInserter {
 	
-	ClusterResult clusterResult = null;
-	TreeComponentFactory userTreeComponentFactory = null;
-	static PositionFinder positionFinder  = new PositionFinder(null);
+	static TreeComponentFactory userTreeComponentFactory = null;
+	private static RecommendationBuilder rb;
 	
-	public NodeInserter(ClusterResult clusterResult, TreeComponentFactory treeComponentFactory){
-		this.clusterResult = clusterResult;
+	public NodeInserter(RecommendationBuilder rb, TreeComponentFactory treeComponentFactory){
 		this.userTreeComponentFactory = treeComponentFactory;
+		this.rb = rb;
 	}
 	
 	/**
@@ -29,12 +28,21 @@ public class NodeInserter {
 	 */
 	public static Boolean insert(INode node) {
 		
-		// Find fitting method of insertion
-		// FIXME Implement
+		boolean result = false;
 		
-		newNode(node);
+		TreePosition position = rb.findMostSimilar(node);
 		
-		return true;
+		if(position != null){
+		
+			if(position.getUtility() > 0.2){
+				result = incorporateNode(node,position);
+			}
+			else {
+				result = newNode(node,position);
+			}
+		}
+		
+		return result;
 	}
 
 	/**
@@ -43,12 +51,18 @@ public class NodeInserter {
 	 * @param node this node is going to be inserted
 	 * 
 	 */
-	public static void newNode(INode node) {
+	public static boolean newNode(INode node, TreePosition position) {
 		
-		TreePosition position = positionFinder.findPosition(node, null);
-		if(position != null){
-			position.getNode().addChild(node);
+		try {
+			if(position != null){
+				position.getNode().addChild(node);
+			}
 		}
+		catch (Exception e){
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -57,31 +71,35 @@ public class NodeInserter {
 	 * @param node this node is going to be incorporated
 	 * 
 	 */
-	public void incorporateNode(INode node) {
-			
-		// Find position to insert node
-		TreePosition position = positionFinder.findPosition(node, null);
-			
-		if(position != null){
-			
-			// Create new Node
-			List<INode> nodesToMerge = new LinkedList<INode>();
-			nodesToMerge.add(node);
-			nodesToMerge.add(position.getNode());
-			
-			INode newNode = userTreeComponentFactory.createInternalNode(
-					ENodeType.User,
-					nodesToMerge,0); // FIXME: Wie/auf welchem Weg muss die CU berechnet werden?
-			
-			// Insert new Node into tree
-			newNode.setParent(position.getNode().getParent());
-			Iterator<INode> children = position.getNode().getChildren();
-			while(children.hasNext()){	
-				INode child = children.next();
-				child.setParent(newNode);
-				newNode.addChild(child);
+	public static boolean incorporateNode(INode node, TreePosition position) {
+		
+		try {
+			if(position != null){
+				
+				// Create new Node
+				List<INode> nodesToMerge = new LinkedList<INode>();
+				nodesToMerge.add(node);
+				nodesToMerge.add(position.getNode());
+				
+				INode newNode = userTreeComponentFactory.createInternalNode(
+						ENodeType.User,
+						nodesToMerge,0);
+				
+				// Insert new Node into tree
+				newNode.setParent(position.getNode().getParent());
+				Iterator<INode> children = position.getNode().getChildren();
+				while(children.hasNext()){	
+					INode child = children.next();
+					child.setParent(newNode);
+					newNode.addChild(child);
+				}
 			}
 		}
+		catch (Exception e){
+			return false;
+		}
+		
+		return true;
 	}
 
 }

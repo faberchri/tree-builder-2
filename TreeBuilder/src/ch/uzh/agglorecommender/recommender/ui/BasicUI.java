@@ -103,7 +103,7 @@ public class BasicUI {
 		// MUSS HIER DIE DATASET ITEM ID DEFINIEREN -> +1 der anzahl leaf nodes dieses Typs
 		//*********//
 		
-		Boolean result = this.ni.insert(inputNode);
+		boolean result = ni.insert(inputNode);
 		return result;
 	}
 	

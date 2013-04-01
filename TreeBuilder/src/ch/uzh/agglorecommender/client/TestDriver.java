@@ -83,7 +83,7 @@ public class TestDriver {
 		// Instantiate Tools
 		RecommendationBuilder rb 	= new RecommendationBuilder(trainingOutput,testDataset);
 		Evaluator ev 				= new Evaluator(rb);
-		NodeInserter ni 			= new NodeInserter(trainingOutput,TreeComponentFactory.getInstance());
+		NodeInserter ni 			= new NodeInserter(rb,TreeComponentFactory.getInstance());
 		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
 		
 //		// Run Quantitative Evaluation
