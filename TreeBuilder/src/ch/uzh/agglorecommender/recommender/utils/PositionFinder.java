@@ -50,12 +50,17 @@ public class PositionFinder {
 				while(children.hasNext()) {
 						  
 					INode child = children.next();
-						
-					// Find child with highest utility of all children and higher utility than previously found
-					TreePosition tempPosition = findPosition(inputNode,child);
-					if(tempPosition != null){
-						if(tempPosition.getUtility() > bestPosition.getUtility()){
-							bestPosition = tempPosition;
+					
+					// Skip on child if no rated movie is included
+					boolean relevant = checkRelevance(inputNode,child);
+					
+					if(relevant){
+						// Find child with highest utility of all children and higher utility than previously found
+						TreePosition tempPosition = findPosition(inputNode,child);
+						if(tempPosition != null){
+							if(tempPosition.getUtility() > bestPosition.getUtility()){
+								bestPosition = tempPosition;
+							}
 						}
 					}
 				}
@@ -65,4 +70,21 @@ public class PositionFinder {
 		}
 		return null;
 	}
+	
+	private boolean checkRelevance (INode input, INode test){
+		
+		int count = 0;
+		for(INode rating : input.getRatingAttributeKeys()){
+			for(String id : rating.getDataSetIds()){
+				for(INode ratingChild : test.getRatingAttributeKeys()){
+					if(ratingChild.getDataSetIds().contains(id)){
+						return true;
+					}
+				}
+			
+			}
+		}
+		
+		return false;
+	}	
 }

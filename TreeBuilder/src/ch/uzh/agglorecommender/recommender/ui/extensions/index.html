@@ -15,7 +15,7 @@
 	var ratingsView = new Array();
 	
 	<!-- Ajax ---------->
-	function check(){
+	function check(run){
 		
 		var i;
 		var meta_element;
@@ -75,7 +75,7 @@
 		}
 		
 		<!-- send -->
-		if(ratings.length >= min){
+		if(ratings.length >= min && run == 1){
 			document.getElementById('recommendations').innerHTML="<img src='ajax-loader.gif' border='0'> Calulating Recommendations... Please Wait";
 			ajax("request=recommendation&type=User&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
 		}
@@ -126,7 +126,7 @@
 
 </script>
 </head>
-<body onload='check();'>
+<body onload='check(0);'>
 
 <div id='wrapper' align="center">
 <!-- <div id='main' align="left"> -->
@@ -170,7 +170,7 @@
 <br>
 
 <!--- Fake Form --->
-<input type="submit" onclick="check()" value="Senden">
+<input type="submit" onclick="check(1)" value="Senden">
 
 </div>
 

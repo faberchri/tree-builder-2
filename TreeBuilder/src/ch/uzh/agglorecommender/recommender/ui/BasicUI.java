@@ -283,9 +283,6 @@ public class BasicUI {
 				pickedRatings.put(inputRating,inputNode.getNumericalAttributeValue(inputRating));
 				percentage += 1/count;
 			}
-			else {
-				
-			}
 		}
 		inputNode.setRatingAttributes(pickedRatings);
 		
