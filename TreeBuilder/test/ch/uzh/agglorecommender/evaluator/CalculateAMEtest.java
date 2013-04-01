@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitTreeComponentFactory;
+import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -33,33 +33,29 @@ public class CalculateAMEtest {
 		System.out.println("Starting AME test I..");
 	
 	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(4.0);
-	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(3.0);
+	IAttribute testNodeA1 = new ClassitAttribute(1,4,16);
+	IAttribute testNodeA2 = new ClassitAttribute(1,3,9);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
-	INode nodeAttribute2 = new Node(ENodeType.Content,1);
+	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
+	INode nodeAttribute2 = new Node(ENodeType.Content,null, null);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 3);
-	testNode.setNumericalAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, null, null);
+	testNode.setRatingAttributes(attMap);
 
 	System.out.println("Test node: "+testNode.getNumericalAttributesString());
 	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(5.0);
-	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(8.0);
+	IAttribute predictedA1 = new ClassitAttribute(1,5,25);
+	IAttribute predictedA2 = new ClassitAttribute(1,8,64);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -98,33 +94,29 @@ public class CalculateAMEtest {
 		System.out.println("Starting AME test II");
 	
 	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
-	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute testNodeA1 = new ClassitAttribute(1,0,0);
+	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
+	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
+	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 3);
-	testNode.setNumericalAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, null, null);
+	testNode.setRatingAttributes(attMap);
 	
 	System.out.println("Test node: "+testNode.getNumericalAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
-	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
+	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -162,33 +154,29 @@ public class CalculateAMEtest {
 		System.out.println("Starting AME test III");
 	
 	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
-	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
+	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
+	IAttribute testNodeA2 = new ClassitAttribute(1,10,100);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
-	INode nodeAttribute2 = new Node(ENodeType.Content,1);
+	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
+	INode nodeAttribute2 = new Node(ENodeType.Content,null, null);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 3);
-	testNode.setNumericalAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, null, null);
+	testNode.setRatingAttributes(attMap);
 
 	System.out.println("Test node: "+testNode.getNumericalAttributesString());
 	
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
-	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
+	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -226,33 +214,29 @@ public class CalculateAMEtest {
 		System.out.println("Starting AME test IV");
 	
 	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
-	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
+	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
+	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
+	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 3);
-	testNode.setNumericalAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, null, null);
+	testNode.setRatingAttributes(attMap);
 	
 	System.out.println("Test node: "+testNode.getNumericalAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
-	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
+	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
+	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
@@ -290,33 +274,29 @@ public class CalculateAMEtest {
 		System.out.println("Starting AME test V");
 	
 	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
-	IAttribute testNodeA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
+	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
 	
 	// ClassitAttribute map of node 1
 	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
 	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, 0);
-	INode nodeAttribute2 = new Node(ENodeType.Content, 1);
+	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
+	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
 	
 	// add the corresponding attributes to the attribute map of node 1
 	attMap.put(nodeAttribute1, testNodeA1);
 	attMap.put(nodeAttribute2, testNodeA2);
 	
 	// create node 1
-	INode testNode = new Node(ENodeType.User, 3);
-	testNode.setNumericalAttributes(attMap);
+	INode testNode = new Node(ENodeType.User, null, null);
+	testNode.setRatingAttributes(attMap);
 	
 	System.out.println("Test node: "+testNode.getNumericalAttributesString());
 
 	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(10.0);
-	IAttribute predictedA2 = ClassitTreeComponentFactory.getInstance()
-			.createNumericalLeafAttribute(0.0);
+	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
+	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
 	
 	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
 	//????
