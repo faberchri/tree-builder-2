@@ -136,7 +136,7 @@ public class Evaluator {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	public double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
+	private double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
