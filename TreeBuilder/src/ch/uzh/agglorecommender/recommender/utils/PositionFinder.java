@@ -1,21 +1,27 @@
 package ch.uzh.agglorecommender.recommender.utils;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
+import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 
 import com.google.common.collect.ImmutableMap;
 
 public class PositionFinder {
 	
-	SharedMaxCategoryUtilitySearcher cuSearcher;
+	CobwebMaxCategoryUtilitySearcher cobwebSearcher;
+	ClassitMaxCategoryUtilitySearcher classitSearcher;
+	
 	UnpackerTool unpacker;
 	
 	public PositionFinder(ImmutableMap<String,INode> leavesMap){
-		cuSearcher = new SharedMaxCategoryUtilitySearcher();
+		this.cobwebSearcher = new CobwebMaxCategoryUtilitySearcher();
+		this.classitSearcher = new ClassitMaxCategoryUtilitySearcher();
 		unpacker = new UnpackerTool(leavesMap);
 	}
 	
@@ -29,7 +35,7 @@ public class PositionFinder {
 	 * @param inputNodeID this node is the base of the search
 	 * @param position this is the current starting point of the search
 	 */
-	public TreePosition findPosition(INode inputNode,INode position) {
+	public TreePosition findPosition(INode inputNode,INode position,double level) {
 		
 		if(inputNode != null && position != null) {
 			
@@ -38,9 +44,34 @@ public class PositionFinder {
 			INode unpackedNode = unpacker.unpack(position);
 			nodesToCalculate.add(inputNode);
 			nodesToCalculate.add(unpackedNode);
-			double highestUtility = cuSearcher.calculateCategoryUtility(nodesToCalculate);
 			
-			TreePosition bestPosition = new TreePosition(position,highestUtility);
+			// Determine Weight
+			Set<Object> numAtts = new HashSet<Object>();
+			Set<Object> nomAtts = new HashSet<Object>();
+			for (INode n : nodesToCalculate) {
+				numAtts.addAll(n.getRatingAttributeKeys());
+				numAtts.addAll(n.getNumericalMetaAttributeKeys());
+				nomAtts.addAll(n.getNominalMetaAttributeKeys());
+			}
+			
+			double numOfNomAtts = nomAtts.size();
+			double numOfNumAtts = numAtts.size();
+
+			double sumOfAtts = numOfNomAtts + numOfNumAtts;
+			
+			double cobweb = cobwebSearcher.calculateCategoryUtility(nodesToCalculate);
+			double classit = cobwebSearcher.calculateCategoryUtility(nodesToCalculate);
+			
+			double highestUtility = 0;
+			if(classit == 0){
+				highestUtility = cobweb;
+			}
+			else {
+				highestUtility += classit * (numOfNumAtts / sumOfAtts);
+		 		highestUtility += cobweb * (numOfNomAtts / sumOfAtts);
+			}
+			
+			TreePosition bestPosition = new TreePosition(position,highestUtility,level);
 			
 			// Collect Best Position from Children
 			if(position.getChildrenCount() > 0){
@@ -56,10 +87,15 @@ public class PositionFinder {
 					
 					if(relevant){
 						// Find child with highest utility of all children and higher utility than previously found
-						TreePosition tempPosition = findPosition(inputNode,child);
+						TreePosition tempPosition = findPosition(inputNode,child,level+1);
 						if(tempPosition != null){
 							if(tempPosition.getUtility() > bestPosition.getUtility()){
 								bestPosition = tempPosition;
+							}
+							else if(tempPosition.getUtility().equals(bestPosition.getUtility())){
+								if(tempPosition.getLevel() > bestPosition.getLevel()){
+									bestPosition = tempPosition;
+								}
 							}
 						}
 					}
@@ -73,7 +109,12 @@ public class PositionFinder {
 	
 	private boolean checkRelevance (INode input, INode test){
 		
-		int count = 0;
+		// Case I: No Ratings
+		if(input.getRatingAttributeKeys().size() == 0){
+			return true;
+		}
+		
+		// Case II: Ratings exist
 		for(INode rating : input.getRatingAttributeKeys()){
 			for(String id : rating.getDataSetIds()){
 				for(INode ratingChild : test.getRatingAttributeKeys()){

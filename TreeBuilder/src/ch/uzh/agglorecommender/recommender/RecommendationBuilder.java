@@ -14,12 +14,12 @@ import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.IDataset;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.utils.PositionFinder;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
+import ch.uzh.agglorecommender.recommender.utils.UnpackerTool;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -179,37 +179,47 @@ public final class RecommendationBuilder {
 	 */
 	public Map<INode, IAttribute> recommend(INode position, List<String> watched) {
 		
+		UnpackerTool unpacker = new UnpackerTool(leavesMapC);
+		INode unpacked = unpacker.unpack(position);
+		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
-		for(INode attKey : position.getRatingAttributeKeys()){
-			
-			List<INode> attributeLeafNodes = collectLeaves(attKey,null);
-			
-			// Find leaf nodes of attribute
-			for(INode attLeaf : attributeLeafNodes){
-				
-				// Watched check
-				if(!watched.contains(attLeaf.getDatasetId())){
-					
-					// Already in recommendation?
-					if(recommendation.containsKey(attLeaf)){
-						
-						// Identify ratings
-						IAttribute oldAtt = recommendation.get(attLeaf);
-						IAttribute newAtt = position.getNumericalAttributeValue(attKey);
-							
-						// Add Merged Node
-						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
-						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
-						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
-						recommendation.put(attLeaf, merged);
-					}
-					else{
-						recommendation.put(attLeaf, position.getNumericalAttributeValue(attKey));
-					}
-				}
-			}		
+		for(INode attKey : unpacked.getRatingAttributeKeys()){
+			if(!(watched.contains(attKey.getDatasetId()))){
+				recommendation.put(attKey, unpacked.getNumericalAttributeValue(attKey));
+			}
 		}
+		
+//		for(INode attKey : position.getRatingAttributeKeys()){
+//			
+//			List<INode> attributeLeafNodes = collectLeaves(attKey,null);
+//			
+//			// Find leaf nodes of attribute
+//			for(INode attLeaf : attributeLeafNodes){
+//				
+//				// Watched check
+//				if(!watched.contains(attLeaf.getDatasetId())){
+//					
+//					// Already in recommendation?
+//					if(recommendation.containsKey(attLeaf)){
+//						
+//						// Identify ratings
+//						IAttribute oldAtt = recommendation.get(attLeaf);
+//						IAttribute newAtt = position.getNumericalAttributeValue(attKey);
+//							
+//						// Add Merged Node
+//						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
+//						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
+//						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
+//						recommendation.put(attLeaf, merged);
+//					}
+//					else{
+//						recommendation.put(attLeaf, position.getNumericalAttributeValue(attKey));
+//					}
+//				}
+//			}		
+//		}
+		
 	    return recommendation;
 	}
 
@@ -405,7 +415,7 @@ public final class RecommendationBuilder {
 	public TreePosition findMostSimilar(INode inputNode){
 		
 		// Find position of the similar node in the tree
-		TreePosition position = new TreePosition(null,null);
+		TreePosition position = new TreePosition(null,0,0);
 		if(inputNode.isLeaf()){
 			if(inputNode.getNodeType() == ENodeType.User)
 				position.setNode(leavesMapU.get(inputNode.getDatasetId()));
@@ -415,11 +425,11 @@ public final class RecommendationBuilder {
 		else {
 			if(inputNode.getNodeType() == ENodeType.User){
 				PositionFinder finder = new PositionFinder(leavesMapC);
-				position = finder.findPosition(inputNode,rootU);
+				position = finder.findPosition(inputNode,rootU,1);
 			}
 			else if(inputNode.getNodeType() == ENodeType.Content){
 				PositionFinder finder = new PositionFinder(leavesMapU);
-				position = finder.findPosition(inputNode,rootC);
+				position = finder.findPosition(inputNode,rootC,1);
 			}
 		}
 		

@@ -5,11 +5,13 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 public class TreePosition {
 	
 	private INode node;
-	private Double utility;
+	private double utility;
+	private double level;
 
-	public TreePosition(INode position, Double utility){
+	public TreePosition(INode position, double utility, double level){
 		this.node = position;
 		this.utility = utility;
+		this.level = level;
 	}
 
 	public INode getNode() {
@@ -28,8 +30,16 @@ public class TreePosition {
 		this.utility = utility;
 	}
 	
+	public double getLevel() {
+		return level;
+	}
+
+	public void setLevel(double level) {
+		this.level = level;
+	}
+	
 	public String toString() {
-		return node.toString() + " / Utility: " + utility;
+		return node.toString() + " / Utility: " + utility + " / Level: " + level;
 	}
 
 }

@@ -15,6 +15,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
 
+import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
@@ -34,11 +35,13 @@ public class BasicUI {
 	private NodeInserter ni;
 	private boolean listen;
 	private Evaluator ev;
+	private INode rootU;
 
-	public BasicUI(RecommendationBuilder rb, NodeInserter ni, Evaluator ev) {
+	public BasicUI(RecommendationBuilder rb, NodeInserter ni, Evaluator ev, ClusterResult clusterResult) {
 		this.rb = rb;
 		this.ni = ni;
 		this.ev = ev;
+		this.rootU = clusterResult.getUserTreeRoot();
 		this.listen = true;
 	}
 
@@ -138,9 +141,9 @@ public class BasicUI {
 			}
 		}
 		
-		Map<String,IAttribute> nomMetaMap = buildNominalAttributes(nomMetaMapTemp);
-		Map<String,IAttribute> numMetaMap = buildNominalAttributes(numMetaMapTemp);
-		Map<INode,IAttribute> ratingsMap =  buildNumericalAttributes(ratingMapTemp,type);
+		Map<String,IAttribute> nomMetaMap = buildNomMetaAttributes(nomMetaMapTemp);
+		Map<String,IAttribute> numMetaMap = buildNumMetaAttributes(numMetaMapTemp);
+		Map<INode,IAttribute> ratingsMap =  buildRatingAttributes(ratingMapTemp,type);
 		
 		// Get dataset for configuration -> FIXME
 		IDataset<?> dataset = rb.getDataset();
@@ -148,7 +151,10 @@ public class BasicUI {
 		Collection<INode> fakeChildren = new HashSet<>();
 		fakeChildren.add(fakeChild);
 		
-		return new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
+		INode newNode = new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
+		newNode.addChild(rootU);
+		
+		return newNode;
 	}
 	
 	public List<INode> getItemList(ENodeType type, int limit, INode inputNode){
@@ -190,7 +196,7 @@ public class BasicUI {
 		return lines;
 	}
 
-	private static Map<INode, IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
+	private static Map<INode, IAttribute> buildRatingAttributes(Map<String,String> attributes, ENodeType type) {
 	
 		Map<INode,IAttribute> numAttributes = new HashMap<>();
 		for(String datasetID: attributes.keySet()){
@@ -209,7 +215,7 @@ public class BasicUI {
 		
 		return numAttributes;
 	}
-	
+
 	private static INode findNode(String datasetIDString, ENodeType type) {
 		
 		int datasetID;
@@ -224,14 +230,28 @@ public class BasicUI {
 		return rb.findNode(datasetID,type);
 	}
 
-	private static Map<String, IAttribute> buildNominalAttributes(Map<String,String> attributes) {
-		Map<String,IAttribute> nominalAttributes = new HashMap<>();
+	private static Map<String, IAttribute> buildNomMetaAttributes(Map<String,String> attributes){
+		
+		Map<String,IAttribute> nomMeta = new HashMap<>();
 		for(String attKey : attributes.keySet()){
 			Map<String,Double> probabilityMap = new HashMap<String,Double>();
 			probabilityMap.put(attributes.get(attKey),1.0);
-			nominalAttributes.put(attKey, new CobwebAttribute(probabilityMap));
+			nomMeta.put(attKey, new CobwebAttribute(probabilityMap));
 		}
-		return nominalAttributes;
+		
+		return nomMeta;
+	}
+	
+	private static Map<String, IAttribute> buildNumMetaAttributes(Map<String,String> attributes){
+		
+		Map<String,IAttribute> numMeta = new HashMap<>();
+		for(String attKey : attributes.keySet()){
+			int rating = Integer.parseInt(attributes.get(attKey));
+			IAttribute attribute = new ClassitAttribute(1,rating,Math.pow(rating,2));
+			numMeta.put(attKey, attribute);
+		}
+		
+		return numMeta;
 	}
 	
 	

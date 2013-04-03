@@ -111,7 +111,7 @@ public class TestDriver {
 //		rb.printRecommendation(sortedRecommendation);
 		
 //		// Start UI
-		BasicUI basicUI = new BasicUI(rb,ni,ev);
+		BasicUI basicUI = new BasicUI(rb,ni,ev,trainingOutput);
 //		basicUI.startService();
 
 		// Start Web based UI Extension
