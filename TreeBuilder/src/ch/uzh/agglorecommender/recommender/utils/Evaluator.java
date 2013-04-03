@@ -19,6 +19,19 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Evaluator {
 	
+	private ImmutableMap<String, INode> leavesMapU;
+	private ImmutableMap<String, INode> leavesMapC;
+	private INode rootU;
+	private INode rootC;
+	private RecommendationBuilder rb;
+
+	public Evaluator(RecommendationBuilder rb){
+		
+		// Retrieve Root Nodes of the user tree
+		this.rb				= rb;
+		
+	}
+	
 	/**
 	 * Creates usable Map of test users for evaluation
 	 * Helper method for recommendations of type 1 (rmse test)
@@ -44,7 +57,7 @@ public class Evaluator {
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 * 
 	 */
-	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes, RecommendationBuilder rb) throws NullPointerException{
+	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes) throws NullPointerException{
 		
 		System.out.println("kFoldEvaluation started..");
 			
@@ -57,7 +70,7 @@ public class Evaluator {
 		// Calculate evaluation for all test nodes and update mean
 		for(INode testNode : testNodes.keySet()) {
 			
-			eval = evaluate(testNode,rb);
+			eval = evaluate(testNode);
 				
 			for(String evalMethod : totalEvalValue.keySet()){
 				if(eval.get(evalMethod) != null){
@@ -83,16 +96,15 @@ public class Evaluator {
 	 * @param testnode this node is from the test set
 	 * @param rb this recommendation builder was initialized with the tree of the training set
 	 */
-	public Map<String,Double> evaluate(INode testNode, RecommendationBuilder rb) throws NullPointerException {
-		
-//		System.out.println("evaluating");
+	public Map<String,Double> evaluate(INode testNode) throws NullPointerException {
 		
 		if(testNode != null){
 			
-			// Get Predicitions & Real Values
-			Map<String, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode);
+			// Find position of the similar node in the tree
+			TreePosition position = rb.findMostSimilar(testNode);
 			
-//			System.out.println("received ratings");
+			// Get Predicitions & Real Values
+			Map<String, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode,position.getNode());
 			
 			if(predictedRatings != null) {
 				
@@ -101,8 +113,6 @@ public class Evaluator {
 				// Pick the real ratings for the predicted ratings from the recommendation
 				eval.put("RMSE",calculateRMSE(testNode, predictedRatings));
 				eval.put("AME",calculateAME(testNode, predictedRatings));
-				
-				System.out.println(eval.toString());
 				
 				return eval;
 				

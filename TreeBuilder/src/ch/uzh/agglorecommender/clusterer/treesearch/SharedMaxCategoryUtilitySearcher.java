@@ -62,7 +62,7 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		double utility = 0.0;
 		utility += classit.calculateCategoryUtility(possibleMerge) * ((double)numOfNumAtts / sumOfAtts);
  		utility += cobweb.calculateCategoryUtility(possibleMerge) * ((double)numOfNomAtts / sumOfAtts);
-				
+ 		
 		return utility;
 	}
 

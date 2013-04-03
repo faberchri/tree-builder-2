@@ -14,11 +14,12 @@ import java.util.TreeMap;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.IDataset;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.utils.PositionFinder;
+import ch.uzh.agglorecommender.recommender.utils.TreePosition;
+import ch.uzh.agglorecommender.recommender.utils.UnpackerTool;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -55,9 +56,6 @@ public final class RecommendationBuilder {
 		this.leavesMapC 	= clusterResult.getContentTreeLeavesMap();
 		this.dataset		= testDataset;
 		
-		// Parameters for Recommendation
-//		this.radiusU = radiusU;
-//		this.radiusC = radiusC;
 	}
 	
 	/**
@@ -65,14 +63,9 @@ public final class RecommendationBuilder {
 	 * This recommendation type allows to calculate an RMSE value that indicates the quality
 	 * of the recommendations produced by the clusterer
 	 */
-	public Map<String, IAttribute> runQuantitativeTest(INode testNode){
-		
-		// Find position of the similar node in the tree
-		INode position = leavesMapU.get(testNode.getDatasetId());
+	public Map<String, IAttribute> runQuantitativeTest(INode testNode, INode position){
 		
 		try {
-			
-//			System.out.println("collecting ratings");
 			// Collect ratings of all content given by the input node
 			Map<String, IAttribute> contentRatings = collectRatings(position,testNode,null);
 			return contentRatings;
@@ -91,6 +84,8 @@ public final class RecommendationBuilder {
 	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
 	 */
 	private Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList) {
+		
+//		UnpackerTool unpacker = new UnpackerTool();
 		
 		// Create Ratings Map with empty values if it does not already exist
 		if(ratingList == null) {
@@ -116,16 +111,14 @@ public final class RecommendationBuilder {
 					if(datasetIds.contains(searchDatasetId)){
 						
 						// Attribute is original
-						if(datasetIds.size() == 1){
+//						if(datasetIds.size() == 1){
 							ratingList.put(searchDatasetId, position.getNumericalAttributeValue(posRatingKey));
-						}
+//						}
 						// Attribute is not original
-						else {
-//							System.out.println("find not original");
-//							IAttribute originalAttribute = findOriginalAttribute(position,searchDatasetId);
+//						else {
+//							IAttribute originalAttribute = unpacker.findOriginalAttribute(posRatingKey,searchDatasetId);
 //							ratingList.put(searchDatasetId, originalAttribute);
-							ratingList.put(searchDatasetId, position.getNumericalAttributeValue(posRatingKey));
-						}
+//						}
 					}
 				}
 			}
@@ -150,41 +143,6 @@ public final class RecommendationBuilder {
 		}
 		return null;
 	}
-	
-	private IAttribute findOriginalAttribute(INode position, String searchDatasetId) {
-		
-		// Get all children of position
-		Iterator<INode> children = position.getChildren();
-		
-		// Determine the one child that has the datasetID in one of its attributes
-		while(children.hasNext()){
-			INode child = children.next();
-			for(INode attributeKey : child.getRatingAttributeKeys()){
-				
-				List<String> datasetIds = attributeKey.getDataSetIds();
-				
-				// Catch condition
-				if(datasetIds.size() == 1 && datasetIds.get(0).equals(searchDatasetId)){
-					return child.getNumericalAttributeValue(attributeKey);
-				}
-				else {
-					for(String tempDatasetId : datasetIds){
-						if(tempDatasetId.equals(searchDatasetId)){
-							
-							// Search on level deeper 
-//							System.out.println("search one level deeper");
-							IAttribute originalAttribute = findOriginalAttribute(child,searchDatasetId);
-							if(originalAttribute != null){
-								return originalAttribute;
-							}
-							else return null;
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
 
 	/**
 	 * Calculates a recommendation that includes content the user has not rated yet
@@ -194,41 +152,21 @@ public final class RecommendationBuilder {
 	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
 		
 		// Find the most similar node in the tree
-		PositionFinder finder = new PositionFinder();
-		
-		INode position = null;
-		if(inputNode.getNodeType() == ENodeType.User){
-//			System.out.println("Searching for user:");
-			position = finder.findPosition(inputNode,rootU,0);
-		}
-		else if(inputNode.getNodeType() == ENodeType.Content){
-//			System.out.println("Searching for content");
-			position = finder.findPosition(inputNode,rootC,0);
-		}
+		TreePosition position = findMostSimilar(inputNode);
 		
 		if(position == null){
 			System.out.println("Starting Position was not found");
 			return null;
 		}
 		else {
-			System.out.println("Found similar user: ");
-//			System.out.println(position.getNominalAttributesString());
-//			System.out.println(position.getNumericalAttributesString());
-//			System.out.println("input user: ");
-//			System.out.println(inputNode.getNominalAttributesString());
-//			System.out.println(inputNode.getNumericalAttributesString());
+			System.out.println("Found similar user: " + position.toString());
 		}
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
-		List<String> watched = new LinkedList<String>();
-		Set<INode> ratingKeys = inputNode.getRatingAttributeKeys();
-		for(INode rating : ratingKeys) {
-			watched.addAll(rating.getDataSetIds());
-		}
+		List<String> watched = createWatchedList(inputNode);
 		
 		// Calculate recommendation based on this position
-		Map<INode,IAttribute> recommended = new HashMap<INode,IAttribute>();
-		recommended = recommend(position,watched);
+		Map<INode,IAttribute> recommended = recommend(position.getNode(),watched);
 		
 		return recommended;
 	}
@@ -239,41 +177,47 @@ public final class RecommendationBuilder {
 	 * @param position starting point to calculate recommendation 
 	 * @param watched list of dataset items the user has already rated
 	 */
-	private Map<INode, IAttribute> recommend(INode position, List<String> watched) {
+	public Map<INode, IAttribute> recommend(INode position, List<String> watched) {
+		
+		UnpackerTool unpacker = new UnpackerTool(leavesMapC);
+		INode unpacked = unpacker.unpack(position);
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
-		// Find relevant User / Content Node
-//		INode relevantNode = collectNode(position);
-		
-		// Collect leaf content / user nodes from relevant Node
-//		List<INode> leafNodes = collectLeaves(position,null);
-		
-		// Process Attributes of leaf nodes
-//		for(INode leafNode : leafNodes){
-			for(INode attKey : position.getRatingAttributeKeys()){
-				
-				List<INode> attributeLeafNodes = collectLeaves(attKey,null);
-				
-				// Find leaf nodes of attribute
-				for(INode attLeaf : attributeLeafNodes){
-					if(recommendation.containsKey(attLeaf)){
-						
-						// Identify ratings
-						IAttribute oldAtt = recommendation.get(attLeaf);
-						IAttribute newAtt = position.getNumericalAttributeValue(attKey);
-						
-						// Add Merged Node
-						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
-						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
-						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
-						recommendation.put(attLeaf, merged);
-					}
-					else{
-						recommendation.put(attLeaf, position.getNumericalAttributeValue(attKey));
-					}
-				}
+		for(INode attKey : unpacked.getRatingAttributeKeys()){
+			if(!(watched.contains(attKey.getDatasetId()))){
+				recommendation.put(attKey, unpacked.getNumericalAttributeValue(attKey));
 			}
+		}
+		
+//		for(INode attKey : position.getRatingAttributeKeys()){
+//			
+//			List<INode> attributeLeafNodes = collectLeaves(attKey,null);
+//			
+//			// Find leaf nodes of attribute
+//			for(INode attLeaf : attributeLeafNodes){
+//				
+//				// Watched check
+//				if(!watched.contains(attLeaf.getDatasetId())){
+//					
+//					// Already in recommendation?
+//					if(recommendation.containsKey(attLeaf)){
+//						
+//						// Identify ratings
+//						IAttribute oldAtt = recommendation.get(attLeaf);
+//						IAttribute newAtt = position.getNumericalAttributeValue(attKey);
+//							
+//						// Add Merged Node
+//						int mergedSupport = oldAtt.getSupport() + newAtt.getSupport();
+//						double mergedSum = (oldAtt.getSumOfRatings() * oldAtt.getSupport() + newAtt.getSumOfRatings() * newAtt.getSupport()) / (mergedSupport);
+//						IAttribute merged = new ClassitAttribute(mergedSupport, mergedSum, Math.pow(mergedSum,2));
+//						recommendation.put(attLeaf, merged);
+//					}
+//					else{
+//						recommendation.put(attLeaf, position.getNumericalAttributeValue(attKey));
+//					}
+//				}
+//			}		
 //		}
 		
 	    return recommendation;
@@ -331,10 +275,12 @@ public final class RecommendationBuilder {
 		while(children.hasNext()){
 			
 			INode child = children.next();
-			List<INode> tempLeaves = (collectLeaves(child,leaves));
-			for(INode tempLeaf : tempLeaves){
-				if(!leaves.contains(tempLeaf)){
-					leaves.add(tempLeaf);
+			if(child != null){
+				List<INode> tempLeaves = (collectLeaves(child,leaves));
+				for(INode tempLeaf : tempLeaves){
+					if(!leaves.contains(tempLeaf)){
+						leaves.add(tempLeaf);
+					}
 				}
 			}
 		}
@@ -356,15 +302,6 @@ public final class RecommendationBuilder {
 		ValueComparator bvc =  new ValueComparator(unsortedRecommendation);
 		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<INode,IAttribute>(bvc);
 		sortedRecommendation.putAll(unsortedRecommendation);
-		
-//		SortedMap<INode,IAttribute> limitedRecommendation = new TreeMap<>(bvc);
-//		int counter = 0;
-//		for(Entry<INode,IAttribute> entry : sortedRecommendation.entrySet()){
-//			if(counter < limit){
-//				
-//				counter++;
-//			}
-//		}
 		
 	    return sortedRecommendation;
 	}
@@ -402,7 +339,7 @@ public final class RecommendationBuilder {
 			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
 				
 				// Find Information about Recommendation -> FIXME unflexibel
-				String title = getMeta(entry.getKey());
+				String title = getMeta(entry.getKey(),"title");
 				double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
 				
 				System.out.printf("%.2f", rating);
@@ -411,7 +348,9 @@ public final class RecommendationBuilder {
 		}
 	}
 
-	public List<INode> createItemList(ENodeType type, int limit){
+	public List<INode> createItemList(ENodeType type, int limit, INode inputNode){
+		
+		List<String> watched = createWatchedList(inputNode);
 		
 		List<INode> itemList = new LinkedList<INode>();
 		Random randomGenerator = new Random();
@@ -426,7 +365,23 @@ public final class RecommendationBuilder {
 				int randomID = randomGenerator.nextInt(leavesMapC.size());
 				randomNode = leavesMapC.get("" + randomID);	
 			}
-			itemList.add(randomNode);
+			
+			// Null check
+			if(randomNode != null){
+			
+				// Already Added Check
+				if(!itemList.contains(randomNode)){
+				
+					// Already Rated Check
+					if(watched != null){
+						if(randomNode.getDatasetId() != null){
+							if(!watched.contains(randomNode.getDatasetId())){
+								itemList.add(randomNode);
+							}
+						}
+					}
+				}
+			}
 		}
 		
 		return itemList;
@@ -435,21 +390,17 @@ public final class RecommendationBuilder {
 	public INode findNode(int datasetID, ENodeType type){
 		INode node = null;
 		if(type == ENodeType.User){
-//			System.out.println("looking for node in c " + datasetID);
 			node = leavesMapC.get("" + datasetID);
 		}
 		else if (type == ENodeType.Content){
-//			System.out.println("looking for node in u " + datasetID);
 			node = leavesMapU.get("" + datasetID);
 		}
-		
-		System.out.println("found node: " + node.toString());
 		
 		return node;
 	}
 	
-	private String getMeta(INode node){
-		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue("title").getProbabilities();
+	private String getMeta(INode node, String attribute){
+		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue(attribute).getProbabilities();
 		String title="";
 		while(titleIt.hasNext()){
 			title = (String) titleIt.next().getKey();
@@ -459,5 +410,41 @@ public final class RecommendationBuilder {
 	
 	public IDataset getDataset(){
 		return this.dataset;
+	}
+	
+	public TreePosition findMostSimilar(INode inputNode){
+		
+		// Find position of the similar node in the tree
+		TreePosition position = new TreePosition(null,0,0);
+		if(inputNode.isLeaf()){
+			if(inputNode.getNodeType() == ENodeType.User)
+				position.setNode(leavesMapU.get(inputNode.getDatasetId()));
+			else if(inputNode.getNodeType() == ENodeType.Content)
+				position.setNode(leavesMapC.get(inputNode.getDatasetId()));
+		}
+		else {
+			if(inputNode.getNodeType() == ENodeType.User){
+				PositionFinder finder = new PositionFinder(leavesMapC);
+				position = finder.findPosition(inputNode,rootU,1);
+			}
+			else if(inputNode.getNodeType() == ENodeType.Content){
+				PositionFinder finder = new PositionFinder(leavesMapU);
+				position = finder.findPosition(inputNode,rootC,1);
+			}
+		}
+		
+		return position;
+	}
+	
+	public List<String> createWatchedList(INode inputNode){
+		
+		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
+		List<String> watched = new LinkedList<String>();
+		Set<INode> ratingKeys = inputNode.getRatingAttributeKeys();
+		for(INode rating : ratingKeys) {
+			watched.addAll(rating.getDataSetIds());
+		}
+		
+		return watched;
 	}
 }

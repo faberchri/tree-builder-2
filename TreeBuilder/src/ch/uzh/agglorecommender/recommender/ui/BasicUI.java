@@ -12,8 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.SortedMap;
 
+import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.IDataset;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
@@ -22,7 +24,9 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
+import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 import ch.uzh.agglorecommender.recommender.utils.NodeInserter;
+import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 public class BasicUI {
@@ -30,10 +34,14 @@ public class BasicUI {
 	private static RecommendationBuilder rb;
 	private NodeInserter ni;
 	private boolean listen;
+	private Evaluator ev;
+	private INode rootU;
 
-	public BasicUI(RecommendationBuilder rb, NodeInserter ni) {
+	public BasicUI(RecommendationBuilder rb, NodeInserter ni, Evaluator ev, ClusterResult clusterResult) {
 		this.rb = rb;
 		this.ni = ni;
+		this.ev = ev;
+		this.rootU = clusterResult.getUserTreeRoot();
 		this.listen = true;
 	}
 
@@ -83,10 +91,12 @@ public class BasicUI {
 //		}
 	}
 	
-	public SortedMap<INode, IAttribute> recommend(INode inputNode){
-		Map<INode,IAttribute> unsortedRecommendation = this.rb.runRecommendation(inputNode); // Create Recommendation
-		SortedMap<INode, IAttribute> sortedRecommendation = this.rb.rankRecommendation(unsortedRecommendation,1, 15); // Pick Top Movies for User
-//		this.rb.printRecommendation(sortedRecommendation);
+	public SortedMap<INode, IAttribute> recommend(INode inputNode, INode position){
+		
+		List<String> watched = rb.createWatchedList(inputNode);
+		Map<INode,IAttribute> unsortedRecommendation = rb.recommend(position,watched); // Create Recommendation
+		SortedMap<INode, IAttribute> sortedRecommendation = rb.rankRecommendation(unsortedRecommendation,1,15); // Pick Top Movies for User
+		
 		return sortedRecommendation;
 	}
 	
@@ -96,20 +106,14 @@ public class BasicUI {
 		// MUSS HIER DIE DATASET ITEM ID DEFINIEREN -> +1 der anzahl leaf nodes dieses Typs
 		//*********//
 		
-		Boolean result = this.ni.insert(inputNode);
+		boolean result = ni.insert(inputNode);
 		return result;
 	}
 	
 	// FIXME
 	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
 		
-		System.out.println("Building Node");
-		
-//		System.out.println("------------------");
-//		System.out.println(nomMetaInfo.toString());
-//		System.out.println(numMetaInfo.toString());
-//		System.out.println(ratings.toString());
-//		System.out.println("------------------");
+//		System.out.println("Building Node");
 		
 		// Read Content Information
 		Map<String, String> nomMetaMapTemp = new HashMap<String,String>();
@@ -137,21 +141,9 @@ public class BasicUI {
 			}
 		}
 		
-//		System.out.println("------------------");
-//		System.out.println(ratingMapTemp.toString());
-//		System.out.println(numMetaMapTemp.toString());
-//		System.out.println(nomMetaMapTemp.toString());
-//		System.out.println("------------------");
-		
-		Map<String,IAttribute> nomMetaMap = buildNominalAttributes(nomMetaMapTemp);
-		Map<String,IAttribute> numMetaMap = buildNominalAttributes(numMetaMapTemp);
-		Map<INode,IAttribute> ratingsMap =  buildNumericalAttributes(ratingMapTemp,type);
-		
-//		System.out.println("------------------");
-//		System.out.println(ratingsMap.toString());
-//		System.out.println(numMetaMap.toString());
-//		System.out.println(nomMetaMap.toString());
-//		System.out.println("------------------");
+		Map<String,IAttribute> nomMetaMap = buildNomMetaAttributes(nomMetaMapTemp);
+		Map<String,IAttribute> numMetaMap = buildNumMetaAttributes(numMetaMapTemp);
+		Map<INode,IAttribute> ratingsMap =  buildRatingAttributes(ratingMapTemp,type);
 		
 		// Get dataset for configuration -> FIXME
 		IDataset dataset = rb.getDataset();
@@ -159,13 +151,14 @@ public class BasicUI {
 		Collection<INode> fakeChildren = new HashSet<>();
 		fakeChildren.add(fakeChild);
 		
-		return new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
+		INode newNode = new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
+		newNode.addChild(rootU);
+		
+		return newNode;
 	}
 	
-	//************* DOPPELT **********************//
-	
-	public List<INode> getItemList(ENodeType type, int limit){
-		return rb.createItemList(type,limit);
+	public List<INode> getItemList(ENodeType type, int limit, INode inputNode){
+		return rb.createItemList(type,limit, inputNode);
 	}
 
 	private static String inputListener(){	
@@ -203,7 +196,7 @@ public class BasicUI {
 		return lines;
 	}
 
-	private static Map<INode, IAttribute> buildNumericalAttributes(Map<String,String> attributes, ENodeType type) {
+	private static Map<INode, IAttribute> buildRatingAttributes(Map<String,String> attributes, ENodeType type) {
 	
 		Map<INode,IAttribute> numAttributes = new HashMap<>();
 		for(String datasetID: attributes.keySet()){
@@ -211,28 +204,54 @@ public class BasicUI {
 			// Find Node with dataset id 
 			INode node = findNode(datasetID, type);
 			
-			// Create Attribute
-			int rating = Integer.parseInt(attributes.get(datasetID));
-			IAttribute attribute = new ClassitAttribute(1,rating,Math.pow(rating,2));
-			
-			numAttributes.put(node,attribute);
+			if(node != null){
+				// Create Attribute
+				int rating = Integer.parseInt(attributes.get(datasetID));
+				IAttribute attribute = new ClassitAttribute(1,rating,Math.pow(rating,2));
+				
+				numAttributes.put(node,attribute);
+			}
 		}
 		
 		return numAttributes;
 	}
-	
-	private static INode findNode(String datasetID, ENodeType type) {
-		return rb.findNode(Integer.parseInt(datasetID),type);
+
+	private static INode findNode(String datasetIDString, ENodeType type) {
+		
+		int datasetID;
+		
+		try{
+			datasetID = Integer.parseInt(datasetIDString);
+		}
+		catch (Exception e){
+			return null;
+		}
+		
+		return rb.findNode(datasetID,type);
 	}
 
-	private static Map<String, IAttribute> buildNominalAttributes(Map<String,String> attributes) {
-		Map<String,IAttribute> nominalAttributes = new HashMap<>();
+	private static Map<String, IAttribute> buildNomMetaAttributes(Map<String,String> attributes){
+		
+		Map<String,IAttribute> nomMeta = new HashMap<>();
 		for(String attKey : attributes.keySet()){
 			Map<String,Double> probabilityMap = new HashMap<String,Double>();
 			probabilityMap.put(attributes.get(attKey),1.0);
-			nominalAttributes.put(attKey, new CobwebAttribute(probabilityMap));
+			nomMeta.put(attKey, new CobwebAttribute(probabilityMap));
 		}
-		return nominalAttributes;
+		
+		return nomMeta;
+	}
+	
+	private static Map<String, IAttribute> buildNumMetaAttributes(Map<String,String> attributes){
+		
+		Map<String,IAttribute> numMeta = new HashMap<>();
+		for(String attKey : attributes.keySet()){
+			int rating = Integer.parseInt(attributes.get(attKey));
+			IAttribute attribute = new ClassitAttribute(1,rating,Math.pow(rating,2));
+			numMeta.put(attKey, attribute);
+		}
+		
+		return numMeta;
 	}
 	
 	
@@ -271,6 +290,39 @@ public class BasicUI {
 		}
 		return lines;				
 	}
-	//************* DOPPELT **********************//
+	
+	public String evaluate(INode inputNode){
+		
+		// Take 80% of ratings away -> FIXME
+		Set<INode> inputRatings = inputNode.getRatingAttributeKeys();
+		Map<INode,IAttribute> pickedRatings = new HashMap<>();
+		double percentage = 0;
+		double count = inputRatings.size();
+		for(INode inputRating : inputRatings){
+			if(percentage < 20){
+				pickedRatings.put(inputRating,inputNode.getNumericalAttributeValue(inputRating));
+				percentage += 1/count;
+			}
+		}
+		inputNode.setRatingAttributes(pickedRatings);
+		
+		// calculate evaluation
+		Map<String,Double> evaluation =  ev.evaluate(inputNode);
+		
+		// Create String
+		String evalString = "";
+		
+		if(evaluation != null){
+			for(String eval : evaluation.keySet()){
+				evalString += eval + ": " + evaluation.get(eval) + "<br>";
+			}
+		}
+		
+		return evalString;
+	}
+	
+	public TreePosition getSimilarPosition(INode inputNode){
+		return rb.findMostSimilar(inputNode);
+	}
 	
 }

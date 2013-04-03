@@ -48,7 +48,7 @@ public final class TreeBuilder implements Serializable, Observable, Runnable {
 	 * of this class is not compatible with old versions.
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * The set of all root nodes of type user.
 	 */
