@@ -56,6 +56,7 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 		Iterator<INode> dirtyNodesIterator = dirtyNodes.iterator();		
 		for ( int i = dirtyNodes.size(); i-- > 0; ) { // faster iteration by avoiding hasNext()
 			TIntSet dirtyCombs = clusterSet.getCombinationsIds(dirtyNodesIterator.next());
+			if (dirtyCombs == null) continue;
 			TIntIterator dirtyCombsIterator = dirtyCombs.iterator();
 			for ( int j = dirtyCombs.size(); j-- > 0; ) {
 				// add invalid combinations to cache with default category utility value

@@ -74,8 +74,11 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * to an IAttribute object.
 	 */
 	private Map<INode, IAttribute> ratingAttributes = new HashMap<INode, IAttribute>();
-
-	private final IDataset<?> dataset;
+	
+	/**
+	 * Reference to the data set.
+	 */
+	private final IDataset dataset;
 
 	/**
 	 * The children of this node.
@@ -104,9 +107,16 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 */
 	private static Set<INode> dirtySet = new HashSet<INode>();
 
+	/**
+	 * Node constructor for a leaf node.
+	 * 
+	 * @param nodeType type of the node
+	 * @param dataSetId id of the corresponding item in the data set
+	 * @param dataset the data set to cluster
+	 */
 	public Node(ENodeType nodeType,
 			String dataSetId,
-			IDataset<?> dataset) {
+			IDataset dataset) {
 		this.nodeType = nodeType;
 		this.dataSetId = dataSetId;
 		categoryUtility = 1.0;
@@ -114,7 +124,8 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	/**
-	 * Node constructor
+	 * Node constructor for an internal node.
+	 * 
 	 * @param nodeType Type of the node
 	 * @param children List of children
 	 * @param attributes Map of INode and IAttributes
@@ -162,6 +173,12 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	}
 
+	/**
+	 * Gets a String representation of the passed attributes map for the passed attribute keys.
+	 * @param keyList the attributes to look up in the passed map
+	 * @param atts map of attributes
+	 * @return String representation of attributes
+	 */
 	private String getAttributesString(List<? extends Object> keyList, Map<? extends Object,? extends Object> atts) {	
 		StringBuilder sb = new StringBuilder();
 		for (Object o : keyList) {
@@ -285,11 +302,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return nominalMetaAttributes.get(att);
 	}
 
-	//	@Override
-	//	public IAttribute getRatingAttributeValue(INode node) {
-	//		return ratingAttributes.get(node);
-	//	}
-
 	@Override
 	public boolean useAttributeForClustering(Object attribute) {
 		ImmutableMap<String, Boolean> useForClustering = dataset.getAttributeClusteringConfig();
@@ -383,30 +395,51 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public JTree getJTreeOfSubtree() {
-		DecimalFormat formater = new DecimalFormat("#.####");
-		return new JTree(getJTreeNode(formater));
+		DecimalFormat formatter = new DecimalFormat("#.####");
+		return new JTree(getJTreeNode(formatter));
 	}
 
-	private DefaultMutableTreeNode getJTreeNode(final DecimalFormat formater) {
+	/**
+	 * Creates the JTree of this nodes subtree recursively.
+	 * 
+	 * @param formatter number formatter to apply.
+	 * @return the root of the JTree
+	 */
+	private DefaultMutableTreeNode getJTreeNode(final DecimalFormat formatter) {
 		DefaultMutableTreeNode jNode = new DefaultMutableTreeNode(this) {
+			
+			/**
+			 * Determines if a de-serialized file is compatible with this class.
+			 * <br>
+			 * <br>
+			 * Maintainers must change this value if and only if the new version
+			 * of this class is not compatible with old versions.
+			 */
+			private static final long serialVersionUID = 1L;
+			
 			@Override
 			public String toString() {
 				Node n = (Node)userObject;
 				if (n.isLeaf()) {
-					return n.getJTreeLeafString(formater);
+					return n.getJTreeLeafString(formatter);
 				} else {
-					return "id: " + n.getId() + ", cluster size: " + n.getNumberOfLeafNodes() + ", merge category utility: " + formater.format(n.getCategoryUtility());
+					return "id: " + n.getId() + ", cluster size: " + n.getNumberOfLeafNodes() + ", merge category utility: " + formatter.format(n.getCategoryUtility());
 				}
 			}
 		};
 		Iterator<INode> it = getChildren();
 		while (it.hasNext()) {
-			jNode.add(((Node)it.next()).getJTreeNode(formater));
+			jNode.add(((Node)it.next()).getJTreeNode(formatter));
 		}
 		return jNode;
 	}
 
-	private String getJTreeLeafString(final DecimalFormat formater) {
+	/**
+	 * Gets the string representation of the MutableTreeNode for this cluster.
+	 * @param formatter the number formatter to apply
+	 * @return the string to appear in the JTree
+	 */
+	private String getJTreeLeafString(final DecimalFormat formatter) {
 		Pattern linkPattern = Pattern.compile("<a href.*>(.*)</a>");
 		StringBuilder sb = new StringBuilder();
 		sb.append("id: ");
@@ -418,10 +451,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		sb.append(atts.size());
 		sb.append(" | ");
 		sb.append("avg. of ratings: ");
-		sb.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(atts) / (double) atts.size()));	
+		sb.append(formatter.format(ClassitMaxCategoryUtilitySearcher.calcSumOfRatingsOfAttribute(atts) / (double) atts.size()));	
 		sb.append(" | ");
 		sb.append("std. of ratings: ");
-		sb.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(atts)));
+		sb.append(formatter.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(atts)));
 		sb.append(" | ");
 		for (Map.Entry<String, IAttribute> entry : nominalMetaAttributes.entrySet()) {
 			sb.append(entry.getKey());
@@ -443,7 +476,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		for (Map.Entry<String, IAttribute> entry : numericalMetaAttributes.entrySet()) {
 			sb.append(entry.getKey());
 			sb.append(": ");			
-			sb.append(formater.format(dataset.denormalize(entry.getValue().getSumOfRatings(), entry.getKey())));
+			sb.append(formatter.format(dataset.denormalize(entry.getValue().getSumOfRatings(), entry.getKey())));
 			sb.append(" | ");
 		}
 		sb.setLength(sb.length() - 2);
@@ -452,14 +485,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 
 	@Override
 	public String getAttributeHTMLLabelString() {
-		DecimalFormat formater = new DecimalFormat("#.####");
+		DecimalFormat formatter = new DecimalFormat("#.####");
 		StringBuilder description = new StringBuilder("<html><head><style>td { width:40px; border:1px solid black; text-align: center; }</style></head>");
 		description.append("<body> Node: ");
 		description.append(getId());
 		description.append("<br>data set id: ");
 		description.append(getSimpleDataSetIdString(this));
 		description.append("<br>Category Utility: ");
-		description.append(formater.format(getCategoryUtility()));
+		description.append(formatter.format(getCategoryUtility()));
 		description.append("<br>Cluster size: ");
 		description.append(getNumberOfLeafNodes());
 		description.append("<br>");
@@ -468,24 +501,30 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		if (ratingAttributes.size() > 0) {
 			List<Node> atKeyLi = new ArrayList(ratingAttributes.keySet());
 			Collections.sort(atKeyLi);	
-			description.append(createRatingsAttributesHTMLTable(atKeyLi, formater));
+			description.append(createRatingsAttributesHTMLTable(atKeyLi, formatter));
 		}
 		description.append("<h2>Numerical Meta Attributes</h2>");
 		if (numericalMetaAttributes.size() > 0) {
 			List<String> atKeyLi = new ArrayList<>(numericalMetaAttributes.keySet());
 			Collections.sort(atKeyLi);	
-			description.append(createNumericalMetaAttributesHTMLTable(atKeyLi, formater));
+			description.append(createNumericalMetaAttributesHTMLTable(atKeyLi, formatter));
 		}
 		description.append("<h2>Nominal Meta Attributes</h2>");
 		if (nominalMetaAttributes.size() > 0) {
 			List<String> atKeyLi = new ArrayList<>(nominalMetaAttributes.keySet());
 			Collections.sort(atKeyLi, new ObjectComparator());
-			description.append(createNominalMetaAttributesHTMLTable(atKeyLi, formater));
+			description.append(createNominalMetaAttributesHTMLTable(atKeyLi, formatter));
 		}
 		return description.append("</body></html>").toString();
 	}
 
-	private String createNumericalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
+	/**
+	 * Gets a HTML-String of this nodes numerical meta attributes for the passed attribute keys.
+	 * @param attributes the attributes to include in the table
+	 * @param formatter formats the value
+	 * @return table as HTML-String
+	 */
+	private String createNumericalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formatter) {
 		// Header
 		StringBuilder description = new StringBuilder("<table><tr><td>tag</td><td>mean</td><td>std</td><td>support</td></tr>");
 		// Data
@@ -496,10 +535,10 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			if (useAttributeForClustering(attributeKey)) {
 
 				description.append("<td>")
-				.append(formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport()))
+				.append(formatter.format(attributeValue.getSumOfRatings()/attributeValue.getSupport()))
 				.append("</td>")
 				.append("<td>")
-				.append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())))
+				.append(formatter.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values())))
 				.append("</td>")
 				.append("<td>")
 				.append(attributeValue.getSupport())
@@ -511,7 +550,13 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return description.append("</table>").toString();
 	}
 
-	private String createNominalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formater) {
+	/**
+	 * Gets a HTML-String of this nodes nominal meta attributes for the passed attribute keys.
+	 * @param attributes the attributes to include in the table
+	 * @param formatter formats the value
+	 * @return table as HTML-String
+	 */
+	private String createNominalMetaAttributesHTMLTable(List<String> attributes, DecimalFormat formatter) {
 		// Header
 		StringBuilder description = new StringBuilder("<table><tr><td>tag</td><td width='150'>value -> probability</td></tr>");
 
@@ -532,7 +577,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				Entry<Object,Double> tempEntry = values.next();
 				description.append(tempEntry.getKey().toString());
 				if (useAttributeForClustering(attributeKey)) {
-					description.append(" -> ").append(formater.format(tempEntry.getValue().doubleValue())); 
+					description.append(" -> ").append(formatter.format(tempEntry.getValue().doubleValue())); 
 				}
 				description.append("<br>");
 			}
@@ -540,8 +585,14 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		}
 		return description.append("</table>").toString();
 	}
-
-	private String createRatingsAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formater) {
+	
+	/**
+	 * Gets a HTML-String of this nodes ratings attributes for the passed attribute keys.
+	 * @param attributes the attributes to include in the table
+	 * @param formatter formats the value
+	 * @return table as HTML-String
+	 */
+	private String createRatingsAttributesHTMLTable(List<? extends INode> attributes, DecimalFormat formatter) {
 		// Header
 		StringBuilder description = new StringBuilder("<table><tr><td>cluster id</td><td>data set id</td><td>type</td><td>mean</td><td>std</td><td>support</td></tr>");
 		// Data
@@ -551,14 +602,22 @@ public class Node implements INode, Comparable<Node>, Serializable {
 			description.append("<tr><td>").append(attributeKey.getId()).append("</td>")
 			.append("<td>").append(getSimpleDataSetIdString(attributeKey)).append("</td>")
 			.append("<td>").append(attributeKey.getNodeType()).append("</td>")
-			.append("<td>").append(formater.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())).append("</td>")
-			.append("<td>").append(formater.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values()))).append("</td>")
+			.append("<td>").append(formatter.format(attributeValue.getSumOfRatings()/attributeValue.getSupport())).append("</td>")
+			.append("<td>").append(formatter.format(ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(ratingAttributes.values()))).append("</td>")
 			.append("<td>").append(attributeValue.getSupport()).append("</td>")
 			.append("</tr>");
 		}
 		return description.append("</table>").toString();
 	}
 
+	/**
+	 * Gets a string representation of the data set id's contained in the cluster.
+	 * @param node the cluster to query
+	 * @return a string representation of the data set items contained in the cluster.
+	 * The representation is of the form "data set item" for leaves, "data set item 1, data set item 2" 
+	 * for clusters of size two and "data set item 1, data set item 2, ..." for 
+	 * cluster with size > 2.
+	 */
 	private String getSimpleDataSetIdString(INode node) {
 		String dataSetIdsString = "";
 		List<String> ids = node.getDataSetIds();
@@ -582,6 +641,13 @@ public class Node implements INode, Comparable<Node>, Serializable {
 		return getDataSetIds(li);
 	}
 
+	/**
+	 * Gets recursively a list with all data set id's of
+	 * data set items contained in this cluster. 
+	 * 
+	 * @param li the list to expand
+	 * @return a list with all data set id's contained in the cluster
+	 */
 	private List<String> getDataSetIds(List<String> li) {
 		if (isLeaf()) {
 			li.add(dataSetId);
@@ -642,7 +708,7 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	}
 
 	@Override
-	public IDataset<?> getDataset() {
+	public IDataset getDataset() {
 		return dataset;
 	}
 

@@ -46,27 +46,27 @@ public class InitialNodesCreator {
 	 * @param treeComponentFactory the initially specified factory
 	 * @param userTreeComponentFactory the initially specified factory
 	 */
-	public InitialNodesCreator(IDataset<?> dataset,
+	public InitialNodesCreator(IDataset dataset,
 			TreeComponentFactory treeComponentFactory) {
 		
-		Map<String, List<IDatasetItem<?>>> usersMap = new HashMap<String, List<IDatasetItem<?>>>();
-		Map<String, List<IDatasetItem<?>>> contentsMap = new HashMap<String, List<IDatasetItem<?>>>();
+		Map<String, List<IDatasetItem>> usersMap = new HashMap<String, List<IDatasetItem>>();
+		Map<String, List<IDatasetItem>> contentsMap = new HashMap<String, List<IDatasetItem>>();
 		
 		// sort data items according to user id and content id
 		Iterator<?> it = dataset.iterateOverDatasetItems();
 		while(it.hasNext()) {
-			IDatasetItem<?> datasetItem = (IDatasetItem<?>) it.next();
+			IDatasetItem datasetItem = (IDatasetItem) it.next();
 			if (usersMap.containsKey(datasetItem.getUserId())) {
 				usersMap.get(datasetItem.getUserId()).add(datasetItem);
 			} else {
-				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
+				List<IDatasetItem> li = new ArrayList<IDatasetItem>();
 				li.add(datasetItem);
 				usersMap.put(datasetItem.getUserId(), li);
 			}
 			if (contentsMap.containsKey(datasetItem.getContentId())) {
 				contentsMap.get(datasetItem.getContentId()).add(datasetItem);
 			} else {
-				List<IDatasetItem<?>> li = new ArrayList<IDatasetItem<?>>();
+				List<IDatasetItem> li = new ArrayList<IDatasetItem>();
 				li.add(datasetItem);
 				contentsMap.put(datasetItem.getContentId(), li);
 			}
@@ -93,23 +93,21 @@ public class InitialNodesCreator {
 		}
 		
 		// attach to each node its attribute maps
-		for (Map.Entry<String, List<IDatasetItem<?>>> entry : usersMap.entrySet()) {
+		for (Map.Entry<String, List<IDatasetItem>> entry : usersMap.entrySet()) {
 			Map<INode, IAttribute> numAttributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
+			for (IDatasetItem di : entry.getValue()) {
+				double normalizedRating = ((INormalizer) dataset.getNormalizer()).normalizeRating(di.getRating());
 				numAttributes.put(contentsNodeMap.get(di.getContentId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
 			}
 			usersNodeMap.get(entry.getKey()).setRatingAttributes(numAttributes);
-//			userNodes.add(usersNodeMap.get(entry.getKey()));
 		}
-		for (Map.Entry<String, List<IDatasetItem<?>>> entry : contentsMap.entrySet()) {
+		for (Map.Entry<String, List<IDatasetItem>> entry : contentsMap.entrySet()) {
 			Map<INode, IAttribute> attributes = new HashMap<INode, IAttribute>();
-			for (IDatasetItem<?> di : entry.getValue()) {			
-				double normalizedRating = ((INormalizer<Number>) dataset.getNormalizer()).normalizeRating( (Number) di.getRating());
+			for (IDatasetItem di : entry.getValue()) {			
+				double normalizedRating = ((INormalizer) dataset.getNormalizer()).normalizeRating(di.getRating());
 				attributes.put(usersNodeMap.get(di.getUserId()), treeComponentFactory.createNumericalLeafAttribute(normalizedRating));
 			}
 			contentsNodeMap.get(entry.getKey()).setRatingAttributes(attributes);
-//			contentNodes.add(contentsNodeMap.get(entry.getKey()));
 		}
 		
 		userLeavesMap = ImmutableMap.copyOf(usersNodeMap);

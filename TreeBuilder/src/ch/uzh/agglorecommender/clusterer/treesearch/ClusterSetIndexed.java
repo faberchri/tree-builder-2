@@ -8,7 +8,6 @@ import gnu.trove.map.hash.TShortObjectHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,42 +28,73 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
-public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable {
+/**
+ * 
+ * This cluster set manages the elements to cluster by keeping indices to the 
+ * elements. For all dual combinations of indices a combination id is created.
+ * The set of all combination id's can be used as search space for the best
+ * cluster merge.
+ *
+ * @param <E> The type of object to store in the cluster set.
+ */
+public class ClusterSetIndexed<E> implements IClusterSetIndexed<E> {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The subset size. This implementation works only with subset size == 2!
+	 */
 	private static final int SUBSET_SIZE = 2;
 	
+	/**
+	 * Value that is returned if entry was not found in
+	 * the primitive collections (TROVE collections)
+	 */
 	private static final short NO_ENTRY_CONST = -1;
 
-	TShortObjectMap<E> openIndexElementMap;
+	/**
+	 * Maps id (index) -> element. Used to create and resolve combinations.
+	 */
+	private TShortObjectMap<E> openIndexElementMap;
 	
-	TObjectShortHashMap<E> openElementIndexMap;
-
-//	TIntShortMap combinationIdXNodeIdMap;
+	/**
+	 * Maps element -> id (index). Used to create and resolve combinations.
+	 */
+	private TObjectShortHashMap<E> openElementIndexMap;
 	
-	TIntSet combinationIds;
+	/**
+	 * All currently valid combination id's.
+	 */
+	private TIntSet combinationIds;
 
-	short nodeCount = 0;
+	private short nodeCount = 0;
 
 	public ClusterSetIndexed(ImmutableCollection<E> leafNodes) {
 		openIndexElementMap = new TShortObjectHashMap<>(2 * leafNodes.size(), 0.5f, NO_ENTRY_CONST);
 		openElementIndexMap = new TObjectShortHashMap<>(2 * leafNodes.size(), 0.5f, NO_ENTRY_CONST);
-//		combinationIdXNodeIdMap = new TIntShortHashMap(calcNumberOfCombinations(leafNodes.size()), 0.5f, -1, (short) -1);
 		combinationIds = new TIntHashSet(calcNumberOfCombinations(leafNodes.size()), 0.5f, NO_ENTRY_CONST);
 		
+		// we map to each element an id and to each id the element 
 		for (E e : leafNodes) {
 			openIndexElementMap.put(nodeCount, e);
 			openElementIndexMap.put(e, nodeCount);
 			nodeCount++;
 		}
-
+		
+		// create the initial combination id's
 		for (short x = 0; x < nodeCount; x++) {
-			for (short y = (short) (x + 1); y < nodeCount; y++) {
-				
+			for (short y = (short) (x + 1); y < nodeCount; y++) {			
 				// y always bigger than x -> no sorting needed to prevent of duplicates
 				combinationIds.add(Cantor.compute(x, y));
 			}
 		}
-//		System.out.println(calcNumberOfCombinations(leafNodes.size()));	
 	}
 
 	@Override
@@ -72,9 +102,7 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable
 		
 		short x = Cantor.computeX(combinationId);
 		short y = Cantor.computeY(combinationId);
-		
-//		System.out.println("combinationId: " + combinationId + ", x: " + x + ", y: " + y);
-				
+						
 		return Arrays.asList(new Object[] {openIndexElementMap.get(x), openIndexElementMap.get(y)});
 	}
 
@@ -155,7 +183,8 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable
 	
 	@Override
 	public TIntSet getCombinationsIds(E e) {
-		short s = openElementIndexMap.get(e);		
+		short s = openElementIndexMap.get(e);
+		if (s == NO_ENTRY_CONST) return null;
 		return createCombinationIds(s);
 	}
 	
@@ -167,6 +196,11 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable
 		return Ints.checkedCast(ArithmeticUtils.binomialCoefficient(n, SUBSET_SIZE));
 	}
 	
+	/**
+	 * Creates all dual combination id's for the passed index.
+	 * @param s the index
+	 * @return set of all combinations for the index
+	 */
 	private TIntSet createCombinationIds(short s){
 		TIntSet res = new TIntHashSet(openIndexElementMap.size());
 		TShortIterator it = openIndexElementMap.keySet().iterator();
@@ -183,20 +217,31 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable
 		return res;
 	}
 	
-	
-	public static class Cantor {
-		public static int compute(short x, short y) {
+	/**
+	 * 
+	 * Utility class that implements the Cantor pairing function.
+	 *
+	 */
+	private static class Cantor {
+		private static int compute(short x, short y) {
 			return (x+y)*(x+y+1)/2 + y;
 		}
-		public static short computeX(int z) {
+		private static short computeX(int z) {
 			int j  = (int) Math.floor(Math.sqrt(0.25 + 2*z) - 0.5);
 			return (short) (j - (z - j*(j+1)/2));
 		}
-		public static short computeY(int z) {
+		private static short computeY(int z) {
 			int j  = (int) Math.floor(Math.sqrt(0.25 + 2*z) - 0.5);
 			return (short) (z - j*(j+1)/2);
 		}
 	}
+	
+	
+
+	///////////////////////////////////////////////////////
+	///					 Test section 					///
+	///////////////////////////////////////////////////////
+	
 	
 	public static void main(String[] args) {
 		
@@ -264,22 +309,4 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E>, Serializable
 		System.out.println(p.size());
 	}
 	
-//	public static void main(String[] args) {
-//		Set<int[]> s = new HashSet<>();
-//
-//		s.add(new int[] {1,2});
-//		s.add(new int[] {1,2});
-//		s.add(new int[] {2,1});
-//		s.add(new int[] {2,2});
-//
-//		for (int[] is : s) {
-//			for (int i : is) {
-//				System.out.println(i);
-//			}
-//			System.out.println("---");
-//		}
-//		System.out.println(Integer.MAX_VALUE);
-//
-//	}
-
 }

@@ -1,38 +1,23 @@
 package ch.uzh.agglorecommender.client;
 
-import java.io.File;
+import java.util.List;
 
-import ch.uzh.agglorecommender.client.jcommander.DatasetValidatorConverter;
+import ch.uzh.agglorecommender.client.jcommander.DatasetValidator;
 import ch.uzh.agglorecommender.client.jcommander.FileReadValidatorConverter;
 import ch.uzh.agglorecommender.client.jcommander.FileWriteValidator;
 import ch.uzh.agglorecommender.client.jcommander.NodeUpdaterValidatorConverter;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
-import ch.uzh.agglorecommender.clusterer.treeupdate.SimpleNodeUpdater;
+import ch.uzh.agglorecommender.clusterer.treeupdate.SaveAttributeNodeUpdater;
 
 import com.beust.jcommander.Parameter;
 
+/**
+ * 
+ * The command line arguments to configure the application.
+ * @see <a href="http://jcommander.org">JCommander</a>
+ *
+ */
 public class CommandLineArgs {
-	
-	@Parameter(names = { "-d", "-dataset" },
-			description = "Name of data set type to process. Supported Values: Grouplens, GrouplensBig, Floarea, Random. Default: Grouplens",
-			validateWith = DatasetValidatorConverter.class,
-			converter = DatasetValidatorConverter.class,
-			arity = 1)
-	protected Class<? extends IDataset<?>> datasetType =  GrouplensDataset.class;
-		
-	@Parameter(names = { "-tr", "-training", "-trainingDataFile" },
-			description = "Path to training input file of data set. Default training data set is used if not specified. Not applicable for RandomDataset. Example: /path/to/input/file",
-			validateWith = FileReadValidatorConverter.class,
-			converter = FileReadValidatorConverter.class,
-			arity = 1)
-	protected File trainingFile = null;
-	
-	@Parameter(names = { "-ts", "-test", "-testDataFile" },
-			description = "Path to test input file of data set. Default test data set is used if not specified. Not applicable for RandomDataset. Example: /path/to/input/file",
-			validateWith = FileReadValidatorConverter.class,
-			converter = FileReadValidatorConverter.class,
-			arity = 1)
-	protected File testFile = null;
 	
 	@Parameter(names = { "-resume", "-r"},
 			description = "Path to file of a serialized run to resume. If not specified clustering of the data set is started from scratch. Example: /path/to/input/of/type.ser",
@@ -47,27 +32,34 @@ public class CommandLineArgs {
 	protected String serializeRun = null;
 		
 	@Parameter(names = { "-nodeUpdater", "-nU", "-updater" },
-			description = "Simple class name of INodeUpdater to use. Example: SimpleNodeUpdater, Default: SimpleNodeUpdater",
+			description = "Simple class name of INodeUpdater to use. Example: SimpleNodeUpdater",
 			validateWith = NodeUpdaterValidatorConverter.class,
 			converter = NodeUpdaterValidatorConverter.class,
 			arity = 1)
-	protected INodeUpdater nodeUpdater = new SimpleNodeUpdater();
-	
-	@Parameter(names = { "-mU", "-metaUser" },
-			description = "Meta information of users are taken into account for clustering if provided by the specified data set.")
-	protected boolean useUserMetaDataForClustering = false;
-
-	@Parameter(names = { "-mC", "-metaContent" },
-			description = "Meta information of content are taken into account for clustering if provided by the specified data set.")
-	protected boolean useContentMetaDataForClustering = false;
+	protected INodeUpdater nodeUpdater = new SaveAttributeNodeUpdater();
+		
+	public static final String randomDatasetIdentifier = "random";
 	
 	@Parameter(names = { "-p", "-datasetProperties" },
-			description = "Path to dataset properties xml-file. Example: /path/to/input/file",
-			validateWith = FileReadValidatorConverter.class,
-			converter = FileReadValidatorConverter.class,
-			arity = 1,
+			description = "Path to dataset properties xml-file. Parameter is required!" +
+					"\n\tExample: path/to/prop/file.xml" +
+					"\n\tFor testing you can use \"random\" as parameter value to use a randomly " +
+					"generated dataset of ratings. You can also specifie the size of the random data set.\n" +
+					"\tExample: random \t generates a random data set with default size and sparcity.\n" +
+					"\tExample: random 100 200 82.5 \t generates a random data set with 100 users, 200 content items " +
+					"and approx. 82.5% of null entries in the user/content-matrix.",
+			validateWith = DatasetValidator.class,
+			variableArity = true,
 			required = true)
-	protected File datasetProperties;
+	protected List<String> datasetProperties;
 	
+	@Parameter(names = { "-noGUI" },
+			description = "Runs the clustering algorithm without a GUI (no visual representation of progress, no user interaction possible).")
+	protected boolean noGui = false;
 	
+	@Parameter(names = {"--help", "-help", "--usage", "-usage"},
+			description = "Shows this message and terminates application.",
+			help = true)
+	protected boolean help;
+
 }

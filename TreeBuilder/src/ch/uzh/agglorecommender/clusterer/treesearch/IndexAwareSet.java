@@ -40,7 +40,7 @@ import java.util.Set;
  *
  * @param <E>
  */
-public class IndexAwareSet<E> implements Set<E>, Serializable{
+class IndexAwareSet<E> implements Set<E>, Serializable{
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.

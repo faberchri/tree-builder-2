@@ -22,7 +22,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
  * interface.
  *
  */
-public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
+abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUtilitySearcher {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -67,7 +67,7 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 		}
 		
 		// reset static variable of split worker for next clustering cycle
-		SplitWorker.maxCUFound = false;
+		SplitWorker.setMaxCUFound(false);
 				
 		time = System.nanoTime() - time;
 		log.finer("Time to calculate new category utility values: " + ( (double) (time) ) / 1000000000.0 + " seconds. On "
@@ -76,8 +76,8 @@ public abstract class BasicMaxCategoryUtilitySearcher implements IMaxCategoryUti
 	}
 	
 	/**
-	 * Splits the collection of combination ids into that many equally sized lists of
-	 * combination ids as processors are available.
+	 * Splits the collection of combination id's into that many equally sized lists of
+	 * combination id's as processors are available.
 	 *  
 	 * @param combinationIds collection of possible merges
 	 * @return list of combination id lists

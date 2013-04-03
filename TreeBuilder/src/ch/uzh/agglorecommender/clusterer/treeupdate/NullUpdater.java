@@ -5,6 +5,10 @@ import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
+/**
+ * A node updater that does nothing.
+ *
+ */
 public class NullUpdater implements INodeUpdater, Serializable {
 
 	/**

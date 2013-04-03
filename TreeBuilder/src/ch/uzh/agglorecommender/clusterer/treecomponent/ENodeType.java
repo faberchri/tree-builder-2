@@ -14,11 +14,5 @@ public enum ENodeType {
 	/**
 	 * A node of type content
 	 */
-	Content, 
-	
-	/**
-	 * A node of type nominal
-	 */
-	Nominal;
-		
+	Content		
 }

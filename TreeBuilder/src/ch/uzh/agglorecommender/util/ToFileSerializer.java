@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 
 
-public class ToFileSerializer {
+public final class ToFileSerializer {
 	
 	/**
 	 * Defines the serialization frequency. In minutes.

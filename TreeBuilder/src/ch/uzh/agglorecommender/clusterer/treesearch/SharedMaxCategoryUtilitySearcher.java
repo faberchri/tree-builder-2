@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import java.util.Collection;
+import java.util.Set;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
@@ -33,9 +34,22 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		int numOfNumAtts = 0;
 		
 		for (INode n : possibleMerge) {
-			numOfNomAtts += n.getRatingAttributeKeys().size();
-			numOfNomAtts += n.getNumericalMetaAttributeKeys().size();
-			numOfNomAtts += n.getNominalMetaAttributeKeys().size();
+
+			numOfNumAtts += n.getRatingAttributeKeys().size();
+			
+			Set<String> set = n.getNumericalMetaAttributeKeys();
+			for (String s : set) {
+				if (n.useAttributeForClustering(s)) {
+					numOfNumAtts++;
+				}
+			}
+			
+			set = n.getNominalMetaAttributeKeys();
+			for (String s : set) {
+				if (n.useAttributeForClustering(s)) {
+					numOfNomAtts++;
+				}
+			}
 		}
 		
 		double sumOfAtts = numOfNomAtts + numOfNumAtts;
@@ -47,9 +61,7 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 		
 		double utility = 0.0;
 		utility += classit.calculateCategoryUtility(possibleMerge) * ((double)numOfNumAtts / sumOfAtts);
-		System.out.println("after classit" + utility);
  		utility += cobweb.calculateCategoryUtility(possibleMerge) * ((double)numOfNomAtts / sumOfAtts);
- 		System.out.println("after cobweb" + utility);
 				
 		return utility;
 	}

@@ -1,13 +1,13 @@
 package ch.uzh.agglorecommender.client;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import ch.uzh.agglorecommender.client.IDataset.DataSetSplit;
+import ch.uzh.agglorecommender.clusterer.ClusteringController;
+import ch.uzh.agglorecommender.clusterer.GUIClusteringController;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
+import ch.uzh.agglorecommender.clusterer.SimpleClusteringController;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
@@ -22,52 +22,98 @@ import com.beust.jcommander.JCommander;
 
 public class TestDriver {
 	
-	protected static CommandLineArgs cla = new CommandLineArgs();
-	private static JCommander jc;
+	/**
+	 * The command line arguments, handled by JCommander.
+	 */
+	private static CommandLineArgs cla = new CommandLineArgs();
 	
-	// Create Logger
 	private static Logger log = TBLogger.getLogger(TestDriver.class.toString());
 	
-
 	public static void main(String[] args) throws Exception {
 		
 		// Process Command Line Arguments
-		jc = new JCommander(cla, args);
-		jc.setProgramName("TreeBuilder");
+		JCommander jc = new JCommander(cla, args);
+		jc.setProgramName("AggloRecommender");
 		
-		InputParser parser = new InputParser(cla.datasetProperties);
+		if (cla.help) {
+			jc.usage();
+			return;
+		}
 		
 		log.info("Passed CommandLineArgs: " + Arrays.asList(args).toString());
 		
-		ClusterResult clusterResult = training(parser.getTrainigsDataset());
-		test(clusterResult, parser.getTestDataset());
-//		insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
+		if (cla.datasetProperties.get(0).equalsIgnoreCase(CommandLineArgs.randomDatasetIdentifier)) {
+			// we perform a test clustering run with a randomly generated data set		
+			if (cla.datasetProperties.size() == 1) {
+				training(new RandomDataset());
+			} else if (cla.datasetProperties.size() == 4) {
+				training(new RandomDataset(
+						Integer.parseInt(cla.datasetProperties.get(1)),
+						Integer.parseInt(cla.datasetProperties.get(2)),
+						Double.parseDouble(cla.datasetProperties.get(3))));
+			} else {
+				System.err.println("Not possible to instatiate random data set.\n" +
+						"Please specifie the random data set with zero or three arguments.\n" +
+						"E.g.: \"-p random\" or \"-p random 100 50 12.5\". \nApplication terminates.");
+			}
+			
+		} else {
+			// we read the data for clustering from the locations
+			// specified in the data set properties xml-file passed at startup
+			InputParser parser = new InputParser(new File(cla.datasetProperties.get(0)));
+			
+			// perform the clustering
+			ClusterResult clusterResult = training(parser.getTrainigsDataset());
+			
+			// test the quality of the clustering
+			test(clusterResult, parser.getTestDataset());
+			
+			//insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
+		}
 	}
 	
-	private static ClusterResult training(IDataset<?> trainingsDataset) {
-		// Build Tree
-		TreeBuilder tb = null;
+	/**
+	 * Perform clustering of the passed IDataset.
+	 * @param trainingsDataset the data set to cluster
+	 * @return a tree of clusters
+	 */
+	private static ClusterResult training(IDataset trainingsDataset) {
 		ClusterResult clusterResult = null;
 		if (cla.resumePrevRun != null) {
+			// read a serialized TreeBuilder from disc
 			log.info("Start loading serailized run at: " + cla.resumePrevRun);
-			tb = (TreeBuilder) ToFileSerializer.deserialize(cla.resumePrevRun);
+			TreeBuilder tb = (TreeBuilder) ToFileSerializer.deserialize(cla.resumePrevRun);
+			// add controller to TreeBuilder
+			ClusteringController controller = getClusteringController(tb);
 			log.info("Resume clustering ...");
-			clusterResult = tb.resumeClustering(cla.serializeRun);
+			// continue clustering
+			clusterResult = controller.resumeClusteringRun(cla.serializeRun);
 		} else {
-			tb = createNewTreeBuilder();
+			// create leaf clusters of a new cluster tree
 			InitialNodesCreator in = new InitialNodesCreator(
 					trainingsDataset,
 					TreeComponentFactory.getInstance());
+			// get a new ClusteringController that controls a new TreeBuilder
+			ClusteringController controller = getClusteringController(null);
 			log.info("Starting new run ...");
-			clusterResult = tb.startClustering(
-					cla.serializeRun,
-					in,
-					cla.nodeUpdater,
-					cla.useUserMetaDataForClustering,
-					cla.useContentMetaDataForClustering);
+			// start clustering with leaves / at bottom of tree
+			clusterResult = controller.startNewClusteringRun(cla.nodeUpdater, in, cla.serializeRun);
 		}
 		return clusterResult;
-	}	
+	}
+	
+	/**
+	 * Attach the specified clustering controller to the passed TreeBuilder
+	 * @param treeBuilder the TreeBuilder to control
+	 * @return a ClusteringControler that controls the passed TreeBuilder
+	 */
+	private static ClusteringController getClusteringController(TreeBuilder treeBuilder) {
+		if (cla.noGui) {
+			return new SimpleClusteringController(treeBuilder);
+		} else {
+			return new GUIClusteringController(treeBuilder);
+		}
+	}
 	
 	/**
 	 * Allows the Evaluation of the quality of recommendations given by the system
@@ -77,8 +123,7 @@ public class TestDriver {
 	 * @param trainingOutput the trainingCluster for evaluation
 	 * @throws Exception 
 	 */
-
-	private static void test(ClusterResult trainingOutput, IDataset<?> testDataset) throws Exception {
+	private static void test(ClusterResult trainingOutput, IDataset testDataset) throws Exception {
 				
 		// Instantiate Tools
 		Evaluator eb 				= new Evaluator();
@@ -118,68 +163,7 @@ public class TestDriver {
 		WebExtension webUI = new WebExtension(basicUI); // Hangs in on basicUI, listens on 8081
 		webUI.startService();
 	}
-	
-	/**
-	 * Instantiates the modules as specified in 
-	 * the input args and creates a new TreeBuilder.
-	 * 
-	 * @return a new TreeBuilder instance.
-	 */
-	private static TreeBuilder createNewTreeBuilder() {
 		
-		// initialize the RapidMiner operator description
-		SerializableRMOperatorDescription.setOperatorDescription("groupKey", "key", "iconName");
-		
-		return new TreeBuilder();		
-	}
-	
-	private static IDataset<?> getTestDataset() {
-		return getDataset(cla.testFile, DataSetSplit.TEST);
-	}
-	
-	private static IDataset<?> getTrainingDataset() {
-		return getDataset(cla.trainingFile, DataSetSplit.TRAINING);
-	}
-		
-	/**
-	 * Instantiates the data set object to process. Data are loaded from the specified
-	 * file or the default file.
-	 * 	
-	 * @return the IDataset to process
-	 */
-	private static IDataset<?> getDataset(File inputFile, DataSetSplit split) {
-		// Load specified data set (with default input file)	
-		IDataset<?> dataset = null;
-		try {
-			Constructor<?>[] constructors = cla.datasetType.getConstructors();
-			for (Constructor<?> constructor : constructors) {
-				Class<?>[] parameterTypes = constructor.getParameterTypes();
-				if (parameterTypes.length == 0) {
-					dataset = (IDataset<?>) constructor.newInstance();
-					break;
-				}
-//				if (parameterTypes.length == 1 && parameterTypes[0] == File.class) {
-//					// training and test data set is the same
-//					dataset = (IDataset<?>) constructor.newInstance(inputFile);
-//					break;
-//				}	
-				if (parameterTypes.length == 2 && parameterTypes[0] == File.class && parameterTypes[1] == DataSetSplit.class) {
-					dataset = (IDataset<?>) constructor.newInstance(inputFile, split);
-					break;
-				}
-			}
-			if (dataset == null) {
-				throw new NoSuchMethodException();
-			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			e.printStackTrace();
-			jc.usage();
-			System.exit(-1);
-		}
-		return dataset;
-	}
-	
-	
 	/**
 	 * Must not be instantiated.
 	 */

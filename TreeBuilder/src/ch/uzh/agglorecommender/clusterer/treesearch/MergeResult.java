@@ -24,8 +24,19 @@ public class MergeResult implements IMergeResult, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Category utility of the merge.
+	 */
 	private final double utility;
+	
+	/**
+	 * Array of nodes to merge.
+	 */
 	private final INode[] mergeNodesArr;
+	
+	/**
+	 * List of nodes to merge.
+	 */
 	private final Collection<INode> mergeNodesLi;
 	
 	public MergeResult(double utility, INode[] nodesOfThisMerge) {

@@ -1,8 +1,12 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
-import java.io.Serializable;
 
-abstract class MaxCategoryUtilitySearcherDecorator implements IMaxCategoryUtilitySearcher, Serializable {
+/**
+ * A decorator for the BasicMaxCategoryUtilitySearcher
+ * in the sense of the GoF decorator pattern.
+ *
+ */
+abstract class MaxCategoryUtilitySearcherDecorator implements IMaxCategoryUtilitySearcher {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -13,12 +17,17 @@ abstract class MaxCategoryUtilitySearcherDecorator implements IMaxCategoryUtilit
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * The concrete component of the GoF decorator pattern.
+	 * Might be already decorated.
+	 */
 	protected IMaxCategoryUtilitySearcher decoratedSearcher;
 	
+	/**
+	 * Instantiates a new decorator with the passed object as concrete component.
+	 * @param decoratedSearcher the concrete component, might be wrapped in a decorator.
+	 */
 	public MaxCategoryUtilitySearcherDecorator(IMaxCategoryUtilitySearcher decoratedSearcher){
 		this.decoratedSearcher = decoratedSearcher;
 	}
-	
-	
-	
 }

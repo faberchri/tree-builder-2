@@ -1,9 +1,15 @@
 package ch.uzh.agglorecommender.clusterer.treesearch;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
-public interface IClusterSet<E> {
+/**
+ * Set of elements to cluster.
+ *
+ * @param <E> The type of object to store in the cluster set.
+ */
+public interface IClusterSet<E> extends Serializable {
 	
 	/**
 	 * Checks if the ClusterSet contains the passed object.

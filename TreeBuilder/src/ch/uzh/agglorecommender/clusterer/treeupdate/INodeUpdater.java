@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.clusterer.treeupdate;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
@@ -9,7 +10,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 /**
  * Updates a set of nodes with a new node.
  */
-public interface INodeUpdater {
+public interface INodeUpdater extends Serializable {
 	
 	/**
 	 * Updates a set of nodes with a new node.

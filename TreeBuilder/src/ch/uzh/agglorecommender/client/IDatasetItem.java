@@ -8,9 +8,8 @@ import com.google.common.collect.Multimap;
  * 
  * A data item is a single rating for one content item of one user.
  *
- * @param <T> the data type of the rating
  */
-public interface IDatasetItem<T> extends Serializable {
+public interface IDatasetItem extends Serializable {
 	
 	/**
 	 * The id of the user, who submitted the rating.
@@ -31,7 +30,7 @@ public interface IDatasetItem<T> extends Serializable {
 	 * 
 	 * @return the rating
 	 */
-	public T getRating();
+	public double getRating();
 
 	/**
 	 * The nominal background information of the user.
@@ -52,9 +51,5 @@ public interface IDatasetItem<T> extends Serializable {
 	 * The numerical background information of the content.
 	 */
 	public Multimap<String, Double> getNumericalContentMetaMap();
-
-	public void addContentMetaData(String attribute, Object value);
-
-	public void addUserMetaData(String attribute, Object value);
 	
 }

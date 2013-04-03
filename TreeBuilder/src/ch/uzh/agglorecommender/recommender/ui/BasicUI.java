@@ -154,7 +154,7 @@ public class BasicUI {
 //		System.out.println("------------------");
 		
 		// Get dataset for configuration -> FIXME
-		IDataset<?> dataset = rb.getDataset();
+		IDataset dataset = rb.getDataset();
 		INode fakeChild = new Node(null,null,dataset); 
 		Collection<INode> fakeChildren = new HashSet<>();
 		fakeChildren.add(fakeChild);

@@ -9,8 +9,14 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 
-
-public class ExtendedNodeUpdater implements INodeUpdater, Serializable {
+/**
+ * A node updater that removes the attributes of an
+ * updated node that are children of the new node
+ * and keeps the new node as attribute of the 
+ * updated node.
+ *
+ */
+public class ExtendedNodeUpdater implements INodeUpdater {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -24,8 +30,7 @@ public class ExtendedNodeUpdater implements INodeUpdater, Serializable {
 	@Override
 	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate) {
 		Logger log = TBLogger.getLogger(getClass().getName());
-		
-		
+				
 		for (INode attNode : newNode.getRatingAttributeKeys()) {			
 			// Update Node if it is in collection of nodes that should be updated
 			if (nodesToUpdate.contains(attNode)) {

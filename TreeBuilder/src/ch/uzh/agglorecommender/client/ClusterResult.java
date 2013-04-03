@@ -24,7 +24,6 @@ public class ClusterResult implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-
 	/**
 	 * Map of user id as in data set to the corresponding node.
 	 */
@@ -48,9 +47,9 @@ public class ClusterResult implements Serializable {
 	private final INode contentTreeRoot;
 	
 	/**
-	 * The id of the tree builder. Can be used as run id.
+	 * The id of the clustering run.
 	 */
-	private final UUID treeBuilderId;
+	private final UUID runId;
 
 	/**
 	 * Instantiates a new immutable cluster result.
@@ -64,13 +63,15 @@ public class ClusterResult implements Serializable {
 	 */
 	public ClusterResult(ImmutableMap<String, INode> userTreeLeavesMap,
 			ImmutableMap<String, INode> contentTreeLeavesMap,
-			INode userTreeRoot, INode contentTreeRoot, UUID treeBuilderId) {
+			INode userTreeRoot, INode contentTreeRoot, UUID runId) {
+		if (runId == null) throw new IllegalArgumentException("The passed run id must not be null");
+
 		
 		this.userTreeLeavesMap = userTreeLeavesMap;
 		this.contentTreeLeavesMap = contentTreeLeavesMap;
 		this.userTreeRoot = userTreeRoot;
 		this.contentTreeRoot = contentTreeRoot;
-		this.treeBuilderId = treeBuilderId;
+		this.runId = runId;
 	}
 
 	/**
@@ -117,8 +118,8 @@ public class ClusterResult implements Serializable {
 	 * Gets the uuid of the tree builder.
 	 * @return uuid of the tree builder.
 	 */
-	public UUID getTreeBuilderId() {
-		return treeBuilderId;
+	public UUID getRunId() {
+		return runId;
 	}
 	
 }

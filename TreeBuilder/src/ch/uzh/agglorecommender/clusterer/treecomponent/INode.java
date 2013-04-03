@@ -82,21 +82,27 @@ public interface INode {
 	 */
 	public IAttribute getNominalAttributeValue(Object attribute);
 	
-//	/**
-//	 * Gets the attribute value for the passed {@code attribute}.
-//	 *
-//	 * @param attribute the key to fetch the attribute value.
-//	 * @return the {@code IAttribute} object mapped to the
-//	 * passed node or null if no mapping is present.
-//	 */
-//	public IAttribute getRatingAttributeValue(INode attribute);
-	
+	/**
+	 * Checks if the passed attribute should be used for clustering.
+	 * @param attribute the attribute to query
+	 * @return false if explicitly specified in the data set property
+	 * file else true. Ratings attributes return always true.
+	 */
 	public boolean useAttributeForClustering(Object attribute);
 	
+	/**
+	 * Gets the immutable clustering control map that specifies
+	 * which attributes shall be used for clustering.
+	 * @return immutable map attribute tag -> boolean
+	 */
 	public ImmutableMap<String, Boolean> getClusteringControlMap();
 	
-	public IDataset<?> getDataset();
-
+	/**
+	 * Gets a reference to the data set of the data set
+	 * instance contained in this cluster.
+	 * @return a reference to the data set
+	 */
+	public IDataset getDataset();
 	
 	/**
 	 * Gets all nodes from the numerical meta attribute map of this node.
@@ -121,14 +127,7 @@ public interface INode {
 	 * contained in this ratings attribute map.
 	 */
 	public Set<INode> getRatingAttributeKeys();
-	
-//	/**
-//	 * Gets the type of the attributes of the node (Cobweb/Classit/etc.)
-//	 * 
-//	 * @return description of type
-//	 */
-//	public String getAttributesType();
-		
+			
 	/**
 	 * Adds a child to the nodes children container.
 	 * Does nothing if {@code child} is already a child of this node.
@@ -296,9 +295,12 @@ public interface INode {
 	 */
 	public String getAttributeHTMLLabelString();
 	
+	/**
+	 * Gets the subtree of this node as JTree.
+	 * @return a JTree of the subtree
+	 */
 	public JTree getJTreeOfSubtree();
-	
-	
+		
 	/**
 	 * The category utility of this nodes children merge.
 	 * 1 if node is leaf.

@@ -36,7 +36,7 @@ public final class RecommendationBuilder {
 	private ImmutableMap<String, INode> leavesMapC;
 	private INode rootU;
 	private INode rootC;
-	private IDataset<?> dataset;
+	private IDataset dataset;
 	
 	/**
 	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
@@ -46,7 +46,7 @@ public final class RecommendationBuilder {
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(ClusterResult clusterResult, IDataset<?> testDataset) {
+	public RecommendationBuilder(ClusterResult clusterResult, IDataset testDataset) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
@@ -457,7 +457,7 @@ public final class RecommendationBuilder {
 		return title;
 	}
 	
-	public IDataset<?> getDataset(){
+	public IDataset getDataset(){
 		return this.dataset;
 	}
 }

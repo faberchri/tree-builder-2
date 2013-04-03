@@ -10,26 +10,58 @@ import java.util.logging.Logger;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
-class SplitWorker extends Thread {
+/**
+ * Performs the category utility calculation for a fraction of all combination id's.
+ */
+final class SplitWorker extends Thread {
 
+	/**
+	 * List of combination id's to process by this worker.
+	 */
 	private final TIntList split;
 
+	/**
+	 * Maps to each processed combination id its category utility value.
+	 */
 	private TIntDoubleMap calcRes;
 
+	/**
+	 * Performs the category utility value calculation. 
+	 */
 	private final BasicMaxCategoryUtilitySearcher searcher;
 
+	/**
+	 * Needed to resolve the combination id's into the corresponding nodes.
+	 */
 	private final IClusterSetIndexed<INode> clusterSet;
 
+	/**
+	 * The theoretical maximal possible category utility value for a merge.
+	 */
 	private final double maxPossibleCU;
 
-	protected static boolean maxCUFound = false; // all threads read and write
-													// to this variable,
+	/**
+	 * Indicates whether in the current cycle a merge with the maximal possible category utility 
+	 * was found. Search is terminated if true.
+	 * <br>
+	 * All SplitWorker threads read and write to this variable,
+	 * however no synchronization is needed, since write
+	 * sets variable always only to true. Additional cycles due to delayed
+	 * update of the variable in memory do not harm.
+	 * <br>
+	 * After each cycle variable is reset to false.
+	 */
+	private static boolean maxCUFound = false;
 
-	// however no synchronization needed, since write
-	// sets variable always only to true. Additional cycles due to delayed
-	// update of the variable in memory do not harm.
 
-	public SplitWorker(TIntList split,
+	/**
+	 * Instantiates a new SplitWorker that can be started in a new thread.
+	 * 
+	 * @param split combination'ids to calculate
+	 * @param searcher searcher that calculates category utility.
+	 * @param clusterSet set to cluster
+	 */
+	protected SplitWorker(TIntList split,
 			BasicMaxCategoryUtilitySearcher searcher,
 			IClusterSetIndexed<INode> clusterSet) {
 		this.split = split;
@@ -39,12 +71,15 @@ class SplitWorker extends Thread {
 		this.maxPossibleCU = searcher.getMaxTheoreticalPossibleCategoryUtility();
 	}
 
+	/**
+	 * Calculates all the category utilities for the combination id's on the split or until
+	 * maxCUFound is true.
+	 */
 	@Override
 	public void run() {
 		Logger log = TBLogger.getLogger(getClass().getName());
 		TIntIterator iterator = split.iterator();
-		for (int i = split.size(); i-- > 0;) { // faster iteration by avoiding
-												// hasNext()
+		for (int i = split.size(); i-- > 0;) { // faster iteration by avoiding hasNext()
 			if (maxCUFound){
 				log.fine("Thread Id " + this.getId() + ": Terminating searcher thread due to found max cu in different thread.");
 				return;
@@ -72,6 +107,10 @@ class SplitWorker extends Thread {
 
 	protected TIntDoubleMap getCalcRes() {
 		return calcRes;
+	}
+	
+	protected static void setMaxCUFound(boolean maxCUFound) {
+		SplitWorker.maxCUFound = maxCUFound;
 	}
 
 }

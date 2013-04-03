@@ -4,16 +4,16 @@ import gnu.trove.map.TIntDoubleMap;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
-import ch.uzh.agglorecommender.client.SerializableRMOperatorDescription;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
-import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClusterSetIndexed;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSetIndexed;
@@ -25,16 +25,20 @@ import ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySear
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
-import ch.uzh.agglorecommender.visu.TreeVisualizer;
+import ch.uzh.agglorecommender.visu.Observer;
+
 
 /**
  * 
  * Implementation of COBWEB inspired hierarchical
  * agglomerative two-dimensional clustering algorithm 
  * for media recommendation generation.
+ * 
+ *  The model component of the M-V-C-pattern used for the clustering subsystem.
+ *  (M:TreeBuilder-V:TreeVisualizer-C:ClusteringController)
  *
  */
-public final class TreeBuilder extends DummyRMOperator implements Serializable {
+public final class TreeBuilder implements Serializable, Observable, Runnable {
 	
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -45,13 +49,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean visualizationON = true;
-	
-//	/**
-//	 * The data set to cluster.
-//	 */
-//	private transient IDataset<?> dataset; 
-	
 	/**
 	 * The set of all root nodes of type user.
 	 */
@@ -61,12 +58,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * The set of all root nodes of type content.
 	 */
 	private IClusterSet<INode> contentNodes;
-	
-//	/**
-//	 * The final set of root nodes of type user and type content.
-//	 */
-//	private ArrayList<INode> rootNodes = new ArrayList<INode>();
-	
+		
 	/**
 	 * The result of the clustering process.
 	 */
@@ -92,199 +84,112 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * The searcher for the best content nodes merge.
 	 */
 	private IMaxCategoryUtilitySearcher contentMCUSearcher;
-
+	
 	/**
-	 * Manages the graphical representation of the tree structure ch.uzh.agglorecommender.visu.
+	 * Each cluster run gets a unique id, which is included in the filename of the
+	 * serialized TreeBuilder object.
 	 */
-	private transient TreeVisualizer treeVisualizer;
+	private UUID runId = null;
+	
+	/**
+	 * File system location for the serialized TreeBuilder.
+	 */
+	private String pathToWriteSerializedObject;
+	
+	/**
+	 * The observers of the TreeBuilder, i.e. the views of the model.
+	 */
+	private transient List<Observer> observers = new LinkedList<Observer>();
+	
+	/**
+	 * Causes the cluster method to exit after the current cycle completed if true.
+	 */
+	private boolean isInterrupted = false;
+	
+	/**
+	 * Is true if clustering is completed, i.e. cluster method terminated.
+	 */
+	private boolean buildCompleted = false;
 	
 	/**
 	 * The logger of this class.
 	 */
 	private transient Logger log = TBLogger.getLogger(getClass().getName());
-	
-	/**
-	 * Each TreeBuilder gets a unique id, which is included in the filename of the
-	 * serialized object.
-	 */
-	private final UUID builderId = UUID.randomUUID();
-	
-	/**
-	 * Keeping this reference ensures that the monitor gets serialized 
-	 * together with the TreeBuilder.
-	 */
-	private final Monitor monitor = Monitor.getInstance();
-	
-	/**
-	 * Instantiates a new tree builder which can create a cluster tree based on the passed data set.
-	 * 
-	 * @param rapidminerOperatorDescription Data container for name, class, short name,
-	 * path and the description of an operator. 
-	 * @param dataset the data set to cluster.
-	 * @param searcherUsers the best merge searcher for nodes of type user.
-	 * @param searcherContent the best merge searcher for nodes of type content.
-	 * @param nodeUpdater the node updater used in the clustering process.
-	 */
-	public TreeBuilder() {
-		
-		super(SerializableRMOperatorDescription.getOperatorDescription());
 
-	}
-	
-	private void initTreeBuilder(INodeUpdater nodeUpdater,
-			boolean useUserMetaDataForClustering,
-			boolean useContentMetaDataForClustering) {
-		
-		this.nodeUpdater = nodeUpdater;
-		
-		if (useUserMetaDataForClustering) {
-			this.userMCUSearcher = new SharedMaxCategoryUtilitySearcher();
-		} else {
-			this.userMCUSearcher = new ClassitMaxCategoryUtilitySearcher();
-		}
-		
-		if (useContentMetaDataForClustering) {
-			this.contentMCUSearcher = new SharedMaxCategoryUtilitySearcher();
-		} else {
-			this.contentMCUSearcher = new ClassitMaxCategoryUtilitySearcher();
-		}
-		
-		// add decorators to searchers for performance improvement
-		this.userMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(this.userMCUSearcher));
-		this.contentMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(new CachedMaxCUSearcher(this.contentMCUSearcher));
-				
+	/**
+	 * Instantiate a new TreeBuilder.
+	 */
+	protected TreeBuilder() {
+
 		this.treeComponentFactory = TreeComponentFactory.getInstance();
-		
-		if (visualizationON) {
-			this.treeVisualizer = new TreeVisualizer();	
-		}
-
+		this.userMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(
+				new CachedMaxCUSearcher(
+						new SharedMaxCategoryUtilitySearcher()));
+		this.contentMCUSearcher = new NoCommonRatingAttributeSkipMaxCUSearcher(
+				new CachedMaxCUSearcher(
+						new SharedMaxCategoryUtilitySearcher()));
 	}
-		
-	/**
-	 * Resumes a previously start clustering process.
-	 * 
-	 * @param pathToWriteSerializedObject location for the new serialization file.
-	 * If null no file is created.
-	 * @return the result of the clustering process
-	 */
-	public ClusterResult resumeClustering(String pathToWriteSerializedObject) {
-		log = TBLogger.getLogger(getClass().getName());
-		if (visualizationON) {
-			treeVisualizer = new TreeVisualizer();			
-		}
-		return cluster(pathToWriteSerializedObject);
-	}
-	
-	/**
-	 * Starts a new clustering process from scratch.
-	 * 
-	 * @param pathToWriteSerializedObject location for the serialization file.
-	 * If null no file is created.
-	 * @return the result of the clustering process
-	 */
-	public ClusterResult startClustering(String pathToWriteSerializedObject,
-			InitialNodesCreator leafNodes, INodeUpdater nodeUpdater,
-			boolean useUserMetaDataForClustering, boolean useContentMetaDataForClustering) {
-		log = TBLogger.getLogger(getClass().getName());
-		
-		initTreeBuilder(nodeUpdater, useUserMetaDataForClustering, useContentMetaDataForClustering);
-		
-		this.result = new ClusterResult(
-				leafNodes.getUserLeaves(), leafNodes.getContentLeaves(),
-				null, null, builderId);
-		initNodeSets(leafNodes);
-		return cluster(pathToWriteSerializedObject);
-	}
-	
-	/**
-	 * Creates references to the leaf nodes in the set of nodes to cluster.
-	 * 
-	 * @param leafNodes the initial leaf nodes 
-	 */
-	private void initNodeSets(InitialNodesCreator leafNodes) {
-		contentNodes = new ClusterSetIndexed<INode>(leafNodes.getContentLeaves().values());
-		userNodes = new ClusterSetIndexed<INode>(leafNodes.getUserLeaves().values());
-//		for (INode n : leafNodes.getContentLeaves().values()) {
-//			contentNodes.add(n);
-//		}	
-//		for (INode n : leafNodes.getUserLeaves().values()) {
-//			userNodes.add(n);
-//		}	
-	}
-	
-	
-	
+			
 	/**
 	 * Performs the cluster tree creation of the data set.
-	 * 
-	 * @param pathToWriteSerializedObject location for the serialization file.
-	 * If null no file is created.
-	 * 
-	 * @return The resulting @code{cluster result} object.
+	 * Upon completion of the clustering a new fully initialized
+	 * {@code ClusterResult } object is created and assigned to
+	 * {@code result}.
 	 */
-	private ClusterResult cluster(String pathToWriteSerializedObject) {
-				 
-		// Initialize Visualizer
-		if (visualizationON) {
-			treeVisualizer.initVisualization(userNodes.getUnmodifiableView(), contentNodes.getUnmodifiableView(), monitor);
-		}
-		
-		// Initialize Monitor
-		monitor.initMonitoring(userNodes.size(), contentNodes.size());
+	private void cluster() {
 		
 		// Initialize the balancer for the clustering process.
 		ClusteringBalancer<INode> balancer = new ClusteringBalancer<INode>(userNodes, contentNodes);
 
+		int cycleCounter = 0;
+		
 		// Process Nodes
 		while (! userNodes.clusteringDone() || ! contentNodes.clusteringDone()) {
 			long time = System.nanoTime();
-			log.info("------------------------------- start cycle ---------------------------------");
+			log.info("------------------------------- start cycle " + cycleCounter + " ---------------------------------");
 			
-			// check if clustering is interrupted
-			interrupt();
-			
-			performClusterCycle(balancer.getNextClusterSet());
-
-			// Update Monitor
-			monitor.update(userNodes.size(),contentNodes.size());
-			
-			// Create/Update Visualization
-			if (visualizationON) {
-				treeVisualizer.visualize();
+			// check if clustering was interrupted by user interaction
+			if (isInterrupted) {
+				isInterrupted = false;
+				return;
 			}
 			
+			performClusterCycle(balancer.getNextClusterSet());
+			
+			notifyObservers();
+									
+			log.info("---------------------- cycle " + cycleCounter + " completed (" + ( (double)(System.nanoTime() - time) / 1000000000.0) + " s) -------------------------");
+		
 			// serialize this TreeBuilder if necessary according to specified interval.
 			// This writes current TreeBuilder state to disk and
 			// allows to terminate clustering process and to resume later.
 			// The frequency of serialization can be set with
 			// ToFileSerializer.serializationTimeInterval
-			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, builderId);
-			log.info("---------------------- cycle completed (" + ( (double)(System.nanoTime() - time) / 1000000000.0) + " s) -------------------------");
+			ToFileSerializer.serializeConditionally(this, pathToWriteSerializedObject, runId);
+			
+			cycleCounter++;
 		} 
 				
 		log.info("Clustering terminated!");
 		// serialize this TreeBuilder if clustering is completed.
-		ToFileSerializer.serialize(this, pathToWriteSerializedObject, builderId);
-		
-		// Create/Update Visualization
-		if (visualizationON) {
-			treeVisualizer.visualize();
-		}
+		ToFileSerializer.serialize(this, pathToWriteSerializedObject, runId);
 		
 		if (contentNodes.size() == 1 && userNodes.size() == 1) {
 			result = new ClusterResult(
 					result.getUserTreeLeavesMap(), result.getContentTreeLeavesMap(), 
-					userNodes.getRoot(), contentNodes.getRoot(), builderId);
+					userNodes.getRoot(), contentNodes.getRoot(), runId);
 		} else {
 			log.severe("clustering terminated before the user or content cluster forests converged to trees");
 			System.exit(-1);
 		}
-		return result;
 		
+		// wake up thread that fetches cluster result object
+        synchronized(this){
+            this.buildCompleted = true;
+            notifyAll();
+       }
 	}
-	
-	
+		
 	/**
 	 * Searches and performs the best merge in the passed set and updates the other set with the new node.
 	 * 
@@ -311,6 +216,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 				nodeUpdater.updateNodes(newContentNode, userNodes.getUnmodifiableView()); 
 			}
 		}
+		log.info("number of remaining open nodes: " + openSet.size());
 	}
 			
 	/**
@@ -347,11 +253,6 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 		log.info("Best node merge has category utility of "
 				+best.getCategoryUtility() +" and includes: " + best.getNodes() + ", combination id: " + bestCobinationId);
 
-		Monitor counter = Monitor.getInstance();
-
-		log.info("cycle "+ monitor.getCycleCount() + "| number of open nodes: " + 
-				nodes.size() + "\t elapsed time [s]: "+ counter.getElapsedTime());
-		//			treeVisualizer.printAllOpenUserNodes();
 		return best;
 	}
 	
@@ -359,7 +260,7 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 * Creates a new node and initializes the nodes attributes based on a list of close nodes.
 	 * The list of close nodes become the children of the new node.
 	 * 
-	 * @param nodesToMerge close nodes which are
+	 * @param mergeResult close nodes which are
 	 * used to initialize a new node and will form the new nodes children. 
 	 * These nodes are removed from the open set.
 	 * 
@@ -370,71 +271,187 @@ public final class TreeBuilder extends DummyRMOperator implements Serializable {
 	 */
 	private INode merge(IMergeResult mergeResult, IClusterSet<INode> openSet) {
 		Collection<INode> nodesToMerge = mergeResult.getNodes();
-		if (nodesToMerge.size() > 1) {
-			
-			// Create a new node (product of nodesToMerge)
-			INode newNode;
-			switch (nodesToMerge.iterator().next().getNodeType()) {
-			case User:
-				newNode = treeComponentFactory.createInternalNode(
-						ENodeType.User,
-						nodesToMerge,
-						mergeResult.getCategoryUtility()); 
-				break;
-			case Content:
-				newNode = treeComponentFactory.createInternalNode(
-						ENodeType.Content,
-						nodesToMerge,
-						mergeResult.getCategoryUtility());
-				break;
-			default:
-				newNode = null;
-				log.severe("Err: Not supported node encountered in: " + getClass().getSimpleName());
-				System.exit(-1);
-				break;
-			}
-			
-			// Add new node to open set
-			openSet.add(newNode);
-			log.fine("New node added to open set: " + newNode);
-			
-			// Updating relationships and remove
-			for (INode nodeToMerge : nodesToMerge) {	
-				
-				// Remove merged Nodes
-				if (!openSet.remove(nodeToMerge)) {
-					log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
-					System.exit(-1);
-				}
-			}
-		
-			return newNode;
-			
-		} 
-		else {
+		if (nodesToMerge.size() < 2) {
 			log.severe("Err: Merge attempt with 1 or less nodes, in: " + getClass().getSimpleName());
 			System.exit(-1);
+			return null;
 		}
-		return null;
+
+		// Create a new node (product of nodesToMerge)
+		INode newNode;
+		switch (nodesToMerge.iterator().next().getNodeType()) {
+		case User:
+			newNode = treeComponentFactory.createInternalNode(
+					ENodeType.User,
+					nodesToMerge,
+					mergeResult.getCategoryUtility()); 
+			break;
+		case Content:
+			newNode = treeComponentFactory.createInternalNode(
+					ENodeType.Content,
+					nodesToMerge,
+					mergeResult.getCategoryUtility());
+			break;
+		default:
+			newNode = null;
+			log.severe("Err: Not supported node encountered in: " + getClass().getSimpleName());
+			System.exit(-1);
+			break;
+		}
+
+		// Add new node to open set
+		openSet.add(newNode);
+		log.fine("New node added to open set: " + newNode);
+
+		// Updating relationships and remove
+		for (INode nodeToMerge : nodesToMerge) {	
+
+			// Remove merged Nodes
+			if (!openSet.remove(nodeToMerge)) {
+				log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
+				System.exit(-1);
+			}
+		}	
+		return newNode;
+	}
+
+	@Override
+	public void addObserver(Observer observer) {
+		if (observers == null) {
+			observers = new LinkedList<Observer>();
+		}
+		if (observer != null) {
+			observers.add(observer);					
+		}
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		if (observers == null) return;
+		if (observer != null) {
+			observers.remove(observer);					
+		}	
 	}
 	
 	/**
-	 * Checks TreeVisualizer if clustering process is interrupted. If true 
-	 * the TreeVisualizer is polled every 0.5 s to check for status change.
+	 * Update all observers of this observable.
 	 */
-	private void interrupt() {
-		if (! visualizationON) return;
-		while (treeVisualizer.isPaused()) {
-			log.info("clustering is interrupted!");
-			try {
-				synchronized(this) {
-					wait(500);
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	private void notifyObservers() {
+		for (Observer o : observers) {
+			o.update(userNodes, contentNodes);
 		}
-		log.info("clustering continues ...");
+	}
+	
+	/**
+	 * Configurates the TreeBuilder for a new cluster run.
+	 * This method needs to be called before the clustering process is started.
+	 * 
+	 * @param nodeUpdater the node updater to use in the clustering process
+	 * @param leafNodes the initial clusters used as leaves in the cluster tree
+	 * @param pathToWriteSerializedObject the file system location to write
+	 * the serialized TreeBuilder
+	 */
+	protected void configTreeBuilderForNewRun(INodeUpdater nodeUpdater, InitialNodesCreator leafNodes, String pathToWriteSerializedObject) {
+		if (nodeUpdater == null) throw new IllegalArgumentException("The passed node updater must not be null");
+		if (leafNodes == null) throw new IllegalArgumentException("The passed initial nodes creator must not be null");
+		
+		setNodeUpdater(nodeUpdater);		
+		setContentNodes(new ClusterSetIndexed<INode>(leafNodes.getContentLeaves().values()));
+		setUserNodes(new ClusterSetIndexed<INode>(leafNodes.getUserLeaves().values()));
+		setResult(new ClusterResult(
+				leafNodes.getUserLeaves(),
+				leafNodes.getContentLeaves(),
+				null, null, UUID.randomUUID()));
+		setPathToWriteSerializedObject(pathToWriteSerializedObject);
+	}
+	
+	/**
+	 * Set the user clusters.
+	 * @param userNodes the user clusters that will be clustered.
+	 */
+	private void setUserNodes(IClusterSet<INode> userNodes) {
+		this.userNodes = userNodes;
+	}
+	
+	/**
+	 * Set the content clusters.
+	 * @param userNodes the content clusters that will be clustered.
+	 */
+	private void setContentNodes(IClusterSet<INode> contentNodes) {
+		this.contentNodes = contentNodes;
+	}
+	
+	/**
+	 * Set the run id of a new clustering process.
+	 * 
+	 * @param runId the new id
+	 */
+	private void setRunId(UUID runId) {
+		this.runId = runId;
+	}
+	
+	/**
+	 * Sets the ClusterResult.
+	 * @param result the new 
+	 */
+	private void setResult(ClusterResult result) {
+		setRunId(result.getRunId());
+		this.result = result;
+	}
+	
+	/**
+	 * Starts the thread that performs the clustering process.
+	 */
+	@Override
+	public void run() {
+		log = TBLogger.getLogger(getClass().getName());
+		notifyObservers();
+		cluster();		
+	}
+	
+	/**
+	 * Gets the cluster result as soon as the clustering process is completed.
+	 * Calling this method is blocking since the thread only returns after the 
+	 * clustering performing thread signals completion of clustering.
+	 * 
+	 * @return the result of the clustering process
+	 */
+	protected ClusterResult getResult() {
+        synchronized(this){
+            while(!buildCompleted){
+                try {
+					wait();
+				} catch (InterruptedException e) {
+					log.severe("Thread waiting for completion of " +
+							"clustering process was interrupted.");
+				}
+            }
+        }
+		return result;
+	}
+	
+	/**
+	 * Sets the NodeUpdater to use for the clustering.
+	 * @param nodeUpdater the new updater.
+	 */
+	protected void setNodeUpdater(INodeUpdater nodeUpdater) {
+		this.nodeUpdater = nodeUpdater;
+	}
+	
+	/**
+	 * Sets the file system location for the serialized TreeBuilder object.
+	 * @param pathToWriteSerializedObject file system location
+	 */
+	protected void setPathToWriteSerializedObject(
+			String pathToWriteSerializedObject) {
+		this.pathToWriteSerializedObject = pathToWriteSerializedObject;
+	}
+	
+	/**
+	 * Interrupts the clustering process.
+	 */
+	protected void interrupt() {
+		isInterrupted = true;
 	}
 	
 }

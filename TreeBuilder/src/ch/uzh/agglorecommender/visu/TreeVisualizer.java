@@ -1,10 +1,9 @@
 package ch.uzh.agglorecommender.visu;
 
 import java.awt.BorderLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -18,41 +17,37 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
-import ch.uzh.agglorecommender.clusterer.Monitor;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.util.TBLogger;
 
-
-public class TreeVisualizer {
+/**
+ *  The view component of the M-V-C-pattern used for the clustering subsystem.
+ *  (M:TreeBuilder-V:TreeVisualizer-C:GUIClusteringController)
+ */
+public class TreeVisualizer implements Observer{
 	
 	/**
 	 * JPanels which contains the JUNG items for cluster tree visualization.
 	 */
 	private TreePanel vbC;
 	private TreePanel vbU;
-	
-	private MonitorPanel monitorPanel;
+		
+	private JButton playButton = new JButton("Interrupt");
 	
 	private boolean isPaused = false;
-	
-	/**
-	 * References to open node sets.
-	 */
-	private Collection<INode> userNodes, contentNodes;
-	private Monitor monitor;
+		
+	public TreeVisualizer(ClusteringStatusPanel clusteringStatusPanel) {
+		initVisualization(clusteringStatusPanel);
+	}
 	
 	/**
 	 * Set up the facilities for the tree structure representation.
 	 * 
 	 * @param counter
 	 */
-	public void initVisualization(
-			Collection<INode> userNodes,
-			Collection<INode> contentNodes,
-			Monitor monitor) {
-		this.contentNodes = contentNodes;
-		this.userNodes = userNodes;
-		this.monitor = monitor;
+	private void initVisualization(
+			JPanel clusteringStatusPanel) {
 
 		// Set System L&F
 		try {
@@ -75,9 +70,9 @@ public class TreeVisualizer {
         frame.getContentPane().add(treeSplit, BorderLayout.CENTER);
                 
 		// Instantiate TreePanel
-		vbC = new TreePanel(contentNodes);
+		vbC = new TreePanel();
 		vbC.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Content Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
-		vbU = new TreePanel(userNodes);
+		vbU = new TreePanel();
 		vbU.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "User Data Cluster Tree", TitledBorder.CENTER, TitledBorder.CENTER));
 	
 		treeSplit.setLeftComponent(vbU);
@@ -85,38 +80,26 @@ public class TreeVisualizer {
        
         // Control Panel
         JPanel controlPanel = new JPanel();
-        JButton pB = new PlayButton();
-        controlPanel.add(pB);
+        controlPanel.setPreferredSize(new Dimension(200, 0));
+        controlPanel.add(playButton);
         controlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Control", TitledBorder.CENTER, TitledBorder.CENTER)); 
 //        frame.getContentPane().add(controlPanel, BorderLayout.PAGE_END);
         
-        // Monitor Panel
-        monitorPanel = new MonitorPanel(monitor);
-		monitorPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Progress", TitledBorder.CENTER, TitledBorder.CENTER));
+        // ClusteringStatusPanel
+        clusteringStatusPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Progress", TitledBorder.CENTER, TitledBorder.CENTER));
 //        frame.getContentPane().add(monitorPanel, BorderLayout.PAGE_START);
         
 		JPanel controlAndMonitorPanel = new JPanel(new BorderLayout());
 		controlAndMonitorPanel.add(new JScrollPane(controlPanel),BorderLayout.WEST);
-		controlAndMonitorPanel.add(new JScrollPane(monitorPanel),BorderLayout.CENTER);
+		controlAndMonitorPanel.add(new JScrollPane(clusteringStatusPanel),BorderLayout.CENTER);
 		
         frame.getContentPane().add(controlAndMonitorPanel, BorderLayout.SOUTH);
 
 		frame.pack();
 		frame.setVisible(true);
-		visualize();		
-	}
 		
-	/**
-	 * Creates a graphical representation of the current state of the cluster tree.
-	 * @param frame
-	 * @param content
-	 */
-	public void visualize() {
-		vbC.updateGraph(contentNodes);
-		vbU.updateGraph(userNodes);
-		monitorPanel.update();
 	}
-	
+			
 	/**
 	 * Prints a textual representation of all nodes
 	 * (including its attributes) contained in the passed set on stdout.
@@ -136,63 +119,68 @@ public class TreeVisualizer {
 		}
 		log.info("-----------------------");
 	}
-	
-	/**
-	 * Prints all textual representation  of all open user nodes on stdout.
-	 */
-	public void printAllOpenUserNodes() {
-		printAllNodesInSet((Set)userNodes, "User Nodes:");
-	}
-	
-	/**
-	 * Prints all textual representation  of all open content nodes on stdout.
-	 */
-	public void printAllOpenMovieNodes() {
-		printAllNodesInSet((Set)contentNodes, "ContentNodes:");
-	}
-	
+		
 	public boolean isPaused() {
 		return isPaused;
 	}
+	
+	public void setPlayButtonActionListener(ActionListener listener) {
+		for (ActionListener l : playButton.getActionListeners()) {
+			playButton.removeActionListener(l);
+		}
+		playButton.addActionListener(listener);
+	}
+	
+	public void deactivatePlayButton() {
+		playButton.setEnabled(false);
+	}
 
-	private class PlayButton extends JButton implements MouseListener {
+//	private class PlayButton extends JButton implements MouseListener {
+//		
+//		public PlayButton() {
+//			addMouseListener(this);
+//			this.setText("Interrupt");
+//		}
+//
+//		@Override
+//		public void mouseClicked(MouseEvent e) {
+//			// nothing to do			
+//		}
+//
+//		@Override
+//		public void mousePressed(MouseEvent e) {
+//			// nothing to do			
+//		}
+//
+//		@Override
+//		public void mouseReleased(MouseEvent e) {
+//			if (! e.getSource().equals(this)) return;
+//			if (isPaused) {
+//				this.setText("Interrupt");
+//				isPaused = false;
+//			} else {
+//				this.setText("Continue");
+//				isPaused = true;
+//			}			
+//		}
+//
+//		@Override
+//		public void mouseEntered(MouseEvent e) {
+//			// nothing to do			
+//		}
+//
+//		@Override
+//		public void mouseExited(MouseEvent e) {
+//			// nothing to do			
+//		}
+//	}
+
+	@Override
+	public void update(IClusterSet<INode> userClusterSet,
+			IClusterSet<INode> contentClusterSet) {
+		vbC.updateGraph(contentClusterSet.getUnmodifiableView());
+		vbU.updateGraph(userClusterSet.getUnmodifiableView());
 		
-		public PlayButton() {
-			addMouseListener(this);
-			this.setText("Interrupt");
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			// nothing to do			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// nothing to do			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			if (! e.getSource().equals(this)) return;
-			if (isPaused) {
-				this.setText("Interrupt");
-				isPaused = false;
-			} else {
-				this.setText("Continue");
-				isPaused = true;
-			}			
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// nothing to do			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// nothing to do			
-		}
 	}
 	
 }

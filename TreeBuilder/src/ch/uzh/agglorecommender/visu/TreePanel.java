@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.Predicate;
@@ -83,8 +84,7 @@ public class TreePanel extends JPanel {
 	
 	private Collection<INode> nodes;
 
-	public TreePanel(Collection<INode> nodes) {
-		this.nodes = nodes;
+	public TreePanel() {
 		this.setLayout(new BorderLayout());
 
 		// Create the graphs
@@ -141,6 +141,8 @@ public class TreePanel extends JPanel {
 		
 		JButton plus = new JButton("+");
 		plus.addActionListener(new ActionListener() {
+			
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				scaler.scale(vv, 1.1f, vv.getCenter());
 			}
@@ -154,60 +156,19 @@ public class TreePanel extends JPanel {
 
 		final JButton collapse = new JButton("Picked");
 		collapse.addActionListener(new ActionListener() {
-
+			
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				Set<INode> picked = new HashSet<INode>(vv.getPickedVertexState().getPicked());
-				if(picked.size() > 0) {
-					Forest<INode, Integer> inGraph = (Forest<INode, Integer>)layout.getGraph();
-					for (INode root : getCollapseRoots(picked)) {
-						try {
-							collapser.collapse(vv.getGraphLayout(), inGraph, root);
-						} catch (InstantiationException e1) {
-							e1.printStackTrace();
-						} catch (IllegalAccessException e1) {
-							e1.printStackTrace();
-						}
-					}
-					vv.getPickedVertexState().clear();
-					vv.repaint();
-				}
-			}
-			
-			private List<INode> getCollapseRoots(Set<INode> picked) {
-				List<INode> roots = new ArrayList<INode>();
-				for (Object o : picked) {
-					if (o instanceof INode) {
-						INode n = (INode) o;
-						if (n.isLeaf()) continue;
-						if (isCollapseRoot(n, picked)) {
-							roots.add(n);
-						}
-					}
-				}
-				return roots;
-			}
-			
-			private boolean isCollapseRoot(INode candidate, Set<INode> picked) {
-				if (candidate.isRoot()) return true;
-				INode p = candidate.getParent();
-				if (picked.contains(p)) return false;
-				return isCollapseRoot(p, picked);
+				collapseSingle(e);
 			}
 		});
 
 		final JButton expand = new JButton("Picked");
 		expand.addActionListener(new ActionListener() {
-
+			
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				Collection<INode> picked = new HashSet<INode>(vv.getPickedVertexState().getPicked());
-				for(Object v : picked) {
-					if(v instanceof Forest) {
-						Forest<INode, Integer> inGraph = (Forest<INode, Integer>)layout.getGraph();
-						collapser.expand(inGraph, (Forest<INode, Integer>)v);
-					}
-					vv.getPickedVertexState().clear();
-					vv.repaint();
-				}
+				expandSingle(e);
 			}
 		});
 
@@ -239,30 +200,8 @@ public class TreePanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MultiPickedState<Object> m = (MultiPickedState<Object>)(MultiPickedState<?>) vv.getPickedVertexState();
-				m.clear();
-				ActionListener expandListener = expand.getActionListeners()[0];
-				
-				while (! allExpanded()) {
-					Collection<Object> c = new ArrayList<Object>(graph.getVertices());
-					for (Object o : c) {
-						if (! (o instanceof INode)) {
-							m.pick(o, true);				
-							expandListener.actionPerformed(null);
-							m.clear();
-						}
-					}
-				}				
-			}
-			
-			private boolean allExpanded() {
-				Collection<INode> c = graph.getVertices();
-				for (Object o : c) {
-					if (! (o instanceof INode)) return false;
-				}
-				return true;
-			}
-			
+				expandAll(e);
+			}		
 		});
 
 		final JButton expandLevel = new JButton("Level");
@@ -287,64 +226,7 @@ public class TreePanel extends JPanel {
 
 		
 		JButton collapseAll = new JButton("All");
-		collapseAll.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				expandAll.getActionListeners()[0].actionPerformed(null);
-				
-				Collection<INode> nodez = fetchAllNodesInForest();
-				Set<Object> isCollapsed = new HashSet<>();
-				
-				// remove all leaves
-				Iterator<INode> it = nodez.iterator();
-				while (it.hasNext()) {
-					INode n = it.next();
-					if (n.isLeaf() && ! n.isRoot()) {
-						isCollapsed.add(n);
-						it.remove();
-					}
-				}
-				
-				MultiPickedState<INode> m = (MultiPickedState<INode>) vv.getPickedVertexState();
-				m.clear();
-				ActionListener collapseListener = collapse.getActionListeners()[0];
-				int counter = 0;
-				while (! allCollapsed(nodez)) {
-					Iterator<INode> it2 = nodez.iterator();
-					while (it2.hasNext()) {
-						INode n = it2.next();
-						if (canBeCollapsed(n, isCollapsed)) {
-							m.pick(n, true);
-							System.out.println("collapse: " + counter);
-							collapseListener.actionPerformed(null);
-							counter++;
-							isCollapsed.add(n);
-							it2.remove();
-							m.clear();
-						}
-					}
-				}								
-			}
-			
-			private boolean allCollapsed(Collection<INode> nodes) {
-				for (INode n : nodes) {
-					if (! n.isRoot()) return false;
-				}
-				return true;
-			}
-
-			private boolean canBeCollapsed(INode node, Set<Object> isCollapsed) {
-				if (node.isRoot()) return false;
-				Iterator<INode> it = node.getChildren();
-				while (it.hasNext()) {
-					INode child = it.next();
-					if (! isCollapsed.contains(child)) return false;				
-				}
-				return true;
-			}		
-		});
+		collapseAll.addActionListener(new CollapseAllListener());
 		
 		JPanel controls = new JPanel();
 		controls.setLayout(new FlowLayout());
@@ -413,7 +295,7 @@ public class TreePanel extends JPanel {
 	 * 
 	 */
 	private void createTree() {
-
+		if (nodes == null) return;
 		// Build Tree recursively
 		for (INode node : nodes) {
 			processChildren(node);
@@ -434,7 +316,153 @@ public class TreePanel extends JPanel {
 			processChildren(child);
 		}
 	}
+	
+	private void expandSingle(ActionEvent e) {
+		Collection<INode> picked = new HashSet<INode>(vv.getPickedVertexState().getPicked());
+		for(Object v : picked) {
+			if(v instanceof Forest) {
+				Forest<INode, Integer> inGraph = (Forest<INode, Integer>)layout.getGraph();
+				collapser.expand(inGraph, (Forest<INode, Integer>)v);
+			}
+			vv.getPickedVertexState().clear();
+			vv.repaint();
+		}
+	}
 
+	private void expandAll(ActionEvent e) {
+		MultiPickedState<Object> m = (MultiPickedState<Object>)(MultiPickedState<?>) vv.getPickedVertexState();
+		m.clear();
+		
+		
+		while (! allExpanded()) {
+			Collection<Object> c = new ArrayList<Object>(graph.getVertices());
+			for (Object o : c) {
+				if (! (o instanceof INode)) {
+					m.pick(o, true);				
+					expandSingle(null);
+					m.clear();
+				}
+			}
+		}
+	}
+	
+	private boolean allExpanded() {
+		Collection<INode> c = graph.getVertices();
+		for (Object o : c) {
+			if (! (o instanceof INode)) return false;
+		}
+		return true;
+	}
+	
+	private void collapseSingle(ActionEvent e) {
+		Set<INode> picked = new HashSet<INode>(vv.getPickedVertexState().getPicked());
+		if(picked.size() > 0) {
+			Forest<INode, Integer> inGraph = (Forest<INode, Integer>)layout.getGraph();
+			for (INode root : getCollapseRoots(picked)) {
+				try {
+					collapser.collapse(vv.getGraphLayout(), inGraph, root);
+				} catch (InstantiationException e1) {
+					e1.printStackTrace();
+				} catch (IllegalAccessException e1) {
+					e1.printStackTrace();
+				}
+			}
+			vv.getPickedVertexState().clear();
+			vv.repaint();
+		}
+	}
+	
+	private List<INode> getCollapseRoots(Set<INode> picked) {
+		List<INode> roots = new ArrayList<INode>();
+		for (Object o : picked) {
+			if (o instanceof INode) {
+				INode n = (INode) o;
+				if (n.isLeaf()) continue;
+				if (isCollapseRoot(n, picked)) {
+					roots.add(n);
+				}
+			}
+		}
+		return roots;
+	}
+	
+	private boolean isCollapseRoot(INode candidate, Set<INode> picked) {
+		if (candidate.isRoot()) return true;
+		INode p = candidate.getParent();
+		if (picked.contains(p)) return false;
+		return isCollapseRoot(p, picked);
+	}
+	
+	private void collapseAll(ActionEvent e) {
+		
+//		expandAll.getActionListeners()[0].actionPerformed(null);
+		
+		Collection<INode> nodez = fetchAllNodesInForest();
+		Set<Object> isCollapsed = new HashSet<>();
+		
+		// remove all leaves
+		Iterator<INode> it = nodez.iterator();
+		while (it.hasNext()) {
+			INode n = it.next();
+			if (n.isLeaf() && ! n.isRoot()) {
+				isCollapsed.add(n);
+				it.remove();
+			}
+		}
+		
+		MultiPickedState<INode> m = (MultiPickedState<INode>) vv.getPickedVertexState();
+		m.clear();
+//		ActionListener collapseListener = collapse.getActionListeners()[0];
+		int counter = 0;
+		while (! allCollapsed(nodez)) {
+			Iterator<INode> it2 = nodez.iterator();
+			while (it2.hasNext()) {
+				INode n = it2.next();
+				if (canBeCollapsed(n, isCollapsed)) {
+					m.pick(n, true);
+					collapseSingle(null);
+					counter++;
+					isCollapsed.add(n);
+					it2.remove();
+					m.clear();
+				}
+			}
+		}
+		vv.repaint();
+	}
+	
+	private boolean allCollapsed(Collection<INode> nodes) {
+		for (INode n : nodes) {
+			if (! n.isRoot()) return false;
+		}
+		return true;
+	}
+
+	private boolean canBeCollapsed(INode node, Set<Object> isCollapsed) {
+		if (node.isRoot()) return false;
+		Iterator<INode> it = node.getChildren();
+		while (it.hasNext()) {
+			INode child = it.next();
+			if (! isCollapsed.contains(child)) return false;				
+		}
+		return true;
+	}
+	
+	class CollapseAllListener implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			SwingWorker<Forest<INode,Integer>, Void> sw = new SwingWorker<Forest<INode,Integer>, Void>() {
+				@Override
+				protected Forest<INode, Integer> doInBackground() throws Exception {
+					collapseAll(null);
+					return graph;
+				}
+			};
+			sw.execute();	
+		}	
+	}
+	
 	/**
 	 * a demo class that will create a vertex shape that is either a
 	 * polygon or star. The number of sides corresponds to the number
@@ -523,23 +551,24 @@ public class TreePanel extends JPanel {
 //			this.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 			this.setVertexToolTipTransformer(new ToStringLabeller());
 			this.getRenderContext().setArrowFillPaintTransformer(new ConstantTransformer(Color.lightGray));
-	        this.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
+			this.getRenderContext().setVertexShapeTransformer(new ClusterVertexShapeFunction());
 			this.getRenderer().getVertexLabelRenderer().setPosition(Position.S);
 			this.getRenderContext().setVertexLabelTransformer(new ConstantTransformer(null) {
 				@Override
 				public Object transform(Object input) {
 
-					String s = input.toString();
+					String s;
 					if (input instanceof Graph) {
 						// JUK doesn't want us to show all the ids of the nodes contained
 						// in the subtree hence we comment out the corresponding lines.
-//						Graph<INode, Integer> g = (Graph<INode, Integer>) input;
-//						List<Long> li = getCollapsedNodeIds(g);
-//						Collections.sort(li);
-//						s = "Ids: " + li.toString();
-						
+						//						Graph<INode, Integer> g = (Graph<INode, Integer>) input;
+						//						List<Long> li = getCollapsedNodeIds(g);
+						//						Collections.sort(li);
+						//						s = "Ids: " + li.toString();
+
 						s = "collapsed subtree";
 					} else {
+						s = input.toString();
 						s = s.replace("User Node", "Id: ");
 						s = s.replace("Content Node", "Id: ");
 					}

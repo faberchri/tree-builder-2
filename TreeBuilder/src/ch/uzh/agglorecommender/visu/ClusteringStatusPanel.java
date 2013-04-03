@@ -1,19 +1,26 @@
-package ch.uzh.agglorecommender.clusterer;
+package ch.uzh.agglorecommender.visu;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.util.List;
+import java.awt.Dimension;
+import java.text.DecimalFormat;
+import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+
+import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet;
 import ch.uzh.agglorecommender.util.LimitedQueue;
-import ch.uzh.agglorecommender.util.TBLogger;
 
 /**
  * Class that keeps current count of nodes in the tree
  * Can be used for other data saving during clustering.
  *
  */
-public class Monitor implements Serializable {
+public class ClusteringStatusPanel extends JPanel implements Observer {
 
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
@@ -23,214 +30,173 @@ public class Monitor implements Serializable {
 	 * of this class is not compatible with old versions.
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private int openContentNodes = 0;
+	private int openUserNodes = 0;
+	private int numOfMerges = 0;
+	private final long startTime;
+
+	private long startTimeOfCycle;
+	private int numberOfLeaves = -1;
+	private LinkedList<Long> mergeTimes = new LimitedQueue<Long>(10);
+
+	private JLabel elapsedTime;
 	
-	private static Monitor monitor = new Monitor();
+	private JLabel totalOpenNodes;
+	private JLabel merges;
+	private JLabel expTime;
 	
-	private long openContentNodes = 0;
-	private long openUserNodes = 0;
-	private long cycles = 0;
-	private long startTime = 0;
-	private long timeOfLastCycle = 0;
-	private List<Integer> expectationQueue = new LimitedQueue(10);
-	
-	private Boolean alreadyInitialized = false;
-	
-	/**
-	 * Constructor to establish node counts and display
-	 */
-	private Monitor () {
-		// singleton
-	}
-	
-	public static Monitor getInstance() {
-		return monitor;
-	}
-	
-	/**
-	 * Initialize the counter on start of clustering process.
-	 * 
-	 * @param Count of userNodes in userNode Set 
-	 * @param Count of contentNodes in contentNode Set
-	 */
-	public void initMonitoring(int openUserNodes,int openContentNodes) {
-		setInitialCounts(openContentNodes,openUserNodes);
-		this.openUserNodes 		= openUserNodes;
-		this.openContentNodes 	= openContentNodes;
+	private JProgressBar progressBar;
+    private DecimalFormat nft = new DecimalFormat("#00.###"); 
+
+	public ClusteringStatusPanel() {
+		this.startTime = System.currentTimeMillis();
+		this.startTimeOfCycle = startTime;
 		
-		if(this.alreadyInitialized == false){
-			this.startTime = System.currentTimeMillis();
-		}
-		
-		this.alreadyInitialized = true;
+        // Add monitoring parameters
+        elapsedTime 	= new JLabel("Elapsed Time: " + getElapsedTime());	
+        totalOpenNodes	= new JLabel("Open Clusters: " + getTotalOpenNodes());
+        merges			= new JLabel("Merges: " + getNumberOfMerges());
+        expTime 		= new JLabel("Time Left: " + getTotalExpectedSeconds());
+        
+        progressBar 	= new JProgressBar(0, 100); 
+        progressBar.setStringPainted(true);
+        
+        // Add to panel
+
+        JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setPreferredSize(new Dimension(10, 30));
+        add(elapsedTime);
+        add(sep);
+        sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setPreferredSize(new Dimension(10, 30));
+        add(totalOpenNodes);
+        add(sep);
+        sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setPreferredSize(new Dimension(10, 30));
+        add(merges);
+        add(sep);
+        sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setPreferredSize(new Dimension(10, 30));
+        add(expTime);
+        add(sep);
+        sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setPreferredSize(new Dimension(10, 30));
+        add(progressBar);
 	}
-	
-	/**
-	 * Set the initial number of content and user nodes.
-	 * 
-	 * @param contentNodeCounts number of content nodes
-	 * @param userNodeCounts number of user nodes
-	 */
-	public void setInitialCounts(long contentNodeCounts, long userNodeCounts) {
-		this.openContentNodes = contentNodeCounts;
-		this.openUserNodes = userNodeCounts;
-	}
-	
+
 	private void addCycle() {	
-		timeOfLastCycle = System.currentTimeMillis();
-		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+ cycles);
-		cycles++;
-//		TBLogger.getLogger(getClass().getName()).info("ID: " + serialVersionUID);
+		mergeTimes.add(System.currentTimeMillis() - startTimeOfCycle);
+		startTimeOfCycle = System.currentTimeMillis();
 	}
-	
-	public long getCycleCount() {
-//		TBLogger.getLogger(getClass().getName()).info("cycle nr: "+ cycles);
-//		TBLogger.getLogger(getClass().getName()).info("ID: " + serialVersionUID);
-		return cycles;
+
+	private int getNumberOfMerges() {
+		return numOfMerges;
 	}
-	
-    /*
-     * Calculates elapsed time since start
-     */
-	public long getElapsedTime() {
+
+	/**
+	 * Calculates elapsed time in seconds since since start
+	 */
+	private long getElapsedTime() {
 		return (long) (((double)(System.currentTimeMillis() - this.startTime)) / 1000.0);
 	}
-	
-    /*
-     * Calculates number of total nodes
-     */
-	public long getTotalOpenNodes() {
-    	
-		long totalNodes = 0;
-    	totalNodes += openContentNodes -1;
-    	totalNodes += openUserNodes -1;
-    	
-    	if(totalNodes >= 0) {
-    		return totalNodes;
-    	}
-    	else return 0;
-	}
-	
-	/*
-	 * Delivers total comparisons
+
+	/**
+	 * Calculates number of total nodes
 	 */
-	
-	public long getComparisonsOnLevel(double i) {
-		
-		double totalNodes = getTotalOpenNodes() + getCycleCount();
-		double openNodesOnLevel = totalNodes - i;
-				
-		long n = (long) (openNodesOnLevel - 1);
-		long comparisons =  (long) (n*(n+1))/2;
-		
-		return comparisons;
-	}
-	
-	public long getComparisonSum(double start, double end){
-		
-		long comparisons = 0;
-		
-		for(double i = start;i < end; i++){
-			comparisons += getComparisonsOnLevel(i);
+	private int getTotalOpenNodes() {
+
+		int totalNodes = 0;
+		totalNodes += openContentNodes -1;
+		totalNodes += openUserNodes -1;
+
+		if(totalNodes >= 0) {
+			return totalNodes;
 		}
-		
-		return comparisons;
-		
-	}
-	
-	public long getProcessedComparisons() {
-		
-		double start = 0; 
-		double end = getCycleCount();		
-		
-		return getComparisonSum(start,end);
-	}
-	
-	public long getExpectedFutureComparisons() {
-		
-		double totalNodes = getTotalOpenNodes() + getCycleCount();
-		
-		double start = getCycleCount();
-		double end = totalNodes;
-		
-		return getComparisonSum(start,end);	
-	}
-	
-    /*
-	 * Calulates the time used for Merge
-	 */
-	public double getTimePerMerge() {
-		if(getElapsedTime() > 0){
-			double timePerMerge =  (double) getCycleCount() / (double) getElapsedTime();
-			return timePerMerge;
-		}
-		return 0;
-	}
-	
-	public double getComparisonsPerSecond() {
-		
-		long compOnLevel = getComparisonsOnLevel(getCycleCount());
-		
-		if(compOnLevel > 0){
-			double timePerComparison = (double) getTimePerMerge() / (double) compOnLevel;
-			return 1 / timePerComparison;
-		}			
-		return 0;
-	}
-    
-    /*
-     * Calulates the percentage of comparisons actually calculated
-     */
-    public double getPercentageOfComparisons() {
-    	
-		long processed = getProcessedComparisons();
-		long future = getExpectedFutureComparisons();
-		
-    	if(processed + future > 0){
-    		double percentage = (double) processed  / ((double) processed  + future);
-    		return (int) (percentage * 100);
-    	}
-    	return 0;
-    }
-    
-    public int getTotalExpectedSeconds() {
-	    
-    	double percentage = getPercentageOfComparisons();
-    	
-    	if(percentage > 0){
-	    	
-	    	double multiplier = 100 / percentage;
-	    	double total = getElapsedTime() * multiplier;
-	    	int expTime = (int) (total - getElapsedTime());
-	    	
-	    	expectationQueue.add(expTime);
-	    	int sumOfExpTime = 0;
-	    	for(int expectation : expectationQueue){
-	    		sumOfExpTime += expectation;
-	    	}
-	    	
-	    	return (int) sumOfExpTime / expectationQueue.size();
-    	}
-    	return 0;
+		else return 0;
 	}
 
-	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException { 
-    	ois.defaultReadObject();
-    	Monitor c = Monitor.getInstance();
-    	
-    	c.openContentNodes 	= this.openContentNodes;
-    	c.openUserNodes 	= this.openUserNodes;
-    	c.cycles 			= this.cycles;
-    	c.startTime 		= this.startTime + (System.currentTimeMillis() - this.timeOfLastCycle);
-    }
+	private long getTotalExpectedSeconds() {
 
-	public void update(int openUserNodes, int openContentNodes) {
+		double avg = 0.0;
+		if (mergeTimes.size() > 0) {
+			for (long l : mergeTimes) {
+				avg += l;
+			}
+			avg /= (double)mergeTimes.size();
+		}
+		long r = Math.round((avg * getTotalOpenNodes()) / 1000.0);
+		return r;
+	}
+
+	private double getProgressInPercentage() {
+		return (1.0 - (double)getTotalOpenNodes() / (double)numberOfLeaves) * 100.0;
+
+	}
+
+
+	@Override
+	public void update(IClusterSet<INode> userClusterSet, IClusterSet<INode> contentClusterSet) {
+		// Update Open Nodes
+		this.openUserNodes = userClusterSet.size();
+		this.openContentNodes = contentClusterSet.size();
+
+		numOfMerges = 0;
+		for (INode n : userClusterSet.getUnmodifiableView()) {
+			if (! n.isLeaf()) {
+				numOfMerges++;
+			}
+		}
+		for (INode n : contentClusterSet.getUnmodifiableView()) {
+			if (! n.isLeaf()) {
+				numOfMerges++;
+			}
+		}
 		
+		if (numberOfLeaves < 0) {
+			this.numberOfLeaves = getNumberOfLeaves(userClusterSet, contentClusterSet);
+		}
+
 		// Update Cycle
 		addCycle();
 		
-		// Update Open Nodes
-		this.openUserNodes = openUserNodes;
-		this.openContentNodes = openContentNodes;
+		update();
+	}
+	
+    /**
+     * Update the data in the GUI
+     */
+    private void update() {
+    	
+    	// Format Time
+    	long elTime 	= getElapsedTime();
+    	long elDays 	= TimeUnit.SECONDS.toDays(elTime);
+    	long elHours	= TimeUnit.SECONDS.toHours(elTime) - (elDays * 24);
+    	long elMinutes	= TimeUnit.SECONDS.toMinutes(elTime) - (elHours * 60 + elDays * 24 *60);
+    	long elSeconds	= TimeUnit.SECONDS.toSeconds(elTime) - (elMinutes * 60 + elHours * 60 * 60 + elDays * 24 * 60 * 60);
+    	
+    	long exTime		= getTotalExpectedSeconds();
+    	long exDays 	= TimeUnit.SECONDS.toDays(exTime);
+    	long exHours	= TimeUnit.SECONDS.toHours(exTime) - (exDays * 24);
+    	long exMinutes	= TimeUnit.SECONDS.toMinutes(exTime) - (exHours * 60 + exDays * 24 * 60);
+    	long exSeconds	= TimeUnit.SECONDS.toSeconds(exTime) - (exMinutes * 60 + exHours * 60 * 60 + exDays * 24 * 60 * 60);
+    	
+    	elapsedTime.setText		("Elapsed Time: " 	+ nft.format(elHours) + ":" + nft.format(elMinutes) + ":" + nft.format(elSeconds));
+    	totalOpenNodes.setText	("Open Nodes: " 	+ getTotalOpenNodes());
+    	merges.setText			("Merges: " 		+ getNumberOfMerges());
+    	expTime.setText			("Time Left: " 		+ nft.format(exHours) + ":" + nft.format(exMinutes) + ":" + nft.format(exSeconds));
+    	progressBar.setValue	((int) Math.round(getProgressInPercentage()));
+    }
+
+	private int getNumberOfLeaves(IClusterSet<INode> userClusterSet, IClusterSet<INode> contentClusterSet) {
+		int r = 0;
+		for (INode n : userClusterSet.getUnmodifiableView()) {
+			r += n.getNumberOfLeafNodes();
+		}
+		for (INode n : contentClusterSet.getUnmodifiableView()) {
+			r += n.getNumberOfLeafNodes();
+		}
+		return r;
 	}
 
 }

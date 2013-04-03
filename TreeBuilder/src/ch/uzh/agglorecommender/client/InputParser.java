@@ -46,11 +46,25 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 
+/**
+ * 
+ * Reads the data set from disc according to the specifications in the data set properties xml file
+ * passed to the constructor. The parsed data can be fetch as instances of type IDataset.
+ * <br><br>
+ * The class uses xmlBeans linked as xmltypes.jar in order to easily access the information contained
+ * in the data set properties xml file.
+ *
+ */
 public class InputParser implements Serializable {
-
+	
 	/**
-	 * 
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br><br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
 	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final String USER_ID = "user id";
 	private static final String CONTENT_ID = "content id";
 	private static final String META_ID = "meta id";
@@ -58,11 +72,11 @@ public class InputParser implements Serializable {
 
 	private static final double SCALLING_FACTOR = 10.0;
 
-	private List<IDatasetItem<Double>> trainingItems = new ArrayList<>();
-	private List<IDatasetItem<Double>> testItems = new ArrayList<>();
+	private List<IDatasetItem> trainingItems = new ArrayList<>();
+	private List<IDatasetItem> testItems = new ArrayList<>();
 
-	private final IDataset<Double> trainigsDataset;
-	private final IDataset<Double> testDataset;
+	private final IDataset trainigsDataset;
+	private final IDataset testDataset;
 
 
 	private Map<String,ListMultimap<String, Object>> nominalUserMetaAttributes = new HashMap<>();
@@ -73,8 +87,13 @@ public class InputParser implements Serializable {
 
 	private Map<String, Boolean> useForClustering = new HashMap<>();
 
-	public InputParser(File propertiesXmlFile) {
-
+	/**
+	 * Instantiates a new parser and parses the data set according to the information specified in 
+	 * the passed xml.
+	 * @param propertiesXmlFile the data set properties specified in a file compliant to the xml-schema 
+	 * contained in the linked xmltypes.jar
+	 */
+	InputParser(File propertiesXmlFile) {
 
 		InputDocument inputDoc = null;
 		try {
@@ -117,14 +136,24 @@ public class InputParser implements Serializable {
 		trainigsDataset = new Dataset(trainingItems, numericalAttributes);
 		testDataset = new Dataset(testItems, numericalAttributes);
 		
+		// Rating attributes shall always be used for clustering.
 		useForClustering.remove(input.getRatingArray()[0].getAttribute().getTag());
 	}
 
-	public IDataset<Double> getTestDataset() {
+	/**
+	 * Gets the data set to use for testing the recommendation generation.
+	 * @return the test data set
+	 */
+	public IDataset getTestDataset() {
 		return testDataset;
 	}
 
-	public IDataset<Double> getTrainigsDataset() {
+	/**
+	 * Gets the data set to use for cluster generation / training
+	 * of the recommendation system.
+	 * @return the training data set
+	 */
+	public IDataset getTrainigsDataset() {
 		return trainigsDataset;
 	}
 
@@ -187,7 +216,8 @@ public class InputParser implements Serializable {
 			try {
 				reader.getHeader(true);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				TBLogger.getLogger(this.getClass().getName()).severe("An I/O Exception occured on reading: " + metaFile.getLocation()
+						+ "\nTerminating Application.");
 				e.printStackTrace();
 				System.exit(-1);
 			}
@@ -219,7 +249,8 @@ public class InputParser implements Serializable {
 				try {
 					reader.getHeader(true);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					TBLogger.getLogger(this.getClass().getName()).severe("An I/O Exception occured on reading: " + ratingFile.getLocation()
+							+ "\nTerminating Application.");
 					e.printStackTrace();
 					System.exit(-1);
 				}			
@@ -280,7 +311,8 @@ public class InputParser implements Serializable {
 		try {
 			mapReader = new CsvMapReader(new FileReader(file.getLocation()), csvPreference);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			TBLogger.getLogger(this.getClass().getName()).severe("An I/O Exception occured on reading: " + file.getLocation()
+					+ "\nTerminating Application.");
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -308,7 +340,8 @@ public class InputParser implements Serializable {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			TBLogger.getLogger(this.getClass().getName()).severe("An I/O Exception occured on reading: " + file.getLocation()
+					+ "\nTerminating Application.");
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -327,7 +360,7 @@ public class InputParser implements Serializable {
 		}
 	}
 
-	private void mapRatings(NumericalAttribute attribute, ListMultimap<String, String> rawRatings, List<IDatasetItem<Double>> items) {
+	private void mapRatings(NumericalAttribute attribute, ListMultimap<String, String> rawRatings, List<IDatasetItem> items) {
 
 		List<String> values = rawRatings.get(VALUE);
 		List<String> uIds = rawRatings.get(USER_ID);
@@ -367,7 +400,10 @@ public class InputParser implements Serializable {
 		return null;
 	}
 
-	private interface IWrappedAttribute extends Serializable {
+	/**
+	 * Wrapper for a xml attribute to allows easier data access.  
+	 */
+	private interface IWrappedAttribute {
 		public Attribute getAttribute();
 
 		public CellProcessor[] getProcessors(String[] header);
@@ -542,24 +578,33 @@ public class InputParser implements Serializable {
 
 	}
 
-	private class Dataset implements IDataset<Double> {
+	private class Dataset implements IDataset {
+		
+		/**
+		 * Determines if a de-serialized file is compatible with this class.
+		 * <br>
+		 * <br>
+		 * Maintainers must change this value if and only if the new version
+		 * of this class is not compatible with old versions.
+		 */
+		private static final long serialVersionUID = 1L;
 
 		/**
 		 * 
 		 */
-		private final List<IDatasetItem<Double>> items;
+		private final List<IDatasetItem> items;
 		
 		private final Map<String, NumericalAttribute> numericalAttributes;
 
-		private final INormalizer<Double> normalizer;
+		private final INormalizer normalizer;
 
-		public Dataset(List<IDatasetItem<Double>> items, Map<String, NumericalAttribute> numericalAttributes) {
+		public Dataset(List<IDatasetItem> items, Map<String, NumericalAttribute> numericalAttributes) {
 			this.items = items;
 			this.numericalAttributes = numericalAttributes;
-			this.normalizer = new INormalizer<Double>() {
+			this.normalizer = new INormalizer() {
 
 				@Override
-				public double normalizeRating(Double rating) {
+				public double normalizeRating(double rating) {
 					// Nothing to do
 					return rating;
 				}
@@ -567,12 +612,12 @@ public class InputParser implements Serializable {
 		}
 
 		@Override
-		public Iterator<IDatasetItem<Double>> iterateOverDatasetItems() {
+		public Iterator<IDatasetItem> iterateOverDatasetItems() {
 			return items.iterator();
 		}
 
 		@Override
-		public INormalizer<Double> getNormalizer() {
+		public INormalizer getNormalizer() {
 			return normalizer;
 		}
 
@@ -596,9 +641,18 @@ public class InputParser implements Serializable {
 
 	}
 
-	private class DatasetItem implements IDatasetItem<Double> {
+	private class DatasetItem implements IDatasetItem {
+		
+		/**
+		 * Determines if a de-serialized file is compatible with this class.
+		 * <br>
+		 * <br>
+		 * Maintainers must change this value if and only if the new version
+		 * of this class is not compatible with old versions.
+		 */
+		private static final long serialVersionUID = 1L;
 
-	/**
+		/**
 		 * The rating.
 		 */
 		private final double value;
@@ -640,7 +694,7 @@ public class InputParser implements Serializable {
 		}
 
 		@Override
-		public Double getRating() {
+		public double getRating() {
 			return value;
 		}
 
@@ -664,15 +718,5 @@ public class InputParser implements Serializable {
 			return numericalContentMetaAttributes.get(contentId);
 		}
 		
-		@Override
-		public void addContentMetaData(String attribute, Object value) {
-			// nothing to do 
-		}
-
-		@Override
-		public void addUserMetaData(String attribute, Object value) {
-			// nothing to do			
-		}
-
 	}
 }

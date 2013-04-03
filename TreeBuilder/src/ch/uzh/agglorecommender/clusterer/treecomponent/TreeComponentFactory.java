@@ -20,9 +20,13 @@ import com.google.common.collect.Multimap;
 public class TreeComponentFactory implements Serializable  {
 
 	/**
-	 * 
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
 	 */
-	private static final long serialVersionUID = 8378733065044532885L;
+	private static final long serialVersionUID = 1L;
 	
 	private static TreeComponentFactory factory = new TreeComponentFactory();
 	
@@ -39,7 +43,7 @@ public class TreeComponentFactory implements Serializable  {
 			String dataSetId,
 			Multimap<String, Object> nominalMeta,
 			Multimap<String, Double> numericalMeta,
-			IDataset<?> dataset) {
+			IDataset dataset) {
 		
 		INode newNode = new Node(typeOfNewNode, dataSetId,  dataset);
 		if (nominalMeta != null) {

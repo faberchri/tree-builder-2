@@ -2,14 +2,14 @@ package ch.uzh.agglorecommender.client;
 
 import java.io.Serializable;
 
+
 /**
  * 
  * Normalizes ratings stored in the data set
  * to rating values between 0.0 and 1.0.
  *
- * @param <T> The data type of raw ratings in the data set.
  */
-public interface INormalizer<T extends Number> extends Serializable {
+public interface INormalizer extends Serializable {
 	
 	/**
 	 * Normalizes a rating.
@@ -17,5 +17,5 @@ public interface INormalizer<T extends Number> extends Serializable {
 	 * @param rating The rating as it appeared in the data set.
 	 * @return the normalized rating: [0.0, 10.0].
 	 */
-	public double normalizeRating(T rating);
+	public double normalizeRating(double rating);
 }

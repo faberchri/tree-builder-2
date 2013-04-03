@@ -25,12 +25,12 @@ public class FileReadValidatorConverter implements IParameterValidator, IStringC
 			fis.close();
 		} catch (FileNotFoundException e) {
 			throw new ParameterException(
-					"The specified path " + path + " is not a valid read location due " +
+					"The specified file system path " + path + " is not a valid read location due " +
 					"to one of the following reasons: The file does not exist, "+
 					"is a directory rather than a regular file, "+
 					"or for some other reason cannot be opened for reading.");
 		} catch (IOException e) {
-			throw new ParameterException("The specified path " + path + " could not be accessed due to IOException");
+			throw new ParameterException("The specified file system path " + path + " could not be accessed due to IOException");
 		}			
 	}
 

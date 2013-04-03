@@ -9,8 +9,6 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 import com.google.common.collect.ImmutableMap;
 
-
-
 /**
  * 
  * A data set with random ratings.
@@ -19,17 +17,26 @@ import com.google.common.collect.ImmutableMap;
  * in the data set are passed to the constructor.
  *
  */
-public class RandomDataset implements IDataset<Double> {
+class RandomDataset implements IDataset {
+	
+	/**
+	 * Determines if a de-serialized file is compatible with this class.
+	 * <br>
+	 * <br>
+	 * Maintainers must change this value if and only if the new version
+	 * of this class is not compatible with old versions.
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * The default number of users in the data set.
 	 */
-	private static final int defaultNumOfUsers = 20;
+	private static final int defaultNumOfUsers = 70;
 	
 	/**
 	 * The default number of movies in the data set.
 	 */
-	private static final int defaultNumOfMovies = 12;
+	private static final int defaultNumOfMovies = 65;
 	
 	/**
 	 * The default percentage of null entries in the data set.
@@ -49,7 +56,7 @@ public class RandomDataset implements IDataset<Double> {
 	/**
 	 * The percentage of null entries in the data set.
 	 */
-	private final int percentageOfNulls;
+	private final double percentageOfNulls;
 
 	/**
 	 * The ratings matrix.
@@ -59,7 +66,7 @@ public class RandomDataset implements IDataset<Double> {
 	/**
 	 * The {@code DatasetItems} generated from the ratings matrix.
 	 */
-	private List<IDatasetItem<Double>> datasetItems = new ArrayList<IDatasetItem<Double>>();
+	private List<IDatasetItem> datasetItems = new ArrayList<IDatasetItem>();
 
 
 	public RandomDataset() throws IllegalArgumentException {
@@ -75,8 +82,8 @@ public class RandomDataset implements IDataset<Double> {
 	 * @throws IllegalArgumentException if numberOfUsers < 0 OR numberOfMovies < 0
 	 * OR percentageOfNulls < 0 OR percentageOfNulls > 100
 	 */
-	public RandomDataset(int numberOfUsers, int numberOfMovies,
-			int percentageOfNulls) throws IllegalArgumentException
+	RandomDataset(int numberOfUsers, int numberOfMovies,
+			double percentageOfNulls) throws IllegalArgumentException
 			{
 		if (numberOfUsers < 0) {
 			throw new IllegalArgumentException("Negative number of users: " + numberOfUsers);
@@ -84,8 +91,8 @@ public class RandomDataset implements IDataset<Double> {
 		if (numberOfMovies < 0) {
 			throw new IllegalArgumentException("Negative number of movies: " + numberOfMovies);
 		}
-		if (percentageOfNulls < 0 || percentageOfNulls > 100) {
-			throw new IllegalArgumentException("percentage of null values is not in the range [0, 100]: " + percentageOfNulls);
+		if (percentageOfNulls < 0.0 || percentageOfNulls > 100.0) {
+			throw new IllegalArgumentException("percentage of null values is not in the range [0.0, 100.0]: " + percentageOfNulls);
 		}
 		this.numberOfUsers = numberOfUsers;
 		this.numberOfMovies = numberOfMovies;
@@ -96,24 +103,22 @@ public class RandomDataset implements IDataset<Double> {
 		initDatasetItems();
 	}
 
-
-
 	@Override
-	public Iterator<IDatasetItem<Double>> iterateOverDatasetItems() {
+	public Iterator<IDatasetItem> iterateOverDatasetItems() {
 		return datasetItems.listIterator();
 	}
 	
 	@Override
-	public INormalizer<Double> getNormalizer() {
+	public INormalizer getNormalizer() {
 		
-		return new INormalizer<Double>() {
+		return new INormalizer() {
 			
 			@Override
-			public double normalizeRating(Double rating) {
+			public double normalizeRating(double rating) {
 				// data set is in range [0.0, 1.0]
 				// we want to have it in the range [0.0, 10.0]
 				
-				return rating.doubleValue() * 10.0;
+				return rating * 10.0;
 			}
 		};
 		
@@ -148,10 +153,30 @@ public class RandomDataset implements IDataset<Double> {
 		for (int i = 0; i < randomMatrix[0].length; i++) {
 			for (int j = 0; j < randomMatrix.length; j++) {
 				if (randomMatrix[j][i] != null) {
-					datasetItems.add(new SimpleDatasetItem<Double>(randomMatrix[j][i], String.valueOf(i), String.valueOf(j)));	
+					datasetItems.add(new SimpleDatasetItem(randomMatrix[j][i], String.valueOf(i), String.valueOf(j)));	
 				}
 			}
 		}
+	}
+	
+	@Override
+	public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
+		// not applicable since no meta data available
+		return null;
+	}
+
+	@Override
+	public double denormalize(double value, String attributeTag) {
+		// TODO Auto-generated method stub
+		return value;
+	}
+	
+	
+	
+	// for testing
+	private static void main(String[] args) {
+		RandomDataset ds = new RandomDataset(10, 10, 60);
+		ds.printRandomMatrix();
 	}
 
 	/**
@@ -165,24 +190,4 @@ public class RandomDataset implements IDataset<Double> {
 			TBLogger.getLogger(getClass().getName()).info("\n");
 		}
 	}
-	
-	
-	// for testing
-	private static void main(String[] args) {
-		RandomDataset ds = new RandomDataset(10, 10, 60);
-		ds.printRandomMatrix();
-	}
-
-	@Override
-	public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
-		// not applicable since no meta data available
-		return null;
-	}
-
-	@Override
-	public double denormalize(double value, String attributeTag) {
-		// TODO Auto-generated method stub
-		return value;
-	}
-
 }

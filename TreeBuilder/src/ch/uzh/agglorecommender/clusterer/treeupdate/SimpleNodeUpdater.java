@@ -8,7 +8,11 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 
-
+/**
+ * A node updater that adds the new node as argument to
+ * all the nodes that have a child of the new node as argument.
+ *
+ */
 public class SimpleNodeUpdater implements INodeUpdater, Serializable {
 
 	/**

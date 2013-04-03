@@ -205,7 +205,7 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * Gets the hard-coded acuity value.
 	 * @return the {@code acuity}
 	 */
-	public static double getAcuity() {
+	static double getAcuity() {
 		return acuity;
 	}
 
