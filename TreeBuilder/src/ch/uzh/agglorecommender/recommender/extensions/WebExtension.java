@@ -1,12 +1,14 @@
-package ch.uzh.agglorecommender.recommender.ui.extensions;
+package ch.uzh.agglorecommender.recommender.extensions;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,15 +24,15 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.ui.BasicUI;
+import ch.uzh.agglorecommender.recommender.RecommendationView;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
 public class WebExtension extends AbstractHandler {
 	
-	private final BasicUI basicUI;
+	private final RecommendationView basicUI;
 	private final Server server;
 
-	public WebExtension(BasicUI basicUI) throws Exception {
+	public WebExtension(RecommendationView basicUI) throws Exception {
 	    
 		this.basicUI = basicUI;
 			
@@ -39,7 +41,7 @@ public class WebExtension extends AbstractHandler {
 	    ResourceHandler resourceHandler = new ResourceHandler();
 	    resourceHandler.setDirectoriesListed(true);
 	    resourceHandler.setWelcomeFiles(new String[] {"index.html"});
-	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/ui/extensions/");
+	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/extensions/");
 	
 	    HandlerList handlers = new HandlerList();
 	    handlers.setHandlers(new Handler[] {resourceHandler, this});
@@ -119,13 +121,43 @@ public class WebExtension extends AbstractHandler {
 					
 					long startTime = System.nanoTime();
 					
-					TreePosition position = basicUI.getSimilarPosition(inputNode);
+					TreePosition position = null;
+					try {
+						position = basicUI.getSimilarPosition(inputNode);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					System.out.println("chosen node: " + position.getNode().toString());
+					
 					SortedMap<INode,IAttribute> recommendations = basicUI.recommend(inputNode,position.getNode());
 					
 					long endTime = System.nanoTime();
 					long duration = endTime - startTime;
 					
-					String evaluation = basicUI.evaluate(inputNode);
+					Map<String,Double> evaluation = null;
+					try {
+						evaluation = basicUI.evaluate(inputNode);
+					} catch (NullPointerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					// Create String
+					String evalString = "";
+					
+					if(evaluation != null){
+						for(String eval : evaluation.keySet()){
+							evalString += eval + ": " + evaluation.get(eval) + "<br>";
+						}
+					}
+					
 					
 					response.getWriter().write("<table style='width:100%'>");
 					

@@ -2,11 +2,13 @@ package ch.uzh.agglorecommender.recommender.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
+import ch.uzh.agglorecommender.recommender.RecommendationModel;
+import ch.uzh.agglorecommender.recommender.RecommenderController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -23,12 +25,16 @@ public class Evaluator {
 	private ImmutableMap<String, INode> leavesMapC;
 	private INode rootU;
 	private INode rootC;
-	private RecommendationBuilder rb;
+	
+	private RecommenderController rc;
+	private RecommendationModel rm;
+	
 
-	public Evaluator(RecommendationBuilder rb){
+	public Evaluator(RecommenderController rc, RecommendationModel rm){
 		
 		// Retrieve Root Nodes of the user tree
-		this.rb				= rb;
+		this.rc	= rc;
+		this.rm	= rm;	
 		
 	}
 	
@@ -54,10 +60,12 @@ public class Evaluator {
 	 * Runs multiple evaluations with different test nodes to eliminate variances
 	 * 
 	 * @param testNodes Set of nodes from test set
-	 * @param rb this recommendation builder was initialized with the tree of the training set
+	 * @param rc this recommendation builder was initialized with the tree of the training set
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 * 
 	 */
-	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes) throws NullPointerException{
+	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes) throws NullPointerException, InterruptedException, ExecutionException{
 		
 		System.out.println("kFoldEvaluation started..");
 			
@@ -94,17 +102,20 @@ public class Evaluator {
 	 * Evaluates a given training-set based recommendation with a test node from a test set
 	 * 
 	 * @param testnode this node is from the test set
-	 * @param rb this recommendation builder was initialized with the tree of the training set
+	 * @param rc this recommendation builder was initialized with the tree of the training set
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 */
-	public Map<String,Double> evaluate(INode testNode) throws NullPointerException {
+	public Map<String,Double> evaluate(INode testNode) throws NullPointerException, InterruptedException, ExecutionException {
 		
 		if(testNode != null){
 			
 			// Find position of the similar node in the tree
-			TreePosition position = rb.findMostSimilar(testNode);
+			TreePosition position = rm.findMostSimilar(testNode);
+//			System.out.println("found position" + position.toString());
 			
 			// Get Predicitions & Real Values
-			Map<String, IAttribute> predictedRatings = rb.runQuantitativeTest(testNode,position.getNode());
+			Map<String, IAttribute> predictedRatings = rc.runQuantitativeTest(testNode,position.getNode());
 			
 			if(predictedRatings != null) {
 				

@@ -54,7 +54,7 @@ public class RankRecommendationTest {
 		System.out.println("Lenght unsorted: "+unsortedRecommendations.size());
 		// Sort recommendations
 		ClusterResult cr = new ClusterResult(null,null,null, null, null);
-		RecommendationBuilder ranker = new RecommendationBuilder(cr, null);
+		RecommendationModel ranker = new RecommendationModel(cr, null);
 		Map<INode,IAttribute> sortedRecommendations = new HashMap<INode, IAttribute>();
 		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
 		

@@ -3,18 +3,19 @@ package ch.uzh.agglorecommender.recommender.utils;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
-import ch.uzh.agglorecommender.recommender.RecommendationBuilder;
+import ch.uzh.agglorecommender.recommender.RecommendationModel;
 
-public class NodeInserter {
+public class Inserter {
 	
 	static TreeComponentFactory userTreeComponentFactory = null;
-	private static RecommendationBuilder rb;
+	private static RecommendationModel rb;
 	
-	public NodeInserter(RecommendationBuilder rb, TreeComponentFactory treeComponentFactory){
+	public Inserter(RecommendationModel rb, TreeComponentFactory treeComponentFactory){
 		this.userTreeComponentFactory = treeComponentFactory;
 		this.rb = rb;
 	}
@@ -24,9 +25,11 @@ public class NodeInserter {
 	 * 
 	 * @param node this node is going to be inserted
 	 * @return 
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 * 
 	 */
-	public static Boolean insert(INode node) {
+	public static Boolean insert(INode node) throws InterruptedException, ExecutionException {
 		
 		boolean result = false;
 		

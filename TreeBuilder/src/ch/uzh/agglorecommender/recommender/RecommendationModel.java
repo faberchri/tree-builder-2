@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
 import ch.uzh.agglorecommender.client.IDataset;
@@ -30,7 +31,7 @@ import com.google.common.collect.ImmutableMap;
  * A recommendation of movies a user has not yet rated can be run by runRecommendation()
  *
  */
-public final class RecommendationBuilder {
+public final class RecommendationModel {
 	
 	// Parameters
 	private ImmutableMap<String, INode> leavesMapU;
@@ -47,7 +48,7 @@ public final class RecommendationBuilder {
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationBuilder(ClusterResult clusterResult, IDataset testDataset) {
+	public RecommendationModel(ClusterResult clusterResult, IDataset testDataset) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
@@ -58,22 +59,22 @@ public final class RecommendationBuilder {
 		
 	}
 	
-	/**
-	 * Runs a test that compares the tree calculation with the real values of a given user
-	 * This recommendation type allows to calculate an RMSE value that indicates the quality
-	 * of the recommendations produced by the clusterer
-	 */
-	public Map<String, IAttribute> runQuantitativeTest(INode testNode, INode position){
-		
-		try {
-			// Collect ratings of all content given by the input node
-			Map<String, IAttribute> contentRatings = collectRatings(position,testNode,null);
-			return contentRatings;
-		}
-		catch (Exception e){
-			return null;
-		}
-	}
+//	/**
+//	 * Runs a test that compares the tree calculation with the real values of a given user
+//	 * This recommendation type allows to calculate an RMSE value that indicates the quality
+//	 * of the recommendations produced by the clusterer
+//	 */
+//	public Map<String, IAttribute> runQuantitativeTest(INode testNode, INode position){
+//		
+//		try {
+//			// Collect ratings of all content given by the input node
+//			Map<String, IAttribute> contentRatings = collectRatings(position,testNode,null);
+//			return contentRatings;
+//		}
+//		catch (Exception e){
+//			return null;
+//		}
+//	}
 	
 	/**
 	 * Collect ratings of all content given by the input node
@@ -83,7 +84,7 @@ public final class RecommendationBuilder {
 	 * 
 	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
 	 */
-	private Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList) {
+	public Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList) {
 		
 //		UnpackerTool unpacker = new UnpackerTool();
 		
@@ -144,32 +145,32 @@ public final class RecommendationBuilder {
 		return null;
 	}
 
-	/**
-	 * Calculates a recommendation that includes content the user has not rated yet
-	 * The scope of nodes that is incorporated into the recommendation depends on defined radius
-	 * This recommendation type does not allow a statistical check on the quality of the recommendation
-	 */
-	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
-		
-		// Find the most similar node in the tree
-		TreePosition position = findMostSimilar(inputNode);
-		
-		if(position == null){
-			System.out.println("Starting Position was not found");
-			return null;
-		}
-		else {
-			System.out.println("Found similar user: " + position.toString());
-		}
-		
-		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
-		List<String> watched = createWatchedList(inputNode);
-		
-		// Calculate recommendation based on this position
-		Map<INode,IAttribute> recommended = recommend(position.getNode(),watched);
-		
-		return recommended;
-	}
+//	/**
+//	 * Calculates a recommendation that includes content the user has not rated yet
+//	 * The scope of nodes that is incorporated into the recommendation depends on defined radius
+//	 * This recommendation type does not allow a statistical check on the quality of the recommendation
+//	 */
+//	public Map<INode, IAttribute> runRecommendation(INode inputNode) throws NullPointerException {
+//		
+//		// Find the most similar node in the tree
+//		TreePosition position = findMostSimilar(inputNode);
+//		
+//		if(position == null){
+//			System.out.println("Starting Position was not found");
+//			return null;
+//		}
+//		else {
+//			System.out.println("Found similar user: " + position.toString());
+//		}
+//		
+//		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
+//		List<String> watched = createWatchedList(inputNode);
+//		
+//		// Calculate recommendation based on this position
+//		Map<INode,IAttribute> recommended = recommend(position.getNode(),watched);
+//		
+//		return recommended;
+//	}
 	
 	/**
 	 * Collect all the content that should be recommended based on given user and radius
@@ -412,7 +413,7 @@ public final class RecommendationBuilder {
 		return this.dataset;
 	}
 	
-	public TreePosition findMostSimilar(INode inputNode){
+	public TreePosition findMostSimilar(INode inputNode) throws InterruptedException, ExecutionException{
 		
 		// Find position of the similar node in the tree
 		TreePosition position = new TreePosition(null,0,0);
@@ -422,14 +423,15 @@ public final class RecommendationBuilder {
 			else if(inputNode.getNodeType() == ENodeType.Content)
 				position.setNode(leavesMapC.get(inputNode.getDatasetId()));
 		}
-		else {
+		
+		if(position.getNode() == null){
 			if(inputNode.getNodeType() == ENodeType.User){
 				PositionFinder finder = new PositionFinder(leavesMapC);
-				position = finder.findPosition(inputNode,rootU,1);
+				position = finder.findPosition(inputNode,rootU);
 			}
 			else if(inputNode.getNodeType() == ENodeType.Content){
 				PositionFinder finder = new PositionFinder(leavesMapU);
-				position = finder.findPosition(inputNode,rootC,1);
+				position = finder.findPosition(inputNode,rootC);
 			}
 		}
 		
