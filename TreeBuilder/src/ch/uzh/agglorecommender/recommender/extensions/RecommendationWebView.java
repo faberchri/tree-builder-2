@@ -187,14 +187,14 @@ public class RecommendationWebView extends AbstractHandler {
 		long duration = endTime - startTime;
 		
 		// Create Evaluation
-//		inputNode = removeRatings(inputNode);
-//		Map<String,Double> evaluation = rc.evaluate(inputNode);
-//		String evalString = "";
-//		if(evaluation != null){
-//			for(String eval : evaluation.keySet()){
-//				evalString += eval + ": " + evaluation.get(eval) + "<br>";
-//			}
-//		}
+		inputNode = removeRatings(inputNode);
+		Map<String,Double> evaluation = rc.evaluate(inputNode);
+		String evalString = "";
+		if(evaluation != null){
+			for(String eval : evaluation.keySet()){
+				evalString += eval + ": " + evaluation.get(eval) + "<br>";
+			}
+		}
 		
 		// Write Recommendation Message
 		response.getWriter().write("<table style='width:100%'>");
@@ -213,7 +213,7 @@ public class RecommendationWebView extends AbstractHandler {
 		
 		// Extra Infos & Action
 		response.getWriter().write("Utility: " + position.getUtility() + "<br><br>");
-//		response.getWriter().write(evaluation + "<br>");
+		response.getWriter().write(evaluation + "<br>");
 		response.getWriter().write("Duration: " + (duration/1000000000) + " Seconds<br>");
 //		response.getWriter().write("Insertion: " + rc.runInsertion(inputNode,position) + "<br>");
 	}
