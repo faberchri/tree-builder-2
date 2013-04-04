@@ -15,11 +15,11 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.recommender.RecommendationModel;
 
-public class NodeTransformer {
+public class NodeBuilder {
 	
 	private static RecommendationModel rm;
 
-	public NodeTransformer (RecommendationModel rm){
+	public NodeBuilder (RecommendationModel rm){
 		this.rm = rm;
 	}
 	

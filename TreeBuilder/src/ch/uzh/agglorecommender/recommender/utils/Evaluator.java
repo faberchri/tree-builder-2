@@ -8,7 +8,6 @@ import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.RecommendationModel;
-import ch.uzh.agglorecommender.recommender.RecommenderController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -21,41 +20,12 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Evaluator {
 	
-	private ImmutableMap<String, INode> leavesMapU;
-	private ImmutableMap<String, INode> leavesMapC;
-	private INode rootU;
-	private INode rootC;
-	
-	private RecommenderController rc;
 	private RecommendationModel rm;
-	
 
-	public Evaluator(RecommenderController rc, RecommendationModel rm){
-		
-		// Retrieve Root Nodes of the user tree
-		this.rc	= rc;
+	public Evaluator(RecommendationModel rm){
 		this.rm	= rm;	
-		
 	}
 	
-	/**
-	 * Creates usable Map of test users for evaluation
-	 * Helper method for recommendations of type 1 (rmse test)
-	 * 
-	 * @param testSet reference on the test set
-	 */
-	public Map<INode, String> getTestUsers(InitialNodesCreator testSet){
-		
-		Map<INode,String> testUsers = new HashMap<INode,String>();
-		
-		ImmutableMap<String, INode> userLeaves = testSet.getUserLeaves();
-		for(String userLeaf : userLeaves.keySet()){
-			testUsers.put(userLeaves.get(userLeaf), userLeaf);
-		}
-		
-		return testUsers;
-	}
-
 	/**
 	 * Runs multiple evaluations with different test nodes to eliminate variances
 	 * 
@@ -65,10 +35,13 @@ public class Evaluator {
 	 * @throws InterruptedException 
 	 * 
 	 */
-	public Map<String,Double> kFoldEvaluation(Map<INode, String> testNodes) throws NullPointerException, InterruptedException, ExecutionException{
+	public Map<String,Double> kFoldEvaluation(InitialNodesCreator testSet) throws NullPointerException, InterruptedException, ExecutionException{
 		
 		System.out.println("kFoldEvaluation started..");
-			
+		
+		// Reformat testSet
+		Map<INode,String> testNodes = reformatTestSet(testSet);
+		
 		// Establish Maps
 		Map<String,Double> eval = null;
 		Map<String,Double> totalEvalValue = new HashMap<String,Double>();
@@ -95,6 +68,9 @@ public class Evaluator {
 			totalEvalValue.put(evalMethod, meanEvalValue);
 		}
 		
+		// Print
+		printEvaluationResult(totalEvalValue);
+		
 		return totalEvalValue;
 	}
 
@@ -115,7 +91,7 @@ public class Evaluator {
 //			System.out.println("found position" + position.toString());
 			
 			// Get Predicitions & Real Values
-			Map<String, IAttribute> predictedRatings = rc.runQuantitativeTest(testNode,position.getNode());
+			Map<String, IAttribute> predictedRatings = rm.collectRatings(position.getNode(),testNode,null);
 			
 			if(predictedRatings != null) {
 				
@@ -139,6 +115,30 @@ public class Evaluator {
 		}
 	}
 	
+	public void printEvaluationResult(Map<String, Double> eval) {
+		if(eval != null){
+			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
+		}
+	}
+
+	/**
+	 * Creates usable Map of test users for evaluation
+	 * Helper method for recommendations of type 1 (rmse test)
+	 * 
+	 * @param testSet reference on the test set
+	 */
+	private Map<INode, String> reformatTestSet(InitialNodesCreator testSet){
+		
+		Map<INode,String> testUsers = new HashMap<INode,String>();
+		
+		ImmutableMap<String, INode> userLeaves = testSet.getUserLeaves();
+		for(String userLeaf : userLeaves.keySet()){
+			testUsers.put(userLeaves.get(userLeaf), userLeaf);
+		}
+		
+		return testUsers;
+	}
+
 	/**
 	 * Calculate Evalution Value with Root Mean Squared Error (RMSE) Method
 	 * 
@@ -147,7 +147,7 @@ public class Evaluator {
 	 * @param predictedRatings set of the predicted ratings
 	 * 
 	 */
-	public double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
+	private double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfSquaredDifferences = 0;
@@ -207,85 +207,5 @@ public class Evaluator {
 		
 		// Division through number of Content Items
 		return sumOfDifferences / testNode.getRatingAttributeKeys().size();
-	}
-	
-//	/**
-//	 * Creates a random user with random ratings & demographics
-//	 * Helper method for recommendations of type 2 (recommend unknown content)
-//	 * 
-//	 * @param testRatings 
-//	 * @param testDemographics 
-//	 * @param testset reference on the test set
-//	 * 
-//	 * @return INode testUser
-//	 */
-//	public INode createTestUser(Map<INode, IAttribute> testRatings, Map<String, IAttribute> testDemographicsNum, Map<String, IAttribute> testDemographicsNom) {
-//		
-//		INode testUser = new Node(ENodeType.User, "999", null); // FIXME
-//		testUser.setRatingAttributes(testRatings); // Ratings
-//		testUser.setNominalMetaAttributes(testDemographicsNom); // Nominal Meta FIXME
-//		testUser.setNumericalMetaAttributes(testDemographicsNum); // Numerical Meta FIXME
-//		
-//		return testUser;
-//	}
-//	
-//	/**
-//	 * Picks some random content from the tree that the user has to rate
-//	 * 
-//	 * @param limit number of movies that should be rated
-//	 * @param trainingOutput the tree that should be used to pick random content
-//	 * 
-//	 * @ return Map<INode,IAttribute> attribute map
-//	 */
-//	public Map<INode,IAttribute> defineRatings(ClusterResult trainingOutput, int limit) {
-//		
-//		Map<INode, IAttribute> contentRatings = new HashMap<INode, IAttribute>();
-//		
-////		// Pick Godfather
-////		INode godfather = trainingOutput.getContentTreeLeavesMap().get(127);//127
-////		System.out.println(godfather.getNominalAttributesString());
-////		IAttribute godfatherAtt = new ClassitAttribute(1, 10, 100);
-////		contentRatings.put(godfather, godfatherAtt);
-////		
-////		// Pick GoodFellas
-////		INode goodfellas = trainingOutput.getContentTreeLeavesMap().get(182);//182
-////		System.out.println(goodfellas.getNominalAttributesString());
-////		IAttribute goodfellasAtt = new ClassitAttribute(1, 10, 100);
-////		contentRatings.put(goodfellas, goodfellasAtt);
-//		
-//		return contentRatings;
-//	}
-//	
-//	/**
-//	 * Creates the demographic data of the user
-//	 * 
-//	 * @ return Map<INode,IAttribute> attribute map
-//	 */
-//	public Map<String, IAttribute> defineDemographics() {
-//		
-//		// Define demographic values
-//		Map<String,IAttribute> demographics = new HashMap<>();
-//		
-//		Map<String,Double> a1Map = new HashMap<>();
-//		a1Map.put("50", 1.0);
-//		IAttribute a1  = new CobwebAttribute(a1Map);
-//		Map<String,Double> a2Map = new HashMap<>();
-//		a1Map.put("F", 1.0);
-//		IAttribute a2  = new CobwebAttribute(a2Map);
-//		Map<String,Double> a3Map = new HashMap<>();
-//		a1Map.put("programmer", 1.0);
-//		IAttribute a3  = new CobwebAttribute(a3Map);
-//		
-//		demographics.put("Age",a1);
-//		demographics.put("Gender",a2);
-//		demographics.put("Occupation",a3);
-//		
-//		return demographics;
-//	}
-
-	public void printEvaluationResult(Map<String, Double> eval) {
-		if(eval != null){
-			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
-		}
 	}
 }

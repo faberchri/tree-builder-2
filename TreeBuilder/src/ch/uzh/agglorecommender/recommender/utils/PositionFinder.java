@@ -15,20 +15,21 @@ import java.util.concurrent.Future;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
-
-import com.google.common.collect.ImmutableMap;
+import ch.uzh.agglorecommender.recommender.RecommendationModel;
 
 public class PositionFinder {
 	
 	CobwebMaxCategoryUtilitySearcher cobwebSearcher;
 	ClassitMaxCategoryUtilitySearcher classitSearcher;
 	
-	UnpackerTool unpacker;
+	NodeUnpacker unpacker;
 	
-	public PositionFinder(ImmutableMap<String,INode> leavesMap){
-		this.cobwebSearcher = new CobwebMaxCategoryUtilitySearcher();
-		this.classitSearcher = new ClassitMaxCategoryUtilitySearcher();
-		unpacker = new UnpackerTool(leavesMap);
+	public PositionFinder(RecommendationModel rm){
+		
+		this.cobwebSearcher 	= new CobwebMaxCategoryUtilitySearcher();
+		this.classitSearcher 	= new ClassitMaxCategoryUtilitySearcher();
+		this.unpacker 			= new NodeUnpacker(rm);
+		
 	}
 	
 	/**
@@ -67,7 +68,6 @@ public class PositionFinder {
 		
 		// Calculate utilities of all positions in parallel
 		List<TreePosition> finalPos	= calculateUtilites(inputNode, listCollection);
-		long endTime = System.nanoTime();
 		
 		// Find best position
 		TreePosition bestPosition = new TreePosition(null,0,0);

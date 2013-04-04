@@ -2,7 +2,6 @@ package ch.uzh.agglorecommender.client;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.clusterer.ClusteringController;
@@ -10,13 +9,10 @@ import ch.uzh.agglorecommender.clusterer.GUIClusteringController;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.SimpleClusteringController;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
-import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
+import ch.uzh.agglorecommender.recommender.RecommendationController;
 import ch.uzh.agglorecommender.recommender.RecommendationModel;
-import ch.uzh.agglorecommender.recommender.RecommendationView;
-import ch.uzh.agglorecommender.recommender.RecommenderController;
-import ch.uzh.agglorecommender.recommender.utils.Evaluator;
-import ch.uzh.agglorecommender.recommender.utils.Inserter;
+import ch.uzh.agglorecommender.recommender.extensions.RecommendationWebView;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -129,37 +125,29 @@ public class TestDriver {
 				
 		// Instantiate Tools
 		RecommendationModel rm 		= new RecommendationModel(trainingOutput,testDataset);
-		RecommenderController recommender 	= new RecommenderController(rm);
-		Evaluator evaluator 		= new Evaluator(recommender,rm);
-		Inserter inserter 			= new Inserter(rm,TreeComponentFactory.getInstance());
+		RecommendationController rc	= new RecommendationController(rm);
 		
 		// Prepare Testset
 		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
-		Map<INode, String> testNodes 	= evaluator.getTestUsers(testSet);
 		
 		// Run Quantitative Evaluation
-//		System.out.println("-------------------------------");
-//		System.out.println("Evaluating Clustering");
-//		System.out.println("-------------------------------");
-//		
-//		Map<String, Double> eval 		= evaluator.kFoldEvaluation(testNodes);
-//		evaluator.printEvaluationResult(eval);
-		
-		// Start UI
-		RecommendationView basicUI = new RecommendationView(rm,inserter,evaluator,trainingOutput);
-//		basicUI.startService();
+		System.out.println("-------------------------------");
+		System.out.println("Evaluating Clustering");
+		System.out.println("-------------------------------");
+		rc.kFoldEvaluation(testSet);
 		
 		// Start User Interfaces for qualitative evaluation and insertion
 		System.out.println("-------------------------------");
 		System.out.println("Evaluating Recommendation System");
 		System.out.println("-------------------------------");
 		
-		Map<String,Double> evalResult = basicUI.kFoldEvaluation(testNodes);
-		evaluator.printEvaluationResult(evalResult);
+		// Start UI
+//		RecommendationView clUI = new RecommendationView(rc);
+//		basicUI.startService();
 
 		// Start Web based UI Extension
-//		WebExtension webUI = new WebExtension(basicUI); // Hangs in on basicUI, listens on 8081
-//		webUI.startService();
+		RecommendationWebView webUI = new RecommendationWebView(rc); // Hangs in on basicUI, listens on 8081
+		webUI.startService();
 	}
 		
 	/**

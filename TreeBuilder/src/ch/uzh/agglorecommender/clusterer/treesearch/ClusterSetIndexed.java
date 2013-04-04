@@ -46,7 +46,7 @@ public class ClusterSetIndexed<E> implements IClusterSetIndexed<E> {
 	 * Maintainers must change this value if and only if the new version
 	 * of this class is not compatible with old versions.
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8422132856718902351L;
 
 	/**
 	 * The subset size. This implementation works only with subset size == 2!

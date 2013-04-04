@@ -8,32 +8,24 @@ import java.util.concurrent.ExecutionException;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
 
-public class Inserter {
-	
-	static TreeComponentFactory userTreeComponentFactory = null;
-	private static RecommendationModel rb;
-	
-	public Inserter(RecommendationModel rb, TreeComponentFactory treeComponentFactory){
-		this.userTreeComponentFactory = treeComponentFactory;
-		this.rb = rb;
-	}
+public class NodeInserter {
 	
 	/**
 	 * Decides which insertion method to use and runs specific method
 	 * 
 	 * @param node this node is going to be inserted
+	 * @param position 
 	 * @return 
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 * 
 	 */
-	public static Boolean insert(INode node) throws InterruptedException, ExecutionException {
+	public Boolean insert(INode node, TreePosition position) throws InterruptedException, ExecutionException {
 		
 		boolean result = false;
 		
-		TreePosition position = rb.findMostSimilar(node);
+		//TreePosition position = rm.findMostSimilar(node);
 		
 		if(position != null){
 		
@@ -84,7 +76,7 @@ public class Inserter {
 				nodesToMerge.add(node);
 				nodesToMerge.add(position.getNode());
 				
-				INode newNode = userTreeComponentFactory.createInternalNode(
+				INode newNode = TreeComponentFactory.getInstance().createInternalNode(
 						ENodeType.User,
 						nodesToMerge,0);
 				
