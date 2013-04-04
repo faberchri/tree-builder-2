@@ -33,6 +33,8 @@ public class RecommendationWebView extends AbstractHandler {
 	
 	private final RecommendationController rc;
 	private final Server server;
+	
+	DecimalFormat df = new DecimalFormat("#.##");
 
 	public RecommendationWebView(RecommendationController rc) throws Exception {
 	    
@@ -66,7 +68,7 @@ public class RecommendationWebView extends AbstractHandler {
 		response.setContentType("text/text");  // text/xml
 	    response.setHeader("Cache-Control", "no-cache");
 	    response.setStatus(HttpServletResponse.SC_OK);
-		
+	    
 	    if(request.getParameterMap().containsKey("request")) {
 			String requestType = request.getParameter("request");
 			
@@ -75,18 +77,16 @@ public class RecommendationWebView extends AbstractHandler {
 				itemRequest(request,response);
 			}
 			
-			else if(requestType.equals("recommendation") || requestType .equals("insertion")) {
-				
+			// Create Recommendation
+			if(requestType.equals("recommendation")){
+
 				// Build Node
 				INode inputNode = createNode(request);
-				
-				// Create Recommendation
-				if(requestType.equals("recommendation")){
-					try {
-						recommendationRequest(inputNode,response);
-					} catch (InterruptedException | ExecutionException e) {
-						e.printStackTrace();
-					}
+
+				try {
+					recommendationRequest(inputNode,request,response);
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
 				}
 			}
 	    }
@@ -98,42 +98,6 @@ public class RecommendationWebView extends AbstractHandler {
 	    response.flushBuffer();
 	    baseRequest.setHandled(true);
   }
-	
-	private INode createNode(HttpServletRequest request){
-		
-		// Retrieve Type
-		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
-		
-		// Read MetaInfo to List<String> -> attribute+value
-		List<String> numMetaInfo = new LinkedList<String>();
-		String numMetaFull = request.getParameter("nummeta");
-		if(numMetaFull != null){
-			String[] metaList = numMetaFull.split("\\*");
-			for(String meta : metaList){
-				numMetaInfo.add(meta);
-			}
-		}
-		List<String> nomMetaInfo = new LinkedList<String>();
-		String nomMetaFull = request.getParameter("nommeta");
-		if(nomMetaFull != null){
-			String[] nomMetaList = nomMetaFull.split("\\*");
-			for(String meta : nomMetaList){
-				nomMetaInfo.add(meta);
-			}
-		}
-		
-		// Read Ratings to List<String> -> content node+rating
-		List<String> ratings = new LinkedList<String>();
-		String ratingsFull = request.getParameter("ratings");
-		if(ratingsFull != null){
-			String[] ratingList = ratingsFull.split("\\*");
-			for(String rating : ratingList){
-				ratings.add(rating);
-			}
-		}
-		
-		return rc.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
-	}
 	
 	private void itemRequest(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		
@@ -177,7 +141,7 @@ public class RecommendationWebView extends AbstractHandler {
 		response.getWriter().write("</table>");
 	}
 	
-	private void recommendationRequest(INode inputNode, HttpServletResponse response) throws IOException, InterruptedException, ExecutionException{
+	private void recommendationRequest(INode inputNode, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, ExecutionException{
 		
 		// Build Recommendation
 		long startTime = System.nanoTime();
@@ -205,7 +169,6 @@ public class RecommendationWebView extends AbstractHandler {
 			
 			IAttribute attribute = recommendation.getValue();
 			Double rating = attribute.getSumOfRatings() / attribute.getSupport();
-			DecimalFormat df = new DecimalFormat("#.##");
 			
 			response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'>" + url + "</td></tr>");
 		}
@@ -213,11 +176,52 @@ public class RecommendationWebView extends AbstractHandler {
 		
 		// Extra Infos & Action
 		response.getWriter().write("Utility: " + position.getUtility() + "<br><br>");
-		response.getWriter().write(evaluation + "<br>");
-		response.getWriter().write("Duration: " + (duration/1000000000) + " Seconds<br>");
-//		response.getWriter().write("Insertion: " + rc.runInsertion(inputNode,position) + "<br>");
+		response.getWriter().write(evalString + "<br>");
+		response.getWriter().write("Duration: " + df.format(((double)(duration/1000000000))) + " Seconds<br>");
+
+		// Insert Node if in request
+		String insert = request.getParameter("insert");
+		if(insert.equals("true")){
+			response.getWriter().write("<br>Insertion: " + rc.runInsertion(inputNode,position) + "<br>");	
+		}
 	}
 	
+	private INode createNode(HttpServletRequest request){
+		
+		// Retrieve Type
+		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
+		
+		// Read MetaInfo to List<String> -> attribute+value
+		List<String> numMetaInfo = new LinkedList<String>();
+		String numMetaFull = request.getParameter("nummeta");
+		if(numMetaFull != null){
+			String[] metaList = numMetaFull.split("\\*");
+			for(String meta : metaList){
+				numMetaInfo.add(meta);
+			}
+		}
+		List<String> nomMetaInfo = new LinkedList<String>();
+		String nomMetaFull = request.getParameter("nommeta");
+		if(nomMetaFull != null){
+			String[] nomMetaList = nomMetaFull.split("\\*");
+			for(String meta : nomMetaList){
+				nomMetaInfo.add(meta);
+			}
+		}
+		
+		// Read Ratings to List<String> -> content node+rating
+		List<String> ratings = new LinkedList<String>();
+		String ratingsFull = request.getParameter("ratings");
+		if(ratingsFull != null){
+			String[] ratingList = ratingsFull.split("\\*");
+			for(String rating : ratingList){
+				ratings.add(rating);
+			}
+		}
+		
+		return rc.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
+	}
+
 	private String getMeta(INode node, String info){
 		if(node.getNominalAttributeValue(info) != null){
 			Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();

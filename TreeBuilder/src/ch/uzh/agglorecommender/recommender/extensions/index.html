@@ -13,6 +13,7 @@
 	var metay = new Array();
 	var ratings = new Array();
 	var ratingsView = new Array();
+	var insert = "false";
 	
 	<!-- Ajax ---------->
 	function check(run){
@@ -74,10 +75,14 @@
 			ratingParameter = ratingParameter + ratings[j] + "*";
 		}
 		
+		if(document.getElementById('insert').checked){
+			insert = "true";
+		}
+		
 		<!-- send -->
 		if(ratings.length >= min && run == 1){
 			document.getElementById('recommendations').innerHTML="<img src='ajax-loader.gif' border='0'> Calulating Recommendations... Please Wait";
-			ajax("request=recommendation&type=User&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","x","recommendations"); <!-- enough movies have been rated -->
+			ajax("request=recommendation&type=User&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&insert=" + insert + "&","x","recommendations"); <!-- enough movies have been rated -->
 		}
 		
 		ajax("request=items&type=User&limit=15&nommeta=" + metaxParameter + "&nummeta=" + metayParameter + "&ratings=" + ratingParameter + "&","s","movies"); <!-- load more movies to rate -->
@@ -193,7 +198,9 @@
 <!--------- Movies ------------>
 <h3 id='counter'>Movies (0 von mind. <script>document.write(min);</script> Ratings abgegeben)</h3>
 <div id="movies"></div>
-
+<br>
+Insert Node <input id='insert' name='insert' type='checkbox' unchecked>
+<br>
 <br>
 
 <!--- Fake Form --->

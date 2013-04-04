@@ -73,7 +73,6 @@ public class TBLogger {
 	private static Formatter formatterHTML;
 	
 	private static ConsoleHandler consoleHandler = null;
-	private static Formatter formatterConsole;
 
 	private static Logger setup(String pattern) throws IOException {
 		// perform basic initialization of logging facility
