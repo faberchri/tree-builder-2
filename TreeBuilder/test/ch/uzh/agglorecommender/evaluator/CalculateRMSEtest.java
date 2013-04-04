@@ -16,47 +16,34 @@ import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 
 public class CalculateRMSEtest {
 	
+	// Basic components
+	INode movie1 = new Node(ENodeType.Content, null,null);		
+	INode movie2 = new Node(ENodeType.Content, null, null);
+	INode user = new Node(ENodeType.User,null, null);
+	String datasetID1 = movie1.getDatasetId();
+	String datasetID2 = movie2.getDatasetId();
+	
 	@Test
 	public void testRMEI() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
+		//	public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
 		System.out.println("Starting RME test I");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,4,16);
-	IAttribute testNodeA2 = new ClassitAttribute(1,3,9);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
-
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null,null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User,null, null);
-	testNode.setRatingAttributes(attMap);
-
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,5,25);
-	IAttribute predictedA2 = new ClassitAttribute(1,8,64);
-	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
-	double expectedResult = 3.60555127546;
-	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
-	
-}
+			
+		// Real Ratings
+		IAttribute realR1 = new ClassitAttribute(1,4,16);
+		IAttribute realR2 = new ClassitAttribute(1,3,9);
+		addAttMap(realR1,realR2);
+		
+		// Predicted Ratings
+		IAttribute predR1 = new ClassitAttribute(1,5,25);
+		IAttribute predR2 = new ClassitAttribute(1,8,64);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
+		
+		// Run Test
+		double calcResult = Evaluator.class.newInstance().calculateRMSE(user,predictionMap);
+		double expectedResult = 3.60555127546;
+		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
 	@Test
 	public void testRMEII() throws InstantiationException, IllegalAccessException{
@@ -87,10 +74,9 @@ public class CalculateRMSEtest {
 	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
 	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
+	Map<String, IAttribute> predictionMap = new HashMap<>();
+	predictionMap.put("0", predictedA1);
+	predictionMap.put("1", predictedA2);
 	
 	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 0;
@@ -129,10 +115,9 @@ public class CalculateRMSEtest {
 	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
 	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
+	Map<String, IAttribute> predictionMap = new HashMap<>();
+	predictionMap.put("0", predictedA1);
+	predictionMap.put("1", predictedA2);
 	
 	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 7.07106781187;
@@ -171,10 +156,9 @@ public class CalculateRMSEtest {
 	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
 	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
+	Map<String, IAttribute> predictionMap = new HashMap<>();
+	predictionMap.put("0", predictedA1);
+	predictionMap.put("1", predictedA2);
 	
 	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 10;
@@ -213,16 +197,27 @@ public class CalculateRMSEtest {
 	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
 	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
+	Map<String, IAttribute> predictionMap = new HashMap<>();
+	predictionMap.put("0", predictedA1);
+	predictionMap.put("1", predictedA2);
 	
 	double calcResult = Evaluator.class.newInstance().calculateRMSE(testNode,predictionMap);
 	double expectedResult = 0;
 	
 	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
+	private void addAttMap(IAttribute rating1, IAttribute rating2){
+		Map<INode, IAttribute> attMap = new HashMap<>();
+		attMap.put(movie1, rating1);
+		attMap.put(movie2, rating2);
+		user.setRatingAttributes(attMap);
+	}
 	
-}
+	private Map<String,IAttribute> buildPredMap(IAttribute predRating1, IAttribute predRating2){
+		Map<String, IAttribute> predictionMap = new HashMap<>();
+		predictionMap.put(datasetID1, predRating1);
+		predictionMap.put(datasetID2, predRating2);
+		return predictionMap;
+	}
 }
