@@ -5,6 +5,7 @@ package ch.uzh.agglorecommender.client;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -25,7 +26,8 @@ public class TestClassFullTreeCobweb {
 	public void runTest(){
 		
 		System.out.println("------------Starting Full Cobweb Test (10 nodes)------------");
-		
+		Field cla = Field.class.getDeclaredField("cla");
+	    cla.setAccessible(true);
 		//Create tree
 		TestDriver.cla.contentTreeComponentFactory = CobwebTreeComponentFactory.getInstance();
 		TestDriver.cla.userTreeComponentFactory = CobwebTreeComponentFactory.getInstance();

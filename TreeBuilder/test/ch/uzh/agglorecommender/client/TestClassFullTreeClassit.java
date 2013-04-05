@@ -2,14 +2,13 @@ package ch.uzh.agglorecommender.client;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.junit.Test;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.clusterer.treeupdate.NullUpdater;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -20,19 +19,19 @@ public class TestClassFullTreeClassit {
 		 * Tests Classit implementation using a test set containing 10 nodes 
 		 */
 		@Test
-		public void runTest(){
+		public void runTest() throws NoSuchFieldException, SecurityException{
 			
 			System.out.println("------------Starting Full Classit Test (10 nodes)------------");
 			
+			Field cla = TestDriver.class.getDeclaredField("cla");
+		    cla.setAccessible(true);
 			//Create tree
-			TestDriver.cla.contentTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
-			TestDriver.cla.userTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
-			TestDriver.cla.trainingFile = new File(fileLocation);
-			TestDriver.cla.nodeUpdater = new NullUpdater();
+			/*cla.TreeComponentFactory = ClassitTreeComponentFactory.getInstance();
+			cla.userTreeComponentFactory = ClassitTreeComponentFactory.getInstance();
+			cla.trainingFile = new File(fileLocation);
+			cla.
+			nodeUpdater = new NullUpdater();*/
 			
-			//TestDriver.main(new String[] {});
-//			TestDriver.main(new String[] {"-tr", "C:/Users/IBM_ADMIN/Documents/Eclipse/Workstation/tree-builder-2/tree-builder-2/TreeBuilder/test/ch/uzh/agglorecommender/clusterer/treesearch/u1.base", "-c", "Cobweb", "-u","Cobweb"});
-		
 			ClusterResult trainingOutput = new ClusterResult(null, null, null, null, null);
 			
 			try {
