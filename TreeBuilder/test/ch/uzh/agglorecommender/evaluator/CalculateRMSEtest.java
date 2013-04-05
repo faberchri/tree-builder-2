@@ -2,16 +2,21 @@ package ch.uzh.agglorecommender.evaluator;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
 
+import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
+import ch.uzh.agglorecommender.recommender.RecommendationModel;
 import ch.uzh.agglorecommender.recommender.utils.Evaluator;
 
 public class CalculateRMSEtest {
@@ -24,7 +29,7 @@ public class CalculateRMSEtest {
 	String datasetID2 = movie2.getDatasetId();
 	
 	@Test
-	public void testRMEI() throws InstantiationException, IllegalAccessException{
+	public void testRMEI() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
 		//	public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
 		System.out.println("Starting RME test I");
@@ -39,13 +44,15 @@ public class CalculateRMSEtest {
 		IAttribute predR2 = new ClassitAttribute(1,8,64);
 		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
 		
+		
+		
 		// Run Test
-		double calcResult = Evaluator.class.newInstance().calculateRMSE(user,predictionMap);
+		double calcResult = calculateRMSE(user,predictionMap);
 		double expectedResult = 3.60555127546;
 		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
 	}
 	
-	@Test
+	//@Test
 	public void testRMEII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
@@ -86,7 +93,7 @@ public class CalculateRMSEtest {
 	
 }
 	
-	@Test
+	//@Test
 	public void testRMEIII() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
@@ -127,7 +134,7 @@ public class CalculateRMSEtest {
 	
 }
 	
-	@Test
+	//@Test
 	public void testRMEIV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
@@ -168,7 +175,7 @@ public class CalculateRMSEtest {
 	
 }
 	
-	@Test
+	//@Test
 	public void testRMEV() throws InstantiationException, IllegalAccessException{
 	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
 		
@@ -219,5 +226,34 @@ public class CalculateRMSEtest {
 		predictionMap.put(datasetID1, predRating1);
 		predictionMap.put(datasetID2, predRating2);
 		return predictionMap;
+	}
+	
+	private static double calculateRMSE(INode testNode, Map<String, IAttribute> predictedRatings) throws InstantiationException, NoSuchMethodException{
+		//Instantiate evaluator
+		Evaluator ev = null;
+				try {
+		            Class[] parameterTypes = new Class[1];
+		            parameterTypes[0] = RecommendationModel.class;
+		            Constructor cons = Evaluator.class.getDeclaredConstructor(parameterTypes);
+		            cons.setAccessible(true);
+		            //Problem here: 
+		            ev = (Evaluator)cons.newInstance(new RecommendationModel(null,null));
+		        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		            e.printStackTrace();
+		        }
+
+				double result = 0;
+				//Access private method calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings)
+				try {
+		            Class[] parameterTypes = {INode.class,Map.class};
+		            
+		            Method method = TreeBuilder.class.getDeclaredMethod("calculateRMSE", parameterTypes);
+		            
+		            method.setAccessible(true);
+		            result = (double) method.invoke(ev,testNode,predictedRatings);
+		        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		            e.printStackTrace();
+		        }
+				return result;
 	}
 }
