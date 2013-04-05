@@ -50,6 +50,9 @@ public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtility
 		// iterate over the collection of possible combinations
 		TIntIterator iterator = combinationIds.iterator();
 		for ( int i = combinationIds.size(); i-- > 0; ) {  // faster iteration by avoiding hasNext()
+			// leave at least one combinationId in list to calculate, otherwise null pointer
+			if (combinationIds.size() < 2) break;
+			
 			int combination = iterator.next();
 			
 			// skip this combination if nodes are known to have shared attributes
