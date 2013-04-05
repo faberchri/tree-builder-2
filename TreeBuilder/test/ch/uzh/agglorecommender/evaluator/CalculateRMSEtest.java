@@ -228,16 +228,17 @@ public class CalculateRMSEtest {
 		return predictionMap;
 	}
 	
-	private static double calculateRMSE(INode testNode, Map<String, IAttribute> predictedRatings) throws InstantiationException, NoSuchMethodException{
+	private static double calculateRMSE(INode testNode, Map<String, IAttribute> predictedRatings) throws InstantiationException, NoSuchMethodException, IllegalAccessException{
 		//Instantiate evaluator
 		Evaluator ev = null;
-				try {
+						try {
 		            Class[] parameterTypes = new Class[1];
 		            parameterTypes[0] = RecommendationModel.class;
 		            Constructor cons = Evaluator.class.getDeclaredConstructor(parameterTypes);
 		            cons.setAccessible(true);
 		            //Problem here: 
-		            ev = (Evaluator)cons.newInstance(new RecommendationModel(null,null));
+		           // ev = (Evaluator)cons.newInstance(new RecommendationModel(null,null));
+		            ev = (Evaluator)cons.newInstance(RecommendationModel.class.newInstance());
 		        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 		            e.printStackTrace();
 		        }
