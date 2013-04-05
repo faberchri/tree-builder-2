@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 	//Node1, A1 = 4, A2 = 3
 	//Node2, A2 = 5, A3 = 5
 	@Test
-	public void classitTestI() {
+	public void classitTestI() throws InstantiationException, IllegalAccessException {
 
 		System.out.println(" ");
 		System.out
@@ -83,8 +84,8 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		openNodes.add(node2);
 
 		// Print standard deviations
-		System.out.println("Node 1: " + node1.getNumericalAttributesString());
-		System.out.println("Node 2: " + node2.getNumericalAttributesString());
+		System.out.println("Node 1: " + node1.getNodeType()+ ", num atts: " + node1.getNumericalAttributesString());
+		System.out.println("Node 2: " + node2.getNodeType()+ ", num atts: " + node2.getNumericalAttributesString());
 
 		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
 		nodesToUpdate.add(node1);
@@ -94,18 +95,31 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
 		
 		IMergeResult merge = null;
+		TreeBuilder tr = null;
 		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
-		IClusterSet<INode> leafNodes = new ClusterSet<INode>(nodeSet);
+		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(nodeSet);
 		
 
-		TreeBuilder tr = new TreeBuilder();
-		
+		//Instantiate TreeBuilder
 		try {
-            Class[] parameterTypes = {IClusterSet.class, IMaxCategoryUtilitySearcher.class};
-            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResult", parameterTypes);
+            //Class[] parameterTypes = {};
+            Constructor cons[] = TreeBuilder.class.getDeclaredConstructors();
+            cons[0].setAccessible(true);
+            tr = (TreeBuilder)cons[0].newInstance(null);
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+		
+		
+		//Search best merge
+		try {
+            Class[] parameterTypes = {IClusterSetIndexed.class, IMaxCategoryUtilitySearcher.class};
+            
+          //This causes an Exception.. Why?
+            //private IMergeResult searchBestMergeResultIndexed(IClusterSetIndexed<INode> nodes, IMaxCategoryUtilitySearcher mcus)
+            Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResultIndexed", parameterTypes);
+            
             method.setAccessible(true);
-          
-            //This causes an IllegalArgumentException (object is not an instance of declaring class).. Why?
             merge = (IMergeResult) method.invoke(tr,leafNodes,utilityCalc);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
@@ -117,7 +131,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		System.out.println("Merge result: "+merge.toString());
 
 		// evaluate the category utility result
-		assertEquals("category utility", 1.0 / 3.0, utility, 0.000001);
+		assertEquals("category utility", 1/(Math.sqrt(2))/3, utility, 0.000001);
 
 	}
 	
