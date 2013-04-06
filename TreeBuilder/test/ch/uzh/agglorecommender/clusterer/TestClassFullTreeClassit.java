@@ -40,11 +40,9 @@ public class TestClassFullTreeClassit {
 		
 		//Check root node
 		INode rootNode = trainingOutput.getUserTreeRoot();
-		assertEquals("Root node utility",0.0707106,rootNode.getCategoryUtility(),0.0000001);
+		assertEquals("Root node utility",0.070710678,rootNode.getCategoryUtility(),0.0000001);
 		
 		System.out.println("Test done");
-
-	
 	}
 	
 	@Test
