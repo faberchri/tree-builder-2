@@ -20,7 +20,7 @@ public class TestClassFullTreeClassit {
 	@Test
 	public void runTest(){
 		
-		System.out.println("------------Starting Full Cobweb Test (10 nodes)------------");
+		System.out.println("------------Starting Full Classit Test (10 nodes)------------");
 		
 		TreeBuilder treeBuilder = new TreeBuilder();
 		InitialNodesCreator inc = new InitialNodesCreator(new TestDataset(), TreeComponentFactory.getInstance());
@@ -30,10 +30,7 @@ public class TestClassFullTreeClassit {
 				null);
 		treeBuilder.run();
 		ClusterResult trainingOutput = treeBuilder.getResult();
-				
-		System.out.println();
-		System.out.println("------------Retrieving values...------------");
-		
+						
 		//Checkk the leafes
 		ImmutableMap<String, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
 		int numberOfLeafes = leafNodes.size();
@@ -41,7 +38,7 @@ public class TestClassFullTreeClassit {
 		
 		//Check root node
 		INode rootNode = trainingOutput.getUserTreeRoot();
-		assertEquals("Root node utility",0.02125,rootNode.getCategoryUtility(),0.0000000001);
+		assertEquals("Root node utility",0.0565685,rootNode.getCategoryUtility(),0.0000001);
 		
 		System.out.println("Test done");
 
