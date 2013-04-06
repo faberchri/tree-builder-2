@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ClassitAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -231,6 +230,7 @@ public class CalculateRMSEtest {
 	private static double calculateRMSE(INode testNode, Map<String, IAttribute> predictedRatings) throws InstantiationException, NoSuchMethodException, IllegalAccessException{
 		//Instantiate evaluator
 		Evaluator ev = null;
+		RecommendationModel mod = new RecommendationModel(null, null);
 						try {
 		            Class[] parameterTypes = new Class[1];
 		            parameterTypes[0] = RecommendationModel.class;
@@ -238,7 +238,7 @@ public class CalculateRMSEtest {
 		            cons.setAccessible(true);
 		            //Problem here: 
 		           // ev = (Evaluator)cons.newInstance(new RecommendationModel(null,null));
-		            ev = (Evaluator)cons.newInstance(RecommendationModel.class.newInstance());
+		            ev = (Evaluator)cons.newInstance(mod);
 		        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 		            e.printStackTrace();
 		        }
@@ -248,7 +248,7 @@ public class CalculateRMSEtest {
 				try {
 		            Class[] parameterTypes = {INode.class,Map.class};
 		            
-		            Method method = TreeBuilder.class.getDeclaredMethod("calculateRMSE", parameterTypes);
+		            Method method = Evaluator.class.getDeclaredMethod("calculateRMSE", parameterTypes);
 		            
 		            method.setAccessible(true);
 		            result = (double) method.invoke(ev,testNode,predictedRatings);
