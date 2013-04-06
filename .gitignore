@@ -1,4 +1,4 @@
-/bin
+TreeBuilder/bin
 *.class
 TreeBuilder/bin/ch/uzh/agglorecommender/datasets/Grouplens/grouplensSmall_properties_no_xmlSchema_link.xml
 TreeBuilder/bin/ch/uzh/agglorecommender/datasets/GrouplensBig/grouplensBig_properties_no_meta.xml
