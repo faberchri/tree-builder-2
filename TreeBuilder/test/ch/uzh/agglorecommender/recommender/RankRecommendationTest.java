@@ -1,9 +1,15 @@
 package ch.uzh.agglorecommender.recommender;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.UUID;
 
 import org.junit.Test;
 
@@ -32,10 +38,10 @@ public class RankRecommendationTest {
 		INode node4 = new Node(ENodeType.Content, null, null);
 		
 		// Create recommendations
-		IAttribute att1 = new ClassitAttribute(5, 25, 1);
-		IAttribute att2 = new ClassitAttribute(2, 4, 1);
+		IAttribute att1 = new ClassitAttribute(1, 5, 1);
+		IAttribute att2 = new ClassitAttribute(1, 2, 4);
 		IAttribute att3 = new ClassitAttribute(1, 1, 1);
-		IAttribute att4 = new ClassitAttribute(4, 16, 1);
+		IAttribute att4 = new ClassitAttribute(1, 4, 16);
 		
 		// Create map
 		Map<INode,IAttribute> unsortedRecommendations = new HashMap<INode, IAttribute>();
@@ -44,29 +50,62 @@ public class RankRecommendationTest {
 		unsortedRecommendations.put(node3, att3);
 		unsortedRecommendations.put(node4,att4);
 		
-		Iterator j = unsortedRecommendations.entrySet().iterator();
+		// Sort recommendations
+		ClusterResult cr = new ClusterResult(null,null,null, null, UUID.randomUUID());
+		RecommendationModel ranker = new RecommendationModel(cr, null);
+		SortedMap<INode,IAttribute> sortedRecommendations = new TreeMap<INode, IAttribute>();
+		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 1, 4);
+		
+		
+		// Check results
+		assertEquals("All nodes in map",unsortedRecommendations.size(),sortedRecommendations.size(),0.01);
+		
+		Iterator i = sortedRecommendations.entrySet().iterator();
+		double a = 0;
+		double b = 0;
+		Map.Entry pair1 = (Map.Entry) i.next();
+		a = ((IAttribute)pair1.getValue()).getSumOfRatings();
+		int count = 0;
+		while(i.hasNext()){
+			Map.Entry pair2 = (Map.Entry) i.next();
+			b = ((IAttribute)pair2.getValue()).getSumOfRatings();
+			assertTrue("Pair combiantion",a>b);
+			pair1 = pair2;
+			count++;
+		}
+		//Make sure all comparisons have been calculated
+		assertEquals("No of comparisons",3,count,0.01);
+		
+		
+		//Resort in other direction
+		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 0, 4);
+		
+		Iterator j = sortedRecommendations.entrySet().iterator();
 		while(j.hasNext()){
 			Map.Entry pair = (Map.Entry) j.next();
 			System.out.println(((IAttribute)pair.getValue()).getSumOfRatings());
 			
 		}
 		
-		System.out.println("Lenght unsorted: "+unsortedRecommendations.size());
-		// Sort recommendations
-		ClusterResult cr = new ClusterResult(null,null,null, null, null);
-		RecommendationModel ranker = new RecommendationModel(cr, null);
-		Map<INode,IAttribute> sortedRecommendations = new HashMap<INode, IAttribute>();
-		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
-		
-		System.out.println("Lenght sorted: "+sortedRecommendations.size());
-		
-		Iterator i = sortedRecommendations.entrySet().iterator();
-		while(i.hasNext()){
-			Map.Entry pair = (Map.Entry) i.next();
-			System.out.println(((IAttribute)pair.getValue()).getSumOfRatings());
-			
-		}
 		// Check results
+		assertEquals("All nodes in map",unsortedRecommendations.size(),sortedRecommendations.size(),0.01);
+		
+		Iterator k = sortedRecommendations.entrySet().iterator();
+		a = 0;
+		b = 0;
+		pair1 = (Map.Entry) k.next();
+		a = ((IAttribute)pair1.getValue()).getSumOfRatings();
+		count = 0;
+		while(k.hasNext()){
+			System.out.println(count);
+			Map.Entry pair2 = (Map.Entry) k.next();
+			b = ((IAttribute)pair2.getValue()).getSumOfRatings();
+			assertTrue("Pair combiantion",a<b);
+			pair1 = pair2;
+			count++;
+		}
+		//Make sure all comparisons have been calculated
+		assertEquals("No of comparisons",3,count,0.01);
 		
 	}
 }
