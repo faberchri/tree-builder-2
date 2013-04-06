@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="ch/uzh/agglorecommender/client/inputbeans"
+    xmlns:arin="ch/uzh/agglorecommender/client/inputbeans">
+    
+    <xs:complexType name="File">
+        <xs:sequence>
+            <xs:element name="ColumnSeparator">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:length value="1"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Location" type="xs:string"/>
+            <xs:element name="ValueColumnNumber" type="xs:positiveInteger"/>
+            <xs:element default="1" minOccurs="0" name="StartLine" type="xs:positiveInteger"/>
+            <xs:element default="2147483647" minOccurs="0" name="EndLine" type="xs:positiveInteger"
+            />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RatingFile">
+        <xs:complexContent>
+            <xs:extension base="arin:File">
+
+                <xs:sequence>
+                    <xs:element name="UserIdColumnNumber" type="xs:positiveInteger"/>
+                    <xs:element name="ContentIdColumnNumber" type="xs:positiveInteger"/>
+                    <xs:element name="useForTestOnly" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="MetaFile">
+        <xs:complexContent>
+            <xs:extension base="arin:File">
+
+                <xs:sequence>
+                    <xs:element name="IdColumnNumber" type="xs:positiveInteger"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Attribute" abstract="true">
+        <xs:sequence>
+
+
+            <xs:element name="Tag" type="xs:string">
+                <xs:unique name="UNIQ_ATT_TAG">
+                    <xs:selector xpath="xs:Attribute"/>
+                    <xs:field xpath="xs:Tag"/>
+                </xs:unique>
+            </xs:element>
+            <xs:element name="useForClustering" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="PreProcessingRegex" type="xs:string"/>
+        </xs:sequence>
+
+    </xs:complexType>
+
+
+    <xs:complexType name="NumericalAttribute">
+        <xs:complexContent>
+            <xs:extension base="arin:Attribute">
+
+                <xs:sequence>
+                    <xs:element name="minValue" type="xs:double"/>
+                    <xs:element name="maxValue" type="xs:double"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="NominalAttribute">
+        <xs:complexContent>
+            <xs:extension base="arin:Attribute">
+
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="Category"
+                        type="arin:Category">
+                        <xs:unique name="UNIQ_CATEGORY_TAG">
+                            <xs:selector xpath="xs:NominalAttribute"/>
+                            <xs:field xpath="xs:Categories"/>
+                        </xs:unique>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="NominalMultivaluedAttribute">
+        <xs:complexContent>
+            <xs:extension base="arin:NominalAttribute">
+
+                <xs:sequence>
+                    <xs:element name="ValueSeparator" type="xs:string"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Category">
+        <xs:sequence>
+            <xs:element name="CategoryTag" type="xs:string"/>
+            <xs:element name="IdentificationRegex" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="Input">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="1" name="Rating">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NumericalAttribute"/>
+                            <xs:element name="File" type="arin:RatingFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="userNumericalAttribute" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NumericalAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="userNominalAttribute" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NominalAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="userNominalMultivaluedAttribute" maxOccurs="unbounded"
+                    minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NominalMultivaluedAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="contentNumericalAttribute" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NumericalAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="contentNominalAttribute" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NominalAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="contentNominalMultivaluedAttribute" maxOccurs="unbounded"
+                    minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Attribute" type="arin:NominalMultivaluedAttribute"/>
+                            <xs:element name="File" type="arin:MetaFile" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,435 @@
+<class-diagram version="1.0.10" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.clusterer.TreeBuilder" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/TreeBuilder.java" binary="false">    
+    <position height="-1" width="-1" x="412" y="342"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.clusterer.ClusteringBalancer" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/ClusteringBalancer.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="184" y="398"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="false" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.client.InputParser" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/client/InputParser.java" binary="false">    
+    <position height="-1" width="-1" x="193" y="157"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="4" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.client.IDatasetItem" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/client/IDatasetItem.java" binary="false">    
+    <position height="-1" width="-1" x="410" y="158"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="5" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.client.IDataset" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/client/IDataset.java" binary="false">    
+    <position height="-1" width="-1" x="193" y="240"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.clusterer.InitialNodesCreator" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/InitialNodesCreator.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="410" y="239"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="7" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.clusterer.treecomponent.INode" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treecomponent/INode.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="645" y="239"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="8" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.IClusterSet" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/IClusterSet.java" binary="false">    
+    <position height="-1" width="-1" x="184" y="341"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="9" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.IMaxCategoryUtilitySearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/IMaxCategoryUtilitySearcher.java" binary="false">    
+    <position height="-1" width="-1" x="414" y="472"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="10" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.BasicMaxCategoryUtilitySearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/BasicMaxCategoryUtilitySearcher.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="148" y="553"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="11" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/CachedMaxCUSearcher.java" binary="false">    
+    <position height="-1" width="-1" x="728" y="629"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="12" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.MaxCategoryUtilitySearcherDecorator" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/MaxCategoryUtilitySearcherDecorator.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="551" y="551"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="13" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/ClassitMaxCategoryUtilitySearcher.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="-15" y="619"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="14" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/CobwebMaxCategoryUtilitySearcher.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="324" y="622"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="15" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.NoCommonRatingAttributeSkipMaxCUSearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/NoCommonRatingAttributeSkipMaxCUSearcher.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="550" y="667"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="16" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treesearch.SharedMaxCategoryUtilitySearcher" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treesearch/SharedMaxCategoryUtilitySearcher.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="150" y="701"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="17" corner="BOTTOM_RIGHT" language="java" 
+    name="ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater" project="TreeBuilder" 
+    file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/treeupdate/INodeUpdater.java" binary="false">    
+    <position height="-1" width="-1" x="609" y="421"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="18" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.client.ClusterResult" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/client/ClusterResult.java" binary="false">    
+    <position height="-1" width="-1" x="648" y="343"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="19" corner="BOTTOM_RIGHT" language="java" name="ch.uzh.agglorecommender.clusterer.ClusteringController" 
+    project="TreeBuilder" file="/TreeBuilder/src/ch/uzh/agglorecommender/clusterer/ClusteringController.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="312" y="275"/>    
+    <display autosize="true" stereotype="false" package="false" initial-value="false" signature="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <association id="20">    
+    <bendpoint x="586" y="291"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="21" name="contentTreeRoot">        
+        <position height="14" width="95" x="541" y="294"/>      
+      </attribute>      
+      <multiplicity id="22" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="23">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="24" name="contentNodes"/>      
+      <multiplicity id="25" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <dependency id="26">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="15"/>  
+  </dependency>  
+  <dependency id="27">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <association id="28">    
+    <bendpoint x="552" y="471"/>    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="29" name="decoratedSearcher"/>      
+      <multiplicity id="30" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <generalization id="31">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <generalization id="32">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <association id="33">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="34" name="nodeUpdater"/>      
+      <multiplicity id="35" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="36">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="16"/>  
+  </dependency>  
+  <realization id="37">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <association id="38">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="39" name="contentMCUSearcher"/>      
+      <multiplicity id="40" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="41">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <association id="42">    
+    <bendpoint x="740" y="342"/>    
+    <bendpoint x="740" y="240"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="43" name="userTreeLeavesMap"/>      
+      <multiplicity id="44" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="45">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="46" name="testDataset"/>      
+      <multiplicity id="47" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="48">    
+    <bendpoint x="539" y="203"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="49" name="contentLeavesMap"/>      
+      <multiplicity id="50" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <realization id="51">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <association id="52">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="53" name="userNodes"/>      
+      <multiplicity id="54" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="55">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="56" name="trainigsDataset"/>      
+      <multiplicity id="57" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="58">    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="59" name="treeBuilder">        
+        <position height="14" width="64" x="340" y="293"/>      
+      </attribute>      
+      <multiplicity id="60" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="61">    
+    <bendpoint x="327" y="303"/>    
+    <bendpoint x="182" y="302"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="62" name="userNodes"/>      
+      <multiplicity id="63" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <generalization id="64">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <dependency id="65">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="11"/>  
+  </dependency>  
+  <generalization id="66">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <association id="67">    
+    <bendpoint x="773" y="342"/>    
+    <bendpoint x="771" y="185"/>    
+    <bendpoint x="643" y="185"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="68" name="contentTreeLeavesMap">        
+        <position height="14" width="133" x="593" y="192"/>      
+      </attribute>      
+      <multiplicity id="69" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="70">    
+    <bendpoint x="538" y="270"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="71" name="userLeavesMap">        
+        <position height="14" width="92" x="483" y="253"/>      
+      </attribute>      
+      <multiplicity id="72" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <dependency id="73">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <association id="74">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="75" name="result"/>      
+      <multiplicity id="76" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="77">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <association id="78">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="79" name="testItems"/>      
+      <multiplicity id="80" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="81">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="82" name="cobweb"/>      
+      <multiplicity id="83" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="84">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <association id="85">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="86" name="trainingItems"/>      
+      <multiplicity id="87" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="88">    
+    <bendpoint x="709" y="291"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="89" name="userTreeRoot">        
+        <position height="14" width="79" x="646" y="282"/>      
+      </attribute>      
+      <multiplicity id="90" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="false"/>  
+  </association>  
+  <association id="91">    
+    <bendpoint x="69" y="399"/>    
+    <bendpoint x="69" y="341"/>    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="92" name="contentNodes"/>      
+      <multiplicity id="93" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="94">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <association id="95">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="96" name="classit"/>      
+      <multiplicity id="97" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

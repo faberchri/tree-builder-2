@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arin:Input xmlns:arin="ch/uzh/agglorecommender/client/inputbeans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <arin:Rating>
+        <arin:Attribute>
+            <arin:Tag>rating</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+            <arin:minValue>0</arin:minValue>
+            <arin:maxValue>5</arin:maxValue>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>&#009;</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/Grouplens/u1.base</arin:Location>
+            <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
+            <arin:UserIdColumnNumber>1</arin:UserIdColumnNumber>
+            <arin:ContentIdColumnNumber>2</arin:ContentIdColumnNumber>
+            <arin:useForTestOnly>false</arin:useForTestOnly>
+        </arin:File>
+    </arin:Rating>
+</arin:Input>

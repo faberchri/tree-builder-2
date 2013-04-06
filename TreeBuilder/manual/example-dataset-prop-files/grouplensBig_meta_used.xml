@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arin:Input xmlns:arin="ch/uzh/agglorecommender/client/inputbeans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <arin:Rating>
+        <arin:Attribute>
+            <arin:Tag>rating</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+            <arin:minValue>0</arin:minValue>
+            <arin:maxValue>5</arin:maxValue>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>&#009;</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/u1.test</arin:Location>
+            <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
+            <arin:UserIdColumnNumber>1</arin:UserIdColumnNumber>
+            <arin:ContentIdColumnNumber>2</arin:ContentIdColumnNumber>
+            <arin:useForTestOnly>true</arin:useForTestOnly>
+        </arin:File>
+        <arin:File>
+            <arin:ColumnSeparator>&#009;</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/u1.base</arin:Location>
+            <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
+            <arin:UserIdColumnNumber>1</arin:UserIdColumnNumber>
+            <arin:ContentIdColumnNumber>2</arin:ContentIdColumnNumber>
+            <arin:useForTestOnly>false</arin:useForTestOnly>
+        </arin:File>
+    </arin:Rating>
+    <arin:userNumericalAttribute>
+        <arin:Attribute>
+            <arin:Tag>age</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+            <arin:minValue>0</arin:minValue>
+            <arin:maxValue>100</arin:maxValue>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/users.dat</arin:Location>
+            <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:userNumericalAttribute>
+    <arin:userNominalAttribute>
+        <arin:Attribute>
+            <arin:Tag>sex</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/users.dat</arin:Location>
+            <arin:ValueColumnNumber>2</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:userNominalAttribute>
+    <arin:userNominalAttribute>
+        <arin:Attribute>
+            <arin:Tag>occupation</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/users.dat</arin:Location>
+            <arin:ValueColumnNumber>4</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:userNominalAttribute>
+    <arin:userNominalAttribute>
+        <arin:Attribute>
+            <arin:Tag>zip code</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+            <arin:Category>
+                <arin:CategoryTag>new england</arin:CategoryTag>
+                <arin:IdentificationRegex>^0.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>new york</arin:CategoryTag>
+                <arin:IdentificationRegex>^1.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>central east cost</arin:CategoryTag>
+                <arin:IdentificationRegex>^2.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>south east</arin:CategoryTag>
+                <arin:IdentificationRegex>^3.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>rust belt</arin:CategoryTag>
+                <arin:IdentificationRegex>^4.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>north central</arin:CategoryTag>
+                <arin:IdentificationRegex>^5.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>central central</arin:CategoryTag>
+                <arin:IdentificationRegex>^6.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>south central</arin:CategoryTag>
+                <arin:IdentificationRegex>^7.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>rocky mountains</arin:CategoryTag>
+                <arin:IdentificationRegex>^8.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>west coast</arin:CategoryTag>
+                <arin:IdentificationRegex>^9.*</arin:IdentificationRegex>
+            </arin:Category>
+            <arin:Category>
+                <arin:CategoryTag>other</arin:CategoryTag>
+                <arin:IdentificationRegex>^\D.*</arin:IdentificationRegex>
+            </arin:Category>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/users.dat</arin:Location>
+            <arin:ValueColumnNumber>5</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:userNominalAttribute>
+    <arin:contentNominalAttribute>
+        <arin:Attribute>
+            <arin:Tag>title</arin:Tag>
+            <arin:useForClustering>0</arin:useForClustering>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/movies.dat</arin:Location>
+            <arin:ValueColumnNumber>2</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:contentNominalAttribute>
+    <arin:contentNominalMultivaluedAttribute>
+        <arin:Attribute>
+            <arin:Tag>genre</arin:Tag>
+            <arin:useForClustering>1</arin:useForClustering>
+            <arin:ValueSeparator>|</arin:ValueSeparator>
+        </arin:Attribute>
+        <arin:File>
+            <arin:ColumnSeparator>+</arin:ColumnSeparator>
+            <arin:Location>/your/absolute/path/to/for/example/TreeBuilder/src/ch/uzh/agglorecommender/datasets/GrouplensBig/movies.dat</arin:Location>
+            <arin:ValueColumnNumber>3</arin:ValueColumnNumber>
+            <arin:IdColumnNumber>1</arin:IdColumnNumber>
+        </arin:File>
+    </arin:contentNominalMultivaluedAttribute>
+</arin:Input>
