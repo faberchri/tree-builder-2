@@ -13,8 +13,8 @@ public class TestDataset implements IDataset {
 	List<IDatasetItem> datasetItems = new ArrayList<>();
 	
 
-	public TestDataset() {
-		InputStream stream = getClass().getResourceAsStream("testNodes.base");
+	public TestDataset(String datasetname) {
+		InputStream stream = getClass().getResourceAsStream(datasetname);
 		java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
 	    String string = s.hasNext() ? s.next() : "";		
 		String[] sAr = string.split("\n");
