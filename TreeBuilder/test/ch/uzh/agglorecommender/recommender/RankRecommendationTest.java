@@ -75,37 +75,5 @@ public class RankRecommendationTest {
 		}
 		//Make sure all comparisons have been calculated
 		assertEquals("No of comparisons",3,count,0.01);
-		
-		
-		//Resort in other direction
-		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 0, 4);
-		
-		Iterator j = sortedRecommendations.entrySet().iterator();
-		while(j.hasNext()){
-			Map.Entry pair = (Map.Entry) j.next();
-			System.out.println(((IAttribute)pair.getValue()).getSumOfRatings());
-			
-		}
-		
-		// Check results
-		assertEquals("All nodes in map",unsortedRecommendations.size(),sortedRecommendations.size(),0.01);
-		
-		Iterator k = sortedRecommendations.entrySet().iterator();
-		a = 0;
-		b = 0;
-		pair1 = (Map.Entry) k.next();
-		a = ((IAttribute)pair1.getValue()).getSumOfRatings();
-		count = 0;
-		while(k.hasNext()){
-			System.out.println(count);
-			Map.Entry pair2 = (Map.Entry) k.next();
-			b = ((IAttribute)pair2.getValue()).getSumOfRatings();
-			assertTrue("Pair combiantion",a<b);
-			pair1 = pair2;
-			count++;
-		}
-		//Make sure all comparisons have been calculated
-		assertEquals("No of comparisons",3,count,0.01);
-		
 	}
 }
