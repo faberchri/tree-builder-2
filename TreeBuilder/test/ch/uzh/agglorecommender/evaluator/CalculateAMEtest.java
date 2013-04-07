@@ -20,67 +20,40 @@ import ch.uzh.agglorecommender.recommender.utils.Evaluator;
  * Testing EvaluationBuilder.calculateAME(INode testNode, Map<Integer, IAttribute> predictedRatings)
  */
 public class CalculateAMEtest {
-	
+
+	// Basic components
+	INode movie1 = new Node(ENodeType.Content, "1",null);		
+	INode movie2 = new Node(ENodeType.Content, "2",null);
+	INode user = new Node(ENodeType.User,null, null);
+	String datasetID1 = movie1.getDatasetId();
+	String datasetID2 = movie2.getDatasetId();
+	static Evaluator evaluator = new Evaluator(null);
+
 	/*
 	 * Node to predict: A1 = 4.0, A2 = 3.0
 	 * Prediction: A1 = 5.0, A2 = 8.0
 	 * Expected AME = 3
 	 */
 	@Test
-	public void testAMEI() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
-		
+	public void testAMEI() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
+
 		System.out.println("Starting AME test I..");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,4,16);
-	IAttribute testNodeA2 = new ClassitAttribute(1,3,9);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content,null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User, null, null);
-	testNode.setRatingAttributes(attMap);
+		//Create test node to be compared with prediction
+		IAttribute realR1 = new ClassitAttribute(1,4,16);
+		IAttribute realR2 = new ClassitAttribute(1,3,9);
+		addAttMap(realR1,realR2);
 
-	System.out.println("Test node: "+testNode.getNumericalAttributesString());
-	
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,5,25);
-	IAttribute predictedA2 = new ClassitAttribute(1,8,64);
-	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	System.out.println("Prediction: "+predictionMap.toString());
-	
-	double calcResult = Double.MIN_VALUE;
-	try {
-        Class[] parameterTypes = {INode.class, Map.class};
-        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
-        method.setAccessible(true);
-      
-        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        e.printStackTrace();
-    }
+		//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
+		IAttribute predR1 = new ClassitAttribute(1,5,25);
+		IAttribute predR2 = new ClassitAttribute(1,8,64);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
 
-	double expectedResult = 3;
-	
-	assertEquals("Calculated AME",expectedResult,calcResult,0.00001);
-	
-	System.out.println("Done.");
-}
+		// Run Test
+		double expectedResult = 3;
+		double calcResult = calculateAME(user,predictionMap);
+		assertEquals("Calculated AME",expectedResult,calcResult,0.00001);
+	}
 
 	/*
 	 * Node to predict: A1 = 0.0, A2 = 0.0
@@ -88,238 +61,134 @@ public class CalculateAMEtest {
 	 * Expected AME = 0
 	 */
 	@Test
-	public void testAMEII() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
-		
+	public void testAMEII() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
+
 		System.out.println("Starting AME test II");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,0,0);
-	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
+		
+		//Create test node to be compared with prediction
+		IAttribute realR1 = new ClassitAttribute(1,0,0);
+		IAttribute realR2 = new ClassitAttribute(1,0,0);
+		addAttMap(realR1,realR2);
 
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User, null, null);
-	testNode.setRatingAttributes(attMap);
-	
-	System.out.println("Test node: "+testNode.getNumericalAttributesString());
+		//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
+		IAttribute predR1 = new ClassitAttribute(1,0,0);
+		IAttribute predR2 = new ClassitAttribute(1,0,0);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
 
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
-	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
+		// Run Test
+		double expectedResult = 0;
+		double calcResult = calculateAME(user,predictionMap);
+		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	System.out.println("Prediction: "+predictionMap.toString());
-	
-	double calcResult = Double.MIN_VALUE;
-	try {
-        Class[] parameterTypes = {INode.class, Map.class};
-        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
-        method.setAccessible(true);
-      
-        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        e.printStackTrace();
-    }
-	
-	double expectedResult = 0;
-	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
-	System.out.println("Done.");
-}
 	/*
 	 * Node to predict: A1 = 10.0, A2 = 10.0
 	 * Prediction: A1 = 10.0, A2 = 0.0
 	 * Expected AME = 5
 	 */
 	@Test
-	public void testAMEIII() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
-		
+	public void testAMEIII() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
+
 		System.out.println("Starting AME test III");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
-	IAttribute testNodeA2 = new ClassitAttribute(1,10,100);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content,null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User, null, null);
-	testNode.setRatingAttributes(attMap);
+		//Create test node to be compared with prediction
+		IAttribute realR1 = new ClassitAttribute(1,10,100);
+		IAttribute realR2 = new ClassitAttribute(1,10,100);
+		addAttMap(realR1,realR2);
 
-	System.out.println("Test node: "+testNode.getNumericalAttributesString());
+		//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
+		IAttribute predR1 = new ClassitAttribute(1,10,100);
+		IAttribute predR2 = new ClassitAttribute(1,10,100);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
+
+		double expectedResult = 0;
+		double calcResult = calculateAME(user,predictionMap);
+		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
-	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
-	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	System.out.println("Prediction: "+predictionMap.toString());
-	
-	double calcResult = Double.MIN_VALUE;
-	try {
-        Class[] parameterTypes = {INode.class, Map.class};
-        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
-        method.setAccessible(true);
-      
-        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        e.printStackTrace();
-    }
-	
-	double expectedResult = 5;
-	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	
-	System.out.println("Done.");
-}
 	/*
 	 * Node to predict: A1 = 10.0, A2 = 0.0
 	 * Prediction: A1 = 0.0, A2 = 10.0
 	 * Expected AME = 10
 	 */
 	@Test
-	public void testAMEIV() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
-		
+	public void testAMEIV() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
+		//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
+
 		System.out.println("Starting AME test IV");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
-	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User, null, null);
-	testNode.setRatingAttributes(attMap);
-	
-	System.out.println("Test node: "+testNode.getNumericalAttributesString());
+		//Create test node to be compared with prediction
+		IAttribute realR1 = new ClassitAttribute(1,10,100);
+		IAttribute realR2 = new ClassitAttribute(1,0,0);
+		addAttMap(realR1,realR2);
 
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,0,0);
-	IAttribute predictedA2 = new ClassitAttribute(1,10,100);
+		//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
+		IAttribute predR1 = new ClassitAttribute(1,0,0);
+		IAttribute predR2 = new ClassitAttribute(1,10,100);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
+
+		// Run Test
+		double expectedResult = 10;
+		double calcResult = calculateAME(user,predictionMap);
+		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	System.out.println("Prediction: "+predictionMap.toString());
-	
-	double calcResult = Double.MIN_VALUE;
-	try {
-        Class[] parameterTypes = {INode.class, Map.class};
-        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
-        method.setAccessible(true);
-      
-        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        e.printStackTrace();
-    }
-	
-	double expectedResult = 10;
-	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	System.out.println("Done.");
-	
-}
 	/*
 	 * Node to predict: A1 = 10.0, A2 = 0.0
 	 * Prediction: A1 = 10.0, A2 = 0.0
 	 * Expected AME = 0
 	 */
 	@Test
-	public void testAMEV() throws InstantiationException, IllegalAccessException{
-	//public double calculateRMSE (INode testNode, Map<Integer, IAttribute> predictedRatings){
-		
+	public void testAMEV() throws InstantiationException, IllegalAccessException, NoSuchMethodException{
+
 		System.out.println("Starting AME test V");
-	
-	//Create test node to be compared with prediction
-	IAttribute testNodeA1 = new ClassitAttribute(1,10,100);
-	IAttribute testNodeA2 = new ClassitAttribute(1,0,0);
-	
-	// ClassitAttribute map of node 1
-	Map<INode, IAttribute> attMap = new HashMap<INode, IAttribute>();
 
-	// this node is an attribute of node 1 and node 2
-	INode nodeAttribute1 = new Node(ENodeType.Content, null, null);
-	INode nodeAttribute2 = new Node(ENodeType.Content, null, null);
-	
-	// add the corresponding attributes to the attribute map of node 1
-	attMap.put(nodeAttribute1, testNodeA1);
-	attMap.put(nodeAttribute2, testNodeA2);
-	
-	// create node 1
-	INode testNode = new Node(ENodeType.User, null, null);
-	testNode.setRatingAttributes(attMap);
-	
-	System.out.println("Test node: "+testNode.getNumericalAttributesString());
+		//Create test node to be compared with prediction
+		IAttribute realR1 = new ClassitAttribute(1,10,100);
+		IAttribute realR2 = new ClassitAttribute(1,0,0);
+		addAttMap(realR1,realR2);
 
-	//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
-	IAttribute predictedA1 = new ClassitAttribute(1,10,100);
-	IAttribute predictedA2 = new ClassitAttribute(1,0,0);
+		//Create predictions to be compared to node (Map<Integer, IAttribute> predictedRatings)
+		IAttribute predR1 = new ClassitAttribute(1,10,100);
+		IAttribute predR2 = new ClassitAttribute(1,0,0);
+		Map<String, IAttribute> predictionMap = buildPredMap(predR1,predR2);
+
+		// Run Test
+		double expectedResult = 0;
+		double calcResult = calculateAME(user,predictionMap);
+		assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
+	}
 	
-	Map<Integer, IAttribute> predictionMap = new HashMap<Integer,IAttribute>();
-	//????
-	predictionMap.put(0, predictedA1);
-	predictionMap.put(1, predictedA2);
-	
-	System.out.println("Prediction: "+predictionMap.toString());
-	
-	double calcResult = Double.MIN_VALUE;
-	try {
-        Class[] parameterTypes = {INode.class, Map.class};
-        Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
-        method.setAccessible(true);
-      
-        calcResult = (double) method.invoke(Evaluator.class.newInstance(),testNode,predictionMap);
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        e.printStackTrace();
-    }
-	
-	double expectedResult = 0;
-	
-	assertEquals("Calculated RMSE",expectedResult,calcResult,0.00001);
-	System.out.println("Done.");
-	
-}
+	private void addAttMap(IAttribute rating1, IAttribute rating2){
+		Map<INode, IAttribute> attMap = new HashMap<>();
+
+		attMap.put(movie1, rating1);
+		attMap.put(movie2, rating2);
+		user.setRatingAttributes(attMap);
+	}
+
+	private Map<String,IAttribute> buildPredMap(IAttribute predRating1, IAttribute predRating2){
+		Map<String, IAttribute> predictionMap = new HashMap<>();
+		predictionMap.put(datasetID1, predRating1);
+		predictionMap.put(datasetID2, predRating2);
+		return predictionMap;
+	}
+
+	private static double calculateAME(INode testNode, Map<String, IAttribute> predictedRatings) throws InstantiationException, NoSuchMethodException, IllegalAccessException{
+
+		double result = 0;
+
+		//Access private method calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings)
+		try {
+			@SuppressWarnings("rawtypes")
+			Class[] parameterTypes = {INode.class,Map.class};
+			Method method = Evaluator.class.getDeclaredMethod("calculateAME", parameterTypes);
+			method.setAccessible(true);
+			result = (double) method.invoke(evaluator,testNode,predictedRatings);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return result;
+	}
 }

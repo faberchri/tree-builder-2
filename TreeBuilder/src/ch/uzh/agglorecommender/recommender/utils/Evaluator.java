@@ -190,7 +190,6 @@ public class Evaluator {
 			// Calculate real rating
 			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
 			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
-			System.out.println(rRating);
 			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
@@ -198,7 +197,6 @@ public class Evaluator {
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
-			System.out.println(pRating);
 			
 			// Calculate absolute difference
 			sumOfDifferences += Math.abs(rRating - pRating);
