@@ -154,26 +154,23 @@ public class Evaluator {
 		
 		for(INode ratingKey: testNode.getRatingAttributeKeys()) {
 			
-			// Calculate predicted rating - value could be null
+			// Calculate real rating
+			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
+			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
+			
+			// Calculate predicted rating
 			double pRating = 0;
 			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
 			
-			// Calculate real rating
-			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
-			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
-			
-			// Real Difference Squared
+			// Calculate squared difference
 			sumOfSquaredDifferences += Math.pow(rRating - pRating,2);
 		}
 		
-		// Division through number of Content Items
-		double mse = sumOfSquaredDifferences / testNode.getRatingAttributeKeys().size();
-		
-		// Take root
-		return Math.sqrt(mse);
+		// Divide sum of squared differences through number of ratings, take root
+		return Math.sqrt(sumOfSquaredDifferences / testNode.getRatingAttributeKeys().size());
 	}
 	
 	/**
@@ -190,22 +187,24 @@ public class Evaluator {
 		double sumOfDifferences = 0;
 		for(INode ratingKey: testNode.getRatingAttributeKeys()) {
 			
+			// Calculate real rating
+			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
+			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
+			System.out.println(rRating);
+			
 			// Calculate predicted rating - value could be null
 			double pRating = 0;
 			IAttribute pRatingAtt = predictedRatings.get(ratingKey.getDatasetId());
 			if(pRatingAtt != null){
 				pRating = pRatingAtt.getSumOfRatings() / pRatingAtt.getSupport();
 			}
+			System.out.println(pRating);
 			
-			// Calculate real rating
-			IAttribute rRatingAtt = testNode.getNumericalAttributeValue(ratingKey);
-			double rRating = rRatingAtt.getSumOfRatings() / rRatingAtt.getSupport();
-			
-			// Absolute Difference Squared
+			// Calculate absolute difference
 			sumOfDifferences += Math.abs(rRating - pRating);
 		}
 		
-		// Division through number of Content Items
+		// Divide sum of absolute differences through number of ratings
 		return sumOfDifferences / testNode.getRatingAttributeKeys().size();
 	}
 }
