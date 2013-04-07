@@ -15,20 +15,21 @@ import java.util.concurrent.Future;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
+import ch.uzh.agglorecommender.recommender.Recommender;
 
 public class PositionFinder {
 	
-	CobwebMaxCategoryUtilitySearcher cobwebSearcher;
-	ClassitMaxCategoryUtilitySearcher classitSearcher;
+	private CobwebMaxCategoryUtilitySearcher cobwebSearcher;
+	private ClassitMaxCategoryUtilitySearcher classitSearcher;
+	private NodeUnpacker unpacker;
+	private int threads;
 	
-	NodeUnpacker unpacker;
-	
-	public PositionFinder(RecommendationModel rm){
+	public PositionFinder(Recommender rm){
 		
 		this.cobwebSearcher 	= new CobwebMaxCategoryUtilitySearcher();
 		this.classitSearcher 	= new ClassitMaxCategoryUtilitySearcher();
 		this.unpacker 			= new NodeUnpacker(rm);
+		this.threads 			= Runtime.getRuntime().availableProcessors();
 		
 	}
 	
@@ -51,7 +52,7 @@ public class PositionFinder {
 		
 		// Split list into subpackets
 		List<List<TreePosition>> listCollection = new LinkedList<List<TreePosition>>();
-		int portion = (int) ((double) rawPos.size() / 8);
+		int portion = (int) ((double) rawPos.size() / threads);
 		
 		for(int i = 0; i < rawPos.size(); i = i + portion){
 			
@@ -92,7 +93,6 @@ public class PositionFinder {
 	private List<TreePosition> calculateUtilites(final INode inputNode,
 			List<List<TreePosition>> listCollection) throws InterruptedException, ExecutionException {
 	
-	    int threads = Runtime.getRuntime().availableProcessors();
 	    ExecutorService service = Executors.newFixedThreadPool(threads);
 	
 	    List<Future<List<TreePosition>>> futures = new ArrayList<Future<List<TreePosition>>>();

@@ -8,7 +8,7 @@ import java.util.Set;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
+import ch.uzh.agglorecommender.recommender.Recommender;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -17,7 +17,7 @@ public class NodeUnpacker {
 	private ImmutableMap<String, INode> leavesMapU;
 	private ImmutableMap<String, INode> leavesMapC;
 
-	public NodeUnpacker(RecommendationModel rm){
+	public NodeUnpacker(Recommender rm){
 		this.leavesMapU = rm.getLeavesMapU();
 		this.leavesMapC = rm.getLeavesMapC();
 	}

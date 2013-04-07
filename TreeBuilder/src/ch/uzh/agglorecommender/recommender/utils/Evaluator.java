@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
+import ch.uzh.agglorecommender.recommender.Recommender;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -20,9 +20,9 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Evaluator {
 	
-	private RecommendationModel rm;
+	private Recommender rm;
 
-	public Evaluator(RecommendationModel rm){
+	public Evaluator(Recommender rm){
 		this.rm	= rm;	
 	}
 	

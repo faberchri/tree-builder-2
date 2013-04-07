@@ -13,20 +13,18 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
+import ch.uzh.agglorecommender.recommender.Recommender;
 
 public class NodeBuilder {
 	
-	private static RecommendationModel rm;
+	private static Recommender rm;
 
-	public NodeBuilder (RecommendationModel rm){
+	public NodeBuilder (Recommender rm){
 		this.rm = rm;
 	}
 	
-	// FIXME
 	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
 		
-//		System.out.println("Building Node");
 		
 		// Read Content Information
 		Map<String, String> nomMetaMapTemp = new HashMap<String,String>();
@@ -58,16 +56,13 @@ public class NodeBuilder {
 		Map<String,IAttribute> numMetaMap = buildNumMetaAttributes(numMetaMapTemp);
 		Map<INode,IAttribute> ratingsMap =  buildRatingAttributes(ratingMapTemp,type);
 		
-		// Get dataset for configuration -> FIXME
+		// Build children
 		IDataset dataset = rm.getDataset();
-		INode fakeChild = new Node(null,null,dataset); 
-		Collection<INode> fakeChildren = new HashSet<>();
-		fakeChildren.add(fakeChild);
+		INode child = new Node(null,null,dataset); 
+		Collection<INode> children = new HashSet<>();
+		children.add(child);
 		
-		INode newNode = new Node(type,fakeChildren,ratingsMap,numMetaMap,nomMetaMap,0.0);
-//		newNode.addChild(rootU);
-		
-		return newNode;
+		return new Node(type,children,ratingsMap,numMetaMap,nomMetaMap,0.0);
 	}
 	
 	private static Map<INode, IAttribute> buildRatingAttributes(Map<String,String> attributes, ENodeType type) {

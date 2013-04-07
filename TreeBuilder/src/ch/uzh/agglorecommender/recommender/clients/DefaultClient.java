@@ -1,4 +1,4 @@
-package ch.uzh.agglorecommender.recommender;
+package ch.uzh.agglorecommender.recommender.clients;
 
 import java.io.File;
 import java.io.InputStream;
@@ -8,10 +8,11 @@ import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
+import ch.uzh.agglorecommender.recommender.RecommenderProxy;
 import ch.uzh.agglorecommender.recommender.utils.FileReader;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class RecommendationView {
+public class DefaultClient {
 	
 	private boolean listen = true;
 	
@@ -25,9 +26,9 @@ public class RecommendationView {
 //	private INode rootU;
 //	private INode rootC;
 
-	private RecommendationController rc;
+	private RecommenderProxy rc;
 
-	public RecommendationView(RecommendationController rc) {
+	public DefaultClient(RecommenderProxy rc) {
 		this.rc = rc;
 	}
 
@@ -70,10 +71,10 @@ public class RecommendationView {
 			
 			// Decide Action
 			if(fields[0].equals("recommend")){
-				rc.runRecommendation(inputNode,position);
+				rc.recommend(inputNode,position);
 			}
 			else if(fields[0].equals("insert")){
-				rc.runInsertion(inputNode,position);
+				rc.insert(inputNode,position);
 			}
 		}
 	}

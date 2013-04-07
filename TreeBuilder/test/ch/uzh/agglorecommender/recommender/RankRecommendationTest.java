@@ -51,10 +51,17 @@ public class RankRecommendationTest {
 		unsortedRecommendations.put(node4,att4);
 		
 		// Sort recommendations
+<<<<<<< HEAD
 		ClusterResult cr = new ClusterResult(null,null,null, null, UUID.randomUUID());
 		RecommendationModel ranker = new RecommendationModel(cr, null);
 		SortedMap<INode,IAttribute> sortedRecommendations = new TreeMap<INode, IAttribute>();
 		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 1, 4);
+=======
+		ClusterResult cr = new ClusterResult(null,null,null, null, null);
+		Recommender ranker = new Recommender(cr, null);
+		Map<INode,IAttribute> sortedRecommendations = new HashMap<INode, IAttribute>();
+		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
+>>>>>>> Proxy Pattern
 		
 		
 		// Check results

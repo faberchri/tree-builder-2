@@ -31,9 +31,8 @@ import com.google.common.collect.ImmutableMap;
  * A recommendation of movies a user has not yet rated can be run by runRecommendation()
  *
  */
-public final class RecommendationModel {
+public final class Recommender {
 	
-	// Parameters
 	private ImmutableMap<String, INode> leavesMapU;
 	private ImmutableMap<String, INode> leavesMapC;
 	private INode rootU;
@@ -48,7 +47,7 @@ public final class RecommendationModel {
 	 * @param radiusU indicates the number of levels that should be incorporated from user tree
 	 * @param radiusC indicates the number of levels that should be incorporated from content tree
 	 */
-	public RecommendationModel(ClusterResult clusterResult, IDataset testDataset) {
+	public Recommender(ClusterResult clusterResult, IDataset testDataset) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
@@ -59,42 +58,6 @@ public final class RecommendationModel {
 		
 	}
 	
-	public ImmutableMap<String, INode> getLeavesMapU() {
-		return leavesMapU;
-	}
-
-	public void setLeavesMapU(ImmutableMap<String, INode> leavesMapU) {
-		this.leavesMapU = leavesMapU;
-	}
-
-	public ImmutableMap<String, INode> getLeavesMapC() {
-		return leavesMapC;
-	}
-
-	public void setLeavesMapC(ImmutableMap<String, INode> leavesMapC) {
-		this.leavesMapC = leavesMapC;
-	}
-
-	public INode getRootU() {
-		return rootU;
-	}
-
-	public void setRootU(INode rootU) {
-		this.rootU = rootU;
-	}
-
-	public INode getRootC() {
-		return rootC;
-	}
-
-	public void setRootC(INode rootC) {
-		this.rootC = rootC;
-	}
-
-	public void setDataset(IDataset dataset) {
-		this.dataset = dataset;
-	}
-
 	/**
 	 * Collect ratings of all content given by the input node
 	 * 
@@ -185,7 +148,7 @@ public final class RecommendationModel {
 	 */
 	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 
-		RatingComparator bvc =  new RatingComparator(unsortedRecommendation);
+		RatingComparator bvc =  new RatingComparator(unsortedRecommendation,this);
 		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<INode,IAttribute>(bvc);
 		sortedRecommendation.putAll(unsortedRecommendation);
 		
@@ -259,17 +222,13 @@ public final class RecommendationModel {
 		return node;
 	}
 	
-	private String getMeta(INode node, String attribute){
-		Iterator<Entry<Object, Double>> titleIt = node.getNominalAttributeValue(attribute).getProbabilities();
+	public String getMeta(INode node, String attribute){
+		Iterator<Entry<Object, Double>> it = node.getNominalAttributeValue(attribute).getProbabilities();
 		String title="";
-		while(titleIt.hasNext()){
-			title = (String) titleIt.next().getKey();
+		while(it.hasNext()){
+			title = (String) it.next().getKey();
 		}
 		return title;
-	}
-	
-	public IDataset getDataset(){
-		return this.dataset;
 	}
 	
 	public TreePosition findMostSimilar(INode inputNode) throws InterruptedException, ExecutionException{
@@ -307,5 +266,45 @@ public final class RecommendationModel {
 		}
 		
 		return watched;
+	}
+
+	public ImmutableMap<String, INode> getLeavesMapU() {
+		return leavesMapU;
+	}
+
+	public void setLeavesMapU(ImmutableMap<String, INode> leavesMapU) {
+		this.leavesMapU = leavesMapU;
+	}
+
+	public ImmutableMap<String, INode> getLeavesMapC() {
+		return leavesMapC;
+	}
+
+	public void setLeavesMapC(ImmutableMap<String, INode> leavesMapC) {
+		this.leavesMapC = leavesMapC;
+	}
+
+	public INode getRootU() {
+		return rootU;
+	}
+
+	public void setRootU(INode rootU) {
+		this.rootU = rootU;
+	}
+
+	public INode getRootC() {
+		return rootC;
+	}
+
+	public void setRootC(INode rootC) {
+		this.rootC = rootC;
+	}
+	
+	public IDataset getDataset() {
+		return dataset;
+	}
+	
+	public void setDataset(IDataset dataset) {
+		this.dataset = dataset;
 	}
 }

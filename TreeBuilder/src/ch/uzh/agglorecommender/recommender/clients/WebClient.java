@@ -1,9 +1,8 @@
-package ch.uzh.agglorecommender.recommender.extensions;
+package ch.uzh.agglorecommender.recommender.clients;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +25,16 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommendationController;
+import ch.uzh.agglorecommender.recommender.RecommenderProxy;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class RecommendationWebView extends AbstractHandler {
+public class WebClient extends AbstractHandler {
 	
-	private final RecommendationController rc;
+	private final RecommenderProxy rc;
 	private final Server server;
-	
-	DecimalFormat df = new DecimalFormat("#.##");
+	private DecimalFormat df = new DecimalFormat("#.##");
 
-	public RecommendationWebView(RecommendationController rc) throws Exception {
+	public WebClient(RecommenderProxy rc) throws Exception {
 	    
 		this.rc = rc;
 			
@@ -45,7 +43,7 @@ public class RecommendationWebView extends AbstractHandler {
 	    ResourceHandler resourceHandler = new ResourceHandler();
 	    resourceHandler.setDirectoriesListed(true);
 	    resourceHandler.setWelcomeFiles(new String[] {"index.html"});
-	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/extensions/");
+	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/clients/");
 	
 	    HandlerList handlers = new HandlerList();
 	    handlers.setHandlers(new Handler[] {resourceHandler, this});
@@ -118,7 +116,7 @@ public class RecommendationWebView extends AbstractHandler {
 			if(item != null){
 				response.getWriter().write( 
 						"<tr><td>" +
-						"<select id='" + i + "' title='"+ getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
+						"<select id='" + i + "' title='"+ rc.getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
 						"<option value='not seen'>not seen</option>" +
 						"<option value='1'>1</option>" +
 						"<option value='2'>2</option>" +
@@ -132,7 +130,7 @@ public class RecommendationWebView extends AbstractHandler {
 						"<option value='10'>10</option>" +
 						"</select> " +
 						"</td><td width='250'>" +
-						getMeta(item,"title") +
+						rc.getMeta(item,"title") +
 						"</td></tr>");
 				i++;
 			}
@@ -146,26 +144,31 @@ public class RecommendationWebView extends AbstractHandler {
 		// Build Recommendation
 		long startTime = System.nanoTime();
 		TreePosition position = rc.getSimilarPosition(inputNode);
-		SortedMap<INode, IAttribute> recommendations = rc.runRecommendation(inputNode,position);
+		SortedMap<INode, IAttribute> recommendations = rc.recommend(inputNode,position);
 		long endTime = System.nanoTime();
 		long duration = endTime - startTime;
 		
 		// Create Evaluation
 		inputNode = removeRatings(inputNode);
 		Map<String,Double> evaluation = rc.evaluate(inputNode);
-		String evalString = "";
-		if(evaluation != null){
-			for(String eval : evaluation.keySet()){
-				evalString += eval + ": " + evaluation.get(eval) + "<br>";
-			}
+		
+		// Extra Infos & Action
+		response.getWriter().write("<table style='border:1px solid #fff;width:95%'>");
+		response.getWriter().write("<tr><td>Utility</td><td>" + position.getUtility() + "</td></tr>");
+		response.getWriter().write("<tr><td>Evaluation</td><td>" + evaluation.toString() + "</td></tr>");
+		response.getWriter().write("<tr><td>Duration</td><td>" + df.format((double)(duration/1000000000)) + " Seconds</td></tr>");
+		String insert = request.getParameter("insert");
+		if(insert.equals("true")){
+			response.getWriter().write("<tr><td>Insertion</td><td>" + rc.insert(inputNode,position) + "</td></tr>");	
 		}
+		response.getWriter().write("</table><br>");
 		
 		// Write Recommendation Message
 		response.getWriter().write("<table style='width:100%'>");
 		for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
 			
-			String title 	= getMeta(recommendation.getKey(),"title");
-			String url		= "<a href='" + getMeta(recommendation.getKey(),"IMDb URL") + "' target='_blank'>IMDB Link</a>";
+			String title 	= rc.getMeta(recommendation.getKey(),"title");
+			String url		= ""; //"<a href='" + rc.getMeta(recommendation.getKey(),"url") + "' target='_blank'>IMDB Link</a>";
 			
 			IAttribute attribute = recommendation.getValue();
 			Double rating = attribute.getSumOfRatings() / attribute.getSupport();
@@ -173,17 +176,6 @@ public class RecommendationWebView extends AbstractHandler {
 			response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'>" + url + "</td></tr>");
 		}
 		response.getWriter().write("</table><br>");
-		
-		// Extra Infos & Action
-		response.getWriter().write("Utility: " + position.getUtility() + "<br><br>");
-		response.getWriter().write(evalString + "<br>");
-		response.getWriter().write("Duration: " + df.format(((double)(duration/1000000000))) + " Seconds<br>");
-
-		// Insert Node if in request
-		String insert = request.getParameter("insert");
-		if(insert.equals("true")){
-			response.getWriter().write("<br>Insertion: " + rc.runInsertion(inputNode,position) + "<br>");	
-		}
 	}
 	
 	private INode createNode(HttpServletRequest request){
@@ -220,18 +212,6 @@ public class RecommendationWebView extends AbstractHandler {
 		}
 		
 		return rc.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
-	}
-
-	private String getMeta(INode node, String info){
-		if(node.getNominalAttributeValue(info) != null){
-			Iterator<Entry<Object, Double>> metaIt = node.getNominalAttributeValue(info).getProbabilities();
-			String meta ="";
-			while(metaIt.hasNext()){
-				meta = (String) metaIt.next().getKey();
-			}
-			return meta;
-		}
-		return "meta fehlt";
 	}
 	
 	private INode removeRatings(INode inputNode){

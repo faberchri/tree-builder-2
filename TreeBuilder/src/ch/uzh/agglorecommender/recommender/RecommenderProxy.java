@@ -14,25 +14,41 @@ import ch.uzh.agglorecommender.recommender.utils.NodeBuilder;
 import ch.uzh.agglorecommender.recommender.utils.NodeInserter;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class RecommendationController {
+public class RecommenderProxy {
 	
 	// Connection to Model
-	private RecommendationModel rm;
+	private Recommender rm;
 	
 	// Connection to Tools
 	private Evaluator evaluator;
 	private NodeBuilder builder;
 	private NodeInserter inserter;
 
-	public RecommendationController(RecommendationModel rm){
+	public RecommenderProxy(Recommender rm){
 		
-		this.rm = rm;
-		
+		this.rm 			= rm;
 		this.evaluator 		= new Evaluator(rm);
 		this.builder		= new NodeBuilder(rm);
 		this.inserter	 	= new NodeInserter();
+		
 	}
 	
+	public List<INode> getItemList(ENodeType type, int limit, INode inputNode){
+		return rm.createItemList(type,limit, inputNode);
+	}
+
+	public String getMeta(INode node, String attribute){
+		return rm.getMeta(node, attribute);
+	}
+
+	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
+		return builder.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
+	}
+
+	public TreePosition getSimilarPosition(INode inputNode) throws InterruptedException, ExecutionException{
+		return rm.findMostSimilar(inputNode);
+	}
+
 	/**
 	 * Calculates a recommendation that includes content the user has not rated yet
 	 * The scope of nodes that is incorporated into the recommendation depends on defined radius
@@ -40,7 +56,7 @@ public class RecommendationController {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public SortedMap<INode, IAttribute> runRecommendation(INode inputNode, TreePosition position) throws NullPointerException, InterruptedException, ExecutionException {
+	public SortedMap<INode, IAttribute> recommend(INode inputNode, TreePosition position) throws NullPointerException, InterruptedException, ExecutionException {
 		
 		if(position == null){
 			System.out.println("Starting Position was not found");
@@ -54,22 +70,10 @@ public class RecommendationController {
 		return sortedRecommendation;
 	}
 	
-	public boolean runInsertion(INode inputNode, TreePosition position) throws InterruptedException, ExecutionException{
+	public boolean insert(INode inputNode, TreePosition position) throws InterruptedException, ExecutionException{
 		return inserter.insert(inputNode, position);
 	}
 	
-	public List<INode> getItemList(ENodeType type, int limit, INode inputNode){
-		return rm.createItemList(type,limit, inputNode);
-	}
-
-	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
-		return builder.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
-	}
-
-	public TreePosition getSimilarPosition(INode inputNode) throws InterruptedException, ExecutionException{
-		return rm.findMostSimilar(inputNode);
-	}
-		
 	public Map<String, Double> kFoldEvaluation(InitialNodesCreator testSet) throws NullPointerException, InterruptedException, ExecutionException {
 		return evaluator.kFoldEvaluation(testSet);
 	}

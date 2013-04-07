@@ -10,9 +10,9 @@ import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.SimpleClusteringController;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
-import ch.uzh.agglorecommender.recommender.RecommendationController;
-import ch.uzh.agglorecommender.recommender.RecommendationModel;
-import ch.uzh.agglorecommender.recommender.extensions.RecommendationWebView;
+import ch.uzh.agglorecommender.recommender.RecommenderProxy;
+import ch.uzh.agglorecommender.recommender.Recommender;
+import ch.uzh.agglorecommender.recommender.clients.WebClient;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -124,8 +124,8 @@ public class TestDriver {
 	private static void test(ClusterResult trainingOutput, IDataset testDataset) throws Exception {
 				
 		// Instantiate Tools
-		RecommendationModel rm 		= new RecommendationModel(trainingOutput,testDataset);
-		RecommendationController rc	= new RecommendationController(rm);
+		Recommender rm 		= new Recommender(trainingOutput,testDataset);
+		RecommenderProxy rc	= new RecommenderProxy(rm);
 		
 		// Prepare Testset
 		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
@@ -146,7 +146,7 @@ public class TestDriver {
 //		basicUI.startService();
 
 		// Start Web based UI Extension
-		RecommendationWebView webUI = new RecommendationWebView(rc); // Hangs in on basicUI, listens on 8081
+		WebClient webUI = new WebClient(rc); // Hangs in on basicUI, listens on 8081
 		webUI.startService();
 	}
 		
