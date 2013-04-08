@@ -2,67 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-export.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphics2d.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio-emf.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio-pdf.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio-ps.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio-svg.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio-swf.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-graphicsio.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-io.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-swing.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-util.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/freehep/freehep-xml.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jdbc/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jdbc/iijdbc.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jdbc/jtds-1.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jdbc/mysql-connector-java-5.1.17-bin.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jdbc/postgresql-9.1-901.jdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/blas.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/collections-generic.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/colt.jar" sourcepath="lib/colt/src"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/commons-collections.jar" sourcepath="lib/commons-collections-3.2.1-src.zip"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/commons-logging-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/concurrent.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/encog.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/groovy-all-1.7.7.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/ivy-2.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jama.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jcommon.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jep.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jfreechart.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jmathplot.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/joone-engine.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jugpreview.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/jxl.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/kdb.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/looks.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/mail.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/microba.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/poi-3.8-20120326.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/poi-excelant-3.8-20120326.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/poi-ooxml-3.8-20120326.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/poi-ooxml-schemas-3.8-20120326.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/poi-scratchpad-3.8-20120326.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/rsyntaxtextarea.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/SassyReader-0.5.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/slf4j-simple-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/vldocking.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/ws-commons-util-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xmlbeans-2.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xmlpull.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xmlrpc-client-3.1.3.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xmlrpc-common-3.1.3.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xpp3.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/xstream.jar"/>
-	<classpathentry kind="lib" path="lib/rapidminer/lib/rapidminer.jar" sourcepath="lib/rapidminer/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jung/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="lib/jung/colt-1.2.0.jar" sourcepath="lib/colt/src"/>
@@ -82,7 +21,6 @@
 	<classpathentry kind="lib" path="lib/jung/wstx-asl-3.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar" sourcepath="lib/jung/jung2-2_0_1-sources/jung-graph-impl-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/guava/guava-14.0-rc1.jar" sourcepath="lib/guava/guava-14.0-rc1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/scala/scala-library.jar" sourcepath="lib/scala/scala-library-src.jar"/>
 	<classpathentry kind="lib" path="lib/jcommander/jcommander-1.30.jar"/>
 	<classpathentry kind="lib" path="scala"/>
 	<classpathentry kind="lib" path="lib/commons-math3/commons-math3-3.1.1.jar" sourcepath="lib/commons-math3/commons-math3-3.1.1-sources.jar"/>
@@ -91,5 +29,10 @@
 	<classpathentry kind="lib" path="lib/servlet/jetty-all-9.0.0.RC2.jar"/>
 	<classpathentry kind="lib" path="lib/XMLBeansInput/xmltypes.jar" sourcepath="lib/XMLBeansInput"/>
 	<classpathentry kind="lib" path="lib/super-csv/super-csv/super-csv-2.0.1.jar" sourcepath="lib/super-csv/super-csv/super-csv-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/XMLBeans/xbean.jar"/>
+	<classpathentry kind="lib" path="lib/jFreeChart/jfreechart-1.0.14.jar"/>
+	<classpathentry kind="lib" path="lib/jUnit/junit-4.11.jar" sourcepath="lib/jUnit/junit-4.11-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jFreeChart/jcommon-1.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/scala/scala-library.jar" sourcepath="lib/scala/scala-library-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

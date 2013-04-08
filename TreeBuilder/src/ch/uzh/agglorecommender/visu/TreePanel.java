@@ -64,7 +64,7 @@ public class TreePanel extends JPanel {
 	/**
 	 * Factories for the graph, tree, edges and vertices
 	 */
-	Forest<INode,Integer> graph;
+	private Forest<INode,Integer> graph;
 
 	private Factory<Integer> edgeFactory = new Factory<Integer>() {
 		int i=0;
