@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
@@ -76,7 +75,7 @@ public class Inserter {
 				nodesToMerge.add(position.getNode());
 				
 				INode newNode = TreeComponentFactory.getInstance().createInternalNode(
-						ENodeType.User,
+//						ENodeType.User,
 						nodesToMerge,0);
 				
 				// Insert new Node into tree
