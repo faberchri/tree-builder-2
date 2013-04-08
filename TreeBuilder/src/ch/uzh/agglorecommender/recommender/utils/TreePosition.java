@@ -1,14 +1,8 @@
 package ch.uzh.agglorecommender.recommender.utils;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.rmi.RemoteException;
-
-import org.neo4j.shell.Output;
-
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
-public class TreePosition implements Output {
+public class TreePosition {
 	
 	private INode node;
 	private double utility;
@@ -46,43 +40,6 @@ public class TreePosition implements Output {
 	
 	public String toString() {
 		return node.toString() + " / Utility: " + utility + " / Level: " + level;
-	}
-
-	@Override
-	public Appendable append(CharSequence csq) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Appendable append(CharSequence csq, int start, int end)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Appendable append(char c) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void print(Serializable arg0) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void println() throws RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void println(Serializable arg0) throws RemoteException {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

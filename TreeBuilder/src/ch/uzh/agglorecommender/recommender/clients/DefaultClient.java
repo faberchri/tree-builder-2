@@ -8,28 +8,18 @@ import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommenderProxy;
+import ch.uzh.agglorecommender.recommender.ClusterInteraction;
 import ch.uzh.agglorecommender.recommender.utils.FileReader;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class DefaultClient {
+public class DefaultClient implements Client {
 	
 	private boolean listen = true;
-	
-//	private static RecommendationModel rm;
-//	private NodeInserter inserter;
-//	private Evaluator evaluator;
-	
-//	private NodeBuilder transformer;
-	private FileReader reader;
-//
-//	private INode rootU;
-//	private INode rootC;
+	private FileReader reader = new FileReader();
+	private ClusterInteraction clusterInteraction;
 
-	private RecommenderProxy rc;
-
-	public DefaultClient(RecommenderProxy rc) {
-		this.rc = rc;
+	public DefaultClient(ClusterInteraction clusterInteraction) {
+		this.clusterInteraction = clusterInteraction;
 	}
 
 	public void startService() throws InterruptedException, ExecutionException{
@@ -66,15 +56,15 @@ public class DefaultClient {
 			File f2 = new File(fields[4]);
 			List<String> metaInfo = readInputFile(f1);
 			List<String> ratings  = readInputFile(f2);
-			INode inputNode = rc.buildNode(metaInfo, null, ratings, type);
-			TreePosition position = rc.getSimilarPosition(inputNode);
+			INode inputNode = clusterInteraction.buildNode(metaInfo, null, ratings, type);
+			TreePosition position = clusterInteraction.getMostSimilarNode(inputNode);
 			
 			// Decide Action
 			if(fields[0].equals("recommend")){
-				rc.recommend(inputNode,position);
+				clusterInteraction.recommend(inputNode,position);
 			}
 			else if(fields[0].equals("insert")){
-				rc.insert(inputNode,position);
+				clusterInteraction.insert(inputNode,position);
 			}
 		}
 	}

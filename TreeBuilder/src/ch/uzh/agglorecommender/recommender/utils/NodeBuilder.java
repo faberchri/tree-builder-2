@@ -13,14 +13,14 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.recommender.Recommender;
+import ch.uzh.agglorecommender.recommender.Searcher;
 
 public class NodeBuilder {
 	
-	private static Recommender rm;
+	private static Searcher searcher;
 
-	public NodeBuilder (Recommender rm){
-		this.rm = rm;
+	public NodeBuilder (Searcher searcher){
+		this.searcher = searcher;
 	}
 	
 	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
@@ -57,7 +57,7 @@ public class NodeBuilder {
 		Map<INode,IAttribute> ratingsMap =  buildRatingAttributes(ratingMapTemp,type);
 		
 		// Build children
-		IDataset dataset = rm.getDataset();
+		IDataset dataset = searcher.getDataset();
 		INode child = new Node(null,null,dataset); 
 		Collection<INode> children = new HashSet<>();
 		children.add(child);
@@ -82,7 +82,7 @@ public class NodeBuilder {
 					break;
 				}
 				
-				INode node = rm.findNode(datasetID, type);
+				INode node = searcher.getNode(datasetID, type);
 			
 				if(node != null){
 					// Create Attribute

@@ -10,8 +10,9 @@ import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.SimpleClusteringController;
 import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
-import ch.uzh.agglorecommender.recommender.RecommenderProxy;
-import ch.uzh.agglorecommender.recommender.Recommender;
+import ch.uzh.agglorecommender.recommender.Searcher;
+import ch.uzh.agglorecommender.recommender.ClusterInteraction;
+import ch.uzh.agglorecommender.recommender.clients.DefaultClient;
 import ch.uzh.agglorecommender.recommender.clients.WebClient;
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
@@ -63,10 +64,15 @@ public class TestDriver {
 			// perform the clustering
 			ClusterResult clusterResult = training(parser.getTrainigsDataset());
 			
-			// test the quality of the clustering
-			test(clusterResult, parser.getTestDataset());
+			// instantiate recommendation
+			Searcher reader 		= new Searcher(clusterResult, parser.getTestDataset());
+			ClusterInteraction rp		= new ClusterInteraction(reader);
 			
-			//insert(training(), cla.userTreeComponentFactory, new Node(ENodeType.User, 0));
+			// test the quality of the clustering
+			test(parser.getTestDataset(), rp);
+			
+			// start recommendation client
+			startClient(rp);
 		}
 	}
 	
@@ -121,33 +127,31 @@ public class TestDriver {
 	 * @param trainingOutput the trainingCluster for evaluation
 	 * @throws Exception 
 	 */
-	private static void test(ClusterResult trainingOutput, IDataset testDataset) throws Exception {
-				
-		// Instantiate Tools
-		Recommender rm 		= new Recommender(trainingOutput,testDataset);
-		RecommenderProxy rc	= new RecommenderProxy(rm);
-		
-		// Prepare Testset
-		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
+	private static void test(IDataset testDataset, ClusterInteraction rp) throws Exception {
 		
 		// Run Quantitative Evaluation
 		System.out.println("-------------------------------");
 		System.out.println("Evaluating Clustering");
 		System.out.println("-------------------------------");
-		rc.kFoldEvaluation(testSet);
+		InitialNodesCreator testSet = new InitialNodesCreator(testDataset,TreeComponentFactory.getInstance());
+		rp.kFoldEvaluation(testSet);
+		
+	}
+	
+	private static void startClient(ClusterInteraction rp) throws Exception{
 		
 		// Start User Interfaces for qualitative evaluation and insertion
 		System.out.println("-------------------------------");
-		System.out.println("Evaluating Recommendation System");
+		System.out.println("Starting Recommendation Client");
 		System.out.println("-------------------------------");
 		
-		// Start UI
-//		RecommendationView clUI = new RecommendationView(rc);
-//		basicUI.startService();
+		// Start command line based client
+		DefaultClient defaultClient = new DefaultClient(rp);
+//		defaultClient.startService();
 
-		// Start Web based UI Extension
-		WebClient webUI = new WebClient(rc); // Hangs in on basicUI, listens on 8081
-		webUI.startService();
+		// Start web based client
+		WebClient webClient = new WebClient(rp); // listens on port 8081
+		webClient.startService();
 	}
 		
 	/**

@@ -27,15 +27,17 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
  */
 
 public class RankRecommendationTest {
- //public ArrayList<IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit)
+
 	@Test
 	public void rankRecommendationsTesI(){
+		
 		System.out.println("Start recommendations ranking test I..");
+		
 		// Create nodes
-		INode node1 = new Node(ENodeType.Content, null, null);
-		INode node2 = new Node(ENodeType.Content, null, null);
-		INode node3 = new Node(ENodeType.Content, null, null);
-		INode node4 = new Node(ENodeType.Content, null, null);
+		INode node1 = new Node(ENodeType.Content, "1", null);
+		INode node2 = new Node(ENodeType.Content, "2", null);
+		INode node3 = new Node(ENodeType.Content, "3", null);
+		INode node4 = new Node(ENodeType.Content, "4", null);
 		
 		// Create recommendations
 		IAttribute att1 = new ClassitAttribute(1, 5, 1);
@@ -52,7 +54,8 @@ public class RankRecommendationTest {
 		
 		// Sort recommendations
 		ClusterResult cr = new ClusterResult(null,null,null, null, UUID.randomUUID());
-		Recommender ranker = new Recommender(cr, null);
+		Searcher reader = new Searcher(cr,null);
+		Recommender ranker = new Recommender(reader);
 		SortedMap<INode,IAttribute> sortedRecommendations = new TreeMap<INode, IAttribute>();
 		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 1, 4);
 		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
@@ -69,10 +72,11 @@ public class RankRecommendationTest {
 		while(i.hasNext()){
 			Map.Entry pair2 = (Map.Entry) i.next();
 			b = ((IAttribute)pair2.getValue()).getSumOfRatings();
-			assertTrue("Pair combiantion",a>b);
+			assertTrue("Pair combination",a>b);
 			pair1 = pair2;
 			count++;
 		}
+		
 		//Make sure all comparisons have been calculated
 		assertEquals("No of comparisons",3,count,0.01);
 	}

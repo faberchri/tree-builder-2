@@ -14,7 +14,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
-import ch.uzh.agglorecommender.recommender.utils.Evaluator;
+import ch.uzh.agglorecommender.recommender.Evaluator;
 
 /*
  * Testing EvaluationBuilder.calculateAME(INode testNode, Map<Integer, IAttribute> predictedRatings)

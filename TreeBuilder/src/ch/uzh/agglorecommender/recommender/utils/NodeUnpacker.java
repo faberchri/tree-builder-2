@@ -8,18 +8,16 @@ import java.util.Set;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.Recommender;
+import ch.uzh.agglorecommender.recommender.Searcher;
 
 import com.google.common.collect.ImmutableMap;
 
 public class NodeUnpacker {
 	
-	private ImmutableMap<String, INode> leavesMapU;
-	private ImmutableMap<String, INode> leavesMapC;
+	private Searcher searcher;
 
-	public NodeUnpacker(Recommender rm){
-		this.leavesMapU = rm.getLeavesMapU();
-		this.leavesMapC = rm.getLeavesMapC();
+	public NodeUnpacker(Searcher searcher){
+		this.searcher = searcher;
 	}
 
 	public INode unpack(INode tempPosition) {
@@ -27,10 +25,10 @@ public class NodeUnpacker {
 		// Determine leaves map
 		ImmutableMap<String, INode> leavesMap = null;
 		if(tempPosition.getNodeType() == ENodeType.Content){
-			leavesMap = leavesMapU;
+			leavesMap = searcher.getLeavesMapU();
 		}
 		else if (tempPosition.getNodeType() == ENodeType.User){
-			leavesMap = leavesMapC;
+			leavesMap = searcher.getLeavesMapC();
 		}
 		
 		// Build new rating map

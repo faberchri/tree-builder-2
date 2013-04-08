@@ -28,17 +28,17 @@ public class RatingComparator implements Comparator<INode> {
 
 		if (mean1 >= mean2) {
 			
-			String n1Title = rm.getMeta(n1, "title");
-			String n2Title = rm.getMeta(n2, "title");
+//			String n1Title = rm.getMeta(n1, "title");
+//			String n2Title = rm.getMeta(n2, "title");
 			
-			System.out.println(n1Title + "/" + n2Title);
+//			System.out.println(n1Title + "/" + n2Title);
 			
-			if(n1Title.compareTo(n2Title) != 0){
+//			if(n1Title.compareTo(n2Title) != 0){
 				return -1;
-			}
-			else {
-				return 1;
-			}
+//			}
+//			else {
+//				return 1;
+//			}
 		} 
 		else {
 			return 1;

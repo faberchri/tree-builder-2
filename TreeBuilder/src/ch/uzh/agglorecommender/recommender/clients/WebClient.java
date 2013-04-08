@@ -25,18 +25,18 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
-import ch.uzh.agglorecommender.recommender.RecommenderProxy;
+import ch.uzh.agglorecommender.recommender.ClusterInteraction;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class WebClient extends AbstractHandler {
+public class WebClient extends AbstractHandler implements Client{
 	
-	private final RecommenderProxy rc;
+	private final ClusterInteraction clusterInteraction;
 	private final Server server;
 	private DecimalFormat df = new DecimalFormat("#.##");
 
-	public WebClient(RecommenderProxy rc) throws Exception {
+	public WebClient(ClusterInteraction clusterInteraction) throws Exception {
 	    
-		this.rc = rc;
+		this.clusterInteraction = clusterInteraction;
 			
 		server = new Server(8081); // Port number should not be changed
 	
@@ -106,7 +106,7 @@ public class WebClient extends AbstractHandler {
 		INode inputNode = createNode(request);
 		
 		// Build item list
-		List<INode> itemList = rc.getItemList(type, limit, inputNode);
+		List<INode> itemList = clusterInteraction.getItemList(type, limit, inputNode);
 		
 		// Write Message
 		response.getWriter().write("<table>");
@@ -116,7 +116,7 @@ public class WebClient extends AbstractHandler {
 			if(item != null){
 				response.getWriter().write( 
 						"<tr><td>" +
-						"<select id='" + i + "' title='"+ rc.getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
+						"<select id='" + i + "' title='"+ clusterInteraction.getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
 						"<option value='not seen'>not seen</option>" +
 						"<option value='1'>1</option>" +
 						"<option value='2'>2</option>" +
@@ -130,7 +130,7 @@ public class WebClient extends AbstractHandler {
 						"<option value='10'>10</option>" +
 						"</select> " +
 						"</td><td width='250'>" +
-						rc.getMeta(item,"title") +
+						clusterInteraction.getMeta(item,"title") +
 						"</td></tr>");
 				i++;
 			}
@@ -143,14 +143,14 @@ public class WebClient extends AbstractHandler {
 		
 		// Build Recommendation
 		long startTime = System.nanoTime();
-		TreePosition position = rc.getSimilarPosition(inputNode);
-		SortedMap<INode, IAttribute> recommendations = rc.recommend(inputNode,position);
+		TreePosition position = clusterInteraction.getMostSimilarNode(inputNode);
+		SortedMap<INode, IAttribute> recommendations = clusterInteraction.recommend(inputNode,position);
 		long endTime = System.nanoTime();
 		long duration = endTime - startTime;
 		
 		// Create Evaluation
 		inputNode = removeRatings(inputNode);
-		Map<String,Double> evaluation = rc.evaluate(inputNode);
+		Map<String,Double> evaluation = clusterInteraction.evaluate(inputNode);
 		
 		// Extra Infos & Action
 		response.getWriter().write("<table style='border:1px solid #fff;width:95%'>");
@@ -159,7 +159,7 @@ public class WebClient extends AbstractHandler {
 		response.getWriter().write("<tr><td>Duration</td><td>" + df.format((double)(duration/1000000000)) + " Seconds</td></tr>");
 		String insert = request.getParameter("insert");
 		if(insert.equals("true")){
-			response.getWriter().write("<tr><td>Insertion</td><td>" + rc.insert(inputNode,position) + "</td></tr>");	
+			response.getWriter().write("<tr><td>Insertion</td><td>" + clusterInteraction.insert(inputNode,position) + "</td></tr>");	
 		}
 		response.getWriter().write("</table><br>");
 		
@@ -167,7 +167,7 @@ public class WebClient extends AbstractHandler {
 		response.getWriter().write("<table style='width:100%'>");
 		for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
 			
-			String title 	= rc.getMeta(recommendation.getKey(),"title");
+			String title 	= clusterInteraction.getMeta(recommendation.getKey(),"title");
 			String url		= ""; //"<a href='" + rc.getMeta(recommendation.getKey(),"url") + "' target='_blank'>IMDB Link</a>";
 			
 			IAttribute attribute = recommendation.getValue();
@@ -211,7 +211,7 @@ public class WebClient extends AbstractHandler {
 			}
 		}
 		
-		return rc.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
+		return clusterInteraction.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
 	}
 	
 	private INode removeRatings(INode inputNode){

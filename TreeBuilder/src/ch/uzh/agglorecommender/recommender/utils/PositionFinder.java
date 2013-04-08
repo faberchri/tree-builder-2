@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
-import ch.uzh.agglorecommender.recommender.Recommender;
+import ch.uzh.agglorecommender.recommender.Searcher;
 
 public class PositionFinder {
 	
@@ -24,11 +24,11 @@ public class PositionFinder {
 	private NodeUnpacker unpacker;
 	private int threads;
 	
-	public PositionFinder(Recommender rm){
+	public PositionFinder(Searcher searcher){
 		
 		this.cobwebSearcher 	= new CobwebMaxCategoryUtilitySearcher();
 		this.classitSearcher 	= new ClassitMaxCategoryUtilitySearcher();
-		this.unpacker 			= new NodeUnpacker(rm);
+		this.unpacker 			= new NodeUnpacker(searcher);
 		this.threads 			= Runtime.getRuntime().availableProcessors();
 		
 	}
@@ -45,7 +45,7 @@ public class PositionFinder {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public TreePosition findPosition(INode inputNode,INode root) throws InterruptedException, ExecutionException {
+	public TreePosition getMostSimilarNode(INode inputNode,INode root) throws InterruptedException, ExecutionException {
 		
 		// Grab all nodes from tree
 		List<TreePosition> rawPos 	= getAllNodesOfTree(root);
@@ -128,7 +128,8 @@ public class PositionFinder {
 		    			
 		    			double utility = 0;
 		    			if(inputNode.getRatingAttributeKeys().size() == 0){
-		    				utility = cobweb;
+		    				utility += cobweb;
+		    				utility += classit;
 		    			}
 		    			else {
 		    				utility += classit * (numOfNumAtts / sumOfAtts);
