@@ -16,7 +16,10 @@ import ch.uzh.agglorecommender.util.TBLogger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 
-
+/**
+ * Creates INodes that build the clustering hierarchy tree
+ * and IAttributes, the attributes of the INode objects.
+ */
 public class TreeComponentFactory implements Serializable  {
 
 	/**
@@ -28,16 +31,31 @@ public class TreeComponentFactory implements Serializable  {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static TreeComponentFactory factory = new TreeComponentFactory();
-	
+	private static TreeComponentFactory factory = new TreeComponentFactory();	
 	private TreeComponentFactory() {
 		// singleton
 	}
 
+	/**
+	 * Gets the TreeComponentFactory.
+	 * @return the factory instance (singleton)
+	 */
 	public static TreeComponentFactory getInstance() {
 		return factory;
 	}
 	
+	/**
+	 * Creates a leaf node of a clustering hierarchy tree
+	 * with initialized attribute maps.
+	 * 
+	 * @param typeOfNewNode The node type of the new node (User or Content)
+	 * @param dataSetId the id of the data set entity that is 
+	 * represented with this cluster tree leaf node.
+	 * @param nominalMeta the nominal meta attributes of the data set entity
+	 * @param numericalMeta the numerical meta attributes of the data set entity
+	 * @param dataset the data set that is processed
+	 * @return a new INode instance
+	 */
 	public INode createLeafNode(
 			ENodeType typeOfNewNode,
 			String dataSetId,
@@ -59,6 +77,11 @@ public class TreeComponentFactory implements Serializable  {
 		return newNode;
 	}
 	
+	/**
+	 * Creates the IAttribute object of a nominal meta attribute of a leaf node.
+	 * @param attValues the collection of values of the nominal attribute
+	 * @return A CobwebAttribute object for the attribute
+	 */
 	private IAttribute createNominalLeafAttribute(Collection<Object> attValues) {
 		double initialProb = 1.0 / (double)attValues.size();
 		Map<Object, Double> r = new HashMap<>();
@@ -70,7 +93,12 @@ public class TreeComponentFactory implements Serializable  {
 	}
 	
 	/**
-	 * Used to create the (single) attribute object of leaf nodes
+	 * Creates the ClassitAttribute for a particular numerical attribute
+	 * (i.e.: another INode object for the ratings attribute).
+	 * 
+	 * @param rating the attribute value, i.e.: 
+	 * ratings for a content item (user node) or from a user (content item node)
+	 * @return the ClassitAttribute object
 	 */
 	public IAttribute createNumericalLeafAttribute(double rating) {
 		// the stddev would be equal 0 but we use the acuity to prevent division by 0.
@@ -79,8 +107,15 @@ public class TreeComponentFactory implements Serializable  {
 		return new ClassitAttribute(1, rating, Math.pow(rating, 2.0));
 	}
 	
-	public INode createInternalNode(ENodeType typeOfNewNode,
-			Collection<INode> nodesToMerge, double categoryUtility) {
+	/**
+	 * Creates a INode that is an internal node in the clustering
+	 * hierarchy tree with initialized attribute maps.
+	 * @param nodesToMerge the clusters to merge to a new cluster
+	 * and that become children of new cluster.
+	 * @param categoryUtility the category utility of the current merge.
+	 * @return a new INode instance with initialized attribute maps.
+	 */
+	public INode createInternalNode( Collection<INode> nodesToMerge, double categoryUtility) {
 
 		if (nodesToMerge.size() < 2) {
 			TBLogger.getLogger(getClass().getName())
@@ -92,11 +127,23 @@ public class TreeComponentFactory implements Serializable  {
 		Map<String, IAttribute> nomMetMap = createNominalMetaInternalAttMap(nodesToMerge);
 		Map<String, IAttribute> numMetMap = createNumericalMetaInternalAttMap(nodesToMerge);
 		
+		ENodeType typeOfNewNode = nodesToMerge.iterator().next().getNodeType();
+		for (INode n : nodesToMerge) {
+			if (! n.getNodeType().equals(typeOfNewNode)) {
+				TBLogger.getLogger(getClass().getName())
+				.severe("Merge attempt of nodes of different types, in: "+getClass().getSimpleName());
+			System.exit(-1);
+			}
+		}	
 		INode newN = new Node(typeOfNewNode, nodesToMerge, ratMap, numMetMap, nomMetMap, categoryUtility);
-
 		return newN;
 	}
 	
+	/**
+	 * Creates the attribute map of the numerical meta attributes for an internal node.
+	 * @param nodesToMerge the nodes of the current merge
+	 * @return the numerical meta attribute map
+	 */
 	private Map<String, IAttribute> createNumericalMetaInternalAttMap(Collection<INode> nodesToMerge) {
 		Map<String, IAttribute> map = new HashMap<String, IAttribute>();
 		for (INode node : nodesToMerge) {
@@ -116,6 +163,11 @@ public class TreeComponentFactory implements Serializable  {
 		return map;
 	}
 	
+	/**
+	 * Creates the attribute map of the numerical rating attributes for an internal node.
+	 * @param nodesToMerge the nodes of the current merge
+	 * @return the rating attributes map
+	 */
 	private  Map<INode,IAttribute> createRatingInternalAttMap(Collection<INode> nodesToMerge) {
 		Map<INode, IAttribute> map = new HashMap<INode, IAttribute>();
 		for (INode node : nodesToMerge) {
@@ -135,6 +187,13 @@ public class TreeComponentFactory implements Serializable  {
 		return map;		
 	}
 	
+	/**
+	 * Creates a ClassitAttribute object based on the attributes
+	 * that are mapped in the nodesToMerge to the passed attributeKey.
+	 * @param attributeKey the key for the attribute
+	 * @param nodesToMerge the nodes to merge
+	 * @return a new ClassitAttribute for the attributeKey
+	 */
 	private IAttribute createNumericalInternalAttribute(Object attributeKey, Collection<INode> nodesToMerge) {
 		List<IAttribute> atts = new ArrayList<>();
 		for (INode n : nodesToMerge) {
@@ -145,9 +204,13 @@ public class TreeComponentFactory implements Serializable  {
 		}
 		return createNumericalInternalAttribute(atts);
 	}
-
+	
+	/**
+	 * Calculates the values of a new ClassitAttribute based on the passed ClassitAttributes.
+	 * @param atts the calculation base for a new ClassitAttribute
+	 * @return a new ClassitAttribute
+	 */
 	private IAttribute createNumericalInternalAttribute(Collection<IAttribute> atts) {
-
 		
 		int support = ClassitMaxCategoryUtilitySearcher.calcSupportOfAttribute(atts);
 		if (support < 1) {
@@ -160,9 +223,13 @@ public class TreeComponentFactory implements Serializable  {
 //		double stdDev = ClassitMaxCategoryUtilitySearcher.calcStdDevOfAttribute(attributeKey, merge);
 		
 		return new ClassitAttribute(support, sumOfRatings, sumOfSquaredRatings);
-
 	}
 	
+	/**
+	 * Creates the attribute map of the nominal meta attributes for an internal node.
+	 * @param nodesToMerge the nodes of the current merge
+	 * @return the nominal meta attribute map
+	 */
 	private Map<String, IAttribute> createNominalMetaInternalAttMap(Collection<INode> nodesToMerge) {
 		Map<String, IAttribute> map = new HashMap<String, IAttribute>();
 		for (INode node : nodesToMerge) {
@@ -182,6 +249,13 @@ public class TreeComponentFactory implements Serializable  {
 		return map;	
 	}
 	
+	/**
+	 * Creates a CobwebAttribute object based on the attributes
+	 * that are mapped in the nodesToMerge to the passed attributeKey.
+	 * @param attributeKey the key for the attribute
+	 * @param nodesToMerge the nodes to merge
+	 * @return a new CobwebAttribute for the attributeKey
+	 */
 	private IAttribute createNominalInternalAttribute(Object attributeKey, Collection<INode> nodesToMerge) {
 		int totalLeafCount = 0;
 		for (INode node : nodesToMerge) {
@@ -195,7 +269,5 @@ public class TreeComponentFactory implements Serializable  {
 				);
 		return new CobwebAttribute(attMap);
 	}
-	
-
 	
 }

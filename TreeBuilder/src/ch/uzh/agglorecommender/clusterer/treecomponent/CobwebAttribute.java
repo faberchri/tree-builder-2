@@ -92,12 +92,5 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 		}
 		return sb.toString();
 	}
-
-
-//	@Override
-//	public double getStd() throws UnsupportedOperationException {
-//		throw new UnsupportedOperationException(
-//				"Method of ClassitAttribute object called on CobwebAttribute object");
-//	}
 	
 }

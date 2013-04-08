@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import ch.uzh.agglorecommender.client.ClusterResult;
-import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.clusterer.treesearch.CachedMaxCUSearcher;
@@ -278,35 +277,14 @@ public final class TreeBuilder implements Serializable, Observable, Runnable {
 		}
 
 		// Create a new node (product of nodesToMerge)
-		INode newNode;
-		switch (nodesToMerge.iterator().next().getNodeType()) {
-		case User:
-			newNode = treeComponentFactory.createInternalNode(
-					ENodeType.User,
-					nodesToMerge,
-					mergeResult.getCategoryUtility()); 
-			break;
-		case Content:
-			newNode = treeComponentFactory.createInternalNode(
-					ENodeType.Content,
-					nodesToMerge,
-					mergeResult.getCategoryUtility());
-			break;
-		default:
-			newNode = null;
-			log.severe("Err: Not supported node encountered in: " + getClass().getSimpleName());
-			System.exit(-1);
-			break;
-		}
-
+		INode newNode = treeComponentFactory.createInternalNode(nodesToMerge, mergeResult.getCategoryUtility());
+		
 		// Add new node to open set
 		openSet.add(newNode);
 		log.fine("New node added to open set: " + newNode);
 
-		// Updating relationships and remove
+		// Remove merged nodes from cluster set
 		for (INode nodeToMerge : nodesToMerge) {	
-
-			// Remove merged Nodes
 			if (!openSet.remove(nodeToMerge)) {
 				log.severe("Err: Removal of merged node (" + nodeToMerge + ") from " +openSet +" failed, in: " + getClass().getSimpleName());
 				System.exit(-1);
