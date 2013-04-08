@@ -1,1 +1,13 @@
-ch.uzh.agglorecommender.recommender.treeutils
+ch.uzh.agglorecommender.client
+ch.uzh.agglorecommender.client.jcommander
+ch.uzh.agglorecommender.clusterer
+ch.uzh.agglorecommender.clusterer.treecomponent
+ch.uzh.agglorecommender.clusterer.treesearch
+ch.uzh.agglorecommender.clusterer.treeupdate
+ch.uzh.agglorecommender.datasets
+ch.uzh.agglorecommender.evaluator
+ch.uzh.agglorecommender.recommender
+ch.uzh.agglorecommender.recommender.clients
+ch.uzh.agglorecommender.recommender.utils
+ch.uzh.agglorecommender.util
+ch.uzh.agglorecommender.visu
