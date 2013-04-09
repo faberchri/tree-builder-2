@@ -12,11 +12,6 @@ import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.ClusterInteraction;
 import ch.uzh.agglorecommender.recommender.Searcher;
-<<<<<<< HEAD
-import ch.uzh.agglorecommender.recommender.clients.DefaultClient;
-import ch.uzh.agglorecommender.recommender.clients.WebClient;
-=======
->>>>>>> Various
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
