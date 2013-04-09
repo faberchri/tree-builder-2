@@ -24,37 +24,37 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	
 	@Test
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
-		
 		// create attributes
-		// interval of ratings: [1, 5]
-		// ratings are integers
-		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
-		attMap.put(4, 1.0);
+		
+		Map<String, Double> attMap = new HashMap<String, Double>();
+		attMap.put("1A", 1.0);
 		IAttribute attribute_1A = new CobwebAttribute(attMap);
-		attMap = new HashMap<Integer, Double>();
-		attMap.put(3, 1.0);
+		attMap = new HashMap<String, Double>();
+		attMap.put("1B", 1.0);
 		IAttribute attribute_1B = new CobwebAttribute(attMap);
-		attMap = new HashMap<Integer, Double>();
-		attMap.put(5, 1.0);
+		attMap = new HashMap<String, Double>();
+		attMap.put("2B", 1.0);
 		IAttribute attribute_2B = new CobwebAttribute(attMap);
-		attMap = new HashMap<Integer, Double>();
-		attMap.put(5, 1.0);
+		attMap = new HashMap<String, Double>();
+		attMap.put("2C", 1.0);
 		IAttribute attribute_2C = new CobwebAttribute(attMap);
 		
 		// establish shared attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		//INode sharedAttribute = new Node(ENodeType.Content, null, null);
 		
 		// add the corresponding attributes to the attribute map of node 1
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-		attMap1.put(new Node(ENodeType.Content, null, null), attribute_1A);
-		attMap1.put(sharedAttribute, attribute_1B);
-		node1.setRatingAttributes(attMap1);
+		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
+		attMap1.put("1A", attribute_1A);
+		attMap1.put("1B", attribute_1B);
+		node1.setNominalMetaAttributes(attMap1);
+		
+		System.out.println(node1.getNominalAttributesString());
 
 		// add the corresponding attributes to the attribute map of node 2
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
-		attMap2.put(sharedAttribute, attribute_2B);
-		attMap2.put(new Node(ENodeType.Content, null, null), attribute_2C);
-		node2.setRatingAttributes(attMap2);
+		Map<String, IAttribute> attMap2 = new HashMap<String, IAttribute>();
+		attMap2.put("2B", attribute_1B);
+		attMap2.put("2C", attribute_2C);
+		node2.setNominalMetaAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
