@@ -2,6 +2,7 @@ package ch.uzh.agglorecommender.recommender;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutionException;
 
@@ -11,6 +12,8 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.utils.NodeBuilder;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
+
+import com.google.common.collect.ImmutableMap;
 
 public class ClusterInteraction {
 	
@@ -31,6 +34,13 @@ public class ClusterInteraction {
 	}
 	
 	public TreePosition getMostSimilarNode(INode inputNode) throws InterruptedException, ExecutionException{
+		
+		// Input Check
+		if(inputNode == null){
+			System.out.println("Received Illegal Input");
+			return null;
+		}
+		
 		return searcher.getMostSimilarNode(inputNode);
 	}
 
@@ -39,6 +49,13 @@ public class ClusterInteraction {
 	}
 
 	public List<INode> getItemList(ENodeType type, int limit, INode inputNode){
+		
+		// Input Check
+		if(type == null || inputNode == null){
+			System.out.println("Received Illegal Input");
+			return null;
+		}
+		
 		return recommender.createItemList(type,limit, inputNode);
 	}
 
@@ -64,6 +81,27 @@ public class ClusterInteraction {
 		return sortedRecommendation;
 	}
 	
+	public void printRecommendation (SortedMap<INode, IAttribute> recommendation){
+		
+		// Input Check
+		if(recommendation == null){
+			System.out.println("Received Illegal Input");
+		}
+		
+		recommender.printRecommendation(recommendation);
+	}
+	
+	public Map<String, Double> kFoldEvaluation(Set<INode> testNodes) throws NullPointerException, InterruptedException, ExecutionException {
+		
+		// Input Check
+		if(testNodes == null){
+			System.out.println("Received Illegal Input");
+			return null;
+		}
+		
+		return evaluator.kFoldEvaluation(testNodes);
+	}
+	
 	public Map<String, Double> kFoldEvaluation(InitialNodesCreator testSet) throws NullPointerException, InterruptedException, ExecutionException {
 		
 		// Input Check
@@ -75,15 +113,15 @@ public class ClusterInteraction {
 		return evaluator.kFoldEvaluation(testSet);
 	}
 
-	public Map<String, Double> evaluate(INode inputNode) throws NullPointerException, InterruptedException, ExecutionException{
+	public Map<String, Double> evaluate(INode inputNode, TreePosition position) throws NullPointerException, InterruptedException, ExecutionException{
 		
 		// Input Check
-		if(inputNode == null){
+		if(inputNode == null || position == null){
 			System.out.println("Received Illegal Input");
 			return null;
 		}
 		
-		return evaluator.evaluate(inputNode);
+		return evaluator.evaluate(inputNode, position);
 	}
 
 	public boolean insert(INode inputNode, TreePosition position) throws InterruptedException, ExecutionException{
@@ -106,6 +144,10 @@ public class ClusterInteraction {
 		}
 		
 		return builder.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
+	}
+	
+	public ImmutableMap<String, INode> buildNodesFromFile(String ratingLoc, String metaLoc, ENodeType type){
+		return builder.buildNodesFromFile(ratingLoc, metaLoc, type);
 	}
 
 }

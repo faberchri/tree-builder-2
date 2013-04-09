@@ -12,8 +12,11 @@ import ch.uzh.agglorecommender.clusterer.TreeBuilder;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 import ch.uzh.agglorecommender.recommender.ClusterInteraction;
 import ch.uzh.agglorecommender.recommender.Searcher;
+<<<<<<< HEAD
 import ch.uzh.agglorecommender.recommender.clients.DefaultClient;
 import ch.uzh.agglorecommender.recommender.clients.WebClient;
+=======
+>>>>>>> Various
 import ch.uzh.agglorecommender.util.TBLogger;
 import ch.uzh.agglorecommender.util.ToFileSerializer;
 
@@ -57,6 +60,7 @@ public class TestDriver {
 			}
 			
 		} else {
+			
 			// we read the data for clustering from the locations
 			// specified in the data set properties xml-file passed at startup
 			InputParser parser = new InputParser(new File(cla.datasetProperties.get(0)));
@@ -65,8 +69,8 @@ public class TestDriver {
 			ClusterResult clusterResult = training(parser.getTrainigsDataset());
 			
 			// instantiate recommendation
-			Searcher reader 		= new Searcher(clusterResult, parser.getTestDataset());
-			ClusterInteraction rp		= new ClusterInteraction(reader);
+			Searcher searcher 		= new Searcher(clusterResult, parser.getTestDataset(), new File(cla.datasetProperties.get(0)));
+			ClusterInteraction rp	= new ClusterInteraction(searcher);
 			
 			// test the quality of the clustering
 			test(parser.getTestDataset(), rp);
@@ -85,7 +89,7 @@ public class TestDriver {
 		ClusterResult clusterResult = null;
 		if (cla.resumePrevRun != null) {
 			// read a serialized TreeBuilder from disc
-			log.info("Start loading serailized run at: " + cla.resumePrevRun);
+			log.info("Start loading serialized run at: " + cla.resumePrevRun);
 			TreeBuilder tb = (TreeBuilder) ToFileSerializer.deserialize(cla.resumePrevRun);
 			// add controller to TreeBuilder
 			ClusteringController controller = getClusteringController(tb);
@@ -140,18 +144,14 @@ public class TestDriver {
 	
 	private static void startClient(ClusterInteraction rp) throws Exception{
 		
-		// Start User Interfaces for qualitative evaluation and insertion
+		// Start Client
 		System.out.println("-------------------------------");
 		System.out.println("Starting Recommendation Client");
 		System.out.println("-------------------------------");
 		
-		// Start command line based client
-		DefaultClient defaultClient = new DefaultClient(rp);
-//		defaultClient.startService();
-
-		// Start web based client
-		WebClient webClient = new WebClient(rp); // listens on port 8081
-		webClient.startService();
+		cla.client.setController(rp);
+		cla.client.startService();
+		
 	}
 		
 	/**

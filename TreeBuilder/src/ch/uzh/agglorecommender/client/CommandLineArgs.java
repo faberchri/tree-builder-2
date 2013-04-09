@@ -2,12 +2,15 @@ package ch.uzh.agglorecommender.client;
 
 import java.util.List;
 
+import ch.uzh.agglorecommender.client.jcommander.ClientValidatorConverter;
 import ch.uzh.agglorecommender.client.jcommander.DatasetValidator;
 import ch.uzh.agglorecommender.client.jcommander.FileReadValidatorConverter;
 import ch.uzh.agglorecommender.client.jcommander.FileWriteValidator;
 import ch.uzh.agglorecommender.client.jcommander.NodeUpdaterValidatorConverter;
 import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 import ch.uzh.agglorecommender.clusterer.treeupdate.SaveAttributeNodeUpdater;
+import ch.uzh.agglorecommender.recommender.clients.DefaultClient;
+import ch.uzh.agglorecommender.recommender.clients.IClient;
 
 import com.beust.jcommander.Parameter;
 
@@ -56,6 +59,13 @@ public class CommandLineArgs {
 	@Parameter(names = { "-noGUI" },
 			description = "Runs the clustering algorithm without a GUI (no visual representation of progress, no user interaction possible).")
 	protected boolean noGui = false;
+	
+	@Parameter(names = { "-recommendationClient", "-rC", "-client" },
+			description = "Simple class name of IClient to use. Example: DefaultClient",
+			validateWith = ClientValidatorConverter.class,
+			converter = ClientValidatorConverter.class,
+			arity = 1)
+	protected IClient client = new DefaultClient();
 	
 	@Parameter(names = {"--help", "-help", "--usage", "-usage"},
 			description = "Shows this message and terminates application.",

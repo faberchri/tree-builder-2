@@ -28,53 +28,55 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.ClusterInteraction;
 import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 
-public class WebClient extends AbstractHandler implements Client{
-	
-	private final ClusterInteraction clusterInteraction;
+public class WebClient extends AbstractHandler implements IClient{
+
+	private ClusterInteraction clusterInteraction;
 	private final Server server;
 	private DecimalFormat df = new DecimalFormat("#.##");
 
-	public WebClient(ClusterInteraction clusterInteraction) throws Exception {
-	    
-		this.clusterInteraction = clusterInteraction;
-			
+	public WebClient() throws Exception {
+
 		server = new Server(8081); // Port number should not be changed
-	
-	    ResourceHandler resourceHandler = new ResourceHandler();
-	    resourceHandler.setDirectoriesListed(true);
-	    resourceHandler.setWelcomeFiles(new String[] {"index.html"});
-	    resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/clients/");
-	
-	    HandlerList handlers = new HandlerList();
-	    handlers.setHandlers(new Handler[] {resourceHandler, this});
-	
-	    server.setHandler(handlers);
-	  }
-	
-	public void startService() throws Exception{
-	    server.start();
-	    server.join();
+
+		ResourceHandler resourceHandler = new ResourceHandler();
+		resourceHandler.setDirectoriesListed(true);
+		resourceHandler.setWelcomeFiles(new String[] {"index.html"});
+		resourceHandler.setResourceBase("./src/ch/uzh/agglorecommender/recommender/clients/");
+
+		HandlerList handlers = new HandlerList();
+		handlers.setHandlers(new Handler[] {resourceHandler, this});
+
+		server.setHandler(handlers);
 	}
 	
+	public void setController(ClusterInteraction clusterInteraction) {
+		this.clusterInteraction = clusterInteraction;
+	}
+
+	public void startService() throws Exception{
+		server.start();
+		server.join();
+	}
+
 	public void stopService() throws Exception {
 		this.server.stop();
 	}
 
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
-      HttpServletResponse response) throws IOException, ServletException {
-		
+			HttpServletResponse response) throws IOException, ServletException {
+
 		response.setContentType("text/text");  // text/xml
-	    response.setHeader("Cache-Control", "no-cache");
-	    response.setStatus(HttpServletResponse.SC_OK);
-	    
-	    if(request.getParameterMap().containsKey("request")) {
+		response.setHeader("Cache-Control", "no-cache");
+		response.setStatus(HttpServletResponse.SC_OK);
+
+		if(request.getParameterMap().containsKey("request")) {
 			String requestType = request.getParameter("request");
-			
+
 			// Deliver items to rate
 			if(requestType.equals("items")){
 				itemRequest(request,response);
 			}
-			
+
 			// Create Recommendation
 			if(requestType.equals("recommendation")){
 
@@ -87,71 +89,71 @@ public class WebClient extends AbstractHandler implements Client{
 					e.printStackTrace();
 				}
 			}
-	    }
+		}
 		else {
-		    // Create Response
+			// Create Response
 			response.getWriter().write("<message test>" + request.getParameter("test") + "</message>");
 		}
-	    
-	    response.flushBuffer();
-	    baseRequest.setHandled(true);
-  }
-	
+
+		response.flushBuffer();
+		baseRequest.setHandled(true);
+	}
+
 	private void itemRequest(HttpServletRequest request,HttpServletResponse response) throws IOException{
-		
+
 		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
 		int limit = Integer.parseInt(request.getParameter("limit"));
-		
+
 		// Build Node
 		INode inputNode = createNode(request);
-		
+
 		// Build item list
 		List<INode> itemList = clusterInteraction.getItemList(type, limit, inputNode);
-		
+
 		// Write Message
 		response.getWriter().write("<table>");
 		int i=1;
 		for(INode item : itemList){
-			
+
 			if(item != null){
 				response.getWriter().write( 
 						"<tr><td>" +
-						"<select id='" + i + "' title='"+ clusterInteraction.getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
-						"<option value='not seen'>not seen</option>" +
-						"<option value='1'>1</option>" +
-						"<option value='2'>2</option>" +
-						"<option value='3'>3</option>" +
-						"<option value='4'>4</option>" +
-						"<option value='5'>5</option>" +
-						"<option value='6'>6</option>" +
-						"<option value='7'>7</option>" +
-						"<option value='8'>8</option>" +
-						"<option value='9'>9</option>" +
-						"<option value='10'>10</option>" +
-						"</select> " +
-						"</td><td width='250'>" +
-						clusterInteraction.getMeta(item,"title") +
+								"<select id='" + i + "' title='"+ clusterInteraction.getMeta(item,"title") +"' name=" + item.getDatasetId() +">" +
+								"<option value='not seen'>not seen</option>" +
+								"<option value='1'>1</option>" +
+								"<option value='2'>2</option>" +
+								"<option value='3'>3</option>" +
+								"<option value='4'>4</option>" +
+								"<option value='5'>5</option>" +
+								"<option value='6'>6</option>" +
+								"<option value='7'>7</option>" +
+								"<option value='8'>8</option>" +
+								"<option value='9'>9</option>" +
+								"<option value='10'>10</option>" +
+								"</select> " +
+								"</td><td width='250'>" +
+								clusterInteraction.getMeta(item,"title") +
 						"</td></tr>");
 				i++;
 			}
 		}
-		
+
 		response.getWriter().write("</table>");
 	}
-	
+
 	private void recommendationRequest(INode inputNode, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, ExecutionException{
-		
+
 		// Build Recommendation
 		long startTime = System.nanoTime();
 		TreePosition position = clusterInteraction.getMostSimilarNode(inputNode);
 		SortedMap<INode, IAttribute> recommendations = clusterInteraction.recommend(inputNode,position);
 		long endTime = System.nanoTime();
 		long duration = endTime - startTime;
-		
+
 		// Create Evaluation
-		inputNode = removeRatings(inputNode);
-		Map<String,Double> evaluation = clusterInteraction.evaluate(inputNode);
-		
+		INode testNode = removeRatings(inputNode);
+		Map<String,Double> evaluation = clusterInteraction.evaluate(testNode,position);
+
 		// Extra Infos & Action
 		response.getWriter().write("<table style='border:1px solid #fff;width:95%'>");
 		response.getWriter().write("<tr><td>Utility</td><td>" + position.getUtility() + "</td></tr>");
@@ -162,27 +164,27 @@ public class WebClient extends AbstractHandler implements Client{
 			response.getWriter().write("<tr><td>Insertion</td><td>" + clusterInteraction.insert(inputNode,position) + "</td></tr>");	
 		}
 		response.getWriter().write("</table><br>");
-		
+
 		// Write Recommendation Message
 		response.getWriter().write("<table style='width:100%'>");
 		for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
-			
+
 			String title 	= clusterInteraction.getMeta(recommendation.getKey(),"title");
 			String url		= ""; //"<a href='" + rc.getMeta(recommendation.getKey(),"url") + "' target='_blank'>IMDB Link</a>";
-			
+
 			IAttribute attribute = recommendation.getValue();
 			Double rating = attribute.getSumOfRatings() / attribute.getSupport();
-			
+
 			response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'>" + url + "</td></tr>");
 		}
 		response.getWriter().write("</table><br>");
 	}
-	
+
 	private INode createNode(HttpServletRequest request){
-		
+
 		// Retrieve Type
 		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
-		
+
 		// Read MetaInfo to List<String> -> attribute+value
 		List<String> numMetaInfo = new LinkedList<String>();
 		String numMetaFull = request.getParameter("nummeta");
@@ -200,7 +202,7 @@ public class WebClient extends AbstractHandler implements Client{
 				nomMetaInfo.add(meta);
 			}
 		}
-		
+
 		// Read Ratings to List<String> -> content node+rating
 		List<String> ratings = new LinkedList<String>();
 		String ratingsFull = request.getParameter("ratings");
@@ -210,10 +212,10 @@ public class WebClient extends AbstractHandler implements Client{
 				ratings.add(rating);
 			}
 		}
-		
+
 		return clusterInteraction.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
 	}
-	
+
 	private INode removeRatings(INode inputNode){
 		Set<INode> inputRatings = inputNode.getRatingAttributeKeys();
 		Map<INode,IAttribute> pickedRatings = new HashMap<>();

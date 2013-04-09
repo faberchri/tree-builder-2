@@ -123,24 +123,53 @@ public final class Recommender {
 	 */
 	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
 	
-		RatingComparator bvc =  new RatingComparator(unsortedRecommendation,this);
-		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<INode,IAttribute>(bvc);
+		// Order according to ratings
+		RatingComparator bvc =  new RatingComparator(unsortedRecommendation);
+		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<>(bvc);
 		sortedRecommendation.putAll(unsortedRecommendation);
+		
+//		// Create Sets of items with same rating and order alphabetically
+//		AlphabeticalComparator avc = new AlphabeticalComparator(searcher);
+//		SortedMap<Double,TreeSet<INode>> orderedMap = new TreeMap<Double,TreeSet<INode>>();
+//		
+//		for(Entry<INode,IAttribute> entry : sortedRecommendation.entrySet()){
+//			double rating = entry.getValue().getSumOfRatings()/entry.getValue().getSupport();
+//			TreeSet<INode> tempSet = null;
+//			if(orderedMap.containsKey(rating)){
+//				 tempSet = orderedMap.get(rating);
+//			}
+//			else {
+//				tempSet = new TreeSet<>(avc);
+//			}
+//			tempSet.add(entry.getKey());
+//			orderedMap.put(rating, tempSet);
+//		}
+//		
+//		// Rebuild SortedMap
+//		sortedRecommendation = new TreeMap<>();
+//		for(Entry<Double,TreeSet<INode>> entry : orderedMap.entrySet()){
+//			
+//			// Find Information about Recommendation
+//			double rating = entry.getKey();
+//			
+//			TreeSet<INode> tempSet = entry.getValue();
+//			for(INode node : tempSet){
+//				sortedRecommendation.put(node,unsortedRecommendation.get(node));
+//			}
+//		}
 		
 	    return sortedRecommendation;
 	}
 
-	public void printRecommendation(SortedMap<INode, IAttribute> recommendationCollection){
+	public void printRecommendation(SortedMap<INode, IAttribute> recommendation){
 		
-		if(recommendationCollection != null){
+		if(recommendation != null){
 			System.out.println("=> Recommended: ");
-			for(Entry<INode,IAttribute> entry : recommendationCollection.entrySet()){
-				
-				// Find Information about Recommendation -> FIXME unflexibel
-				String title = searcher.getMeta(entry.getKey(),"title");
+			
+			for(Entry<INode,IAttribute> entry : recommendation.entrySet()){
 				double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
-				
 				System.out.printf("%.2f", rating);
+				String title = searcher.getMeta(entry.getKey(),"title");
 				System.out.println(" -> " + title);
 			}
 		}

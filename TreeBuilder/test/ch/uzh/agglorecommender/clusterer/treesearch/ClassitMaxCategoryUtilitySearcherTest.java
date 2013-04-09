@@ -485,7 +485,6 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder tr = null;
 		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
 		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(nodeSet);
-		
 
 		//Instantiate TreeBuilder
 		try {
@@ -511,7 +510,6 @@ public class ClassitMaxCategoryUtilitySearcherTest {
             e.printStackTrace();
         }
         
-				
 		Double utility = merge.getCategoryUtility();
 		System.out.println("node1: "+node1.getId()+", "+node1.getNumericalAttributesString());
 		System.out.println("node2: "+node2.getId()+", "+node2.getNumericalAttributesString());

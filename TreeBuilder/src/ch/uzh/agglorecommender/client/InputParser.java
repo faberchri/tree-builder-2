@@ -56,7 +56,7 @@ import com.google.common.collect.Multimap;
  *
  */
 public class InputParser implements Serializable {
-	
+
 	/**
 	 * Determines if a de-serialized file is compatible with this class.
 	 * <br><br>
@@ -93,7 +93,7 @@ public class InputParser implements Serializable {
 	 * @param propertiesXmlFile the data set properties specified in a file compliant to the xml-schema 
 	 * contained in the linked xmltypes.jar
 	 */
-	InputParser(File propertiesXmlFile) {
+	public InputParser(File propertiesXmlFile) throws Exception {
 
 		InputDocument inputDoc = null;
 		try {
@@ -103,39 +103,46 @@ public class InputParser implements Serializable {
 			e.printStackTrace();
 		}
 		validateXML(inputDoc);
-		
+
 		Map<String, NumericalAttribute> numericalAttributes = new HashMap<>();
 
 		Input input = inputDoc.getInput();
 
 		parseRatings(input.getRatingArray());
 
-		for (int i = 0; i < input.sizeOfContentNominalAttributeArray(); i++) {
-			parseMetaAttribute(input.getContentNominalAttributeArray(i));
+		try {
+
+			for (int i = 0; i < input.sizeOfContentNominalAttributeArray(); i++) {
+				parseMetaAttribute(input.getContentNominalAttributeArray(i));
+			}
+			for (int i = 0; i < input.sizeOfContentNominalMultivaluedAttributeArray(); i++) {
+				parseMetaAttribute(input.getContentNominalMultivaluedAttributeArray(i));
+			}
+			for (int i = 0; i < input.sizeOfContentNumericalAttributeArray(); i++) {
+				ContentNumericalAttribute cna = input.getContentNumericalAttributeArray(i);
+				parseMetaAttribute(cna);
+				numericalAttributes.put(cna.getAttribute().getTag(), cna.getAttribute());
+			}
+			for (int i = 0; i < input.sizeOfUserNominalAttributeArray(); i++) {
+				parseMetaAttribute(input.getUserNominalAttributeArray(i));
+			}	
+			for (int i = 0; i < input.sizeOfUserNominalMultivaluedAttributeArray(); i++) {
+				parseMetaAttribute(input.getUserNominalMultivaluedAttributeArray(i));
+			}
+			for (int i = 0; i < input.sizeOfUserNumericalAttributeArray(); i++) {
+				UserNumericalAttribute una = input.getUserNumericalAttributeArray(i);
+				parseMetaAttribute(una);
+				numericalAttributes.put(una.getAttribute().getTag(), una.getAttribute());
+			}
+
 		}
-		for (int i = 0; i < input.sizeOfContentNominalMultivaluedAttributeArray(); i++) {
-			parseMetaAttribute(input.getContentNominalMultivaluedAttributeArray(i));
-		}
-		for (int i = 0; i < input.sizeOfContentNumericalAttributeArray(); i++) {
-			ContentNumericalAttribute cna = input.getContentNumericalAttributeArray(i);
-			parseMetaAttribute(cna);
-			numericalAttributes.put(cna.getAttribute().getTag(), cna.getAttribute());
-		}
-		for (int i = 0; i < input.sizeOfUserNominalAttributeArray(); i++) {
-			parseMetaAttribute(input.getUserNominalAttributeArray(i));
-		}	
-		for (int i = 0; i < input.sizeOfUserNominalMultivaluedAttributeArray(); i++) {
-			parseMetaAttribute(input.getUserNominalMultivaluedAttributeArray(i));
-		}
-		for (int i = 0; i < input.sizeOfUserNumericalAttributeArray(); i++) {
-			UserNumericalAttribute una = input.getUserNumericalAttributeArray(i);
-			parseMetaAttribute(una);
-			numericalAttributes.put(una.getAttribute().getTag(), una.getAttribute());
+		catch (Exception e){
+			System.err.println("File has invalid format");
 		}
 
 		trainigsDataset = new Dataset(trainingItems, numericalAttributes);
 		testDataset = new Dataset(testItems, numericalAttributes);
-		
+
 		// Rating attributes shall always be used for clustering.
 		useForClustering.remove(input.getRatingArray()[0].getAttribute().getTag());
 	}
@@ -279,7 +286,7 @@ public class InputParser implements Serializable {
 			}
 			sb.append(", ");
 		}
-//		System.out.println(sb.substring(0, sb.length() - 2).concat("]"));
+		//		System.out.println(sb.substring(0, sb.length() - 2).concat("]"));
 	}
 
 	private String[] createMetaHeader(MetaFile metaFile, int headerLength) {
@@ -579,7 +586,7 @@ public class InputParser implements Serializable {
 	}
 
 	private class Dataset implements IDataset {
-		
+
 		/**
 		 * Determines if a de-serialized file is compatible with this class.
 		 * <br>
@@ -593,7 +600,7 @@ public class InputParser implements Serializable {
 		 * 
 		 */
 		private final List<IDatasetItem> items;
-		
+
 		private final Map<String, NumericalAttribute> numericalAttributes;
 
 		private final INormalizer normalizer;
@@ -642,7 +649,7 @@ public class InputParser implements Serializable {
 	}
 
 	private class DatasetItem implements IDatasetItem {
-		
+
 		/**
 		 * Determines if a de-serialized file is compatible with this class.
 		 * <br>
@@ -717,6 +724,6 @@ public class InputParser implements Serializable {
 		public Multimap<String, Double> getNumericalContentMetaMap() {
 			return numericalContentMetaAttributes.get(contentId);
 		}
-		
+
 	}
 }

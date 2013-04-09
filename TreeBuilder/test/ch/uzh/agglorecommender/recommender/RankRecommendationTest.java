@@ -54,8 +54,8 @@ public class RankRecommendationTest {
 		
 		// Sort recommendations
 		ClusterResult cr = new ClusterResult(null,null,null, null, UUID.randomUUID());
-		Searcher reader = new Searcher(cr,null);
-		Recommender ranker = new Recommender(reader);
+		Searcher searcher = new Searcher(cr,null, null);
+		Recommender ranker = new Recommender(searcher);
 		SortedMap<INode,IAttribute> sortedRecommendations = new TreeMap<INode, IAttribute>();
 		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 1, 4);
 		ranker.rankRecommendation(unsortedRecommendations, 1, 4);

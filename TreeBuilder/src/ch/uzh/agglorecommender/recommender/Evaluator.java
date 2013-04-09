@@ -1,6 +1,7 @@
 package ch.uzh.agglorecommender.recommender;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,12 +39,17 @@ public class Evaluator {
 	 * 
 	 */
 	public Map<String,Double> kFoldEvaluation(InitialNodesCreator testSet) throws NullPointerException, InterruptedException, ExecutionException{
+	
+		// Reformat testSet
+		Set<INode> testNodes = reformatTestSet(testSet);
+		
+		return kFoldEvaluation(testNodes);
+	}
+	
+	public Map<String, Double> kFoldEvaluation(Set<INode> testNodes) throws InterruptedException, ExecutionException {	
 		
 		System.out.println("kFoldEvaluation started..");
-		
-		// Reformat testSet
-		Map<INode,String> testNodes = reformatTestSet(testSet);
-		
+
 		// Establish Maps
 		Map<String,Double> eval = null;
 		Map<String,Double> totalEvalValue = new HashMap<String,Double>();
@@ -51,9 +57,10 @@ public class Evaluator {
 		totalEvalValue.put("AME", 0.0);
 			
 		// Calculate evaluation for all test nodes and update mean
-		for(INode testNode : testNodes.keySet()) {
+		for(INode testNode : testNodes) {
 			
-			eval = evaluate(testNode);
+			TreePosition position = searcher.getMostSimilarNode(testNode);
+			eval = evaluate(testNode, position);
 				
 			for(String evalMethod : totalEvalValue.keySet()){
 				if(eval.get(evalMethod) != null){
@@ -84,12 +91,9 @@ public class Evaluator {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public Map<String,Double> evaluate(INode testNode) throws NullPointerException, InterruptedException, ExecutionException {
+	public Map<String,Double> evaluate(INode testNode, TreePosition position) throws NullPointerException, InterruptedException, ExecutionException {
 		
-		if(testNode != null){
-			
-			// Find position of the similar node in the tree
-			TreePosition position = searcher.getMostSimilarNode(testNode);
+		if(testNode != null && position != null){
 			
 			// Get Predicitions & Real Values
 			Map<String, IAttribute> predictedRatings = collectRatings(position.getNode(),testNode,null);
@@ -185,13 +189,13 @@ public class Evaluator {
 	 * 
 	 * @param testSet reference on the test set
 	 */
-	private Map<INode, String> reformatTestSet(InitialNodesCreator testSet){
+	private Set<INode> reformatTestSet(InitialNodesCreator testSet){
 		
-		Map<INode,String> testUsers = new HashMap<INode,String>();
+		Set<INode> testUsers = new HashSet<>();
 		
 		ImmutableMap<String, INode> userLeaves = testSet.getUserLeaves();
 		for(String userLeaf : userLeaves.keySet()){
-			testUsers.put(userLeaves.get(userLeaf), userLeaf);
+			testUsers.add(userLeaves.get(userLeaf));
 		}
 		
 		return testUsers;

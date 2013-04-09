@@ -1,5 +1,6 @@
 package ch.uzh.agglorecommender.recommender;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
@@ -21,8 +22,9 @@ public class Searcher {
 	private ImmutableMap<String, INode> leavesMapC;
 	private IDataset dataset;
 	private PositionFinder finder;
+	private File properties;
 
-	public Searcher(ClusterResult clusterResult, IDataset testDataset) {
+	public Searcher(ClusterResult clusterResult, IDataset testDataset, File propertiesXmlFile) {
 		
 		// Retrieve Root Nodes of the user tree
 		this.rootU  		= clusterResult.getUserTreeRoot(); 
@@ -31,6 +33,7 @@ public class Searcher {
 		this.leavesMapC 	= clusterResult.getContentTreeLeavesMap();
 		this.dataset		= testDataset;
 		this.finder			= new PositionFinder(this);
+		this.properties		= propertiesXmlFile;
 	}
 	
 	public TreePosition getMostSimilarNode(INode inputNode) throws InterruptedException, ExecutionException{
@@ -87,5 +90,9 @@ public class Searcher {
 
 	public IDataset getDataset() {
 		return dataset;
+	}
+	
+	public File getProperties() {
+		return properties;
 	}
 }
