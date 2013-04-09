@@ -456,16 +456,16 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		node3.setRatingAttributes(attMap2);
 		
 		// attribute map of node 4
-		Map<INode, IAttribute> attMap4 = new HashMap<INode, IAttribute>();
+        Map<INode, IAttribute> attMap4 = new HashMap<INode, IAttribute>();
 
-		// add the corresponding attributes to the attribute map of node 3
-		attMap3.put(sharedAttribute1, N4A1);
-		attMap3.put(sharedAttribute2,N4A2);
-		attMap3.put(sharedAttribute3, N4A3);
+        // add the corresponding attributes to the attribute map of node 3
+        attMap4.put(sharedAttribute1, N4A1);
+        attMap4.put(sharedAttribute2,N4A2);
+        attMap4.put(sharedAttribute3, N4A3);
 
-		// create node 2
-		INode node4 = new Node(ENodeType.User, null, null);
-		node4.setRatingAttributes(attMap2);
+        // create node 4
+        INode node4 = new Node(ENodeType.User, null, null);
+        node4.setRatingAttributes(attMap4);
 
 		// add the two created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -485,6 +485,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		TreeBuilder tr = null;
 		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
 		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(nodeSet);
+		
 
 		//Instantiate TreeBuilder
 		try {
@@ -510,15 +511,17 @@ public class ClassitMaxCategoryUtilitySearcherTest {
             e.printStackTrace();
         }
         
+				
 		Double utility = merge.getCategoryUtility();
-		System.out.println("node1: "+node1.getId()+", "+node1.getNumericalAttributesString());
-		System.out.println("node2: "+node2.getId()+", "+node2.getNumericalAttributesString());
+		System.out.println("Merge Node 1: "+node1.getId()+", "+node1.getNumericalAttributesString());
+		System.out.println("Merge Node 2: "+node2.getId()+", "+node2.getNumericalAttributesString());
 
 		System.out.println("Merge result: "+merge.toString());
 
 		double stDev1 = Math.sqrt(0.5);
 		double stDev2 = Math.sqrt(0.125);
-		double stDev3 = Math.sqrt(56.25+400-378.125);
+		double stDev3 = Math.sqrt(78.125);
+		
 		// evaluate the category utility result
 		assertEquals("category utility", ((1/stDev1)+(1/stDev2)+(1/stDev3))/3, utility, 0.000001);
 
