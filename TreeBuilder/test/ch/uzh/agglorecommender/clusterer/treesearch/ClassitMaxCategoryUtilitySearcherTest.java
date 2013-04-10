@@ -20,6 +20,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 import ch.uzh.agglorecommender.clusterer.treecomponent.TreeComponentFactory;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 
@@ -453,7 +454,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 
 		// create node 3
 		INode node3 = new Node(ENodeType.User, null, null);
-		node3.setRatingAttributes(attMap2);
+		node3.setRatingAttributes(attMap3);
 		
 		// attribute map of node 4
         Map<INode, IAttribute> attMap4 = new HashMap<INode, IAttribute>();
@@ -468,24 +469,11 @@ public class ClassitMaxCategoryUtilitySearcherTest {
         node4.setRatingAttributes(attMap4);
 
 		// add the two created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new IndexAwareSet<INode>();
-		openNodes.add(node1);
-		openNodes.add(node2);
-		openNodes.add(node3);
-		openNodes.add(node4);
+		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(ImmutableList.of(node1, node2, node3, node4));
 
-		ArrayList<INode> nodesToUpdate = new ArrayList<INode>();
-		nodesToUpdate.add(node1);
-		nodesToUpdate.add(node2);
-
-		// Merge
-		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();
-		
+		IMaxCategoryUtilitySearcher utilityCalc = new ClassitMaxCategoryUtilitySearcher();		
 		IMergeResult merge = null;
 		TreeBuilder tr = null;
-		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodesToUpdate);
-		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(nodeSet);
-		
 
 		//Instantiate TreeBuilder
 		try {
@@ -500,9 +488,7 @@ public class ClassitMaxCategoryUtilitySearcherTest {
 		//Search best merge
 		try {
             Class[] parameterTypes = {IClusterSetIndexed.class, IMaxCategoryUtilitySearcher.class};
-            
-          //This causes an Exception.. Why?
-            //private IMergeResult searchBestMergeResultIndexed(IClusterSetIndexed<INode> nodes, IMaxCategoryUtilitySearcher mcus)
+
             Method method = TreeBuilder.class.getDeclaredMethod("searchBestMergeResultIndexed", parameterTypes);
             
             method.setAccessible(true);
@@ -510,17 +496,21 @@ public class ClassitMaxCategoryUtilitySearcherTest {
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        
-				
+        			
 		Double utility = merge.getCategoryUtility();
-		System.out.println("Merge Node 1: "+node1.getId()+", "+node1.getNumericalAttributesString());
-		System.out.println("Merge Node 2: "+node2.getId()+", "+node2.getNumericalAttributesString());
-
+		System.out.println(node1.toString() + " | "+node1.getNumericalAttributesString());
+		System.out.println(node2.toString() + " | "+node2.getNumericalAttributesString());
+		System.out.println(node3.toString() + " | "+node3.getNumericalAttributesString());
+		System.out.println(node4.toString() + " | "+node4.getNumericalAttributesString());
+		
 		System.out.println("Merge result: "+merge.toString());
 
 		double stDev1 = Math.sqrt(0.5);
+		if (stDev1 < 1.0) stDev1 = 1.0; // consider acuity
 		double stDev2 = Math.sqrt(0.125);
+		if (stDev2 < 1.0) stDev2 = 1.0; // consider acuity
 		double stDev3 = Math.sqrt(78.125);
+		if (stDev2 < 1.0) stDev2 = 1.0; // consider acuity
 		
 		// evaluate the category utility result
 		assertEquals("category utility", ((1/stDev1)+(1/stDev2)+(1/stDev3))/3, utility, 0.000001);

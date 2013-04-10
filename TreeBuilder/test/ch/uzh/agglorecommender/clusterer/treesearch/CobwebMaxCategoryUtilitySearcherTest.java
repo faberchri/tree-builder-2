@@ -3,27 +3,61 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
+import ch.uzh.agglorecommender.client.IDataset;
+import ch.uzh.agglorecommender.client.IDatasetItem;
+import ch.uzh.agglorecommender.client.INormalizer;
 import ch.uzh.agglorecommender.clusterer.treecomponent.CobwebAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.ENodeType;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.clusterer.treecomponent.Node;
 
+import com.google.common.collect.ImmutableMap;
+
 
 public class CobwebMaxCategoryUtilitySearcherTest {
 
-	INode node1 = new Node(ENodeType.User, null, null);
-	INode node2 = new Node(ENodeType.User, null, null);
-	INode node3 = new Node(ENodeType.User, null, null);
-	INode node4 = new Node(ENodeType.User, null, null);
+	private IDataset dummyset = new IDataset() {
+		
+		@Override
+		public Iterator<IDatasetItem> iterateOverDatasetItems() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		@Override
+		public INormalizer getNormalizer() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		@Override
+		public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		@Override
+		public double denormalize(double value, String attributeTag) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+	};
+	
 	
 	@Test
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
+		
 		// create attributes
 		
 		Map<String, Double> attMap = new HashMap<String, Double>();
@@ -89,6 +123,10 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	public void testGetMaxCategoryUtilityMergeSetOfThreeNodes() {
 
 		System.out.println("----------------------Starting test Cobweb 1..----------------------");
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		// ratings are integers
@@ -167,6 +205,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 
 		System.out.println("----------------------Starting test Cobweb 2..----------------------");
 		
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
+		
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
@@ -227,6 +270,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	public void testGetMaxCategoryUtilityFourNodes() {
 
 		System.out.println("----------------------Starting test Cobweb 3..----------------------");
+		
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		// ratings are integers
@@ -294,6 +342,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		System.out.println("----------------------Starting test Cobweb 4..----------------------");
 		
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
+		
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
@@ -345,6 +398,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	public void testGetMaxCategoryUtilityWithVerySmallProbabilitiesII() {
 		
 		System.out.println("----------------------Starting test Cobweb 5..----------------------");
+		
+		INode node1 = new Node(ENodeType.User, null, dummyset);
+		INode node2 = new Node(ENodeType.User, null, dummyset);
+		INode node3 = new Node(ENodeType.User, null, dummyset);
+		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		// ratings are integers
