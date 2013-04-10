@@ -25,36 +25,62 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	private static final long serialVersionUID = 1L;
 	
 	/**Calculates utility of merging nodes in possibleMerge based on Cobweb Category Utility formula
-	 * Utility is calulated as follows:
+	 * Utility is calculated as follows:
 	 * 1. For each attribute calculate the square probability of having certain value in the merged node
 	 * P(A=V)^2
 	 * This is calculated for each occurring value in the merged node
 	 * 2. Divide the sum by the number of attributes in the merged node
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
+	 * @throws IllegalArgumentException if possibleMerge has length != 2
 	 **/
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
-				
-		Set<Object> allAttributes = new HashSet<Object>();
-		int totalLeafCount = 0;
-		for (INode node : possibleMerge) {
-			Set<String> nomAttKeys = node.getNominalMetaAttributeKeys();
-			if (nomAttKeys.isEmpty()) return 0.0;
-			Collection<String> metAtts = node.getNominalMetaAttributeKeys();
-			for (String att : metAtts) {
-				if (node.useAttributeForClustering(att)) {
-					allAttributes.add(att);
-				}
-			}
-			totalLeafCount += node.getNumberOfLeafNodes();
+		
+		if (possibleMerge == null || possibleMerge.size() != 2) {
+			throw new IllegalArgumentException("Merge candidate is null or does contain " +
+					"a numer of INode object(s) unequal 2.");			
 		}
 		
+		int totalLeafCount = 0;
+		Iterator<INode> pMIt = possibleMerge.iterator();
+		INode n1 = pMIt.next();
+		totalLeafCount += n1.getNumberOfLeafNodes();
+		INode n2 = pMIt.next();
+		totalLeafCount += n2.getNumberOfLeafNodes();
+		
+		Set<String> commonAtts = new HashSet<>(n1.getNominalMetaAttributeKeys());
+		commonAtts.retainAll(n2.getNominalMetaAttributeKeys());
+		if (commonAtts.isEmpty()) return 0.0;
+		
+		Iterator<String> cAIt = commonAtts.iterator();
+		while (cAIt.hasNext()) {
+			String att = cAIt.next();
+			if (! n1.useAttributeForClustering(att)) {
+				cAIt.remove();
+			}
+		}
+		if (commonAtts.isEmpty()) return 0.0;
+						
+//		Set<Object> allAttributes = new HashSet<Object>();
+//		int totalLeafCount = 0;
+//		for (INode node : possibleMerge) {
+//			Set<String> nomAttKeys = node.getNominalMetaAttributeKeys();
+//			if (nomAttKeys.isEmpty()) return 0.0;
+//			Collection<String> metAtts = node.getNominalMetaAttributeKeys();
+//			for (String att : metAtts) {
+//				if (node.useAttributeForClustering(att)) {
+//					allAttributes.add(att);
+//				}
+//			}
+//			totalLeafCount += node.getNumberOfLeafNodes();
+//		}
+		
 		List<Double> probabilities = new ArrayList<Double>();		
-		for (Object att : allAttributes) {
+		for (Object att : commonAtts) {
 			probabilities.addAll(calculateAttributeProbabilities(att, possibleMerge, totalLeafCount).values());
 		}
 		if (probabilities.size() == 0) {
-			return -Double.MAX_VALUE;
+			return 0.0;
 		}
 		
 		double res = 0.0;
@@ -62,8 +88,8 @@ public class CobwebMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 			res += Math.pow(prob, 2.0);
 		}
 		
-		// Normalize sum with total number of attributes
-		return res / (double) allAttributes.size();
+		// Normalize sum with number of common attributes
+		return res / (double) commonAtts.size();
 		
 	}
 	

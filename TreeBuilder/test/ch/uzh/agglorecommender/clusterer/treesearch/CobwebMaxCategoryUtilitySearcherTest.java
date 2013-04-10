@@ -3,6 +3,7 @@ package ch.uzh.agglorecommender.clusterer.treesearch;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -55,39 +56,35 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 	public void testGetMaxCategoryUtilityMergeSetOfINode() {
 		INode node1 = new Node(ENodeType.User, null, dummyset);
 		INode node2 = new Node(ENodeType.User, null, dummyset);
-		INode node3 = new Node(ENodeType.User, null, dummyset);
-		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		
 		Map<String, Double> attMap = new HashMap<String, Double>();
-		attMap.put("1A", 1.0);
+		attMap.put("light", 1.0);
 		IAttribute attribute_1A = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<String, Double>();
-		attMap.put("1B", 1.0);
+		attMap.put("zurich", 1.0);
 		IAttribute attribute_1B = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<String, Double>();
-		attMap.put("2B", 1.0);
+		attMap.put("dark", 1.0);
 		IAttribute attribute_2B = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<String, Double>();
-		attMap.put("2C", 1.0);
+		attMap.put("admin", 1.0);
 		IAttribute attribute_2C = new CobwebAttribute(attMap);
-		
-		// establish shared attribute
-		//INode sharedAttribute = new Node(ENodeType.Content, null, null);
-		
+				
 		// add the corresponding attributes to the attribute map of node 1
 		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
-		attMap1.put("1A", attribute_1A);
-		attMap1.put("1B", attribute_1B);
+		attMap1.put("color", attribute_1A);
+		attMap1.put("location", attribute_1B);
 		node1.setNominalMetaAttributes(attMap1);
 		
-		System.out.println(node1.getNominalAttributesString());
-
 		// add the corresponding attributes to the attribute map of node 2
 		Map<String, IAttribute> attMap2 = new HashMap<String, IAttribute>();
-		attMap2.put("2B", attribute_1B);
-		attMap2.put("2C", attribute_2C);
+		attMap2.put("color", attribute_2B);
+		attMap2.put("profession", attribute_2C);
 		node2.setNominalMetaAttributes(attMap2);
 
 		// add the two created user nodes to a set (set of open nodes)
@@ -99,7 +96,7 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		double calcCatUt = getUtility(openNodes);
 
 		// evaluate the category utility result
-		assertEquals("category utility", 1.0 / 3.0, calcCatUt, 0.000001);
+		assertEquals("category utility", 0.5, calcCatUt, 0.000001);
 	}
 
 	/**
@@ -187,68 +184,6 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		// evaluate the category utility result
 		assertEquals("category utility", 0.75, calcCatUt, 0.000001);
 	}
-	/**
-	 * Creates three nodes not having any common attribute
-	 * 
-	 *  * Nodes: 
-	 * N1 
-	 * A1 -> 4
-	 * 
-	 * N2 
-	 * A2 -> 4
-	 * 
-	 * N3 
-	 * A3 -> 3
-	 */
-	@Test
-	public void testGetMaxCategoryUtilityNoCommonAttributes() {
-
-		System.out.println("----------------------Starting test Cobweb 2..----------------------");
-		
-		INode node1 = new Node(ENodeType.User, null, dummyset);
-		INode node2 = new Node(ENodeType.User, null, dummyset);
-		INode node3 = new Node(ENodeType.User, null, dummyset);
-		INode node4 = new Node(ENodeType.User, null, dummyset);
-		
-		// create attributes
-		// ratings are integers
-		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
-		attMap.put(4, 1.0);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
-		attMap = new HashMap<Integer, Double>();
-		attMap.put(4, 1.0);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
-		attMap = new HashMap<Integer, Double>();
-		attMap.put(3, 1.0);
-		IAttribute attribute_3 = new CobwebAttribute(attMap);
-
-		// attribute maps
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap3 = new HashMap<INode, IAttribute>();
-
-		// add the corresponding attributes to the attribute maps
-		attMap1.put(new Node(ENodeType.Content, null, null), attribute_1);
-		attMap2.put(new Node(ENodeType.Content, null, null), attribute_2);
-		attMap3.put(new Node(ENodeType.Content, null, null), attribute_3);
-
-		// create nodes
-		node1.setRatingAttributes(attMap1);
-		node2.setRatingAttributes(attMap2);
-		node3.setRatingAttributes(attMap3);
-
-		// add the  created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new IndexAwareSet<INode>();
-		openNodes.add(node1);
-		openNodes.add(node2);
-		openNodes.add(node3);
-
-		// get the utility of the node resulting of a merge of node 1 and node 2
-		double calcCatUt = getUtility(openNodes);
-
-		// evaluate the category utility result
-		assertEquals("category utility", 0.25, calcCatUt, 0.000001);
-	}
 
 	/**
 	 * Creates four nodes, two of them having a commont attribute
@@ -281,49 +216,89 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(10, 1.0);
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 1.0);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(5, 1.0);
 		IAttribute attribute_3 = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 1.0);
 		IAttribute attribute_4 = new CobwebAttribute(attMap);
 
 		// attribute maps
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap3 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap4 = new HashMap<INode, IAttribute>();
+		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
+		Map<String, IAttribute> attMap2 = new HashMap<String, IAttribute>();
+		Map<String, IAttribute> attMap3 = new HashMap<String, IAttribute>();
+		Map<String, IAttribute> attMap4 = new HashMap<String, IAttribute>();
 
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		String sharedAttribute = "sharedAttribute";
 
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
-		attMap3.put(new Node(ENodeType.Content, null, null), attribute_3);
-		attMap4.put(new Node(ENodeType.Content, null, null), attribute_4);
+		attMap3.put("x", attribute_3);
+		attMap4.put("y", attribute_4);
 
 		// create nodes
-		node1.setRatingAttributes(attMap1);
-		node2.setRatingAttributes(attMap2);
-		node3.setRatingAttributes(attMap3);
-		node4.setRatingAttributes(attMap4);
+		node1.setNominalMetaAttributes(attMap1);
+		node2.setNominalMetaAttributes(attMap2);
+		node3.setNominalMetaAttributes(attMap3);
+		node4.setNominalMetaAttributes(attMap4);
 
 		// add the  created user nodes to a set (set of open nodes)
-		Set<INode> openNodes = new IndexAwareSet<INode>();
+		Set<INode> openNodes = new HashSet<INode>();
 		openNodes.add(node1);
 		openNodes.add(node2);
-		openNodes.add(node3);
-		openNodes.add(node4);
-
+		
 		// get the utility of the node resulting of a merge of node 1 and node 2
-		double calcCatUt = getUtility(openNodes);;
-
+		double calcCatUt = getUtility(openNodes);
 		// evaluate the category utility result
 		assertEquals("category utility", 0.5, calcCatUt, 0.000001);
+		
+		openNodes.clear();		
+		openNodes.add(node1);
+		openNodes.add(node3);
+		// get the utility of the node resulting of a merge of node 1 and node 2
+		calcCatUt = getUtility(openNodes);
+		// evaluate the category utility result
+		assertEquals("category utility", 0.0, calcCatUt, 0.000001);
+		
+		openNodes.clear();		
+		openNodes.add(node1);
+		openNodes.add(node4);
+		// get the utility of the node resulting of a merge of node 1 and node 2
+		calcCatUt = getUtility(openNodes);
+		// evaluate the category utility result
+		assertEquals("category utility", 0.0, calcCatUt, 0.000001);
+		
+		openNodes.clear();		
+		openNodes.add(node2);
+		openNodes.add(node3);
+		// get the utility of the node resulting of a merge of node 1 and node 2
+		calcCatUt = getUtility(openNodes);
+		// evaluate the category utility result
+		assertEquals("category utility", 0.0, calcCatUt, 0.000001);
+		
+		openNodes.clear();		
+		openNodes.add(node2);
+		openNodes.add(node4);
+		// get the utility of the node resulting of a merge of node 1 and node 2
+		calcCatUt = getUtility(openNodes);
+		// evaluate the category utility result
+		assertEquals("category utility", 0.0, calcCatUt, 0.000001);
+		
+		openNodes.clear();		
+		openNodes.add(node3);
+		openNodes.add(node4);
+		// get the utility of the node resulting of a merge of node 1 and node 2
+		calcCatUt = getUtility(openNodes);
+		// evaluate the category utility result
+		assertEquals("category utility", 0.0, calcCatUt, 0.000001);
 	}
 
 	/**
@@ -344,32 +319,31 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		INode node1 = new Node(ENodeType.User, null, dummyset);
 		INode node2 = new Node(ENodeType.User, null, dummyset);
-		INode node3 = new Node(ENodeType.User, null, dummyset);
-		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(10, 0.02);
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.1);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 
 		// attribute maps
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
+		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
+		Map<String, IAttribute> attMap2 = new HashMap<String, IAttribute>();
 
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		String sharedAttribute = "sharedAttribute";
 
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 
 		// create nodes
-		node1.setRatingAttributes(attMap1);
-		node2.setRatingAttributes(attMap2);
+		node1.setNominalMetaAttributes(attMap1);
+		node2.setNominalMetaAttributes(attMap2);
 
 		// add the  created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -401,32 +375,31 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		INode node1 = new Node(ENodeType.User, null, dummyset);
 		INode node2 = new Node(ENodeType.User, null, dummyset);
-		INode node3 = new Node(ENodeType.User, null, dummyset);
-		INode node4 = new Node(ENodeType.User, null, dummyset);
 		
 		// create attributes
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 0.00000000000005);
 		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.000000000022);
 		IAttribute attribute_2 = new CobwebAttribute(attMap);
 
 		// attribute maps
-		Map<INode, IAttribute> attMap1 = new HashMap<INode, IAttribute>();
-		Map<INode, IAttribute> attMap2 = new HashMap<INode, IAttribute>();
+		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
+		Map<String, IAttribute> attMap2 = new HashMap<String, IAttribute>();
 
 		// one common attribute
-		INode sharedAttribute = new Node(ENodeType.Content, null, null);
+		String sharedAttribute = "sharedAttribute";
 
 		// add the corresponding attributes to the attribute maps
 		attMap1.put(sharedAttribute, attribute_1);
 		attMap2.put(sharedAttribute, attribute_2);
 
 		// create nodes
-		node1.setRatingAttributes(attMap1);
-		node2.setRatingAttributes(attMap2);
+		node1.setNominalMetaAttributes(attMap1);
+		node2.setNominalMetaAttributes(attMap2);
 
 		// add the  created user nodes to a set (set of open nodes)
 		Set<INode> openNodes = new IndexAwareSet<INode>();
@@ -442,7 +415,7 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 
 	private static double getUtility(Set<INode> nodes){
 		
-		IMergeResult merge = null;
+//		IMergeResult merge = null;
 //		ImmutableCollection<INode> nodeSet = ImmutableSet.copyOf(nodes);
 //		IClusterSetIndexed<INode> leafNodes = new ClusterSetIndexed<INode>(nodeSet);
 		CobwebMaxCategoryUtilitySearcher utilityCalc = new CobwebMaxCategoryUtilitySearcher();

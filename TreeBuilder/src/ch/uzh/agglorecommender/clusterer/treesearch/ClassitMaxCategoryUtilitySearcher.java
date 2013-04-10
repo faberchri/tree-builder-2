@@ -58,8 +58,14 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	 * 2. Divide the sum of this values by the number of attributes
 	 * @param possibleMerge The nodes for which to calculate the utility
 	 * @return the utility of merging the nodes in possibleMerge
+	 * @throws IllegalArgumentException if possibleMerge has length != 2
 	 **/
 	public double calculateCategoryUtility(Collection<INode> possibleMerge) {
+		
+		if (possibleMerge == null || possibleMerge.size() != 2) {
+			throw new IllegalArgumentException("Merge candidate is null or does contain " +
+					"a numer of INode object(s) unequal 2.");			
+		}
 
 		Set<Object> allAttributes = new HashSet<>();
 
