@@ -1,9 +1,7 @@
 package ch.uzh.agglorecommender.recommender.clients;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
@@ -22,10 +20,17 @@ public class DefaultClient implements IClient {
 	private boolean listen = true;
 	private ClusterInteraction clusterInteraction;
 	
+	/**
+	 * Defines the connection for the client
+	 * to interact with the cluster result
+	 */
 	public void setController(ClusterInteraction clusterInteraction) {
 		this.clusterInteraction = clusterInteraction;
 	}
 
+	/**
+	 * Method to start the service
+	 */
 	public void startService() throws InterruptedException, ExecutionException{
 		while(this.listen==true){
 			String command = inputListener();
@@ -33,11 +38,21 @@ public class DefaultClient implements IClient {
 		}
 	}
 	
+	/**
+	 * Method to stop the service
+	 */
 	public void stopService(){
 		this.listen = false;
 		System.out.println("service stopped");
 	}
 	
+	/**
+	 * Parses and runs a defined command
+	 * 
+	 * @param command the command input
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public void runCommand(String command) throws InterruptedException, ExecutionException{
 		
 		// Stop signal for system
@@ -90,7 +105,7 @@ public class DefaultClient implements IClient {
 						System.out.println(clusterInteraction.insert(inputNode,position));
 					}
 
-					testNodes.add(removeRatings(inputNode));
+					testNodes.add(inputNode);
 				}
 
 				if(fields[0].equals("evaluate")){
@@ -100,6 +115,11 @@ public class DefaultClient implements IClient {
 		}
 	}
 
+	/**
+	 * Reads the command from the command line
+	 * 
+	 * @return 
+	 */
 	@SuppressWarnings("resource")
 	private static String inputListener(){	
 		Scanner input = new Scanner(System.in);
@@ -110,6 +130,13 @@ public class DefaultClient implements IClient {
 		return command;
 	}
 
+	/**
+	 * Checks if the provided command has a 
+	 * valid format 
+	 * 
+	 * @param fields the split command
+	 * @return boolean value about validity of command
+	 */
 	private boolean isValidCommand (String[] fields){
 		if(fields.length == 6){
 			if(fields[0].equals("recommend") || fields[0].equals("insert") || fields[0].equals("evaluate")){
@@ -131,20 +158,5 @@ public class DefaultClient implements IClient {
 		}
 		System.out.println("Command not valid");
 		return false;
-	}
-
-	private INode removeRatings(INode inputNode){
-		Set<INode> inputRatings = inputNode.getRatingAttributeKeys();
-		Map<INode,IAttribute> pickedRatings = new HashMap<>();
-		double percentage = 0;
-		double count = inputRatings.size();
-		for(INode inputRating : inputRatings){
-			if(percentage < 20){
-				pickedRatings.put(inputRating,inputNode.getNumericalAttributeValue(inputRating));
-				percentage += 1/count;
-			}
-		}
-		inputNode.setRatingAttributes(pickedRatings);
-		return inputNode;
 	}
 }

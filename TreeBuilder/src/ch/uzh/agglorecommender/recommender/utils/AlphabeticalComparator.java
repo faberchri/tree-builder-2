@@ -5,15 +5,18 @@ import java.util.Comparator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.recommender.Searcher;
 
+/**
+ * Compares nodes alphabetically to order nodes
+ * according to their titles 
+ *
+ */
 public class AlphabeticalComparator implements Comparator<INode>{
 	
 	private Searcher searcher;
 
-
 	public AlphabeticalComparator (Searcher searcher){
 		this.searcher = searcher;
 	}
-	
 	
 	@Override
 	public int compare(INode n1, INode n2) {

@@ -17,31 +17,35 @@ import ch.uzh.agglorecommender.recommender.utils.NodeUnpacker;
 import ch.uzh.agglorecommender.recommender.utils.RatingComparator;
 
 /**
- * 
- * Calculates different recommendations based on a given tree structure
- * A test of the rmse value of the recommendation can be run by runTestRecommendation()
- * A recommendation of movies a user has not yet rated can be run by runRecommendation()
+ * Instantiates a new Recommender, which offers the possibility to recommend
+ * nodes and different helper methods supporting the recommendation
  *
  */
 public final class Recommender {
 	
 	private Searcher searcher;
-
+	
 	/**
-	 * Instantiates a new recommendation builder which can give recommendations based on a given tree structure
+	 * Needs to be instantiated with a reference to a searcher instance,
+	 * which provides connections to the trees
 	 * 
-	 * @param clusterResult the trees on which the recommendation calculation is done
-	 * @param testDataset 
-	 * @param radiusU indicates the number of levels that should be incorporated from user tree
-	 * @param radiusC indicates the number of levels that should be incorporated from content tree
+	 * @param searcher
 	 */
 	public Recommender(Searcher searcher) {
 		this.searcher = searcher;
 	}
 	
+	/**
+	 * Retrieves a random list of available users or content items
+	 * 
+	 * @param type type of nodes
+	 * @param limit number of nodes
+	 * @param inputNode items already contained in this item are skipped
+	 * @return List generated list of nodes
+	 */
 	public List<INode> createItemList(ENodeType type, int limit, INode inputNode){
 		
-		List<String> watched = createWatchedList(inputNode);
+		List<String> watched = createKnownList(inputNode);
 		
 		List<INode> itemList = new LinkedList<INode>();
 		Random randomGenerator = new Random();
@@ -78,7 +82,13 @@ public final class Recommender {
 		return itemList;
 	}
 
-	public List<String> createWatchedList(INode inputNode){
+	/**
+	 * Creates a list of nodes known to the input node
+	 * 
+	 * @param inputNode the node used to create the list
+	 * @return list of known nodes
+	 */
+	public List<String> createKnownList(INode inputNode){
 		
 		// Create List of movies that the user has already rated (user is leaf and has leaf attributes)
 		List<String> watched = new LinkedList<String>();
@@ -91,20 +101,21 @@ public final class Recommender {
 	}
 
 	/**
-	 * Collect all the content that should be recommended based on given user and radius
+	 * Collect all the nodes to recommend based on position and known nodes
 	 * 
 	 * @param position starting point to calculate recommendation 
-	 * @param watched list of dataset items the user has already rated
+	 * @param known list of dataset items the user has already rated
 	 */
-	public Map<INode, IAttribute> recommend(INode position, List<String> watched) {
+	public Map<INode, IAttribute> recommend(INode position, List<String> known) {
 		
+		// Unpack the combined attributes to original productions
 		NodeUnpacker unpacker = new NodeUnpacker(searcher);
 		INode unpacked = unpacker.unpack(position);
 		
 		Map<INode,IAttribute> recommendation = new HashMap<INode,IAttribute>();
 		
 		for(INode attKey : unpacked.getRatingAttributeKeys()){
-			if(!(watched.contains(attKey.getDatasetId()))){
+			if(!(known.contains(attKey.getDatasetId()))){
 				recommendation.put(attKey, unpacked.getNumericalAttributeValue(attKey));
 			}
 		}
@@ -113,15 +124,11 @@ public final class Recommender {
 	}
 
 	/**
-	 * Sorts the recommendation with an insertion sort and returns the movies which the
-	 * user would most likely rate the best respectively the worst depending on the sorting
-	 * parameter. the number of returned recommendations depends on the limit parameter.
+	 * Sorts the recommendation based on the ratings with the highest rating on top
 	 * 
 	 * @param unsortedRecommendation the unsorted recommendation
-	 * @param direction defines if best or worst recommendations are returned (1=best,0=worst)
-	 * @param limit defines the number of returned recommendations
 	 */
-	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation,int direction, int limit){
+	public SortedMap<INode, IAttribute> rankRecommendation(Map<INode, IAttribute> unsortedRecommendation){
 	
 		// Order according to ratings
 		RatingComparator bvc =  new RatingComparator(unsortedRecommendation);
@@ -161,6 +168,11 @@ public final class Recommender {
 	    return sortedRecommendation;
 	}
 
+	/**
+	 * Prints a recommendation collection
+	 * 
+	 * @param recommendation collection of recommendations
+	 */
 	public void printRecommendation(SortedMap<INode, IAttribute> recommendation){
 		
 		if(recommendation != null){

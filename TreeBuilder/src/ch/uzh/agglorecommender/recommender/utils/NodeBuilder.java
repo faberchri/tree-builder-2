@@ -34,14 +34,33 @@ import ch.uzh.agglorecommender.recommender.Searcher;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Provides methods to build nodes from different input sources 
+ *
+ */
 public class NodeBuilder {
 	
 	private static Searcher searcher;
 
+	/**
+	 * Needs to be instantiated with a reference to a searcher instance,
+	 * which provides connections to the trees
+	 * 
+	 * @param searcher
+	 */
 	public NodeBuilder (Searcher searcher){
 		this.searcher = searcher;
 	}
 	
+	/**
+	 * Builds node from string input
+	 * 
+	 * @param nomMetaInfo the nominal meta information
+	 * @param numMetaInfo the numerical meta information
+	 * @param ratings the rating information
+	 * @param type type of the node
+	 * @return
+	 */
 	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
 		
 		
@@ -84,6 +103,14 @@ public class NodeBuilder {
 		return new Node(type,children,ratingsMap,numMetaMap,nomMetaMap,0.0);
 	}
 	
+	/**
+	 * Builds one or multiple nodes from file input
+	 * 
+	 * @param ratingLocation the location of the rating file
+	 * @param metaLocation the location of the respective meta file
+	 * @param type the type of node that should be built
+	 * @return ImmutableMap collection of built nodes
+	 */
 	public ImmutableMap<String, INode> buildNodesFromFile(String ratingLocation, String metaLocation, ENodeType type){
 		
 		// Redefine Locations in Properties File
@@ -181,6 +208,13 @@ public class NodeBuilder {
 		}
 	}
 	
+	/**
+	 * Build rating attribute from string input
+	 * 
+	 * @param attributes the rating information
+	 * @param type of node
+	 * @return IAttribute rating attribute
+	 */
 	private static Map<INode, IAttribute> buildRatingAttributes(Map<String,String> attributes, ENodeType type) {
 		
 		Map<INode,IAttribute> numAttributes = new HashMap<>();
@@ -212,6 +246,12 @@ public class NodeBuilder {
 		return numAttributes;
 	}
 	
+	/**
+	 * Build nominal meta attribute from string input
+	 * 
+	 * @param attributes the nominal meta information
+	 * @return IAttribute nominal meta attribute
+	 */
 	private static Map<String, IAttribute> buildNomMetaAttributes(Map<String,String> attributes){
 		
 		Map<String,IAttribute> nomMeta = new HashMap<>();
@@ -224,6 +264,12 @@ public class NodeBuilder {
 		return nomMeta;
 	}
 	
+	/**
+	 * Build numerical meta attribute from string input
+	 * 
+	 * @param attributes the numerical meta information
+	 * @return IAttribute numerical meta attribute
+	 */
 	private static Map<String, IAttribute> buildNumMetaAttributes(Map<String,String> attributes){
 		
 		Map<String,IAttribute> numMeta = new HashMap<>();

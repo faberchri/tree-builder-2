@@ -57,8 +57,8 @@ public class RankRecommendationTest {
 		Searcher searcher = new Searcher(cr,null, null);
 		Recommender ranker = new Recommender(searcher);
 		SortedMap<INode,IAttribute> sortedRecommendations = new TreeMap<INode, IAttribute>();
-		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations, 1, 4);
-		ranker.rankRecommendation(unsortedRecommendations, 1, 4);
+		sortedRecommendations = ranker.rankRecommendation(unsortedRecommendations);
+		ranker.rankRecommendation(unsortedRecommendations);
 		
 		// Check results
 		assertEquals("All nodes in map",unsortedRecommendations.size(),sortedRecommendations.size(),0.01);

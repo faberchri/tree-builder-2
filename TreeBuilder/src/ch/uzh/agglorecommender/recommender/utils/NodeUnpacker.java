@@ -12,42 +12,67 @@ import ch.uzh.agglorecommender.recommender.Searcher;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Provides methods to retrieve a complete node with all
+ * original attributes
+ *
+ */
 public class NodeUnpacker {
 	
 	private Searcher searcher;
 
+	/**
+	 * Needs to be instantiated with a reference to a searcher instance,
+	 * which provides connections to the trees
+	 * 
+	 * @param searcher
+	 */
 	public NodeUnpacker(Searcher searcher){
 		this.searcher = searcher;
 	}
 
-	public INode unpack(INode tempPosition) {
+	/**
+	 * Retrieves all original attributes contained in a node and
+	 * builds an unpacked node for search of most similar node
+	 * 
+	 * @param node the node that should be unpacked
+	 * @return INode unpacked node
+	 */
+	public INode unpack(INode node) {
 		
 		// Determine leaves map
 		ImmutableMap<String, INode> leavesMap = null;
-		if(tempPosition.getNodeType() == ENodeType.Content){
+		if(node.getNodeType() == ENodeType.Content){
 			leavesMap = searcher.getLeavesMapU();
 		}
-		else if (tempPosition.getNodeType() == ENodeType.User){
+		else if (node.getNodeType() == ENodeType.User){
 			leavesMap = searcher.getLeavesMapC();
 		}
 		
 		// Build new rating map
 		Map<INode,IAttribute> newRatingMap = new HashMap<>();
-		Set<INode> ratings = tempPosition.getRatingAttributeKeys();
+		Set<INode> ratings = node.getRatingAttributeKeys();
 		for(INode rating : ratings){
 			List<String> datasetIds = rating.getDataSetIds();
 			for(String datasetId : datasetIds){
 				INode originalNode = findOriginalNode(datasetId,leavesMap); // Attribute Node
-				newRatingMap.put(originalNode, tempPosition.getNumericalAttributeValue(rating));
+				newRatingMap.put(originalNode, node.getNumericalAttributeValue(rating));
 			}
 		}
 		
-		tempPosition.setRatingAttributes(newRatingMap);
+		node.setRatingAttributes(newRatingMap);
 		
-		return tempPosition;
+		return node;
 	}
 	
-	public INode findOriginalNode(String datasetId, ImmutableMap<String,INode> leavesMap){
+	/**
+	 * Helper method to find the original node based on the given dataset ID
+	 * 
+	 * @param datasetId identifying id of original attribute
+	 * @param leavesMap map of leaf nodes to find original attribute
+	 * @return INode original attribute
+	 */
+	private INode findOriginalNode(String datasetId, ImmutableMap<String,INode> leavesMap){
 		
 		if(leavesMap != null){
 			for(String key : leavesMap.keySet()){

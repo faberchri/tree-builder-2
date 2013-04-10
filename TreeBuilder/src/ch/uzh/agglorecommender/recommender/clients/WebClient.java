@@ -2,12 +2,10 @@ package ch.uzh.agglorecommender.recommender.clients;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutionException;
 
@@ -34,6 +32,11 @@ public class WebClient extends AbstractHandler implements IClient{
 	private final Server server;
 	private DecimalFormat df = new DecimalFormat("#.##");
 
+	/**
+	 * Starts up the embedded web server
+	 * 
+	 * @throws Exception
+	 */
 	public WebClient() throws Exception {
 
 		server = new Server(8081); // Port number should not be changed
@@ -49,19 +52,32 @@ public class WebClient extends AbstractHandler implements IClient{
 		server.setHandler(handlers);
 	}
 	
+	/**
+	 * Defines the connection for the client
+	 * to interact with the cluster result
+	 */
 	public void setController(ClusterInteraction clusterInteraction) {
 		this.clusterInteraction = clusterInteraction;
 	}
 
+	/**
+	 * Method to start the service
+	 */
 	public void startService() throws Exception{
 		server.start();
 		server.join();
 	}
 
+	/**
+	 * Method to stop the service
+	 */
 	public void stopService() throws Exception {
 		this.server.stop();
 	}
 
+	/**
+	 * Handles the restful requests
+	 */
 	public void handle(String target, Request baseRequest, HttpServletRequest request,
 			HttpServletResponse response) throws IOException, ServletException {
 
@@ -99,6 +115,13 @@ public class WebClient extends AbstractHandler implements IClient{
 		baseRequest.setHandled(true);
 	}
 
+	/**
+	 * Handles request for item lists
+	 * 
+	 * @param request restful request
+	 * @param response restful answer
+	 * @throws IOException
+	 */
 	private void itemRequest(HttpServletRequest request,HttpServletResponse response) throws IOException{
 
 		ENodeType type = ENodeType.valueOf(request.getParameter("type"));
@@ -141,6 +164,16 @@ public class WebClient extends AbstractHandler implements IClient{
 		response.getWriter().write("</table>");
 	}
 
+	/**
+	 * Handles request for recommendations
+	 * 
+	 * @param inputNode the node the recommendation should be based on
+	 * @param request restful request
+	 * @param response restful answer
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	private void recommendationRequest(INode inputNode, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, ExecutionException{
 
 		// Build Recommendation
@@ -151,14 +184,15 @@ public class WebClient extends AbstractHandler implements IClient{
 		long duration = endTime - startTime;
 
 		// Create Evaluation
-		INode testNode = removeRatings(inputNode);
-		Map<String,Double> evaluation = clusterInteraction.evaluate(testNode,position);
+		Map<String,Double> evaluation = clusterInteraction.evaluate(inputNode,position);
 
 		// Extra Infos & Action
 		response.getWriter().write("<table style='border:1px solid #fff;width:95%'>");
 		response.getWriter().write("<tr><td>Utility</td><td>" + position.getUtility() + "</td></tr>");
 		response.getWriter().write("<tr><td>Evaluation</td><td>" + evaluation.toString() + "</td></tr>");
 		response.getWriter().write("<tr><td>Duration</td><td>" + df.format((double)(duration/1000000000)) + " Seconds</td></tr>");
+		
+		// Insert Node if requested
 		String insert = request.getParameter("insert");
 		if(insert.equals("true")){
 			response.getWriter().write("<tr><td>Insertion</td><td>" + clusterInteraction.insert(inputNode,position) + "</td></tr>");	
@@ -170,16 +204,21 @@ public class WebClient extends AbstractHandler implements IClient{
 		for(Entry<INode,IAttribute> recommendation : recommendations.entrySet()){
 
 			String title 	= clusterInteraction.getMeta(recommendation.getKey(),"title");
-			String url		= ""; //"<a href='" + rc.getMeta(recommendation.getKey(),"url") + "' target='_blank'>IMDB Link</a>";
 
 			IAttribute attribute = recommendation.getValue();
 			Double rating = attribute.getSumOfRatings() / attribute.getSupport();
 
-			response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'>" + url + "</td></tr>");
+			response.getWriter().write("<tr><td style='width:10%'>" + df.format(rating) + "</td><td style='width:70%'>" + title + "</td><td style='width:20%'></td></tr>");
 		}
 		response.getWriter().write("</table><br>");
 	}
 
+	/**
+	 * Handles the creation of a node from restful request
+	 * 
+	 * @param request restful request
+	 * @return INode built node
+	 */
 	private INode createNode(HttpServletRequest request){
 
 		// Retrieve Type
@@ -214,20 +253,5 @@ public class WebClient extends AbstractHandler implements IClient{
 		}
 
 		return clusterInteraction.buildNode(nomMetaInfo, numMetaInfo, ratings, type);
-	}
-
-	private INode removeRatings(INode inputNode){
-		Set<INode> inputRatings = inputNode.getRatingAttributeKeys();
-		Map<INode,IAttribute> pickedRatings = new HashMap<>();
-		double percentage = 0;
-		double count = inputRatings.size();
-		for(INode inputRating : inputRatings){
-			if(percentage < 20){
-				pickedRatings.put(inputRating,inputNode.getNumericalAttributeValue(inputRating));
-				percentage += 1/count;
-			}
-		}
-		inputNode.setRatingAttributes(pickedRatings);
-		return inputNode;
 	}
 }

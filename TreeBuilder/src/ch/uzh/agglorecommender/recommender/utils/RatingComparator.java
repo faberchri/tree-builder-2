@@ -6,6 +6,11 @@ import java.util.Map;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
+/**
+ * Comparator to order nodes according to
+ * the rating value of the associated attribute
+ *
+ */
 public class RatingComparator implements Comparator<INode> {
 
 	private Map<INode, IAttribute> base;
@@ -14,7 +19,9 @@ public class RatingComparator implements Comparator<INode> {
 		this.base = base;
 	}
 
-	// Note: this comparator imposes orderings that are inconsistent with equals.    
+	/**
+	 * Compares the value of the ratings
+	 */
 	public int compare(INode n1, INode n2) {
 
 		IAttribute a1 = base.get(n1);

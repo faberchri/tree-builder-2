@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -17,6 +16,10 @@ import ch.uzh.agglorecommender.clusterer.treesearch.ClassitMaxCategoryUtilitySea
 import ch.uzh.agglorecommender.clusterer.treesearch.CobwebMaxCategoryUtilitySearcher;
 import ch.uzh.agglorecommender.recommender.Searcher;
 
+/**
+ * Provides methods to find the most similar node
+ *
+ */
 public class PositionFinder {
 	
 	private CobwebMaxCategoryUtilitySearcher cobwebSearcher;
@@ -24,6 +27,12 @@ public class PositionFinder {
 	private NodeUnpacker unpacker;
 	private int threads;
 	
+	/**
+	 * Needs to be instantiated with a reference to a searcher instance,
+	 * which provides connections to the trees
+	 * 
+	 * @param searcher
+	 */
 	public PositionFinder(Searcher searcher){
 		
 		this.cobwebSearcher 	= new CobwebMaxCategoryUtilitySearcher();
@@ -34,18 +43,13 @@ public class PositionFinder {
 	}
 	
 	/**
-	 * Finds the best position (most similar node) in the tree for a given node
-	 * Calculations are based on category utility. If the previously calculated
-	 * utility value is higher than the best utility value on the current level
-	 * then the previous position is the best. If the search does not stop in
-	 * the tree, it ends on a leaf node.
+	 * Finds the most similar node to a given input node calculated
+	 * based on the category utility values from cobweb and classit
 	 * 
-	 * @param inputNodeID this node is the base of the search
-	 * @param node this is the current starting point of the search
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @param inputNode this node is the base of the search
+	 * @param node this is the starting point of the search
 	 */
-	public TreePosition getMostSimilarNode(INode inputNode,INode root) throws InterruptedException, ExecutionException {
+	public TreePosition getMostSimilarNode(INode inputNode,INode root){
 		
 		// Grab all nodes from tree
 		List<TreePosition> rawPos 	= getAllNodesOfTree(root);
@@ -90,8 +94,15 @@ public class PositionFinder {
 		return bestPosition;
 	}
 	
+	/**
+	 * Parallelized calculation of utilites of all nodes in the list
+	 * 
+	 * @param inputNode node to calculate the utilities with
+	 * @param listCollection list of nodes to calculate utilities
+	 * @return list of nodes with all calculated utilities
+	 */
 	private List<TreePosition> calculateUtilites(final INode inputNode,
-			List<List<TreePosition>> listCollection) throws InterruptedException, ExecutionException {
+			List<List<TreePosition>> listCollection) {
 	
 	    ExecutorService service = Executors.newFixedThreadPool(threads);
 	
@@ -148,11 +159,21 @@ public class PositionFinder {
 	
 	    List<TreePosition> outputs = new ArrayList<>();
 	    for (Future<List<TreePosition>> future : futures) {
-	        outputs.addAll(future.get());
+	        try {
+				outputs.addAll(future.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
 	    }
 	    return outputs;
 	}
 
+	/**
+	 * Collects all nodes of the tree
+	 * 
+	 * @param node starting point
+	 * @return list of all nodes of the tree
+	 */
 	private List<TreePosition> getAllNodesOfTree(INode node) {
 		
 		Iterator<INode> it = node.getChildren();
@@ -168,6 +189,12 @@ public class PositionFinder {
 		return list;
 	}
 	
+	/**
+	 * Collects all nodes of the tree
+	 * 
+	 * @param node starting point
+	 * @return list of all nodes of the tree
+	 */
 	private List<TreePosition> getAllNodesOfTree(INode node, int level) {
 		
 		List<TreePosition> li = new ArrayList<>(); 
@@ -181,5 +208,5 @@ public class PositionFinder {
 			li.addAll(getAllNodesOfTree(child, level+1));
 		}
 		return li;
-	}	
+	}
 }

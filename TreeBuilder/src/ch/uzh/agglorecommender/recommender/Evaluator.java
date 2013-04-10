@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import ch.uzh.agglorecommender.clusterer.InitialNodesCreator;
 import ch.uzh.agglorecommender.clusterer.treecomponent.IAttribute;
@@ -15,30 +14,31 @@ import ch.uzh.agglorecommender.recommender.utils.TreePosition;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Instantiates a new evaluation builder
- * Evaluation builder offers evaluation methods (single,multiple) to calculate rmse
- * It also offers helper methods to pick test users randomly from test set
- * or create random users as input nodes for recommendations
+ * Instantiates a new evaluator, which offers evaluation 
+ * methods (single, multiple) to calculate quality measurements
  * 
  */
 public class Evaluator {
 	
 	private Searcher searcher;
 
+	/**
+	 * Needs to be instantiated with a reference to a searcher instance,
+	 * which provides connections to the trees
+	 * 
+	 * @param searcher
+	 */
 	public Evaluator(Searcher searcher){
-		this.searcher	= searcher;	
+		this.searcher = searcher;	
 	}
 	
 	/**
-	 * Runs multiple evaluations with different test nodes to eliminate variances
+	 * Evaluates a testset and delivers mean values of measurements
 	 * 
-	 * @param testNodes Set of nodes from test set
-	 * @param rc this recommendation builder was initialized with the tree of the training set
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 * 
+	 * @param testSet testset collection created with initialNodesCreator
+	 * @return Map a map of different evaluation measurements of multiple nodes
 	 */
-	public Map<String,Double> kFoldEvaluation(InitialNodesCreator testSet) throws NullPointerException, InterruptedException, ExecutionException{
+	public Map<String,Double> kFoldEvaluation(InitialNodesCreator testSet){
 	
 		// Reformat testSet
 		Set<INode> testNodes = reformatTestSet(testSet);
@@ -46,7 +46,13 @@ public class Evaluator {
 		return kFoldEvaluation(testNodes);
 	}
 	
-	public Map<String, Double> kFoldEvaluation(Set<INode> testNodes) throws InterruptedException, ExecutionException {	
+	/**
+	 * Evaluates multiple test nodes and delivers mean values of measurements
+	 * 
+	 * @param testNodes collection of nodes to be evaluated
+	 * @return Map a map of different evaluation measurements of multiple nodes
+	 */
+	public Map<String, Double> kFoldEvaluation(Set<INode> testNodes){	
 		
 		System.out.println("kFoldEvaluation started..");
 
@@ -84,14 +90,13 @@ public class Evaluator {
 	}
 
 	/**
-	 * Evaluates a given training-set based recommendation with a test node from a test set
+	 * Evaluates the quality of chosen position as most similar node
 	 * 
-	 * @param testnode this node is from the test set
-	 * @param rc this recommendation builder was initialized with the tree of the training set
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @param testNode this node has to contain real ratings that can be tested on predicted values
+	 * @param position this is the most similar position to the testNode in the tree
+	 * @return Map a map of different evaluation measurements
 	 */
-	public Map<String,Double> evaluate(INode testNode, TreePosition position) throws NullPointerException, InterruptedException, ExecutionException {
+	public Map<String,Double> evaluate(INode testNode, TreePosition position){
 		
 		if(testNode != null && position != null){
 			
@@ -120,21 +125,26 @@ public class Evaluator {
 		}
 	}
 	
-	public void printEvaluationResult(Map<String, Double> eval) {
+	/**
+	 * Prints collection of evaluation measurements
+	 * 
+	 * @param eval collection of evaluation
+	 */
+	public void printEvaluationResult(Map<String, Double> eval){
 		if(eval != null){
 			System.out.println("=> Calculated Evaluation Values: " + eval.toString());
 		}
 	}
 
 	/**
-	 * Collect ratings of all content given by the input node
+	 * Collects ratings of all contained nodes of the testNode starting
+	 * from the given position
 	 * 
 	 * @param position this is the starting point for collecting
-	 * @param inputNodeID this node defines the content that needs to be collected
-	 * 
-	 * @return Map<Integer,IAttribute> the key is the datasetItem ID and the value is an attribute
+	 * @param testNode this node defines the content that needs to be collected
+	 * @return Map the key is the datasetItem ID and the value is an attribute
 	 */
-	private Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList) {
+	private Map<String, IAttribute> collectRatings(INode position, INode testNode, Map<String, IAttribute> ratingList){
 		
 		// Create Ratings Map with empty values if it does not already exist
 		if(ratingList == null) {
@@ -184,16 +194,15 @@ public class Evaluator {
 	}
 
 	/**
-	 * Creates usable Map of test users for evaluation
-	 * Helper method for recommendations of type 1 (rmse test)
+	 * Rebuilds testset collection to usable format
 	 * 
-	 * @param testSet reference on the test set
+	 * @param testset the testset
 	 */
-	private Set<INode> reformatTestSet(InitialNodesCreator testSet){
+	private Set<INode> reformatTestSet(InitialNodesCreator testset){
 		
 		Set<INode> testUsers = new HashSet<>();
 		
-		ImmutableMap<String, INode> userLeaves = testSet.getUserLeaves();
+		ImmutableMap<String, INode> userLeaves = testset.getUserLeaves();
 		for(String userLeaf : userLeaves.keySet()){
 			testUsers.add(userLeaves.get(userLeaf));
 		}
@@ -202,12 +211,10 @@ public class Evaluator {
 	}
 
 	/**
-	 * Calculate Evalution Value with Root Mean Squared Error (RMSE) Method
+	 * Calculate evaluation value with Root Mean Squared Error (RMSE) Method
 	 * 
-	 * @param datasetIDs set of the real ratings
-	 * @param testNode the node that needs to be compared
+	 * @param testNode the node that contains the real ratings
 	 * @param predictedRatings set of the predicted ratings
-	 * 
 	 */
 	private double calculateRMSE (INode testNode, Map<String, IAttribute> predictedRatings){
 		
@@ -236,14 +243,12 @@ public class Evaluator {
 	}
 	
 	/**
-	 * Calculate Evalution Value as Absolute Min Error (AME)
+	 * Calculate evaluation value with Absolute Mean Error (AME) Method
 	 * 
-	 * @param datasetIDs set of the real ratings
-	 * @param testNode the node that needs to be compared
+	 * @param testNode the node that contains the real ratings
 	 * @param predictedRatings set of the predicted ratings
-	 * 
 	 */
-	private double calculateAME(INode testNode,Map<String, IAttribute> predictedRatings) {
+	private double calculateAME(INode testNode,Map<String, IAttribute> predictedRatings){
 		
 		// Calculate Difference of predicted values to real values
 		double sumOfDifferences = 0;
