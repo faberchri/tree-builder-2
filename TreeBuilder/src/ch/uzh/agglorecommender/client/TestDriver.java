@@ -137,14 +137,22 @@ public class TestDriver {
 		
 	}
 	
-	private static void startClient(ClusterInteraction rp) throws Exception{
+	/**
+	 * Starts the defined client
+	 * The DefaultClient is started if no client definition was
+	 * given in the command line
+	 * 
+	 * @param clusterInteraction proxy to interact with the cluster resutl
+	 * @throws Exception
+	 */
+	private static void startClient(ClusterInteraction clusterInteraction) throws Exception{
 		
 		// Start Client
 		System.out.println("-------------------------------");
 		System.out.println("Starting Recommendation Client");
 		System.out.println("-------------------------------");
 		
-		cla.client.setController(rp);
+		cla.client.setController(clusterInteraction);
 		cla.client.startService();
 		
 	}

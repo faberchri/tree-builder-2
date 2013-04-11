@@ -135,36 +135,6 @@ public final class Recommender {
 		SortedMap<INode,IAttribute> sortedRecommendation = new TreeMap<>(bvc);
 		sortedRecommendation.putAll(unsortedRecommendation);
 		
-//		// Create Sets of items with same rating and order alphabetically
-//		AlphabeticalComparator avc = new AlphabeticalComparator(searcher);
-//		SortedMap<Double,TreeSet<INode>> orderedMap = new TreeMap<Double,TreeSet<INode>>();
-//		
-//		for(Entry<INode,IAttribute> entry : sortedRecommendation.entrySet()){
-//			double rating = entry.getValue().getSumOfRatings()/entry.getValue().getSupport();
-//			TreeSet<INode> tempSet = null;
-//			if(orderedMap.containsKey(rating)){
-//				 tempSet = orderedMap.get(rating);
-//			}
-//			else {
-//				tempSet = new TreeSet<>(avc);
-//			}
-//			tempSet.add(entry.getKey());
-//			orderedMap.put(rating, tempSet);
-//		}
-//		
-//		// Rebuild SortedMap
-//		sortedRecommendation = new TreeMap<>();
-//		for(Entry<Double,TreeSet<INode>> entry : orderedMap.entrySet()){
-//			
-//			// Find Information about Recommendation
-//			double rating = entry.getKey();
-//			
-//			TreeSet<INode> tempSet = entry.getValue();
-//			for(INode node : tempSet){
-//				sortedRecommendation.put(node,unsortedRecommendation.get(node));
-//			}
-//		}
-		
 	    return sortedRecommendation;
 	}
 
