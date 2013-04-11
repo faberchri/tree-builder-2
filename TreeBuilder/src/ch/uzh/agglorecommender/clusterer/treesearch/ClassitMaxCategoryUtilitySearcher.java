@@ -162,8 +162,8 @@ public class ClassitMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySe
 	/**
 	 * Calculates the sum of squared ratings of attribute in the nodes in possibleMerge. This method is
 	 * used as helper to calculate the standard deviation or when merging nodes. 
-	 * @param attribute The attribute whose squared ratings are calculated
-	 * @return the sum of squared ratings of attribute
+	 * @param attributes The attributes whose squared ratings are calculated
+	 * @return the sum of squared ratings of attributes
 	 */
 	public static double calcSumOfSquaredRatingsOfAttribute(Collection<IAttribute> attributes) {
 		double res = 0.0;

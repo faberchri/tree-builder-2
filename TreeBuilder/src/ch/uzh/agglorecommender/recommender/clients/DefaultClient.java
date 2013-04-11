@@ -118,7 +118,7 @@ public class DefaultClient implements IClient {
 	/**
 	 * Reads the command from the command line
 	 * 
-	 * @return 
+	 * @return command line input
 	 */
 	@SuppressWarnings("resource")
 	private static String inputListener(){	

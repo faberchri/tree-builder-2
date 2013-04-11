@@ -59,7 +59,7 @@ public class ClusterResult implements Serializable {
 	 * in data set to the corresponding node.
 	 * @param userTreeRoot root of the user tree
 	 * @param contentTreeRoot root of the content tree
-	 * @param treeBuilderId unique id of the tree builder / run.
+	 * @param runId unique id of the clustering run.
 	 */
 	public ClusterResult(ImmutableMap<String, INode> userTreeLeavesMap,
 			ImmutableMap<String, INode> contentTreeLeavesMap,

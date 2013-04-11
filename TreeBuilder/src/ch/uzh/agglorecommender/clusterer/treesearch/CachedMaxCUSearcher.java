@@ -17,7 +17,7 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 
 /**
- * Decorates a {@codeIMaxCategoryUtilitySearcher} by caching category
+ * Decorates a {@code IMaxCategoryUtilitySearcher} by caching category
  * utility values calculated in a previous cycle.
  */
 public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {

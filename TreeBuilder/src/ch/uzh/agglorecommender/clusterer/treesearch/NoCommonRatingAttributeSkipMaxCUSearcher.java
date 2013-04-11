@@ -14,7 +14,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
 /**
- * Decorates a {@codeIMaxCategoryUtilitySearcher} by removing potential merges from
+ * Decorates a {@code IMaxCategoryUtilitySearcher} by removing potential merges from
  * {@code combinationIds} that do not share a ratings attribute.
  */
 public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {

@@ -67,7 +67,8 @@ public interface INode {
 	/**
 	 * Gets the attribute value for the passed {@code node}.
 	 *
-	 * @param node the key to fetch the attribute value.
+	 * @param attribute the key for which the IAttribute
+	 * value is looked up.
 	 * @return the {@code IAttribute} object mapped to the
 	 * passed node or null if no mapping is present.
 	 */
@@ -285,7 +286,7 @@ public interface INode {
 	/**
 	 * Sets the id of the node. Used for evaluations.
 	 * 
-	 * @param the node id
+	 * @param id the node id
 	 */
 	public void setId(long id);
 	

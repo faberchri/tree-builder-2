@@ -44,7 +44,7 @@ public class TreeVisualizer implements Observer{
 	/**
 	 * Set up the facilities for the tree structure representation.
 	 * 
-	 * @param counter
+	 * @param clusteringStatusPanel the status panel to add to the gui
 	 */
 	private void initVisualization(
 			JPanel clusteringStatusPanel) {

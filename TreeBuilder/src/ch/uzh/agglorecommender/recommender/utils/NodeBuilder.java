@@ -59,7 +59,7 @@ public class NodeBuilder {
 	 * @param numMetaInfo the numerical meta information
 	 * @param ratings the rating information
 	 * @param type type of the node
-	 * @return
+	 * @return a new fully initialized node
 	 */
 	public INode buildNode(List<String> nomMetaInfo,List<String> numMetaInfo, List<String> ratings, ENodeType type){
 		

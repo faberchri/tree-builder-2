@@ -353,7 +353,7 @@ public final class TreeBuilder implements Serializable, Observable, Runnable {
 	
 	/**
 	 * Set the content clusters.
-	 * @param userNodes the content clusters that will be clustered.
+	 * @param contentNodes the content clusters that will be clustered.
 	 */
 	private void setContentNodes(IClusterSet<INode> contentNodes) {
 		this.contentNodes = contentNodes;

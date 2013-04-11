@@ -128,7 +128,9 @@ public class Node implements INode, Comparable<Node>, Serializable {
 	 * 
 	 * @param nodeType Type of the node
 	 * @param children List of children
-	 * @param attributes Map of INode and IAttributes
+	 * @param ratingAttributes the ratings attributes map of this node
+	 * @param numericalMetaAttributes the numerical meta attributes for this node
+	 * @param nominalMetaAttributes the nominal meta attributes map for the node
 	 */
 	public Node(ENodeType nodeType,
 			Collection<INode> children,

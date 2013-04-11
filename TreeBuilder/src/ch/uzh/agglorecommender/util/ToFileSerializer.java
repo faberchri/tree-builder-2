@@ -52,7 +52,7 @@ public final class ToFileSerializer {
 	 * 
 	 * @param objectToSerialize object (i.e. TreeBuilder) to serialize.
 	 * @param pathToFile The location where the serialized file is written.
-	 * @param builderId The id of the TreeBuilder. Is appended to the filename.
+	 * @param objectUuid The id of the object. Is appended to the filename.
 	 */
 	public static void serialize(Serializable objectToSerialize, String pathToFile, UUID objectUuid) {
 		// return if no serialization path was specified

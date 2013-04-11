@@ -123,7 +123,8 @@ public class TestDriver {
 	 * Recommendation Type 1 delivers quantitative information (RSME/AME)
 	 * Recommendation Type 2 delivers qualitative information (the recommendation)
 	 * 
-	 * @param trainingOutput the trainingCluster for evaluation
+	 * @param testDataset the data set to use for testing
+	 * @param rp the binding to the cluster hiearchie
 	 * @throws Exception 
 	 */
 	private static void test(IDataset testDataset, ClusterInteraction rp) throws Exception {

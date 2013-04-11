@@ -20,9 +20,9 @@ public interface IMaxCategoryUtilitySearcher  extends Serializable {
 	/**
 	 * Searches in {@code combinationsIds} for node combinations with a high category utility value.
 	 * 
-	 * @param combinationsToCheck the node combinations to test.
+	 * @param combinationIds the node combination id's to test.
 	 * @param clusterSet the node set of the current clustering cycle
-	 * @return A mapping of combination ids to the category utility of the merge.
+	 * @return A mapping of combination id's to the category utility of the merge.
 	 */
 	public TIntDoubleMap getMaxCategoryUtilityMerges(TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet);
 	

@@ -47,7 +47,7 @@ public class PositionFinder {
 	 * based on the category utility values from cobweb and classit
 	 * 
 	 * @param inputNode this node is the base of the search
-	 * @param node this is the starting point of the search
+	 * @param root this is the starting point of the search
 	 */
 	public TreePosition getMostSimilarNode(INode inputNode,INode root){
 		

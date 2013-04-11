@@ -89,7 +89,7 @@ public class Searcher {
 	 * 
 	 * @param datasetID of the node that should be retrieved
 	 * @param type of the node
-	 * @return
+	 * @return the leaf node
 	 */
 	public INode getNode(int datasetID, ENodeType type){
 		INode node = null;
@@ -108,7 +108,7 @@ public class Searcher {
 	 * 
 	 * @param node the node from which to find meta information
 	 * @param attribute the attribute that should be retrieved
-	 * @return
+	 * @return meta info string
 	 */
 	public String getMeta(INode node, String attribute){
 		Iterator<Entry<Object, Double>> it = node.getNominalAttributeValue(attribute).getProbabilities();

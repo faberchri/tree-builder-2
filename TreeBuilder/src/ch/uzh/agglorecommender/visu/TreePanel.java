@@ -289,10 +289,8 @@ public class TreePanel extends JPanel {
 		return c;
 	}
 
-	/**
-	 * @param userNodes 
-	 * @param rootNodes 
-	 * 
+	/** 
+	 * Creates all the trees of the forest
 	 */
 	private void createTree() {
 		if (nodes == null) return;
