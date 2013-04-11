@@ -11,11 +11,11 @@ import com.beust.jcommander.ParameterException;
 
 
 /**
- * Checks read access to passed path.
+ * Checks read access to passed path and if true wraps path into File object.
  * Application exits if no read access is granted.
- * @param path to check access.
  */
 public class FileReadValidatorConverter implements IParameterValidator, IStringConverter<File> {		
+
 	@Override
 	public void validate(String name, String path)
 			throws ParameterException {

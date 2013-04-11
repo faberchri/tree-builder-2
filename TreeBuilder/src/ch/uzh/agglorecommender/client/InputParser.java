@@ -65,27 +65,65 @@ public class InputParser implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Numerical attribute values are normalized to a range between 0 and 10.
+	 */
+	private static final double SCALLING_FACTOR = 10.0;
+
+	/**
+	 * All data set items used for the training.
+	 */
+	private List<IDatasetItem> trainingItems = new ArrayList<>();
+	
+	/**
+	 * All data set items used for testing only.
+	 */
+	private List<IDatasetItem> testItems = new ArrayList<>();
+
+	/**
+	 * The returned training dataset.
+	 */
+	private final IDataset trainigsDataset;
+	
+	/**
+	 * The returned test data set.
+	 */
+	private final IDataset testDataset;
+
+	/**
+	 * Maps to the id of each user a multimap of its its nominal meta attributes.
+	 */
+	private Map<String,ListMultimap<String, Object>> nominalUserMetaAttributes = new HashMap<>();
+	
+	/**
+	 * Maps to the id of each content item a multimap of its nominal meta attributes.
+	 */
+	private Map<String,ListMultimap<String, Object>> nominalContentMetaAttributes = new HashMap<>();
+
+	/**
+	 * Maps to the id of each user item a multimap of its numerical meta attributes.
+	 */
+	private Map<String,ListMultimap<String, Double>> numericalUserMetaAttributes = new HashMap<>();
+	
+	/**
+	 * Maps to the id of each content item a multimap of its numerical meta attributes.
+	 */
+	private Map<String,ListMultimap<String, Double>> numericalContentMetaAttributes = new HashMap<>();
+
+	/**
+	 * Maps to the tag of each attribute a boolean that specifies if the attribute should be
+	 * considered for category utility calculations during clustering. If an attribute is not 
+	 * contained in the map we assume "true".
+	 */
+	private Map<String, Boolean> useForClustering = new HashMap<>();
+	
+	/**
+	 * Identifier strings.
+	 */
 	private static final String USER_ID = "user id";
 	private static final String CONTENT_ID = "content id";
 	private static final String META_ID = "meta id";
 	private static final String VALUE = "value";
-
-	private static final double SCALLING_FACTOR = 10.0;
-
-	private List<IDatasetItem> trainingItems = new ArrayList<>();
-	private List<IDatasetItem> testItems = new ArrayList<>();
-
-	private final IDataset trainigsDataset;
-	private final IDataset testDataset;
-
-
-	private Map<String,ListMultimap<String, Object>> nominalUserMetaAttributes = new HashMap<>();
-	private Map<String,ListMultimap<String, Object>> nominalContentMetaAttributes = new HashMap<>();
-
-	private Map<String,ListMultimap<String, Double>> numericalUserMetaAttributes = new HashMap<>();
-	private Map<String,ListMultimap<String, Double>> numericalContentMetaAttributes = new HashMap<>();
-
-	private Map<String, Boolean> useForClustering = new HashMap<>();
 
 	/**
 	 * Instantiates a new parser and parses the data set according to the information specified in 
@@ -390,7 +428,8 @@ public class InputParser implements Serializable {
 	}
 
 	private static String applyPreprocessing(String o, String regex) {
-		//TODO
+		//TODO add here a more sophisticated preprocessing procedure,
+		// nice would be runtime code injection read from the xml.
 		if (o == null || regex == null) {
 			return o;
 		}
@@ -408,13 +447,34 @@ public class InputParser implements Serializable {
 	}
 
 	/**
-	 * Wrapper for a xml attribute to allows easier data access.  
+	 * Wrapper for a xml META attribute to allows easier data access.  
 	 */
 	private interface IWrappedAttribute {
+		
+		/**
+		 * Gets the xml-"Attribute" object.
+		 * @return the xml-Attribute object
+		 */
 		public Attribute getAttribute();
 
+		/**
+		 * Gets the cell processor to read a csv-file that is structured according to
+		 * the passed header. Header contains identifier strings.
+		 * 
+		 * @param header the column structure of the csv-file to read
+		 * marked with keywords.
+		 * @return A CellProcessor for each of the columns in the csv-file.
+		 */
 		public CellProcessor[] getProcessors(String[] header);
 
+		/**
+		 * Reads the data from the passed multimap (representing id column
+		 * and value column(s)) into a multimap nested in a map containing data
+		 * structured like userId -> attributeTag -> value1, value2, ...
+		 * that was passed to the constructor. The values are manipulated
+		 * according to the Attribute type and options.
+		 * @param rawData the Strings of the csv-File mapping ids to value(s)
+		 */
 		public void collectData(ListMultimap<String, String> rawData);
 
 	}
@@ -422,10 +482,10 @@ public class InputParser implements Serializable {
 
 	private class NominalAttributeWrapper implements IWrappedAttribute {
 
-		protected final NominalAttribute attribute;
-		protected Map<String,ListMultimap<String, Object>> mappedAttributes;
+		private final NominalAttribute attribute;
+		private Map<String,ListMultimap<String, Object>> mappedAttributes;
 
-		public NominalAttributeWrapper(NominalAttribute attribute,
+		private NominalAttributeWrapper(NominalAttribute attribute,
 				Map<String,ListMultimap<String, Object>> mappedAttributes) {
 			this.attribute = attribute;		
 			this.mappedAttributes = mappedAttributes;
@@ -491,9 +551,9 @@ public class InputParser implements Serializable {
 
 	private class NominalMultivaluedAttributeWrapper extends NominalAttributeWrapper implements IWrappedAttribute {
 
-		protected final NominalMultivaluedAttribute attribute;
+		private final NominalMultivaluedAttribute attribute;
 
-		public NominalMultivaluedAttributeWrapper(NominalMultivaluedAttribute attribute,
+		private NominalMultivaluedAttributeWrapper(NominalMultivaluedAttribute attribute,
 				Map<String,ListMultimap<String, Object>> mappedAttributes) {
 			super(attribute, mappedAttributes);
 			this.attribute = attribute;
@@ -527,10 +587,10 @@ public class InputParser implements Serializable {
 
 	private class NumericalAttributeWrapper implements IWrappedAttribute {
 
-		protected final NumericalAttribute attribute;
-		protected Map<String,ListMultimap<String, Double>> mappedAttributes;
+		private final NumericalAttribute attribute;
+		private Map<String,ListMultimap<String, Double>> mappedAttributes;
 
-		public NumericalAttributeWrapper(NumericalAttribute attribute,
+		private NumericalAttributeWrapper(NumericalAttribute attribute,
 				Map<String,ListMultimap<String, Double>> mappedAttributes) {
 			this.attribute = attribute;			
 			this.mappedAttributes = mappedAttributes;
@@ -597,15 +657,23 @@ public class InputParser implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		/**
-		 * 
+		 * The data set items of the data set.
 		 */
 		private final List<IDatasetItem> items;
 
+		/**
+		 * Mapping of attribute tag to its NumericalAttribute. Is only needed
+		 * to allow denormalization of normalized numerical attribute values.
+		 */
 		private final Map<String, NumericalAttribute> numericalAttributes;
 
+		/**
+		 * Does nothing, normalization is done during parsing. However interface
+		 * requires a normalizer.
+		 */
 		private final INormalizer normalizer;
 
-		public Dataset(List<IDatasetItem> items, Map<String, NumericalAttribute> numericalAttributes) {
+		private Dataset(List<IDatasetItem> items, Map<String, NumericalAttribute> numericalAttributes) {
 			this.items = items;
 			this.numericalAttributes = numericalAttributes;
 			this.normalizer = new INormalizer() {
@@ -682,7 +750,7 @@ public class InputParser implements Serializable {
 		 * @param userId the id of the user of the rating.
 		 * @param contentId the id of the rated content.
 		 */
-		public DatasetItem(double value,
+		private DatasetItem(double value,
 				String userId,
 				String contentId)  {
 			this.value = value;

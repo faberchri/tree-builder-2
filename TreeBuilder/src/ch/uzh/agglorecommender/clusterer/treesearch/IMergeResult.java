@@ -6,7 +6,7 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
 /**
  * 
- * Stores the distance between two nodes.
+ * Stores the category utility of a potential merge of nodes.
  *
  */
 public interface IMergeResult extends Comparable<IMergeResult>{

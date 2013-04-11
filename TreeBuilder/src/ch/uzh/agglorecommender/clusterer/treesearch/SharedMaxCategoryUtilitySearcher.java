@@ -19,8 +19,15 @@ public class SharedMaxCategoryUtilitySearcher extends BasicMaxCategoryUtilitySea
 	 * of this class is not compatible with old versions.
 	 */
 	private static final long serialVersionUID = 1L;
-		
+	
+	/**
+	 * Calculates classit category utility.
+	 */
 	private ClassitMaxCategoryUtilitySearcher classit = new ClassitMaxCategoryUtilitySearcher();
+	
+	/**
+	 * Calculates cobweb category utility.
+	 */
 	private CobwebMaxCategoryUtilitySearcher cobweb = new CobwebMaxCategoryUtilitySearcher();
 	
 	/**

@@ -258,7 +258,7 @@ public class NodeBuilder {
 		for(String attKey : attributes.keySet()){
 			Map<String,Double> probabilityMap = new HashMap<String,Double>();
 			probabilityMap.put(attributes.get(attKey),1.0);
-			nomMeta.put(attKey, new CobwebAttribute(probabilityMap));
+			nomMeta.put(attKey, new CobwebAttribute(ImmutableMap.copyOf(probabilityMap)));
 		}
 		
 		return nomMeta;

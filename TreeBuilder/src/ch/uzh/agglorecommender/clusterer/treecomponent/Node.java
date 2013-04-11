@@ -170,7 +170,6 @@ public class Node implements INode, Comparable<Node>, Serializable {
 				.concat(getAttributesString(keyList, ratingAttributes))
 				.concat(" | numerical meta attributes: ")
 				.concat(getAttributesString(keyList2, numericalMetaAttributes));
-
 	}
 
 	/**

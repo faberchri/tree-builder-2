@@ -13,6 +13,10 @@ import java.util.logging.Logger;
 import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 import ch.uzh.agglorecommender.util.TBLogger;
 
+/**
+ * Decorates a {@codeIMaxCategoryUtilitySearcher} by removing potential merges from
+ * {@code combinationIds} that do not share a ratings attribute.
+ */
 public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {
 
 	/**
@@ -37,6 +41,11 @@ public class NoCommonRatingAttributeSkipMaxCUSearcher extends MaxCategoryUtility
 		super(decoratedSearcher);
 	}
 
+	/**
+	 * Removes from {@code combinationIds} potential merges of nodes that do not share 
+	 * a rating attribute in order to reduce the number of calculations to perform. 
+	 * If {@code combinationIds.size() < 2} no more combination ids are removed.
+	 */
 	@Override
 	public TIntDoubleMap getMaxCategoryUtilityMerges(
 			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {

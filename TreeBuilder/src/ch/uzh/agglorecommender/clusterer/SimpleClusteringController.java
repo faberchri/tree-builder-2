@@ -6,7 +6,7 @@ import ch.uzh.agglorecommender.clusterer.treeupdate.INodeUpdater;
 /**
  * 
  * A simple clustering controller that does not allow any user interaction during
- * clustering. The M-V-C pattern with this contex does not have a view.
+ * clustering. The M-V-C pattern with this context does not have a view.
  *
  */
 public class SimpleClusteringController extends ClusteringController {

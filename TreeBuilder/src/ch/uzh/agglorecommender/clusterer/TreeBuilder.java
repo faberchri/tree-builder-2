@@ -321,7 +321,7 @@ public final class TreeBuilder implements Serializable, Observable, Runnable {
 	}
 	
 	/**
-	 * Configurates the TreeBuilder for a new cluster run.
+	 * Configures the TreeBuilder for a new cluster run.
 	 * This method needs to be called before the clustering process is started.
 	 * 
 	 * @param nodeUpdater the node updater to use in the clustering process

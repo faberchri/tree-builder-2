@@ -105,10 +105,19 @@ final class SplitWorker extends Thread {
 
 	}
 
+	/**
+	 * Gets the calculated results.
+	 * @return the calculated combination id -> category utility map
+	 */
 	protected TIntDoubleMap getCalcRes() {
 		return calcRes;
 	}
 	
+	/**
+	 * Sets maxCUFound. Needed to reset static variable to false upon the completion 
+	 * of a clustering cycle.
+	 * @param maxCUFound new value
+	 */
 	protected static void setMaxCUFound(boolean maxCUFound) {
 		SplitWorker.maxCUFound = maxCUFound;
 	}

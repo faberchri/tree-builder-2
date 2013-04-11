@@ -28,25 +28,21 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		@Override
 		public Iterator<IDatasetItem> iterateOverDatasetItems() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
 		@Override
 		public INormalizer getNormalizer() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
 		@Override
 		public ImmutableMap<String, Boolean> getAttributeClusteringConfig() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
 		@Override
 		public double denormalize(double value, String attributeTag) {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 	};
@@ -61,19 +57,19 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		
 		Map<String, Double> attMap = new HashMap<String, Double>();
 		attMap.put("light", 1.0);
-		IAttribute attribute_1A = new CobwebAttribute(attMap);
+		IAttribute attribute_1A = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<String, Double>();
 		attMap.put("zurich", 1.0);
-		IAttribute attribute_1B = new CobwebAttribute(attMap);
+		IAttribute attribute_1B = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<String, Double>();
 		attMap.put("dark", 1.0);
-		IAttribute attribute_2B = new CobwebAttribute(attMap);
+		IAttribute attribute_2B = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<String, Double>();
 		attMap.put("admin", 1.0);
-		IAttribute attribute_2C = new CobwebAttribute(attMap);
+		IAttribute attribute_2C = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 				
 		// add the corresponding attributes to the attribute map of node 1
 		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
@@ -129,22 +125,22 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(5, 1.0);
-		IAttribute attribute_N1A1 = new CobwebAttribute(attMap);
+		IAttribute attribute_N1A1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(5, 1.0);
-		IAttribute attribute_N2A1 = new CobwebAttribute(attMap);
+		IAttribute attribute_N2A1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(4, 1.0);
-		IAttribute attribute_N3A1 = new CobwebAttribute(attMap);
+		IAttribute attribute_N3A1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 1.0);
-		IAttribute attribute_N1A2 = new CobwebAttribute(attMap);
+		IAttribute attribute_N1A2 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 1.0);
-		IAttribute attribute_N2A3 = new CobwebAttribute(attMap);
+		IAttribute attribute_N2A3 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 1.0);
-		IAttribute attribute_N3A3 = new CobwebAttribute(attMap);
+		IAttribute attribute_N3A3 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 
 		// Create the common attributes
 		INode sharedAttributeA1 = new Node(ENodeType.Content, null, null);
@@ -215,19 +211,19 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(10, 1.0);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		IAttribute attribute_1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 1.0);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		IAttribute attribute_2 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(5, 1.0);
-		IAttribute attribute_3 = new CobwebAttribute(attMap);
+		IAttribute attribute_3 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 1.0);
-		IAttribute attribute_4 = new CobwebAttribute(attMap);
+		IAttribute attribute_4 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 
 		// attribute maps
 		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
@@ -324,11 +320,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(10, 0.02);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		IAttribute attribute_1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.1);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		IAttribute attribute_2 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 
 		// attribute maps
 		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();
@@ -380,11 +376,11 @@ public class CobwebMaxCategoryUtilitySearcherTest {
 		// ratings are integers
 		Map<Integer, Double> attMap = new HashMap<Integer, Double>();
 		attMap.put(3, 0.00000000000005);
-		IAttribute attribute_1 = new CobwebAttribute(attMap);
+		IAttribute attribute_1 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 		
 		attMap = new HashMap<Integer, Double>();
 		attMap.put(1, 0.000000000022);
-		IAttribute attribute_2 = new CobwebAttribute(attMap);
+		IAttribute attribute_2 = new CobwebAttribute(ImmutableMap.copyOf(attMap));
 
 		// attribute maps
 		Map<String, IAttribute> attMap1 = new HashMap<String, IAttribute>();

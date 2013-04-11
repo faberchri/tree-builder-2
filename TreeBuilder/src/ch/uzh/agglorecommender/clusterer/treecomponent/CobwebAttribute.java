@@ -2,8 +2,9 @@ package ch.uzh.agglorecommender.clusterer.treecomponent;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * 
@@ -40,18 +41,17 @@ public final class CobwebAttribute implements IAttribute, Serializable {
 	 * the user-content-rating matrix.
 	 * </pre>
 	 */
-	private final Map<Object, Double> attributeProbabilities;
+	private final ImmutableMap<Object, Double> attributeProbabilities;
 	 
 	
 	/**
 	 * Instantiates a new {@code CobwebAttribute} with a 
 	 * attribute-value probability map.
-	 * <br>
-	 * @param meta 
-	 * @param attribute-value probability map of this attribute.
+	 * 
+	 * @param probabilityMap probability map of this attribute.
 	 */
-	public CobwebAttribute(Map<?, Double> probabilityMap) {
-		this.attributeProbabilities = (Map<Object, Double>) probabilityMap;
+	public CobwebAttribute(ImmutableMap<?, Double> probabilityMap) {
+		this.attributeProbabilities = (ImmutableMap<Object, Double>) probabilityMap;
 	}
 	
 	@Override

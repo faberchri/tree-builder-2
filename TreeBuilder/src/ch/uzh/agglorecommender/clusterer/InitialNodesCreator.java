@@ -43,8 +43,7 @@ public class InitialNodesCreator {
 	 * @param dataset the data set which shall be clustered (training) 
 	 * or for which recommendations shall be generated (test).
 	 * 
-	 * @param treeComponentFactory the initially specified factory
-	 * @param userTreeComponentFactory the initially specified factory
+	 * @param treeComponentFactory the factory used to instantiate tree elements
 	 */
 	public InitialNodesCreator(IDataset dataset,
 			TreeComponentFactory treeComponentFactory) {

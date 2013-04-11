@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
 /**
+ * NOT USED.
  * 
  * Stores the objects to cluster. With getCombinationsList()
  * a set of all possible combinations (merges) up to the specified MAX_SUBSET_SIZE

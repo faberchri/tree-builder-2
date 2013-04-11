@@ -3,7 +3,7 @@ package ch.uzh.agglorecommender.clusterer;
 import ch.uzh.agglorecommender.visu.Observer;
 
 /**
- * The observable (a.k.a as subject) of the GoF observer pattern.
+ * The observable (a.k.a. subject) of the GoF observer pattern.
  */
 public interface Observable {
 	

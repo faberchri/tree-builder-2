@@ -7,7 +7,6 @@ import com.beust.jcommander.ParameterException;
 
 /**
  * Checks if property files value is either string "random" or a readable file.
- *
  */
 public class DatasetValidator extends FileReadValidatorConverter implements IParameterValidator {
 

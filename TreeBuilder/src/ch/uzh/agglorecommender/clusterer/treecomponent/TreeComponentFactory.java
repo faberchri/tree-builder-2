@@ -31,6 +31,9 @@ public class TreeComponentFactory implements Serializable  {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * The unique instance of this type.
+	 */
 	private static TreeComponentFactory factory = new TreeComponentFactory();	
 	private TreeComponentFactory() {
 		// singleton
@@ -88,7 +91,7 @@ public class TreeComponentFactory implements Serializable  {
 		for (Object aV : attValues) {
 			r.put(aV, initialProb);
 		}
-		Map<Object, Double> attMap = ImmutableMap.copyOf(r);
+		ImmutableMap<Object, Double> attMap = ImmutableMap.copyOf(r);
 		return new CobwebAttribute(attMap);
 	}
 	
@@ -261,7 +264,7 @@ public class TreeComponentFactory implements Serializable  {
 		for (INode node : nodesToMerge) {
 			totalLeafCount += node.getNumberOfLeafNodes();
 		}
-		Map<Object, Double> attMap = ImmutableMap.copyOf(
+		ImmutableMap<Object, Double> attMap = ImmutableMap.copyOf(
 				CobwebMaxCategoryUtilitySearcher
 					.calculateAttributeProbabilities(
 							attributeKey, nodesToMerge, totalLeafCount

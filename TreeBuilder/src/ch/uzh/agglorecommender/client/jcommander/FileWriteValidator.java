@@ -11,7 +11,6 @@ import com.beust.jcommander.ParameterException;
 /**
  * Checks write access to passed path.
  * Application exits if no write access is granted.
- * @param path to check access.
  */
 public class FileWriteValidator implements IParameterValidator {
 	@Override

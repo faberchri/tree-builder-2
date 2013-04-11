@@ -26,12 +26,17 @@ public final class ClassitAttribute implements IAttribute, Serializable {
 
 	/**
 	 * Support of this attribute.
-	 * 
 	 */
 	private final int support;
 
+	/**
+	 * The sum of the ratings.
+	 */
 	private final double sumOfRatings;
 
+	/**
+	 * The sum of the squared ratings.
+	 */
 	private final double sumOfSquaredRatings;
 
 

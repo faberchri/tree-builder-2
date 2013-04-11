@@ -173,7 +173,10 @@ class RandomDataset implements IDataset {
 	
 	
 	
-	// for testing
+	/**
+	 * For testing
+	 * @param args
+	 */
 	private static void main(String[] args) {
 		RandomDataset ds = new RandomDataset(10, 10, 60);
 		ds.printRandomMatrix();

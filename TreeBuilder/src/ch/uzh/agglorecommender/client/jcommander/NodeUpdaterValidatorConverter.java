@@ -9,9 +9,8 @@ import com.beust.jcommander.ParameterException;
 
 
 /**
- * 
- * Checks if the specified node updater is known an instantiates it. 
- *
+ * Checks if the specified node updater name is a class name of an INodeUpdater
+ * implementation. Instantiates a new object of the class if true. 
  */
 public class NodeUpdaterValidatorConverter implements IParameterValidator, IStringConverter<INodeUpdater> {
 	

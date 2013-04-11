@@ -17,7 +17,8 @@ import ch.uzh.agglorecommender.util.TBLogger;
 
 
 /**
- * Caches category utility values calculated in a previous cycle.
+ * Decorates a {@codeIMaxCategoryUtilitySearcher} by caching category
+ * utility values calculated in a previous cycle.
  */
 public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator implements Serializable {
 
@@ -44,6 +45,12 @@ public class CachedMaxCUSearcher extends MaxCategoryUtilitySearcherDecorator imp
 		super(decoratedSearcher);
 	}
 	
+	/**
+	 * Fetches category utilities from {@code numberCache} if cache entry
+	 * is still valid and removes the corresponding combination id
+	 * from {@code combinationIds} in order to reduce the number of
+	 * calculations to perform.
+	 */
 	@Override
 	public TIntDoubleMap getMaxCategoryUtilityMerges(
 			TIntSet combinationIds, IClusterSetIndexed<INode> clusterSet) {

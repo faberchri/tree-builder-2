@@ -8,15 +8,16 @@ import ch.uzh.agglorecommender.clusterer.treecomponent.INode;
 
 
 /**
- * Updates a set of nodes with a new node.
+ * Updates attributes of nodes with a new node as attribute.
  */
 public interface INodeUpdater extends Serializable {
 	
 	/**
-	 * Updates a set of nodes with a new node.
+	 * Updates the attributes of a set of of nodes with a new node as a new attribute.
+	 * The {@code newNode} is the node which resulted from the last merge.
 	 * 
-	 * @param newNode with this node the nodesToUpdate is complemented.
-	 * @param nodesToUpdate the set of nodes to update.
+	 * @param newNode with this node the attributes of nodesToUpdate are complemented.
+	 * @param nodesToUpdate the set of nodes to update attributes.
 	 */
-	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate); // newNode is the node which resulted from last merge
+	public void updateNodes(INode newNode, Collection<INode> nodesToUpdate);
 }

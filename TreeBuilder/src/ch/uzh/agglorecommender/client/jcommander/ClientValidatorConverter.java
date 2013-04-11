@@ -7,6 +7,10 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Checks if the specified recommender client name is a class name of an IClient
+ * implementation. Instantiates a new object of the class if true. 
+ */
 public class ClientValidatorConverter implements IParameterValidator, IStringConverter<IClient>{
 
 	private static Class<IClient> clazz = null;
