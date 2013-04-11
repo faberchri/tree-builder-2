@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 public class TestClassFullTreeClassit {
 
   /*
-	 * Tests Classit implementation using a test set containing 10 nodes 
+	 * Tests Classit implementation using a test set
 	 */
 	@Test
 	public void runTest1(){
@@ -36,11 +36,12 @@ public class TestClassFullTreeClassit {
 		//Checkk the leafes
 		ImmutableMap<String, INode> leafNodes = trainingOutput.getUserTreeLeavesMap();
 		int numberOfLeafes = leafNodes.size();
-		assertEquals("Number of leafes", 10, numberOfLeafes, 0.1);
+		assertEquals("Number of leafes", 3, numberOfLeafes, 0.1);
 		
 		//Check root node
 		INode rootNode = trainingOutput.getUserTreeRoot();
-		assertEquals("Root node utility",0.070710678,rootNode.getCategoryUtility(),0.0000001);
+		
+		assertEquals("Root node utility",(1/Math.sqrt(35))/1,rootNode.getCategoryUtility(),0.0000001);
 		
 		System.out.println("Test done");
 	}
