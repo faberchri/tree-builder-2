@@ -9,7 +9,7 @@ This is the implementation of a recommender system based on a novel clustering a
 
 ### Responsibilities:
 * alessandramacri
-	* Testcases
+	* Unit tests
 * danihegglin
 	* ch.uzh.agglorecommender.client
 	* ch.uzh.agglorecommender.recommender (and subpackages)
@@ -23,7 +23,7 @@ This is the implementation of a recommender system based on a novel clustering a
 
 ## Anleitung zur Applikation
 ### Datensatzdefinition
-Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechnenden Datensatz spezifiziert als Kommandozeilenargument übergeben werden. [Die XML-Datei muss diesem XML-Schema entsprechen](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/prototype-input-properties-attBased.xsd). Grundsätzlich wird angenommen, dass der Datensatz in Form von CSV-Dateien vorliegt, wobei der Feldseperator ein beliebiges (jedoch nicht mehrere) Zeichen sein kann. Die Struktur des zu übergebenden XMLs ist der folgenden Abbildung dargestellt.
+Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechnenden Datensatz spezifiziert als Kommandozeilenargument übergeben werden. [Die XML-Datei muss diesem XML-Schema entsprechen](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/prototype-input-properties-attBased.xsd). Grundsätzlich wird angenommen, dass der Datensatz in Form von CSV-Dateien vorliegt, wobei der Feldseperator ein beliebiges (jedoch nicht mehrere) Zeichen sein kann. Die Struktur des zu übergebenden XMLs ist in der folgenden Abbildung dargestellt.
 
 ![alt text](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/img/prototype-input-properties-attBased_xsd_Element_arin_Input.jpeg "Wurzelelement mit benötigten und optionalen Attributelementen der Datensatzdefinitionsdatei.")
 
@@ -83,28 +83,25 @@ Zusätzlich kann die Applikation mit folgenden optionalen Kommandozeilenargument
 * `-noGUI Clustering läuft ohne graphische Darstellung der Klassenbäume und des Klassifizierungsfortschritts ab.
 * `-client` Erwartet den Klassennamen einer Klasse des Typs IClient. Standardwert: `DefaultClient`. Erlaubte Werte: `WebClient`: Öffnet eine Empfehlungswebsite welche über http://localhost:8081 aufgerufen werden kann. 
 * `-resume`, `-r` Erwartet den Dateipfad zum Speicherort eines serialisierten TreeBuilder-Objekts. Lädt den TreeBuilder von der Festplatte und setzt bei Bedarf einen unterbrochenen Klassifizierungsvorgang fort.
-\item[\texttt{-serialize}, \texttt{-s}] Erwartet den beschreibbaren Speicherort im Dateisystem. Schreibt eine Kopie das TreeBuilder-Objekt nach Abschluss und während des Klassifizierungsvorgangs alle 10 min auf die Festplatte. Ist diese Option nicht ausgewählt  wird keine persistente Kopie der Klassifizierungsbäume erstellt.
-\item[\texttt{--help}, \texttt{-help}, \texttt{--usage}, \texttt{-usage}] Sendet Erläuterungen zu den Kommandozeilenargumenten über die Standardausgabe an den Benutzer.
-\end{description}
+* `-serialize`, `-s` Erwartet den beschreibbaren Speicherort im Dateisystem. Schreibt eine Kopie das TreeBuilder-Objekt nach Abschluss und während des Klassifizierungsvorgangs alle 10 min auf die Festplatte. Ist diese Option nicht ausgewählt  wird keine persistente Kopie der Klassifizierungsbäume erstellt.
+* `--help`, `-help`, `--usage`, `-usage` Sendet Erläuterungen zu den Kommandozeilenargumenten über die Standardausgabe an den Benutzer.
 
-\subsection{Recommendation System}
+### Recommendation System
 Wurde kein Client über die Kommandozeile definiert wird im Anschluss an das Clustering der DefaultClient instanziiert. Der DefaultClient bietet die Möglichkeit über die Kommandozeile Befehle einzugeben. Der Befehl enthält folgende Elemente.
 
-\begin{description} 
-\item[\texttt{action}] Erwartet die gewünschte Interaktion mit dem Cluster. Erlaubte Werte: \texttt{recommend}: Resultiert in einer Recommendation, \texttt{insert}: Fügt den definierten Input in den Baum ein, \texttt{evaluate}: Evaluiert die Güte der aus dem definierten Input resultierenden Empfehlung.
-\item[\texttt{type}]  Erwartet den Typ des Inputs. Erlaubte Werte: \texttt{user}: Der Input besteht aus Nutzerdaten,\texttt{content}: Der Input besteht aus Inhaltsdaten.
-\item[\texttt{ratingFile}]  Erwartet den absoluten Pfad zur Datei die die Bewertungen enthält.
-\item[\texttt{metaFile}]  Erwartet den absoluten Pfad zur Datei die die Metadaten enthält.
-\end{description}     
-
-\noindent Der Befehl muss folgendermassen strukturiert sein.
-\begin{description} 
-\item[\texttt{action} \texttt{type} \texttt{-r} ratingFile \texttt{-m} metaFile]
-\end{description} 
+* `action` Erwartet die gewünschte Interaktion mit dem Cluster. Erlaubte Werte: `recommend`: Resultiert in einer Recommendation, `insert`: Fügt den definierten Input in den Baum ein, `evaluate`: Evaluiert die Güte der aus dem definierten Input resultierenden Empfehlung.
+* `type`  Erwartet den Typ des Inputs. Erlaubte Werte: `user`: Der Input besteht aus Nutzerdaten, `content`: Der Input besteht aus Inhaltsdaten.
+* `ratingFile` Erwartet den absoluten Pfad zur Datei die die Bewertungen enthält.
+* `metaFile` Erwartet den absoluten Pfad zur Datei die die Metadaten enthält.
+ 
+Der Befehl muss folgendermassen strukturiert sein.
+```bash 
+action type -r ratingFile -m metaFile
+```
 Dieser Beispiel-Befehl löst eine Empfehlungsgenerierung für einen User aus. Das definierte Meta-File muss die User Metadaten enthalten. 
-\begin{description} 
-\item[\texttt{recommend} \texttt{user} \texttt{-r} /User/Desktop/ratings \texttt{-m} /User/Desktop/usermeta]
- \end{description} 
-Falls der WebClient über den Kommandozeilen-Parameter \texttt{-client WebClient} aufgerufen wird, startet ein integrierter Webserver und bindet an Port 8081. Die Empfehlungswebsite ist daher anschliessend unter http://localhost:8081 zu finden. Startet man den WebClient ist der DefaultClient nicht verfügbar.
+```bash 
+recommend user -r /User/Desktop/ratings -m /User/Desktop/usermeta
+```
+Falls der WebClient über den Kommandozeilen-Parameter `-client WebClient` aufgerufen wird, startet ein integrierter Webserver und bindet an Port 8081. Die Empfehlungswebsite ist daher anschliessend unter http://localhost:8081 zu finden. Startet man den WebClient ist der DefaultClient nicht verfügbar.
 
 
