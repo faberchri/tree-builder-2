@@ -60,7 +60,7 @@ public class CommandLineArgs {
 			description = "Runs the clustering algorithm without a GUI (no visual representation of progress, no user interaction possible).")
 	protected boolean noGui = false;
 	
-	@Parameter(names = { "-recommendationClient", "-rC", "-client" },
+	@Parameter(names = { "-client" },
 			description = "Simple class name of IClient to use. Example: DefaultClient",
 			validateWith = ClientValidatorConverter.class,
 			converter = ClientValidatorConverter.class,

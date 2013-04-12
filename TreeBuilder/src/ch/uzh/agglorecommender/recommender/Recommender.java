@@ -149,10 +149,19 @@ public final class Recommender {
 			System.out.println("=> Recommended: ");
 			
 			for(Entry<INode,IAttribute> entry : recommendation.entrySet()){
-				double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
-				System.out.printf("%.2f", rating);
-				String title = searcher.getMeta(entry.getKey(),"title");
-				System.out.println(" -> " + title);
+				
+				if(entry.getKey().getNodeType() == ENodeType.Content){
+					double rating = entry.getValue().getSumOfRatings() / entry.getValue().getSupport();
+					System.out.printf("%.2f", rating);
+					String title = searcher.getMeta(entry.getKey(),"title");
+					System.out.println(" -> " + title);
+				}
+				else if (entry.getKey().getNodeType() == ENodeType.User) {
+					System.out.println( entry.getKey().getId() + 
+							": " + entry.getValue().getSumOfRatings() / entry.getValue().getSupport() + 
+							" -> " + entry.getKey().getNominalAttributesString());
+				}
+
 			}
 		}
 	}

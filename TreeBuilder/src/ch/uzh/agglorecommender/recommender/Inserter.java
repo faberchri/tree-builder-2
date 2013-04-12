@@ -47,14 +47,23 @@ public class Inserter {
 	 * @param position the position where the node should be inserted
 	 */
 	private void newNode(INode node, INode position) {
-
-		// Add Children
-		position.addChild(position);
-		position.addChild(node);
-		node.setParent(position);
-
-		// Incorporate new node into tree
-		incorporateNode(node,position);
+		
+		// Create NodesToMerge
+		Set<INode> nodesToMerge = new HashSet<>();
+		nodesToMerge.add(node);
+		nodesToMerge.add(position);
+		
+		// Create new Node
+		INode newNode = treeComponentFactory.createInternalNode(nodesToMerge, position.getCategoryUtility());
+		newNode.addChild(position);
+		newNode.addChild(node);
+		newNode.setParent(position.getParent());
+		
+		// Redefine nodes
+		position.setParent(newNode);
+		node.setParent(newNode);
+		
+		incorporateNode(node,newNode.getParent());
 	}
 
 	/**
@@ -75,10 +84,10 @@ public class Inserter {
 				Set<INode> nodesToMerge = new HashSet<>();
 				nodesToMerge.add(node);
 				nodesToMerge.add(position);
-
+				
 				// Create new Node
 				INode newNode = treeComponentFactory.createInternalNode(nodesToMerge, position.getCategoryUtility());
-
+				
 				// Switch to new Node
 				newNode.setParent(position.getParent());
 				position.setParent(null);
