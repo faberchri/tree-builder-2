@@ -8,24 +8,19 @@ Recommender System based on Hierarchical 2-Way Agglomerative Clustering
 This is the implementation of a recommender system based on a novel clustering algorithmus. With a single training data set containing instances of the type content-user-rating the clustering algorithm creates one cluster hierarchy for the users and one for the content items. While the two hierarchchies are build from bottom up, clustering information is transferred between the hierarchies (2-way clustering). We show that with this exchange of information the recommender system generates more accurate rating predictions (MAE: 1.79, on a rating scale of 0 to 10) than without (MAE: 1.98). 
 
 ### Responsibilities:
-* alessandramacri
-	* Unit tests
-* danihegglin
-	* ch.uzh.agglorecommender.client
-	* ch.uzh.agglorecommender.recommender (and subpackages)
-	* ch.uzh.agglorecommender.util
-	* ch.uzh.agglorecommender.visu
-* faberchri
-	* ch.uzh.agglorecommender.client
-	* ch.uzh.agglorecommender.clusterer (and subpackages)
-	* ch.uzh.agglorecommender.util
-	* ch.uzh.agglorecommender.visu
+alessandramacri | danihegglin | faberchri
+:----------------:|:-----------:|:----------:
+Unit tests | ch.uzh.agglorecommender.client | ch.uzh.agglorecommender.client
+|| ch.uzh.agglorecommender.recommender (and subpackages) | ch.uzh.agglorecommender.clusterer (and subpackages)
+|| ch.uzh.agglorecommender.util | ch.uzh.agglorecommender.util
+|| ch.uzh.agglorecommender.visu | ch.uzh.agglorecommender.visu
+
 
 ## Anleitung zur Applikation
 ### Datensatzdefinition
 Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechnenden Datensatz spezifiziert als Kommandozeilenargument übergeben werden. [Die XML-Datei muss diesem XML-Schema entsprechen](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/prototype-input-properties-attBased.xsd). Grundsätzlich wird angenommen, dass der Datensatz in Form von CSV-Dateien vorliegt, wobei der Feldseperator ein beliebiges (jedoch nicht mehrere) Zeichen sein kann. Die Struktur des zu übergebenden XMLs ist in der folgenden Abbildung dargestellt.
 
-![alt text](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/img/prototype-input-properties-attBased_xsd_Element_arin_Input.jpeg "Wurzelelement mit benötigten und optionalen Attributelementen der Datensatzdefinitionsdatei.")
+![alt text](https://raw.github.com/faberchri/tree-builder-2/release/TreeBuilder/manual/explanation-dataset-prop-file/img/prototype-input-properties-attBased_xsd_Element_arin_Input.jpeg "Wurzelelement mit benötigten und optionalen Attributelementen der Datensatzdefinitionsdatei.")
 
 Für jedes Attribut des Datensatzes muss ein neues Attributelement als Kind vom Input-Element eingefügt werden. Es können beliebig viele Attributelemente definiert werden, mindestens ein Attribut muss allerdings vom Typ Rating sein.
 
