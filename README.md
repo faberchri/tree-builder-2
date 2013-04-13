@@ -8,7 +8,7 @@ Recommender System based on Hierarchical 2-Way Agglomerative Clustering
 This is the implementation of a recommender system based on a novel clustering algorithmus. With a single training data set containing instances of the type content-user-rating the clustering algorithm creates one cluster hierarchy for the users and one for the content items. While the two hierarchchies are build from bottom up, clustering information is transferred between the hierarchies (2-way clustering). We show that with this exchange of information the recommender system generates more accurate rating predictions (MAE: 1.79, on a rating scale of 0 to 10) than without (MAE: 1.98). 
 
 ### Responsibilities:
-alessandramacri | danihegglin | faberchri
+[alessandramacri](https://github.com/alessandramacri) | [danihegglin](https://github.com/danihegglin) | [faberchri](https://github.com/faberchri)
 :----------------:|:-----------:|:----------:
 Unit tests | ch.uzh.agglorecommender.client | ch.uzh.agglorecommender.client
 || ch.uzh.agglorecommender.recommender (and subpackages) | ch.uzh.agglorecommender.clusterer (and subpackages)
@@ -24,7 +24,7 @@ Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechne
 
 Für jedes Attribut des Datensatzes muss ein neues Attributelement als Kind vom Input-Element eingefügt werden. Es können beliebig viele Attributelemente definiert werden, mindestens ein Attribut muss allerdings vom Typ Rating sein.
 
-Hiernach werden die in der XML-Schema-Datei definierten XML-Elemente beschrieben. Eine detailiertere Darstellung des erwarteten XML-Aufbaus findet sich im Projekt-Repository im Verzeichnis manual/explanation-dataset-prop-file. Beispieldateien für die ebenfalls im Respository enthaltenen Grouplens-Datensätze sind im Verzeichnis manual/example-dataset-prop-files abgelegt.
+Hiernach werden die in der XML-Schema-Datei definierten XML-Elemente beschrieben. Eine detailiertere Darstellung des erwarteten XML-Aufbaus findet sich im [Projekt-Repository](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/explanation-dataset-prop-file). Beispieldateien für die ebenfalls im Respository enthaltenen [Grouplens-Datensätze](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/datasets) befinden sich [hier](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/example-dataset-prop-files).
 
 
 * __Attribute__ Jedes Attributelement hat genau ein Attribute-Element als Kind. Beschreibt die Attributeigenschaften. Beinhaltet Tag, useForClustering und PreProcessingRegex.
