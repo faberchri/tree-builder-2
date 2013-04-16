@@ -1,15 +1,30 @@
-### Term Project### University of Zurich, Department of InformaticsRecommender System based on Hierarchical 2-Way Agglomerative Clustering======This is the implementation of a recommender system based on a novel clustering algorithmus. With a single training data set containing instances of the type content-user-rating the clustering algorithm creates one cluster hierarchy for the users and one for the content items. While the two hierarchchies are build from bottom up, clustering information is transferred between the hierarchies (2-way clustering). We show that with this exchange of information the recommender system generates more accurate rating predictions (MAE: 1.79, on a rating scale of 0 to 10) than without (MAE: 1.98). ### Responsibilities:[alessandramacri](https://github.com/alessandramacri) | [danihegglin](https://github.com/danihegglin) | [faberchri](https://github.com/faberchri):----------------:|:-----------:|:----------:Unit tests | ch.uzh.agglorecommender.client | ch.uzh.agglorecommender.client|| ch.uzh.agglorecommender.recommender (and subpackages) | ch.uzh.agglorecommender.clusterer (and subpackages)|| ch.uzh.agglorecommender.util | ch.uzh.agglorecommender.util|| ch.uzh.agglorecommender.visu | ch.uzh.agglorecommender.visu
+### Term Project
+
+### University of Zurich, Department of Informatics
+
+Recommender System based on Hierarchical 2-Way Agglomerative Clustering
+======
+
+This is the implementation of a recommender system based on a novel clustering algorithmus. With a single training data set containing instances of the type content-user-rating the clustering algorithm creates one cluster hierarchy for the users and one for the content items. While the two hierarchchies are build from bottom up, clustering information is transferred between the hierarchies (2-way clustering). We show that with this exchange of information the recommender system generates more accurate rating predictions (MAE: 1.79, on a rating scale of 0 to 10) than without (MAE: 1.98). 
+
+### Responsibilities:
+[alessandramacri](https://github.com/alessandramacri) | [danihegglin](https://github.com/danihegglin) | [faberchri](https://github.com/faberchri)
+:----------------:|:-----------:|:----------:
+Unit tests | ch.uzh.agglorecommender.client | ch.uzh.agglorecommender.client
+|| ch.uzh.agglorecommender.recommender (and subpackages) | ch.uzh.agglorecommender.clusterer (and subpackages)
+|| ch.uzh.agglorecommender.util | ch.uzh.agglorecommender.util
+|| ch.uzh.agglorecommender.visu | ch.uzh.agglorecommender.visu
 
 
 ## Anleitung zur Applikation
 ### Datensatzdefinition
-Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechnenden Datensatz spezifiziert als Kommandozeilenargument übergeben werden. [Die XML-Datei muss diesem XML-Schema entsprechen](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/prototype-input-properties-attBased.xsd). Grundsätzlich wird angenommen, dass der Datensatz in Form von CSV-Dateien vorliegt, wobei der Feldseperator ein beliebiges (jedoch nicht mehrere) Zeichen sein kann. Die Struktur des zu übergebenden XMLs ist in der folgenden Abbildung dargestellt.
+Zum starten der Applikation muss eine XML-Datei die die Struktur des zu berechnenden Datensatz spezifiziert als Kommandozeilenargument übergeben werden. Die XML-Datei muss diesem [XML-Schema](https://github.com/faberchri/tree-builder-2/blob/release/TreeBuilder/manual/explanation-dataset-prop-file/prototype-input-properties-attBased.xsd) entsprechen. Grundsätzlich wird angenommen, dass der Datensatz in Form von CSV-Dateien vorliegt, wobei der Feldseperator ein beliebiges (jedoch nicht mehrere) Zeichen sein kann. Die Struktur des zu übergebenden XMLs ist in der folgenden Abbildung dargestellt.
 
 ![alt text](https://raw.github.com/faberchri/tree-builder-2/release/TreeBuilder/manual/explanation-dataset-prop-file/img/prototype-input-properties-attBased_xsd_Element_arin_Input.jpeg "Wurzelelement mit benötigten und optionalen Attributelementen der Datensatzdefinitionsdatei.")
 
 Für jedes Attribut des Datensatzes muss ein neues Attributelement als Kind vom Input-Element eingefügt werden. Es können beliebig viele Attributelemente definiert werden, mindestens ein Attribut muss allerdings vom Typ Rating sein.
 
-Hiernach werden die in der XML-Schema-Datei definierten XML-Elemente beschrieben. Eine [detailliertere Darstellung des erwarteten XML-Aufbaus](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/explanation-dataset-prop-file) sowie [Datensatzdefinitionsdateien](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/example-dataset-prop-files) für die ebenfalls im Respository enthaltenen [Grouplens-Datensätze](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/datasets) befinden sich im Repository.
+Hiernach werden die in der XML-Schema-Datei definierten XML-Elemente beschrieben. Eine detailliertere [Darstellung](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/explanation-dataset-prop-file) des erwarteten XML-Aufbaus sowie [Datensatzdefinitionsdateien](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/manual/example-dataset-prop-files) für die [Grouplens-Datensätze](https://github.com/faberchri/tree-builder-2/tree/release/TreeBuilder/datasets) befinden sich im Repository.
 
 * __Attribute__ Jedes Attributelement hat genau ein Attribute-Element als Kind. Beschreibt die Attributeigenschaften. Beinhaltet Tag, useForClustering und PreProcessingRegex.
 * __Category__ In Typ NominalAttribute: Soll ein Metaattribut nominal verarbeitet werden können die Attributwerte Kategorien (CategoryTag) zugeteilt werden. Zum Beispiel können Postleitzahlen gemäss der ersten Ziffer des Attributwerts zehn Kategorien zugeordnet werden. Die Selektion der Kategorie erfolgt durch IdentificationRegex.
@@ -58,7 +73,7 @@ java -Xss100m -Xmx2048M -jar Agglorecommender.jar -p random <number-of-users> <n
 ```
 Zusätzlich kann die Applikation mit folgenden optionalen Kommandozeilenargumenten gestartet werden:
 
-* `-nodeUpdater, `-nU`, `-updater` Erwartet den Klassennamen einer Klasse des Typs INodeUpdater. Standardwert: `SaveAttributeNodeUpdater` (siehe Projektbericht für eine Erklärung der Funktionsweise), Erlaubte Werte: `ExtendedNodeUpdater`: Ergibt das gleiche Klassifizierungsergebnis wie `SaveAttributeNodeUpdater`, `NullUpdater`: Es werden keine Klassifizierungsinformationen zwischen den zwei Klassenhierarchien ausgetauscht, `SimpleNodeUpdater`: Neue Klassen werden als Attribute in die Klassen der nicht erweiterten Klassenhierarchie eingebaut. Die Kinder der neuen Klasse werden aber nicht als Attribute der Klassen der nicht erweiterten Klassenhiererchie entfernt.
+* `-nodeUpdater`, `-nU`, `-updater` Erwartet den Klassennamen einer Klasse des Typs INodeUpdater. Standardwert: `SaveAttributeNodeUpdater` (siehe Projektbericht für eine Erklärung der Funktionsweise), Erlaubte Werte: `ExtendedNodeUpdater`: Ergibt das gleiche Klassifizierungsergebnis wie `SaveAttributeNodeUpdater`, `NullUpdater`: Es werden keine Klassifizierungsinformationen zwischen den zwei Klassenhierarchien ausgetauscht, `SimpleNodeUpdater`: Neue Klassen werden als Attribute in die Klassen der nicht erweiterten Klassenhierarchie eingebaut. Die Kinder der neuen Klasse werden aber nicht als Attribute der Klassen der nicht erweiterten Klassenhiererchie entfernt.
 * `-noGUI` Clustering läuft ohne graphische Darstellung der Klassenbäume und des Klassenhierarchiegenerierungfortschritts ab.
 * `-client` Erwartet den Klassennamen einer Klasse des Typs IClient. Standardwert: `DefaultClient`. Erlaubte Werte: `WebClient`: Öffnet eine Empfehlungswebsite welche über http://localhost:8081 aufgerufen werden kann. 
 * `-resume`, `-r` Erwartet den Dateipfad zum Speicherort eines serialisierten TreeBuilder-Objekts. Lädt den TreeBuilder von der Festplatte und setzt bei Bedarf eine unterbrochenen Klassenhierarchiegenerierung fort.
@@ -69,8 +84,8 @@ Zusätzlich kann die Applikation mit folgenden optionalen Kommandozeilenargument
 ### Recommendation System
 Wurde kein Client über die Kommandozeile definiert wird im Anschluss an die Klassenbildung der DefaultClient instanziiert. Der DefaultClient bietet die Möglichkeit über die Kommandozeile Befehle einzugeben. Der Befehl enthält folgende Elemente.
 
-* `action` Erwartet die gewünschte Interaktion mit dem Cluster. Erlaubte Werte: `recommend`: Resultiert in einer Recommendation, `insert`: Fügt den definierten Input in den Baum ein, `evaluate`: Evaluiert die Güte der aus dem definierten Input resultierenden Empfehlung.
-* `type` Erwartet den Typ des Inputs. Erlaubte Werte: `user`: Der Input besteht aus Nutzerdaten, `content`: Der Input besteht aus Inhaltsdaten.
+* `action` Erwartet die gewünschte Interaktion mit dem Cluster. Erlaubte Werte: `recommend` Resultiert in einer Recommendation, `insert` Fügt den definierten Input in den Baum ein, `evaluate` Evaluiert die Güte der aus dem definierten Input resultierenden Empfehlung.
+* `type` Erwartet den Typ des Inputs. Erlaubte Werte: `user` Der Input besteht aus Nutzerdaten, `content` Der Input besteht aus Inhaltsdaten.
 * `ratingFile`  Erwartet den absoluten Pfad zur Datei die die Bewertungen enthält.
 * `metaFile`  Erwartet den absoluten Pfad zur Datei die die Metadaten enthält.   
 
